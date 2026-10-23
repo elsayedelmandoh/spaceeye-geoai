@@ -5,9 +5,9 @@ Internal decision-support platform for smart utilities, waste dispatch, and citi
 > **Synthetic data only — for spaceeye-geoai training, not operational use.** Every number is computed from the `ACUD_Oasis` dataset or marked as a target/hypothesis.
 
 <p align="center">
-  <img src="evals/figures/res1.png" alt="project name — res1" width="45%">
+  <img src="evals/figures/res1.png" alt="spaceeye-geoai — res1" width="45%">
   &nbsp; &nbsp;
-  <img src="evals/figures/res2.png" alt="project name — res2" width="45%">
+  <img src="evals/figures/res2.png" alt="spaceeye-geoai — res2" width="45%">
 </p>
 
 <figure align="center">
@@ -17,7 +17,7 @@ Internal decision-support platform for smart utilities, waste dispatch, and citi
 
 how to adapt this project
 
-1. Update the project name, problem statement, and goal.
+1. Confirm project identity: SpaceEye-GeoAI (smart-city construction & risk radar).
 2. Confirm dataset constraints and reference sources before implementation.
 3. Move repeatable logic out of notebooks and into `src/`.
 4. Keep tests small, deterministic, and focused on the critical path.
