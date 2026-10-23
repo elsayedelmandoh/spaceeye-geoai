@@ -1,0 +1,15 @@
+# default configuration
+# uncomment and customize sections for your use case
+
+# model:
+#   name: "your-model-name"
+#   version: "v1"
+
+# training:
+#   learning_rate: 1e-4
+#   batch_size: 32
+#   num_epochs: 10
+
+# inference:
+#   temperature: 0.7
+#   max_new_tokens: 256

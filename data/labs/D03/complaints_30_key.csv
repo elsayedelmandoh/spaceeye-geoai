@@ -1,0 +1,31 @@
+complaint_id,request_id,true_category,category_en,planted_phone
+C01,SR-000127,إنارة الشوارع,Street lighting,
+C02,SR-000039,إنارة الشوارع,Street lighting,
+C03,SR-009390,الطرق والأرصفة,Roads and pavements,0100 000 4021
+C04,SR-000572,الطرق والأرصفة,Roads and pavements,
+C05,SR-000032,تراكم المخلفات,Waste build-up,
+C06,SR-003062,تسرب مياه,Water leak,
+C07,SR-007937,تسرب مياه,Water leak,
+C08,SR-003270,مخالفات الانتظار,Parking violations,
+C09,SR-001684,ضوضاء,Noise,
+C10,SR-000825,مخالفات الانتظار,Parking violations,
+C11,SR-009246,تراكم المخلفات,Waste build-up,0100 000 3631
+C12,SR-004662,مخالفات الانتظار,Parking violations,0100 000 2109
+C13,SR-001804,مخالفات الانتظار,Parking violations,
+C14,SR-007089,تراكم المخلفات,Waste build-up,0100 000 9894
+C15,SR-002015,إنارة الشوارع,Street lighting,+20 100 000 6791
+C16,SR-005217,إنارة الشوارع,Street lighting,
+C17,SR-000348,تسرب مياه,Water leak,
+C18,SR-007381,تسرب مياه,Water leak,0100 000 1204
+C19,SR-000473,تراكم المخلفات,Waste build-up,
+C20,SR-000662,إنارة الشوارع,Street lighting,0100 000 5480
+C21,SR-000090,ضوضاء,Noise,
+C22,SR-009050,الطرق والأرصفة,Roads and pavements,
+C23,SR-007572,الطرق والأرصفة,Roads and pavements,
+C24,SR-000810,ضوضاء,Noise,
+C25,SR-000027,تسرب مياه,Water leak,
+C26,SR-003649,الطرق والأرصفة,Roads and pavements,
+C27,SR-002106,ضوضاء,Noise,+20 100 000 5924
+C28,SR-001352,تراكم المخلفات,Waste build-up,
+C29,SR-000083,مخالفات الانتظار,Parking violations,
+C30,SR-000545,ضوضاء,Noise,

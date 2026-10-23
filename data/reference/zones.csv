@@ -1,0 +1,7 @@
+zone_id,name_en,name_ar,zone_type,population_start,area_km2
+GOV,Government District,الحي الحكومي,government,2000,1.8
+CBD,Central Business District,حي المال والأعمال,business,6000,2.2
+R3,Residential District 3 (Al-Maqsad),الحي السكني الثالث (المقصد),residential,18000,2.5
+R7,Residential District 7,الحي السكني السابع,residential,16000,2.3
+R8,Residential District 8,الحي السكني الثامن,mixed/residential,14000,2.6
+GRN,Green River,النهر الأخضر,park/green,4000,3.2

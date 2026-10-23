@@ -1,0 +1,57 @@
+{
+  "DQ1_scattered_missing": {
+    "table": "most_numeric",
+    "rate": "1-3%",
+    "description": "Random NaN in numeric columns across 19 tables"
+  },
+  "DQ2_outage_blocks": {
+    "table": "network_pressure,bms_readings",
+    "sensors": "PRS-03,PRS-15,TRF-005,TRF-012,TRF-029,TRF-036",
+    "description": "3-48h offline blocks (rows absent)"
+  },
+  "DQ3_duplicates": {
+    "table": "bin_fill,traffic_counts",
+    "count_estimate": "~0.5% duplicate rows inserted"
+  },
+  "DQ4_dst_aware_gap": {
+    "table": "traffic_counts,service_requests",
+    "description": "Traffic gateway ignores DST (phantom 00:00-00:59 rows on spring transition Apr 24); meters follow DST correctly (23h gap, 25h repeat on Oct 29)"
+  },
+  "DQ5_spikes_and_impossible": {
+    "table": "all_numeric",
+    "count": "~0.1% impossible values (negative kWh, kWh>600, parking>capacity, fill_pct>100 or <0, pressure outside 0-10)"
+  },
+  "DQ6_stuck_sensors": {
+    "table": "air_quality,traffic_counts",
+    "details": "TRF-023 frozen 11h on working day (Jun 10); AQ-03 frozen Mar 17-20; AQ-06 frozen May 25-28"
+  },
+  "DQ7_unit_mismatch": {
+    "table": "electricity_meters",
+    "buildings": "B-0112 (GOV), B-0240 (CBD), B-0269 (R7)",
+    "description": "3 metered buildings report in Wh (values x1000) instead of kWh"
+  },
+  "DQ8_legacy_format": {
+    "table": "service_requests",
+    "rate": "~10% LEGACY_CC",
+    "description": "LEGACY_CC rows use UTC strings (YYYY-MM-DDTHH:MM:SSZ or DD/MM/YYYY HH:MM); CRM uses local YYYY-MM-DD HH:MM"
+  },
+  "DQ9_category_variants": {
+    "table": "service_requests",
+    "description": "Spelling variants (English/Franco-Arabic/typos) recoverable via canonical map; ~5% larger after fix"
+  },
+  "DQ10_ghost_sensor": {
+    "table": "traffic_counts",
+    "sensor": "TRF-041",
+    "description": "Ghost traffic counter present in data but absent from sensors reference; ~2.4% of traffic rows"
+  },
+  "DQ11_late_incidents": {
+    "table": "incidents",
+    "rate": "~2%",
+    "description": "Incidents arriving 1-3 days after event time (created_at > event time)"
+  },
+  "DQ12_slow_drift": {
+    "table": "traffic_counts",
+    "sensor": "TRF-017",
+    "description": "Continuous +1%/week drift from Mar 1 through Dec 31"
+  }
+}

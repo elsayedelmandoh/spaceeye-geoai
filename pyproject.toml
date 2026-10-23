@@ -1,0 +1,54 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "base-product"
+version = "0.1.0"
+description = "starter template for turning a project idea into a python product"
+readme = "README.md"
+license = {text = "MIT"}
+keywords = ["smart city", "New Administrative Capital"]
+authors = [
+    {name = "elsayed elmandoh", email = "elsayedelmandoh7@gmail.com"},
+    {name = "member 2", email = "member2@example.com"},
+]
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.13.4",
+    "pydantic-settings>=2.14.1",
+    "pyyaml>=6.0.1",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.34.0",
+    duckdb 
+    pandas 
+    pyarrow openpyxl 
+    pandera 
+    pyyaml 
+    scikit-learn 
+    lightgbm 
+    streamlit 
+    plotly 
+    google-genai 
+    sqlglot
+]
+
+[project.optional-dependencies]
+torch = [
+    "torch>=2.6.0",
+    "accelerate>=1.5.0",
+]
+dev = [
+    "pytest>=8.0.0",
+    "nbstripout>=0.8.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/"]
+
+[project.urls]
+repository = "https://github.com/elsayedelmandoh/spaceeye-geoai"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
