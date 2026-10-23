@@ -4,7 +4,7 @@ Repo: smart-city graduation project (`spaceeye-geoai`, synthetic `ACUD_Oasis` da
 
 ## Would an agent miss this?
 
-- `pyproject.toml`: python>=3.12, `pytest>=8.0.0`, `streamlit`/`fastapi`/`uvicorn`, `duckdb`/`pandera`, `scikit-learn`/`lightgbm`, `plotly`, `google-genai`, `sqlglot`. Package: `src/` (hatch build). `PROJECT_NAME` stale (`base-product`) — source of truth: `src/config/config.py` (`PROJECT_NAME = "spaceeye-geoai"`).
+- `pyproject.toml`: python>=3.12, `pytest>=8.0.0`, `streamlit`/`fastapi`/`uvicorn`, `duckdb`/`pandera`, `scikit-learn`/`lightgbm`, `plotly`, `google-genai`, `sqlglot`. Package: `src/` (hatch build). `PROJECT_NAME` = `spaceeye-geoai` (verified in `src/config/config.py`) — source of truth for repo identity.
 - `.env.example`: `ENV=development`, `MASK_SALT` (never default in prod — `spaceeye-geoai-default-salt-` is dev-only), `GEMINI_API_KEY`, `GEMINI_MODEL=gemini-2.5-flash`. `.env` is gitignored (`.gitignore` includes `.env`) — never commit secrets. Set `.env` before work.
 - `Makefile`: `make install` = `uv sync`; `lint` = `ruff check src/ tests/`; `format` = `ruff format src/ tests/`; `test` = `uv run pytest tests/ -v`; `clean` = remove `__pycache__` + `.pytest_cache`. Use `uv`, not `pip`.
 - Notebooks: primary workspace. Sequential: `00-quickstart.ipynb` → `01-data-acquisition/` → `02-eda/` → `03-data-preprocessing/` → `04-feature-engineering/` → `05-model-training/` → `06-model-evaluation/` → `07-model-testing/`. Don't skip `01-` before `03-`.
