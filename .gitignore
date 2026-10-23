@@ -222,3 +222,4 @@ docs/.internal/
 .remember/
 .codegraph/
 data/
+.codegraph/
