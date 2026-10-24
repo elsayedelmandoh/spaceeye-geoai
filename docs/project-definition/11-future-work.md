@@ -1,5 +1,6 @@
 # Future Work — spaceeye-geoai
 
+chat for follow up
 recommendation engine
 KPI Investigation Tree
 text to sql assistant 

@@ -7,14 +7,15 @@
 ## 1. Where to Get the Datasets (Primary Sources & Links)
 
 The **spaceeye-geoai** project (`ACUD_Oasis` synthetic district, 60,000 residents across 6 zones `Z01–Z06`) relies on two categories of data[cite: 1, 2, 3]:
+
 1. **The Local ACUD Program Kit (`data/lite/`, `data/full/`, `reference/`)**: Provided locally in the course environment, containing 12 planted data-quality defects and 8 operational stories[cite: 1, 5, 6].
 2. **External Cyber-Physical Security Benchmark Datasets**: If you want to benchmark or calibrate your anomaly detection models against real-world industrial/smart-city attack traces (as noted in the project research options)[cite: 4], use these verified primary sources:
 
-| Dataset Name | Primary Owner / Institution | Use Case in spaceeye-geoai | Official Primary URL / Access Link |
-| :--- | :--- | :--- | :--- |
-| **TON_IoT Telemetry & Network Dataset** | UNSW Canberra Cyber (Dr. Nour Moustafa) | Smart-city IoT sensor telemetry spoofing, MQTT/Modbus injection, and DDoS/botnet patterns (`L1`/`L2` calibration)[cite: 4]. | • Primary Portal: [https://research.unsw.edu.au/projects/toniot-datasets](https://research.unsw.edu.au/projects/toniot-datasets)<br>• Mirror (Kaggle): [https://www.kaggle.com/datasets/arnobbhowmik/ton-iot-network-dataset](https://www.kaggle.com/datasets/arnobbhowmik/ton-iot-network-dataset) |
-| **BATADAL (Battle of the Attack Detection Algorithms)** | SUTD iTrust & Politecnico di Milano (Taormina et al.) | Concealed SCADA cyber-physical attacks on water distribution networks, pump/valve manipulation, and pressure drops (`L5` hydraulic strike calibration)[cite: 4]. | • Primary Archive (CISPA/Figshare DOI): [https://doi.org/10.60882/cispa.32772453](https://doi.org/10.60882/cispa.32772453)<br>• Paper & Specs: [https://www.mdpi.com/2073-4441/13/9/1247](https://www.mdpi.com/2073-4441/13/9/1247) |
-| **SWaT (Secure Water Treatment Testbed)** | iTrust, Singapore University of Technology and Design (SUTD) | 11-day physical & network cyber-attack time series across sensors (`FIT`, `LIT`) and motorized valves (`MV`)[cite: 4]. | • Primary Portal: [https://www.sutd.edu.sg/itrust/itrust-labs/datasets/dataset-characteristics/swat/](https://www.sutd.edu.sg/itrust/itrust-labs/datasets/dataset-characteristics/swat/) |
+| Dataset Name                                                  | Primary Owner / Institution                                  | Use Case in spaceeye-geoai                                                                                                                                         | Official Primary URL / Access Link                                                                                                                                                                                                                                                              |
+| :------------------------------------------------------------ | :----------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **TON_IoT Telemetry & Network Dataset**                 | UNSW Canberra Cyber (Dr. Nour Moustafa)                      | Smart-city IoT sensor telemetry spoofing, MQTT/Modbus injection, and DDoS/botnet patterns (`L1`/`L2` calibration)[cite: 4].                                    | • Primary Portal: [https://research.unsw.edu.au/projects/toniot-datasets](https://research.unsw.edu.au/projects/toniot-datasets)• Mirror (Kaggle): [https://www.kaggle.com/datasets/arnobbhowmik/ton-iot-network-dataset](https://www.kaggle.com/datasets/arnobbhowmik/ton-iot-network-dataset) |
+| **BATADAL (Battle of the Attack Detection Algorithms)** | SUTD iTrust & Politecnico di Milano (Taormina et al.)        | Concealed SCADA cyber-physical attacks on water distribution networks, pump/valve manipulation, and pressure drops (`L5` hydraulic strike calibration)[cite: 4]. | • Primary Archive (CISPA/Figshare DOI): [https://doi.org/10.60882/cispa.32772453](https://doi.org/10.60882/cispa.32772453)• Paper & Specs: [https://www.mdpi.com/2073-4441/13/9/1247](https://www.mdpi.com/2073-4441/13/9/1247)                                                                 |
+| **SWaT (Secure Water Treatment Testbed)**               | iTrust, Singapore University of Technology and Design (SUTD) | 11-day physical & network cyber-attack time series across sensors (`FIT`, `LIT`) and motorized valves (`MV`)[cite: 4].                                       | • Primary Portal: [https://www.sutd.edu.sg/itrust/itrust-labs/datasets/dataset-characteristics/swat/](https://www.sutd.edu.sg/itrust/itrust-labs/datasets/dataset-characteristics/swat/)                                                                                                        |
 
 > **Hard Program Rule:** You do **not** need to download gigabytes of external PCAPs to pass the rubric. All teams work in the same `ACUD_Oasis` district and extend the kit with deterministic Python-generated synthetic data (`SEED = 42`), a complete data dictionary per table, `provenance='synthetic'`, and an answer key (`planted_stories.csv`).
 
@@ -23,6 +24,7 @@ The **spaceeye-geoai** project (`ACUD_Oasis` synthetic district, 60,000 resident
 ## 2. Scope & Pillar Filtering (Frozen v3.3 Rules)
 
 Only the **three kept pillars** are included in the spaceeye-geoai build:
+
 1. **Energy / Power & Buildings** (`electricity_meters`, `bms_readings`, `streetlights`, `buildings`)[cite: 1]
 2. **Smart Water Network** (`network_pressure`, `water_meters`, `work_orders`)[cite: 1]
 3. **Citizen Services & Maintenance Governance** (`service_requests`, `gov_services`, `incidents`, `camera_status`, `traffic_counts`, `assets`, `sensors`)[cite: 1, 5]
@@ -65,3 +67,4 @@ spaceeye-geoai/
 │       └── planted_stories.csv       # Ground-truth Answer Key for evaluation
 └── scripts/
     └── generate_synthetic_data.py    # Deterministic generator (SEED = 42)
+```

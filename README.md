@@ -114,8 +114,8 @@ Contributions are welcome. Before contributing:
 
 ## Authors
 
-- **elsayed elmandoh** - NLP Engineer
-- **verina fouad** - Data Analytics Engineer
+- **elsayed elmandoh** - NLP / LLM Engineer
+- **verina fouad** - Applied AI / Machine Learning Engineer
 - **ahmed abdelhamid** - Generative AI Engineer
 - **nada shady** - AI Engineer
 - **salma magdy** - Data Scientist

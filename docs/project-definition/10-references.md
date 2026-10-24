@@ -12,4 +12,5 @@
 
 ## articles
 
-[How to Build a Digital Twin in Python: Roadmap to Python-Powered Project](https://interscale.com.au/blog/how-to-build-a-digital-twin-in-python/)
+[How to Build a Digital Twin in Python: Roadmap to Python-Powered Project](https://interscale.com.au/blog/how-to-build-a-digital-twin-in-python/)   
+[A Python-based Mixed Discrete-Continuous Simulation Framework for Digital Twins](https://nehakaranjkar.github.io/publications/NehaKaranjkarSubodhJoshi_LNNS.pdf)   
