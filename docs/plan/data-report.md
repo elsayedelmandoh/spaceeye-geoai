@@ -396,6 +396,8 @@ One row = day · Size: 2023–2026 · Columns: 🟢 real 2 · 🔵 derived 1
 
 ### 6.2 Generated tables
 
+> **(updated 25 Oct 2026)** The full generator design and the final schemas are in `synthetic-data-plan.md` (section 10), which supersedes the columns below where they differ. Main changes: hidden truth (true progress, story, true occupancy, the model label and each complaint's true cause) moves to `answer_key.csv`; the horizon is 45 months (Jan 2023 to Sep 2026).
+
 #### `g_twins`: virtual twins
 
 One row = twin · Size: ~33 · Columns: 🟢 real 1 · 🟡 assumption 1 · 🔵 derived 1 · 🟠 generated 2
@@ -408,26 +410,25 @@ One row = twin · Size: ~33 · Columns: 🟢 real 1 · 🟡 assumption 1 · 🔵
 | `building_coverage_pct` | Building coverage | 🟡 Assumption |
 | `bua_m2` | Built-up area | 🔵 Derived |
 | `land_handover_date` | Land handover | 🟠 Generated |
-| `scenario_id` | The twin's story (answer key) | 🟠 Generated |
+| `contractual_delivery_date` | Contractual delivery date (the story itself is in `answer_key.csv`) | 🟠 Generated |
 
 #### `g_plan_monthly`: approved timeline
 
-One row = twin × month · Size: ~33 × 46 · Columns: 🟠 generated 2
+One row = twin × month · Size: ~33 × 45 · Columns: 🟠 generated 2
 
 | Column | Meaning | Origin |
 | --- | --- | --- |
 | `twin_id / month` | Twin and month | ⚪ Key |
 | `planned_progress_pct` | Planned progress | 🟠 Generated |
-| `contractual_delivery_date` | Contractual delivery date | 🟠 Generated |
 
 #### `g_progress_monthly`: progress and what the satellite sees
 
-One row = twin × month · Size: ~33 × 46 · Columns: 🟠 generated 3 · 🔵 derived 1
+One row = twin × month · Size: ~33 × 45 · Columns: 🟠 generated 3 · 🔵 derived 1
 
 | Column | Meaning | Origin |
 | --- | --- | --- |
 | `twin_id / month` | Twin and month | ⚪ Key |
-| `true_progress_pct` | True progress (like the supervisor's report) | 🟠 Generated |
+| `reported_progress_pct` | Progress as reported by the supervising engineer (quarterly, rounded, can be biased or missing); true progress is in `answer_key.csv` | 🟠 Generated |
 | `facades_pct` | Facades progress (for the 85% rule) | 🟠 Generated |
 | `dw_built_obs` | Built-up probability as Dynamic World would see it | 🟠 Generated |
 | `stall_flag` | Work stoppage | 🔵 Derived |
@@ -436,7 +437,7 @@ One row = twin × month · Size: ~33 × 46 · Columns: 🟠 generated 3 · 🔵 
 
 #### `g_escrow_monthly`: escrow, collections and cost
 
-One row = twin × month · Size: ~33 × 46 · Columns: 🟠 generated 3 · 🟢 real 2 · 🔵 derived 1
+One row = twin × month · Size: ~33 × 45 · Columns: 🟠 generated 3 · 🟢 real 2 · 🔵 derived 1
 
 | Column | Meaning | Origin |
 | --- | --- | --- |
@@ -461,12 +462,12 @@ One row = installment · Size: ~33 × 16 · Columns: 🟠 generated 2 · 🔵 de
 
 #### `g_utilities_monthly`: electricity and water (occupancy)
 
-One row = twin × month · Size: ~33 × 46 · Columns: 🟠 generated 3 · 🟢 real 1 · 🔵 derived 1
+One row = twin × month · Size: ~33 × 45 · Columns: 🟠 generated 3 · 🟢 real 1 · 🔵 derived 1
 
 | Column | Meaning | Origin |
 | --- | --- | --- |
 | `twin_id / month` | Twin and month | ⚪ Key |
-| `occupied_units` | Occupied units | 🟠 Generated |
+| `meters_active` | Active residential meters (true occupancy is in `answer_key.csv`) | 🟠 Generated |
 | `kwh` | Electricity consumption | 🟠 Generated |
 | `m3` | Water consumption | 🟠 Generated |
 | `t2m_max_mean` | Temperature (air conditioning seasonality) | 🟢 Real |
@@ -481,7 +482,6 @@ One row = event / month · Size: depends on the stories · Columns: 🟠 generat
 | `twin_id / date` | Twin and date | ⚪ Key |
 | `event_type` | Warning / grace period / termination | 🟠 Generated |
 | `status_level` | The five-level status | 🔵 Derived |
-| `label_distress_next_6m` | Model target | 🔵 Derived |
 
 #### `g_complaints`: buyer complaints
 
@@ -492,7 +492,6 @@ One row = complaint · Size: a few thousand (Arabic text for a sample only) · C
 | `complaint_id / twin_id / date` | Complaint, twin and date | ⚪ Key |
 | `channel` | Channel (phone, portal, visit) | 🟠 Generated |
 | `category` | Category: delay / work stoppage / payment and installments / quality / other | 🟠 Generated |
-| `linked_event` | The simulator event that caused it | 🟠 Generated |
 | `text_ar` | Complaint text in Arabic (sample only, no personal data) | 🟠 Generated |
 | `category_llm` | Category from the language model (to demo the classifier) | 🔵 Derived |
 | `complaints_per_1000_units` | Complaints per 1,000 units per month (TP-04) | 🔵 Derived |
