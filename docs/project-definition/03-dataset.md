@@ -1,622 +1,284 @@
-# Dataset — spaceeye-geoai Data Architecture, External Benchmarks & Deterministic Synthetic Generator
+# Dataset: SpaceEye (R7/R8 Inspection Priority Observatory)
 
-**آخر تحديث:** 24 أكتوبر 2026
+Last updated: 25 Oct 2026 · Reference plan: `docs/plan/project-plan.md` · Generator design: `docs/plan/synthetic-data-plan.md` · Background and sources: `docs/plan/data-report.md`
 
-> **الخلاصة في 3 سطور**
-> 1. سنعمل على **الحيين R7 وR8 الحقيقيين (32 كمبوندًا)** بدل مدينة "حورس" الخيالية.
-> 2. كل رقم حقيقي جمعناه له **مصدر ورابط واقتباس، وراجعه وكيل مستقل**: 783 من 799 صالحة (98%)، ولا رقم مختلق.
-> 3. البيانات الداخلية غير المنشورة (الضمان، الأقساط، الكهرباء، الشكاوى…) **سنولّدها على نسخ افتراضية (Twins)**، وكل عمود مولّد مكتوب عليه ذلك.
+> **In three lines**
+> 1. Track A works on **29 real, named compounds in districts R7 and R8** of the New Administrative Capital, using public data only (satellite, statements, laws). No generated number touches a real compound.
+> 2. Track B is a demo on **33 virtual twins** with **8 generated tables** that mirror data ACUD holds internally (escrow, installments, supervisor reports, meters, complaints, warnings). Every generated file is labelled **"Synthetic - for training only"**.
+> 3. Every real fact has a source, a link and a quote, and was re-checked by an independent reviewer: **1,009 of 1,026 records usable (98%)**, 17 excluded, 0 invented.
+
+The instructor approved the use of real public data and real compound names. No internal ACUD data is used.
 
 ---
 
-## 1. أصل كل معلومة (اقرأ هذا أولًا)
+## 1. Origin types (shown on every column, chart and slide)
 
-كل عمود في المشروع له واحد من هذه الأنواع، ويجب أن يظهر النوع في اللوحة والعرض:
+| Mark | Type | Meaning |
+| --- | --- | --- |
+| 🟢 | Real | Published or observed, with source, link and quote; reviewed |
+| 🔵 | Derived | Computed by us from real data with a documented method |
+| 🟠 | Generated | Produced by the simulator for the virtual twins (Track B only) |
+| 🟡 | Assumption | A number with no published reference, written in `cfg_assumptions.yaml` |
+| ⚪ | Key | Identifier or join column |
 
-| الرمز | النوع | المعنى | مثال |
+A developer statement is 🟢 (the statement is real) but it is not an independent measurement: we always write "the developer announced".
+
+---
+
+## 2. Storage format
+
+| Layer | Format | Why |
+| --- | --- | --- |
+| Inputs (real and generated tables) | **Parquet**, one file per table, in `data/raw/` and `data/sim/` | Typed columns (dates stay dates), small, fast, readable by pandas and DuckDB with no import step |
+| Small hand-edited inputs | CSV (`locations_team.csv`, `cfg_*.yaml`) | Easy to edit and review in a pull request |
+| Geometry | GeoJSON (`compound_boundaries.geojson`, EPSG:4326) | Standard for maps and Streamlit |
+| Pipeline outputs | **One DuckDB file** `data/spaceeye.duckdb` (`kpi_values`, `cycle_list`, `run_log`, `quality_checks_log`, `ops_visits`, `ai_verification_log`) | Delete-then-insert per `run_id`, SQL with `$asof`, one file for the dashboard |
+
+DuckDB reads Parquet in place: `SELECT * FROM 'data/raw/r_dynamic_world_quarterly.parquet'`.
+
+**The data stays outside the repo.** `data/` is git-ignored. The repo holds code, configs, dictionaries and this document. Real files are copied from the team's shared folder (`real_data/`) by `src/ingest.py`; generated files are rebuilt by `simulate.py` from the fixed seed.
+
+---
+
+## 3. Inventory
+
+| Group | Tables | Rows (approx.) |
+| --- | --- | --- |
+| A. Real (Track A + calibration of B) | 19 | ~70,000 (most in building heights) |
+| B. Generated (Track B) | 8 + 2 side files | ~12,000 |
+| C. Pipeline and operations | 7 | grows with each run |
+
+### Removed or merged (and why)
+
+| Item | Decision | Reason |
+| --- | --- | --- |
+| `r_satellite_monthly` (Sentinel-2 NDBI, spread) | Removed (archived) | Raw Sentinel-2 indices are out of scope; Dynamic World replaces them; v1 had an offset error |
+| `r_weather_events` | Merged into `r_weather_daily` (`dust_event_confirmed`) | Weather is only a "review the scene" flag; heat waves are out of scope |
+| `r_developers` | Merged into `r_compounds` (`developer_name`) | Display only; size-based checks are out of scope (no reliable size data) |
+| `dw_grass_trees`, `dw_water` in `r_observed_stage` | Removed | Tested and failed (see section 4.8) |
+| `built_label_share` in Dynamic World | Removed | The plan uses `built_prob_mean` only |
+| `inflation_yoy` in `r_macro_monthly` | Removed | Inflation is out of scope |
+| `dst_flag` and the daylight-saving clock defect | Removed | All data is monthly or quarterly; the clock gate was dropped in the plan (section 16) |
+| 3 unnamed projects and 9 projects outside R7/R8 | Out of `r_compounds` (archived) | Scope is the 29 named R7/R8 compounds |
+
+---
+
+## 4. Real tables (group A)
+
+Time horizon: satellite series **2016-Q1 to 2026-Q3** (full history kept for the compound charts); statements and events as published; simulator drivers Jan 2023 to Sep 2026. Only records with verdict `CONFIRMED` or `CONFIRMED_MINOR_FIX` are loaded.
+
+### 4.1 `r_compounds` (1 row = compound, 29 rows)
+| Column | Type | Unit / values | Origin | Meaning |
+| --- | --- | --- | --- | --- |
+| `compound_id` | str | R7-P01.., R8-P01.. | ⚪ | Project id from the source register |
+| `name_ar`, `name_en` | str | | 🟢 | Published name |
+| `developer_name` | str | | 🟢 | Developer as published |
+| `district` | str | R7 / R8 | 🟢 | Verified district |
+| `land_area_value`, `land_area_unit` | float, str | feddan / acre / m² | 🟢 | Area exactly as published |
+| `land_area_m2` | float | m² | 🔵 | Converted (1 feddan = 4,200.83 m², 1 acre = 4,046.86 m²) |
+| `units_total` | int | units | 🟢 | Published unit count (null if unknown) |
+| `launch_date` | date | | 🟢 | Launch (null if unknown) |
+| `promised_delivery` | date | first day of the stated period | 🟢 | Last announced delivery date |
+| `delivery_status` | str | none / started / completed / postponed | 🟢 | Latest announced status |
+| `assessable` | bool | | 🔵 | K4 result for the latest quarter |
+| `source_record_ids` | str | `;`-separated | ⚪ | Records behind the row |
+| `confidence` | str | high / medium / low | 🟢 | Reviewer confidence |
+
+### 4.2 `compound_boundaries.geojson` (1 feature = compound)
+| Property | Type | Origin | Meaning |
 | --- | --- | --- | --- |
-| 🟢 | **حقيقي** | منشور أو مرصود، له مصدر ورابط واقتباس، وتمت مراجعته | قرار الفائدة، صورة القمر الصناعي، تصريح مطوّر |
-| 🔵 | **مشتق** | حسبناه نحن من بيانات حقيقية بطريقة موثقة | مؤشر التغير العمراني، المساحة بالمتر بعد التحويل |
-| 🟠 | **مولّد** | ينتجه المحاكي على النسخ الافتراضية | حركة حساب الضمان، الشكاوى |
-| 🟡 | **افتراض** | رقم بلا أي مرجع منشور، مكتوب صراحةً في ملف الإعدادات ونختبر أثره | توزيع التكلفة على المراحل |
-| ⚪ | **مفتاح** | معرّف أو عمود ربط | `compound_id`, `month` |
+| `compound_id`, `polygon_id` | str | ⚪ | Link to the register and to the satellite tables |
+| `geometry` | Polygon, EPSG:4326 | 🔵 | OSM plot snapped to the located point, or a polygon drawn by the team |
+| `area_m2`, `area_ratio` | float | 🔵 | Polygon area and its ratio to the published area (accepted 0.6-1.5) |
+| `method` | str | 🟢 | osm_plot / drawn / developer_map |
+| `confidence` | str | 🟢 | high / medium / low (accepted: medium or higher) |
+| `signed_by_1`, `signed_by_2` | str | ⚪ | Two team members who checked it |
 
-**ملاحظة:** «تصريح مطوّر» يُعتبر 🟢 حقيقي (التصريح نفسه حقيقي)، لكنه **ليس قياسًا مستقلًا** — نكتب دائمًا «أعلن المطوّر».
+Input file `locations_team.csv`: `project_id, lat, lon, method, url, confidence` (broker sites not allowed).
 
----
+### 4.3 `r_progress_announced` (1 row = statement, ~25 rows)
+`compound_id` ⚪ · `published_date` date 🟢 · `progress_pct` float 0-100 🟢 · `qualifier` str (about / more_than / exactly) 🟢 · `scope` str (project / phase / concrete) 🟢 · `stated_by` str (developer / consultant / ACUD) 🟢 · `source_url` 🟢 · `record_id` ⚪
 
-## 2. كيف جمعنا البيانات وتأكدنا منها
+### 4.4 `r_project_events` (1 row = event, ~40 rows)
+`compound_id` ⚪ · `event_type` str (launch / delivery_start / delivery_complete / postponement) 🟢 · `event_date` date (null if not stated) 🟢 · `published_date` date 🟢 · `value`, `unit` (e.g. 1,084 units) 🟢 · `source_url` 🟢 · `record_id` ⚪
 
-1. **الجمع:** 12 مجالًا، كل مجال جمعه وكيل (Agent) بقاعدة واحدة: لا رقم بدون صفحة فُتحت فعلًا + اقتباس حرفي + رابط + تاريخ. مواقع السماسرة ممنوعة كمصدر للأرقام. الوحدات تُحفظ كما نُشرت.
-2. **المراجعة:** وكيل آخر مستقل أعاد فتح كل مصدر بنفسه وحاول إثبات أن الرقم خطأ. ملفات PDF أُعيد تحميلها، والسلاسل الزمنية أُعيد سحبها.
-3. **الحكم:** نستخدم فقط السجلات `CONFIRMED` و`CONFIRMED_MINOR_FIX` من ملف `verification.csv` في كل مجلد.
+Rule: a statement or event can be used at date T only if `published_date <= T` (no leakage).
 
-| | العدد |
-| --- | --- |
-| معلومات جُمعت | 799 |
-| صالحة للاستخدام | **783 (98%)** |
-| أرقام مختلقة أو خاطئة | **0** |
-| مستبعدة | 16 — الاقتباس صحيح لكن السجل ادّعى أكثر من المصدر، أو الرابط توقف |
-| سلاسل زمنية | أقمار صناعية، طقس، إضاءة ليلية، فائدة، دولار، تضخم، حديد وأسمنت — تطابقت 100% مع مصدرها |
+### 4.5 `eval_outcomes` (1 row = compound, 6-10 rows): ground truth for the backtest
+`compound_id` ⚪ · `outcome` str (delivered / delayed / postponed) 🟢 · `outcome_date` date 🟢 · `evidence` str 🟢 · `source_url` 🟢 · `record_id` ⚪
+Current cases: Serrano (delivered), Catalan (1,084 of 1,765 delivered), Atika (delivered), Residence Eight (phase 1 handover Dec 2025, after the Q2 2024 date), Venia (postponed 2024 → 2026 → 2027), La Verde (promised early 2023, no handover announced).
 
----
+### 4.6 `r_dynamic_world_quarterly` (1 row = polygon × quarter; 29 compounds + 2 reference plots × 43 quarters)
+| Column | Type | Unit | Origin | Meaning |
+| --- | --- | --- | --- | --- |
+| `polygon_id`, `compound_id` | str | | ⚪ | |
+| `quarter` | str | 2016Q1..2026Q3 | ⚪ | |
+| `built_prob_mean` | float | 0-1 | 🟢 | Mean Dynamic World "built" probability over the polygon |
+| `n_images` | int | images | 🟢 | Images used (K4 needs ≥ 6) |
+| `delta_b12` | float | probability | 🔵 | K1: mean of last 4 quarters − previous 4; active if > 0.03 |
 
-## 3. الصورة العامة: من أين تأتي البيانات وإلى أين تذهب
+Source: Google Dynamic World V1 (CC BY 4.0). Measured noise on stable plots: SD 0.065 per quarter; seasonal offsets Q1 +0.03, Q2 −0.05, Q3 0.00, Q4 +0.04 (this is why every comparison is year over year).
 
-```
-  مصادر حقيقية (حكومة، بنك مركزي، أقمار صناعية، مطورون، أخبار موثوقة)
-          │
-          ▼
-  الجداول الحقيقية  r_*   ──────────────┐   (للكمبوندات الحقيقية: ماذا نرى وماذا أُعلن)
-          │                              │
-          │ أرقام مرجعية + قواعد قانونية   │
-          ▼                              │
-  المحاكي + ملفات الإعدادات (افتراضات)     │
-          │                              │
-          ▼                              │
-  الجداول المولّدة  g_*  (نسخ افتراضية)  ──┤   (النموذج الكامل بما فيه المالي)
-                                         ▼
-                 المؤشرات ← الإنذارات ← اللوحة ← الوكيل الذي يجهّز ملف المعاينة
-```
+### 4.7 `r_sar_quarterly` (1 row = polygon × quarter; same grain as 4.6)
+`polygon_id`, `quarter` ⚪ · `vv_db`, `vh_db` float dB 🟢 · `n_scenes` int 🟢 · `platforms` str (S1A / S1B / S1C) 🟢 · `delta_vv12` float dB 🔵 (K1b: last 4 quarters − previous 4; active if > 0.5 dB)
+Source: Sentinel-1 RTC. Bare desert ≈ −19.6 dB VH; built plots −15 to −10 dB; quarterly noise SD 0.73 dB. Fewer scenes in 2022-2024 (Sentinel-1B ended Dec 2021). The signal saturates when the structure is complete.
 
-**مساران لا يختلطان:**
-- **الكمبوندات الحقيقية (32):** تأخذ بيانات حقيقية ومشتقة فقط — صور، إضاءة، تصريحات، أحداث. لا نضع عليها أي رقم مالي مولّد، ولا نقول عن مطوّر حقيقي إنه «متعثر».
-- **النسخ الافتراضية (~33 Twin):** كل نسخة مبنية على مساحة ووحدات كمبوند حقيقي، ثم يولّد المحاكي ماليتها وتشغيلها. هنا يعمل نموذج التعثر الكامل.
-
----
-
-## 4. الجداول الحقيقية (15 جدولًا)
-
-| # | الجدول | ماذا يحتوي | الصف الواحد = | الحجم | المصدر (مجلد) | الحالة |
-| --- | --- | --- | --- | --- | --- | --- |
-| 1 | `r_compounds` | الكمبوندات الحقيقية | كمبوند | 32 في R7/R8 (+9 أحياء أخرى) | 03_projects_R7 + 04_projects_R8_other + 15_compound_boundaries | متاح (الحدود جزئية: 3 من 32) |
-| 2 | `r_developers` | المطوّرون | مطوّر | ~30 | مستخرج من سجل الكمبوندات + 08_developer_disclosures | سيُستخرج |
-| 3 | `r_progress_announced` | نسب الإنجاز المعلنة | تصريح | ~25 تصريحًا لنحو 15 كمبوندًا + متوسط R8 | 03 + 04 (records/verification) | متاح |
-| 4 | `r_project_events` | أحداث المشروعات | حدث | ~40 | 03 + 04 | متاح |
-| 5 | `r_satellite_monthly` | مؤشرات الأقمار الصناعية الشهرية | مضلع × شهر | 1,128 (10 كمبوندات + 2 مرجعية × 94 شهرًا) وسيزيد | 05_geo_satellite/sentinel_indices_v2.csv | متاح (v2 هي المعتمدة) |
-| 6 | `r_night_lights_monthly` | الإضاءة الليلية الشهرية | منطقة × شهر | 74 شهرًا × 8 مناطق (حتى يونيو 2025) | 11_occupancy_infrastructure | متاح + Black Marble حتى 2026 جاري |
-| 7 | `r_buildings_yearly` | المباني وارتفاعها سنويًا (Google Open Buildings) | مضلع × سنة | 2016–2023 | 14_open_buildings_temporal | جاري |
-| 8 | `r_weather_daily` | الطقس اليومي | محطة × يوم | 1,392 يومًا × محطتان + NASA | 06_weather_dust | متاح |
-| 9 | `r_weather_events` | العواصف وموجات الحر المعلنة | حدث | 8 عواصف + 7 موجات حر | 06_weather_dust | متاح |
-| 10 | `r_macro_monthly` | الاقتصاد والأسعار الشهرية | شهر | 57 شهرًا (2022-01 → 2026-09) | 07_macro_prices | متاح |
-| 11 | `r_regulations` | القواعد القانونية المستخدمة | قاعدة | ~15 | 02_regulation_enforcement + 09_laws_regulations | متاح |
-| 12 | `r_acud_events` | أحداث إنفاذ ACUD | حدث | ~27 | 02_regulation_enforcement | متاح |
-| 13 | `r_developer_financials` | إفصاحات المطورين المالية | مشروع × فترة × بند | 97 | 08_developer_disclosures | متاح |
-| 14 | `r_benchmarks` | مراجع المحاكاة | معلمة | ~40 (+ الكهرباء والمياه جاري) | 12_simulation_benchmarks + 13_acud_rfp_conditions + 16_utility_benchmarks | متاح + جاري |
-| 15 | `ref_calendar` | التقويم | يوم | 2023–2026 | ملف إعدادات (من المواصفات) | سيُبنى |
-
----
-
-## 5. الجداول المولّدة (14 جدولًا)
-
-لم يُولَّد شيء بعد — المحاكي لم يُبنَ. هذا هو التصميم المقترح:
-
-| # | الجدول | ماذا يحتوي | الصف الواحد = | مبني على (مرجع حقيقي) | النسخة الحقيقية غالبًا لدى |
+### 4.8 `r_observed_stage` (1 row = polygon × year)
+| Column | Type | Unit | Origin | Meaning | Status |
 | --- | --- | --- | --- | --- | --- |
-| 1 | `g_twins` | النسخ الافتراضية (Twins) | نسخة | خصائص الكمبوندات الحقيقية | — |
-| 2 | `g_plan_monthly` | جدول التنفيذ المعتمد | نسخة × شهر | 3 سنوات من استلام الأرض + مواعيد التسليم المعلنة | قطاع التخطيط بـ ACUD |
-| 3 | `g_progress_true` | الإنجاز الحقيقي الشهري (الحقيقة المرجعية) | نسخة × شهر | منحنيات معايرة على النسب المعلنة ومتوسط R8 (44%) | تقارير المهندس المشرف (م.54) |
-| 4 | `g_sales_collections` | المبيعات والتحصيل | نسخة × شهر | مقدم 8.5% وتقسيط 7.7–12 سنة (Knight Frank)، سعر 50–70 ألف/م² | المطوّر / المالية بـ ACUD |
-| 5 | `g_escrow_monthly` | حساب الضمان | نسخة × شهر | نسب الإيداع من القرار 2184 (20/15/10/5/3%) | المالية بـ ACUD والبنوك |
-| 6 | `g_costs_monthly` | التكاليف والمدفوعات للمقاول | نسخة × شهر | 720–1,270 دولارًا/م² + سلاسل الحديد والأسمنت | الاستشاري والمطوّر |
-| 7 | `g_land_installments` | أقساط الأرض | قسط | 25% مقدم والباقي 4 سنوات؛ قاعدة 85% واجهات ← سنة إضافية | المالية بـ ACUD |
-| 8 | `g_electricity_monthly` | استهلاك الكهرباء | نسخة × شهر | ~153 كيلووات/شهر للمشترك + الشرائح الرسمية + حرارة NASA الحقيقية | شركة المرافق |
-| 9 | `g_water_monthly` | استهلاك المياه | نسخة × شهر | ~200 لتر/فرد/يوم + حجم الأسرة 3.8–4.1 | شركة المرافق |
-| 10 | `g_status_monthly` | مستوى الحالة الشهري (تعريف التعثر) | نسخة × شهر | مهل القرار 2184 (6/12/24 شهرًا) + ممارسة ACUD (~8%) | سجلات الإنذارات والفسخ بـ ACUD |
-| 11 | `g_complaints` | شكاوى الحاجزين | شكوى | الحدث من المحاكي + نص من نموذج لغوي | خدمة العملاء بـ ACUD |
-| 12 | `g_inspections` | المعاينات الميدانية | زيارة | دورة كل 3 أشهر (تصريح ACUD) + زيارات الإنذار | لجان المراجعة |
-| 13 | `g_tickets` | التذاكر | تذكرة | دورة التذاكر في المواصفات | — |
-| 14 | `g_observations_monthly` | الرصد المولّد للنسخ الافتراضية | نسخة × شهر | الإنجاز الحقيقي + ضوضاء معايرة على السلاسل الحقيقية + أيام الغبار الحقيقية | — |
+| `polygon_id`, `year` | | | ⚪ | | |
+| `s2_veg_share` | float | 0-1 | 🔵 | Share of the polygon's Sentinel-2 pixels with NDVI > 0.2 (Jun-Sep composite): grass, trees, landscaping | ✅ passed (95% agreement) |
+| `paved_frac` | float | 0-1 | 🔵 | Share of the open (non-building) area that looks like asphalt: dark, grey, smooth pixels | 🟡 supporting only (81%) |
+| `observed_stage` | str | foundations / construction / stalled_structure / external_works / complete | 🔵 | Rule in `project-plan.md` section 3 | |
 
-**لماذا الجدول الأخير `g_observations_monthly` مهم؟** النسخ الافتراضية ليس لها صور حقيقية. لو ألصقنا صور كمبوند حقيقي على مالية مولّدة، سنوحي بأن المال هو سبب ما يظهر في الصور، وهذا غير صحيح. لذلك نولّد «ما كانت الأقمار الصناعية ستراه» من الإنجاز الحقيقي للنسخة، بضوضاء ومواسم مأخوذة من السلاسل الحقيقية، وأيام غبار بتواريخها الحقيقية.
+What "passed" and "failed" mean here: we labelled 50 plot-images by eye first (vegetation yes/no, roads paved yes/no, facades finished yes/no), split them in two halves, set the threshold on one half and tested once on the other. The gate was ≥ 80% agreement with the eye labels.
+- `s2_veg_share`: 95% agreement → used as an automatic sign of external works.
+- `paved_frac`: 81% (21 of 26), just over the gate; one wrong case would make it fail. It is kept as a supporting column, never on its own.
+- Dynamic World grass/trees/water: stayed at ~0.03 in every plot, even green ones with lakes, because gardens and pools are smaller than a 10 m pixel. Removed.
+- Exterior paint/plaster: 60%, the same as always guessing "not finished". Not measurable from images taken from above; checked by eye in the Wayback images only.
 
-**ملفات الإعدادات (3):**
+### 4.9 `r_buildings_yearly` (1 row = polygon × year, 2016-2023)
+`polygon_id`, `year` ⚪ · `building_presence_frac` float 0-1 🟢 · `mean_height_m` float m 🟢
+Source: Google Open Buildings 2.5D Temporal (CC BY 4.0). Independent check of Dynamic World (median correlation 0.95 on plots ≥ 2 ha).
 
-| الملف | فيه إيه |
+### 4.10 `r_buildings_height_yearly` (1 row = building × year, 2016-2023)
+Scope: only the buildings whose centre falls inside the 29 compound boundaries (a few thousand buildings). The full extract has 43,550 buildings: every Google Open Buildings V3 footprint with confidence ≥ 0.75 and area ≥ 40 m² inside the study box lon 31.60-31.95, lat 29.90-30.10 (the whole New Capital area); it stays archived for context.
+
+`building_id` (Plus Code) ⚪ · `compound_id` ⚪ · `year` ⚪ · `height_m` float m 🟢 · `presence` float 0-1 🟢 · `height_class` str 🔵 (none: presence < 0.5 or < 3 m · low 3-8 m ≈ 1-2 floors · partial 8-20 m · full ≥ 20 m)
+No height in metres exists after 2023 (laser, our own model and shadow measurement were all tested and failed their gates).
+
+### 4.11 `r_wayback_images` (1 row = compound × image, 2 per compound)
+`compound_id` ⚪ · `capture_date` date 🟢 (acquisition, not release) · `release_date` date 🟢 · `sensor` str 🟢 · `resolution_m` float 🟢 · `tile_url` str 🟢 · `local_file` str 🔵
+Esri World Imagery Wayback: display only in the inspection file, with attribution; never used in a computation.
+
+### 4.12 `r_night_lights_monthly` (1 row = zone × month, Jan 2019-Sep 2026)
+`zone_id`, `month` ⚪ · `radiance_mean`, `radiance_median`, `radiance_p90` float nW/cm²/sr 🟢 · `valid_obs` int 🟢
+NASA Black Marble. District context and occupancy calibration for Track B; never per compound (6-9 pixels only).
+
+### 4.13 `r_weather_daily` (1 row = day, 2023-2026)
+`date` ⚪ · `max_temp_c` 🟢 · `min_visibility_m` 🟢 · `max_wind_kt` 🟢 · `t2m_max_power` 🟢 (NASA POWER) · `dust_flag` bool 🔵 (airport METAR) · `dust_event_confirmed` bool 🔵 (one of the 8 announced storms, confirmed by METAR)
+
+### 4.14 `r_macro_monthly` (1 row = month, 2022-01 to 2026-09)
+`month` ⚪ · `usd_egp_avg` 🟢 (CBE) · `policy_rate` 🟢 (CBE) · `steel_ton_egp`, `cement_ton_egp` 🟢 (Ministry of Housing bulletin) · `material_cost_index` 🔵 (Jan 2023 = 100) · `shock_flag` 🔵 (6 Mar 2024 float)
+
+### 4.15 Reference tables
+| Table | Grain | Columns |
+| --- | --- | --- |
+| `r_regulations` | rule (~15) | `rule_id` ⚪ · `instrument`, `article`, `parameter`, `value`, `unit`, `source_url` 🟢 (Decree 2184/2022, Law 119/2008) |
+| `r_acud_events` | event (~27) | `event_date`, `event_type`, `value`, `stated_by`, `source_url` 🟢 |
+| `r_benchmarks` | parameter (~100) | `parameter` ⚪ · `value_low`, `value_high`, `unit`, `year` 🟢 · `confidence`, `record_ids` ⚪ |
+| `ref_calendar` | month (2016-2026) | `month`, `quarter` ⚪ · `ramadan_days`, `eid_days` 🟢 · `season` 🔵 |
+
+---
+
+## 5. Generated tables (group B, Track B only)
+
+33 twins × 45 months (Jan 2023 to Sep 2026). Each twin copies district, area and unit count from one real compound with known area and units, **with ±15% jitter**, so no twin equals a real compound. Developers are fictional (DEV-T01..T15). Full rules, noise models and defects: `docs/plan/synthetic-data-plan.md`.
+
+| Table | Grain | Columns (type key in section 4) |
+| --- | --- | --- |
+| `g_twins` | twin | `twin_id`, `template_compound_id`, `developer_id` ⚪ · `district`, `land_area_m2`, `units_total` 🟢 (jittered) · `building_coverage_pct` 🟡 · `floors`, `bua_m2` 🔵 · `escrow_class_pct` 🟢 · `launch_date`, `land_handover_date`, `contractual_delivery_date` 🟠 |
+| `g_plan_monthly` | twin × month | `twin_id`, `month` ⚪ · `planned_progress_pct` 🟠 |
+| `g_progress_monthly` | twin × month | `twin_id`, `month` ⚪ · `reported_progress_pct`, `report_date`, `facades_pct`, `dw_built_obs`, `dw_n_images`, `sar_vh_obs` 🟠 · `stall_flag` 🔵 |
+| `g_escrow_monthly` | twin × month | `twin_id`, `month` ⚪ · `units_sold`, `avg_unit_price_egp`, `collections_egp`, `deposits_egp`, `withdrawals_egp`, `balance_egp`, `cost_to_complete_egp` 🟠 · `required_min_pct`, `material_cost_index` 🟢 · `coverage_ratio` 🔵 |
+| `g_land_installments` | installment | `twin_id`, `installment_no` ⚪ · `due_date`, `amount_egp`, `paid_date`, `paid_egp` 🟠 · `months_late` 🔵 |
+| `g_utilities_monthly` | twin × month | `twin_id`, `month` ⚪ · `meter_type`, `meters_active`, `kwh`, `m3`, `read_type` 🟠 · `t2m_max_mean` 🟢 · `occupancy_gap` 🔵 |
+| `g_status_events` | event or month | `twin_id`, `date` ⚪ · `event_type` 🟠 · `status_level` 🔵 |
+| `g_complaints` | complaint | `complaint_id`, `twin_id`, `created_at` (Africa/Cairo) ⚪ · `channel`, `category`, `text_ar` 🟠 · `category_llm`, `complaints_per_1000_units` 🔵 |
+
+Side files: `answer_key.parquet` (hidden truth: story, archetype, true progress, true cash, true occupied units, `label_distress_next_6m`, each complaint's true cause) and `defects_log.csv` (6 planted defects with row counts). **The answer key is never joined into features.**
+
+---
+
+## 6. Pipeline and operations tables (group C, in `spaceeye.duckdb`)
+
+| Table | Columns |
 | --- | --- |
-| `assumptions.yaml` | كل معلمة في المحاكي: قيمتها ومصدرها (record_id) أو كلمة «افتراض» صريحة |
-| `scenarios.yaml` | قصة كل نسخة افتراضية = مفتاح الإجابة: سليم، توقف تدريجي، توقف بعد صدمة 2024، توقف ثم تعافٍ، تغيير مقاول، تشطيب لا تراه الصور |
-| `cost_assumptions.yaml` | تكلفة الزيارة وأرقام حساب القيمة بالجنيه (منخفض / أساسي / مرتفع) |
+| `kpi_values` | `entity_id`, `entity_type` (compound / twin), `kpi_id` (K1-K4, B1-B5), `asof_quarter`, `value`, `unit`, `level`, `origin_type`, `source`, `run_id`, `computed_at` |
+| `cycle_list` | `run_id`, `asof_quarter`, `rank`, `compound_id`, `level`, `observed_stage`, `reason_sentence`, `may_be_complete_flag`, `inspection_file_path` |
+| `run_log` | `run_id`, `started_at`, `step`, `rows_in`, `rows_out`, `gates_failed`, `duration_s` |
+| `quality_checks_log` | `gate`, `dimension`, `rule`, `threshold`, `result`, `rows_affected`, `owner`, `decision` (fix / flag / stop), `impact_on_kpi`, `run_id` |
+| `ops_visits` | `visit_id`, `compound_id`, `visit_date`, `result` (progressing / stalled / complete / not_done), `note`, `recorded_by`, `recorded_at` |
+| `ai_verification_log` | `file_id`, `claim`, `claim_type`, `value_in_text`, `value_in_data`, `method`, `verdict` (correct / wrong_number / unsupported / missing_context), `correction` |
+| `kpi_cards` | the 10 fields + 2 tags per KPI (schema of `kpi_reference.csv`) |
 
-**المحاكي مترابط وليس أرقامًا عشوائية:**
+---
 
+## 7. Three ways to look at the same data
+
+The tables are stored in **long tabular form** (one row per entity × time). Depending on the task, the same data is reshaped.
+
+### 7.1 Tabular (the default: rules, SQL, gradient boosting)
+One row = entity × as-of date, one column per feature. Every feature is computed only from rows dated on or before the as-of date.
+
+```sql
+-- K1 for every compound as of 2024-Q2 (only quarters <= as-of are visible)
+WITH q AS (
+  SELECT compound_id, quarter, built_prob_mean,
+         ROW_NUMBER() OVER (PARTITION BY compound_id ORDER BY quarter DESC) AS k
+  FROM 'data/raw/r_dynamic_world_quarterly.parquet'
+  WHERE quarter <= $asof
+)
+SELECT compound_id,
+       AVG(built_prob_mean) FILTER (WHERE k <= 4)
+     - AVG(built_prob_mean) FILTER (WHERE k BETWEEN 5 AND 8) AS delta_b12
+FROM q GROUP BY compound_id;
 ```
-نقد آخر الشهر = نقد أول الشهر + التحصيل + التمويل − المدفوعات
+
+Use for: the priority rule (Track A), B1-B5, the optional logistic regression in Track B.
+
+### 7.2 Time series (charts, deltas, seasonality, stall runs)
+One series per entity, indexed by quarter or month: `df.pivot(index="quarter", columns="compound_id", values="built_prob_mean")`.
+- Compare year over year (`series - series.shift(4)` for quarters), never quarter to quarter: Dynamic World has a seasonal swing (Q2 is lowest).
+- Rolling windows: K1 and K1b are 4-quarter means; K2 counts the latest run of "not active" quarters.
+- Missing quarters (fewer than 6 images) stay missing; do not interpolate before computing K2.
+
+### 7.3 Tensor (only if a sequence model is tried)
+Shape **(entities, time steps, features)** plus a mask for missing values:
+- Track A: 29 compounds × 43 quarters × 3 features (`built_prob_mean`, `vh_db`, `s2_veg_share` repeated per quarter of its year).
+- Track B: 33 twins × 45 months × F features (reported progress, DW, radar, escrow coverage, arrears, complaints, kWh per meter).
+
+```python
+import numpy as np, pandas as pd
+long = pd.read_parquet("data/raw/r_dynamic_world_quarterly.parquet")
+feats = ["built_prob_mean"]
+wide = long.pivot_table(index="compound_id", columns="quarter", values=feats)   # entities x (feature, time)
+X = np.stack([wide[f].to_numpy() for f in feats], axis=-1)                       # (29, 43, 1)
+mask = ~np.isnan(X)
+X = np.nan_to_num(X)                                                              # keep `mask` for the model
 ```
 
-لو النقد لا يكفي → تتراكم مستحقات المقاول → يبطؤ التنفيذ → يتأخر التسليم → تزيد الشكاوى ويقل الإشغال (كهرباء ومياه أقل).
+Rule of thumb: with 29 compounds and 33 twins, a tensor model has far too few samples to beat the simple rule. Tabular + time-series features is the main route; the tensor form is for an optional experiment only.
 
 ---
 
-## 6. تفاصيل الأعمدة في كل جدول
-
-### 6.1 الجداول الحقيقية
-
-#### `r_compounds` — الكمبوندات الحقيقية
-
-الصف الواحد = كمبوند · الحجم: 32 في R7/R8 (+9 أحياء أخرى) · الأعمدة: 🟢 حقيقي 9 · 🔵 مشتق 2
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `compound_id` | معرّف الكمبوند | ⚪ مفتاح |
-| `name_ar / name_en` | الاسم | 🟢 حقيقي |
-| `developer` | المطوّر | 🟢 حقيقي |
-| `district` | الحي (R7/R8) | 🟢 حقيقي |
-| `land_area_value + unit` | المساحة كما نُشرت (فدان/acre) | 🟢 حقيقي |
-| `land_area_m2` | المساحة بالمتر المربع بعد التحويل | 🔵 مشتق |
-| `units_total` | عدد الوحدات | 🟢 حقيقي |
-| `launch_date` | تاريخ الإطلاق | 🟢 حقيقي |
-| `promised_delivery` | موعد التسليم المعلن | 🟢 حقيقي |
-| `delivery_status` | حالة التسليم المعلنة | 🟢 حقيقي |
-| `location_point` | إحداثيات الموقع (6 من 32 حتى الآن) | 🟢 حقيقي |
-| `boundary_polygon` | حدود الكمبوند (رسم الفريق، 3 من 32) | 🔵 مشتق |
-| `source_record_ids / confidence` | المصدر ودرجة الثقة | ⚪ مفتاح |
-
-#### `r_developers` — المطوّرون
-
-الصف الواحد = مطوّر · الحجم: ~30 · الأعمدة: 🟢 حقيقي 2 · 🔵 مشتق 2
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `developer_id` | معرّف المطوّر | ⚪ مفتاح |
-| `name_ar / name_en` | الاسم | 🟢 حقيقي |
-| `is_listed / ticker` | مقيد في البورصة؟ | 🟢 حقيقي |
-| `nac_projects_count` | عدد مشروعاته في العاصمة | 🔵 مشتق |
-| `size_class` | فئة الحجم (صغير/متوسط/كبير) | 🔵 مشتق |
-
-#### `r_progress_announced` — نسب الإنجاز المعلنة
-
-الصف الواحد = تصريح · الحجم: ~25 تصريحًا لنحو 15 كمبوندًا + متوسط R8 · الأعمدة: 🟢 حقيقي 6
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `compound_id` | الكمبوند | ⚪ مفتاح |
-| `published_date` | تاريخ النشر | 🟢 حقيقي |
-| `progress_pct` | النسبة المعلنة | 🟢 حقيقي |
-| `qualifier` | أكثر من / حوالي / بالضبط | 🟢 حقيقي |
-| `scope` | نطاق النسبة: مشروع كامل / مرحلة / خرسانة | 🟢 حقيقي |
-| `stated_by` | من صرّح (المطوّر، استشاري…) | 🟢 حقيقي |
-| `source_url` | الرابط | 🟢 حقيقي |
-
-#### `r_project_events` — أحداث المشروعات
-
-الصف الواحد = حدث · الحجم: ~40 · الأعمدة: 🟢 حقيقي 5
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `compound_id` | الكمبوند | ⚪ مفتاح |
-| `event_type` | إطلاق / بدء تسليم / اكتمال تسليم / تأجيل | 🟢 حقيقي |
-| `event_date` | تاريخ الحدث (إن ذُكر) | 🟢 حقيقي |
-| `published_date` | تاريخ النشر | 🟢 حقيقي |
-| `value + unit` | قيمة مرتبطة (مثل 1,084 وحدة) | 🟢 حقيقي |
-| `source_url` | الرابط | 🟢 حقيقي |
-
-#### `r_satellite_monthly` — مؤشرات الأقمار الصناعية الشهرية
-
-الصف الواحد = مضلع × شهر · الحجم: 1,128 (10 كمبوندات + 2 مرجعية × 94 شهرًا) وسيزيد · الأعمدة: 🟢 حقيقي 3 · 🔵 مشتق 4
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `polygon_id / compound_id` | المضلع والكمبوند | ⚪ مفتاح |
-| `month / scene_id` | الشهر والمشهد المستخدم | 🟢 حقيقي |
-| `valid_frac` | نسبة البكسلات الصالحة بعد قناع السحب | 🟢 حقيقي |
-| `ndvi_median` | مؤشر الخضرة | 🔵 مشتق |
-| `ndbi_median` | مؤشر العمران الخام | 🔵 مشتق |
-| `ndbi_spread` | تباين القيم داخل الكمبوند (p90−p10) — المقياس الأساسي | 🔵 مشتق |
-| `spread_minus_ref` | التباين ناقص الصحراء المرجعية | 🔵 مشتق |
-| `dust_flag` | هل اليوم يوم غبار (من بيانات الطقس) | 🟢 حقيقي |
-
-#### `r_night_lights_monthly` — الإضاءة الليلية الشهرية
-
-الصف الواحد = منطقة × شهر · الحجم: 74 شهرًا × 8 مناطق (حتى يونيو 2025) · الأعمدة: 🟢 حقيقي 4
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `zone_id` | المنطقة | ⚪ مفتاح |
-| `month` | الشهر | 🟢 حقيقي |
-| `product` | EOG أو NASA Black Marble | 🟢 حقيقي |
-| `radiance_mean / median / p90` | شدة الإضاءة | 🟢 حقيقي |
-| `valid_obs` | عدد الرصدات الصالحة | 🟢 حقيقي |
-
-#### `r_buildings_yearly` — المباني وارتفاعها سنويًا (Google Open Buildings)
-
-الصف الواحد = مضلع × سنة · الحجم: 2016–2023 · الأعمدة: 🟢 حقيقي 3
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `polygon_id` | المضلع | ⚪ مفتاح |
-| `year` | السنة | 🟢 حقيقي |
-| `building_presence_frac` | نسبة المساحة المبنية | 🟢 حقيقي |
-| `mean_height_m` | متوسط ارتفاع المباني | 🟢 حقيقي |
-
-#### `r_weather_daily` — الطقس اليومي
-
-الصف الواحد = محطة × يوم · الحجم: 1,392 يومًا × محطتان + NASA · الأعمدة: 🟢 حقيقي 4 · 🔵 مشتق 2
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `station / date` | المحطة واليوم | ⚪ مفتاح |
-| `max_temp_c` | أقصى حرارة | 🟢 حقيقي |
-| `min_visibility_m` | أقل رؤية | 🟢 حقيقي |
-| `max_wind_kt` | أقصى رياح | 🟢 حقيقي |
-| `dust_flag / severe_dust_flag` | يوم غبار / غبار شديد | 🔵 مشتق |
-| `t2m_max_power` | أقصى حرارة من NASA POWER | 🟢 حقيقي |
-| `heat_day_40` | يوم حر ≥ 40° | 🔵 مشتق |
-
-#### `r_weather_events` — العواصف وموجات الحر المعلنة
-
-الصف الواحد = حدث · الحجم: 8 عواصف + 7 موجات حر · الأعمدة: 🟢 حقيقي 3 · 🔵 مشتق 1
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `event_date` | التاريخ | 🟢 حقيقي |
-| `event_type` | عاصفة ترابية / موجة حر | 🟢 حقيقي |
-| `metar_confirmed` | هل أكدها المطار | 🔵 مشتق |
-| `source_url` | الرابط | 🟢 حقيقي |
-
-#### `r_macro_monthly` — الاقتصاد والأسعار الشهرية
-
-الصف الواحد = شهر · الحجم: 57 شهرًا (2022-01 → 2026-09) · الأعمدة: 🟢 حقيقي 5 · 🔵 مشتق 1
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `month` | الشهر | ⚪ مفتاح |
-| `policy_rate` | سعر الفائدة | 🟢 حقيقي |
-| `usd_egp_avg` | متوسط سعر الدولار | 🟢 حقيقي |
-| `inflation_yoy` | التضخم السنوي | 🟢 حقيقي |
-| `steel_ton_egp` | سعر طن الحديد (استرشادي) | 🟢 حقيقي |
-| `cement_ton_egp` | سعر طن الأسمنت | 🟢 حقيقي |
-| `shock_flag` | علامة شهر صدمة (مثل مارس 2024) | 🔵 مشتق |
-
-#### `r_regulations` — القواعد القانونية المستخدمة
-
-الصف الواحد = قاعدة · الحجم: ~15 · الأعمدة: 🟢 حقيقي 4
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `rule_id` | المعرّف | ⚪ مفتاح |
-| `instrument / article` | القرار والمادة (مثل 2184/2022 م.3) | 🟢 حقيقي |
-| `parameter` | المعلمة (نسبة الإيداع، مهلة التسليم…) | 🟢 حقيقي |
-| `value + unit` | القيمة | 🟢 حقيقي |
-| `source_url` | الرابط | 🟢 حقيقي |
-
-#### `r_acud_events` — أحداث إنفاذ ACUD
-
-الصف الواحد = حدث · الحجم: ~27 · الأعمدة: 🟢 حقيقي 5
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `event_date` | التاريخ | 🟢 حقيقي |
-| `event_type` | مهلة / إعادة جدولة / فسخ / تصريح | 🟢 حقيقي |
-| `value` | القيمة (مثل 7–8%) | 🟢 حقيقي |
-| `stated_by` | الجهة | 🟢 حقيقي |
-| `source_url` | الرابط | 🟢 حقيقي |
-
-#### `r_developer_financials` — إفصاحات المطورين المالية
-
-الصف الواحد = مشروع × فترة × بند · الحجم: 97 · الأعمدة: 🟢 حقيقي 5
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `developer / project` | المطوّر والمشروع (سيليا أساسًا) | 🟢 حقيقي |
-| `period_end` | نهاية الفترة | 🟢 حقيقي |
-| `metric` | البند المحاسبي | 🟢 حقيقي |
-| `value_egp` | القيمة | 🟢 حقيقي |
-| `page / source_url` | الصفحة والرابط | 🟢 حقيقي |
-
-#### `r_benchmarks` — مراجع المحاكاة
-
-الصف الواحد = معلمة · الحجم: ~40 (+ الكهرباء والمياه جاري) · الأعمدة: 🟢 حقيقي 2
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `parameter` | المعلمة (سعر الأرض، تكلفة المتر، نسبة البناء…) | ⚪ مفتاح |
-| `value_low / value_high` | النطاق | 🟢 حقيقي |
-| `unit / year` | الوحدة والسنة | 🟢 حقيقي |
-| `confidence / record_ids` | الثقة والمصدر | ⚪ مفتاح |
-
-#### `ref_calendar` — التقويم
-
-الصف الواحد = يوم · الحجم: 2023–2026 · الأعمدة: 🟢 حقيقي 2 · 🔵 مشتق 1
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `date` | اليوم | ⚪ مفتاح |
-| `ramadan_flag / holiday_flag` | رمضان والأعياد | 🟢 حقيقي |
-| `dst_flag` | التوقيت الصيفي | 🟢 حقيقي |
-| `season` | الموسم | 🔵 مشتق |
-
-### 6.2 الجداول المولّدة
-
-#### `g_twins` — النسخ الافتراضية (Twins)
-
-الصف الواحد = نسخة · الحجم: ~33 · الأعمدة: 🟢 حقيقي 1 · 🟡 افتراض 1 · 🔵 مشتق 1 · 🟠 مولّد 3
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `twin_id` | معرّف النسخة | ⚪ مفتاح |
-| `template_compound_id` | الكمبوند الحقيقي المرجعي | ⚪ مفتاح |
-| `district / land_area_m2 / units_total` | مأخوذة من الكمبوند المرجعي | 🟢 حقيقي |
-| `building_coverage_pct` | نسبة البناء 18–22.5% | 🟡 افتراض |
-| `bua_m2` | المساحة البنائية | 🔵 مشتق |
-| `developer_size_class` | فئة حجم المطوّر | 🟠 مولّد |
-| `land_handover_date` | تاريخ استلام الأرض | 🟠 مولّد |
-| `scenario_id` | قصة النسخة (مفتاح الإجابة) | 🟠 مولّد |
-
-#### `g_plan_monthly` — جدول التنفيذ المعتمد
-
-الصف الواحد = نسخة × شهر · الحجم: ~33 × 46 · الأعمدة: 🟠 مولّد 3
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `twin_id / month` | النسخة والشهر | ⚪ مفتاح |
-| `planned_progress_pct` | النسبة المخططة | 🟠 مولّد |
-| `milestone` | المرحلة (هيكل/واجهات/تشطيب/مرافق) | 🟠 مولّد |
-| `contractual_delivery_date` | موعد التسليم التعاقدي | 🟠 مولّد |
-
-#### `g_progress_true` — الإنجاز الحقيقي الشهري (الحقيقة المرجعية)
-
-الصف الواحد = نسخة × شهر · الحجم: ~33 × 46 · الأعمدة: 🟠 مولّد 3 · 🔵 مشتق 1
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `twin_id / month` | النسخة والشهر | ⚪ مفتاح |
-| `true_progress_pct` | نسبة الإنجاز | 🟠 مولّد |
-| `structure / facades / finishing_pct` | إنجاز كل مرحلة | 🟠 مولّد |
-| `site_activity_index` | نشاط الموقع | 🟠 مولّد |
-| `stall_flag` | هل الشغل متوقف | 🔵 مشتق |
-
-#### `g_sales_collections` — المبيعات والتحصيل
-
-الصف الواحد = نسخة × شهر · الحجم: ~33 × 46 · الأعمدة: 🟠 مولّد 3 · 🟡 افتراض 1 · 🔵 مشتق 1
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `twin_id / month` | النسخة والشهر | ⚪ مفتاح |
-| `units_sold_new / cum` | الوحدات المباعة | 🟠 مولّد |
-| `price_m2` | سعر المتر | 🟡 افتراض |
-| `down_payments` | المقدمات | 🟠 مولّد |
-| `installments_due / paid` | الأقساط المستحقة والمدفوعة | 🟠 مولّد |
-| `buyer_arrears` | متأخرات العملاء | 🔵 مشتق |
-
-#### `g_escrow_monthly` — حساب الضمان
-
-الصف الواحد = نسخة × شهر · الحجم: ~33 × 46 · الأعمدة: 🟠 مولّد 2 · 🟢 حقيقي 1 · 🔵 مشتق 1
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `twin_id / month` | النسخة والشهر | ⚪ مفتاح |
-| `opening / closing_balance` | الرصيد أول وآخر الشهر | 🟠 مولّد |
-| `deposits / withdrawals` | الإيداع والسحب | 🟠 مولّد |
-| `required_min_pct` | الحد الأدنى من القرار 2184 | 🟢 حقيقي |
-| `coverage_ratio` | الرصيد ÷ التكلفة المتبقية (TP-03) | 🔵 مشتق |
-
-#### `g_costs_monthly` — التكاليف والمدفوعات للمقاول
-
-الصف الواحد = نسخة × شهر · الحجم: ~33 × 46 · الأعمدة: 🟢 حقيقي 1 · 🟠 مولّد 3 · 🟡 افتراض 1
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `twin_id / month` | النسخة والشهر | ⚪ مفتاح |
-| `material_cost_index` | مؤشر تكلفة المواد | 🟢 حقيقي |
-| `cost_to_complete` | التكلفة المتبقية | 🟠 مولّد |
-| `spend_planned / actual` | الصرف المخطط والفعلي | 🟠 مولّد |
-| `contractor_payable / arrears` | مستحقات المقاول والمتأخر منها | 🟠 مولّد |
-| `phase_cost_share` | توزيع التكلفة على المراحل | 🟡 افتراض |
-
-#### `g_land_installments` — أقساط الأرض
-
-الصف الواحد = قسط · الحجم: ~33 × 8–16 · الأعمدة: 🟠 مولّد 3 · 🔵 مشتق 1
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `twin_id / installment_no` | النسخة ورقم القسط | ⚪ مفتاح |
-| `due_date / amount_due` | الاستحقاق والقيمة | 🟠 مولّد |
-| `paid_date / amount_paid` | السداد | 🟠 مولّد |
-| `days_late / fine` | التأخير والغرامة | 🔵 مشتق |
-| `rescheduled_flag` | هل أعيدت جدولته | 🟠 مولّد |
-
-#### `g_electricity_monthly` — استهلاك الكهرباء
-
-الصف الواحد = نسخة × شهر · الحجم: ~33 × 46 · الأعمدة: 🟠 مولّد 3 · 🟢 حقيقي 1 · 🔵 مشتق 1
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `twin_id / month` | النسخة والشهر | ⚪ مفتاح |
-| `occupied_units` | الوحدات المسكونة | 🟠 مولّد |
-| `kwh_construction` | استهلاك الموقع أثناء البناء | 🟠 مولّد |
-| `kwh_residential` | استهلاك السكان | 🟠 مولّد |
-| `t2m_max_mean` | متوسط الحرارة (يرفع التكييف) | 🟢 حقيقي |
-| `bill_egp` | قيمة الفاتورة بالشرائح الرسمية | 🔵 مشتق |
-
-#### `g_water_monthly` — استهلاك المياه
-
-الصف الواحد = نسخة × شهر · الحجم: ~33 × 46 · الأعمدة: 🟠 مولّد 2 · 🔵 مشتق 1
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `twin_id / month` | النسخة والشهر | ⚪ مفتاح |
-| `occupied_units` | الوحدات المسكونة | 🟠 مولّد |
-| `residents_est` | عدد السكان التقديري | 🔵 مشتق |
-| `m3_construction / m3_residential` | استهلاك البناء والسكان | 🟠 مولّد |
-
-#### `g_status_monthly` — مستوى الحالة الشهري (تعريف التعثر)
-
-الصف الواحد = نسخة × شهر · الحجم: ~33 × 46 · الأعمدة: 🔵 مشتق 5 · 🟠 مولّد 1
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `twin_id / month` | النسخة والشهر | ⚪ مفتاح |
-| `status_level` | المستوى الخماسي (أخضر … فسخ) | 🔵 مشتق |
-| `months_behind_plan` | شهور التأخر عن الخطة | 🔵 مشتق |
-| `months_past_delivery` | شهور بعد موعد التسليم | 🔵 مشتق |
-| `months_no_progress` | شهور بلا تقدم | 🔵 مشتق |
-| `warning / extension / terminated` | إنذار / مهلة / فسخ | 🟠 مولّد |
-| `label_distress_next_6m` | هدف النموذج: يتعثر خلال 6 أشهر؟ | 🔵 مشتق |
-
-#### `g_complaints` — شكاوى الحاجزين
-
-الصف الواحد = شكوى · الحجم: بضعة آلاف · الأعمدة: 🟠 مولّد 4
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `complaint_id / twin_id / date` | الشكوى والنسخة والتاريخ | ⚪ مفتاح |
-| `channel` | القناة | 🟠 مولّد |
-| `category` | التصنيف (تأخير/توقف/دفع/جودة) | 🟠 مولّد |
-| `text_ar` | نص الشكوى (بلا بيانات شخصية) | 🟠 مولّد |
-| `linked_event` | الحدث الذي سببها | 🟠 مولّد |
-
-#### `g_inspections` — المعاينات الميدانية
-
-الصف الواحد = زيارة · الحجم: ~33 × 15 · الأعمدة: 🟠 مولّد 3
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `visit_id / twin_id / date` | الزيارة | ⚪ مفتاح |
-| `trigger` | دورية أم بسبب إنذار | 🟠 مولّد |
-| `observed_progress_pct` | الإنجاز الذي رآه المفتش | 🟠 مولّد |
-| `finding / recommendation` | النتيجة والتوصية | 🟠 مولّد |
-
-#### `g_tickets` — التذاكر
-
-الصف الواحد = تذكرة · الحجم: حسب الإنذارات · الأعمدة: 🟠 مولّد 2 · 🔵 مشتق 1
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `ticket_id / twin_id` | التذكرة | ⚪ مفتاح |
-| `opened_at / closed_at` | الفتح والإغلاق | 🟠 مولّد |
-| `severity` | الخطورة | 🔵 مشتق |
-| `status / owner_role` | الحالة والمسؤول | 🟠 مولّد |
-| `linked_alert` | الإنذار المرتبط | ⚪ مفتاح |
-
-#### `g_observations_monthly` — الرصد المولّد للنسخ الافتراضية
-
-الصف الواحد = نسخة × شهر · الحجم: ~33 × 94 · الأعمدة: 🟠 مولّد 3 · 🟢 حقيقي 1
-
-| العمود | المعنى | الأصل |
-| --- | --- | --- |
-| `twin_id / month` | النسخة والشهر | ⚪ مفتاح |
-| `spread_metric_obs` | مؤشر التباين كما ستراه الأقمار الصناعية | 🟠 مولّد |
-| `ntl_obs` | الإضاءة الليلية كما ستُرى | 🟠 مولّد |
-| `valid_frac / cloud_gap_flag` | جودة الرصد | 🟠 مولّد |
-| `dust_flag` | أيام الغبار (تواريخ حقيقية) | 🟢 حقيقي |
+## 8. How to test with this data
+
+| Test | Data | How | Pass criterion |
+| --- | --- | --- | --- |
+| **Backtest of the rule (Track A)** | real tables + `eval_outcomes` | Freeze the clock at 2024-Q2 and 2025-Q2: keep only quarters ≤ as-of and statements with `published_date` ≤ as-of; compute levels; compare with what happened later | ≥ 2 of 3 delayed cases (Venia, La Verde, Residence Eight) in level 1-2, and Serrano, Catalan, Atika not in level 1 |
+| **Sensitivity** | same | Rerun with K1 = 0.02 / 0.04 and without radar | Report how the level 1-2 list changes (no pass/fail) |
+| **Rule vs rule + B signals (Track B)** | `g_*` + answer key | Walk forward quarter by quarter; at each quarter take the top N; count how many become distressed in the next 6 months and how early | Rule + B finds more cases earlier than the rule alone |
+| **Optional model (Track B)** | `g_*` + answer key | Time split: train Jan 2023-Jun 2025, test Jul 2025-Sep 2026; also hold out ~20% of twins entirely (group split by `developer_id`, so twins of one developer are not on both sides) | Must beat the rule on the test part; otherwise the rule is the product |
+| **Realism of generated data** | `g_*` vs real | Calibration targets in `synthetic-data-plan.md` section 9 | All inside range |
+| **Quality gates** | everything | 9 gates + the 6 planted defects | Each planted defect is caught by its gate |
+| **Reproducibility** | everything | Run `run_all.py` twice | Same rows and same numbers (hash) |
+
+Never shuffle rows across time, never fit a threshold on the backtest quarters, and never read `answer_key` inside a feature.
 
 ---
 
-## 7. تعريف التعثر (5 مستويات)
+## 9. Data quality gates (summary)
 
-| المستوى | متى | المرجع |
-| --- | --- | --- |
-| 🟢 ماشي حسب الخطة | الإنجاز قريب من المخطط، والسرعة طبيعية | جدول التنفيذ |
-| 🟡 متأخر عن الخطة | الإنجاز أقل من المخطط بفارق كبير، أو السرعة انخفضت — قبل موعد التسليم | جدول التنفيذ |
-| 🟠 متأخر في التسليم | تجاوز موعد التسليم، وما زال داخل مهلة الـ 12 شهرًا | القرار 2184/2022 م.5 |
-| 🔴 متعثر | أيٌّ من: تجاوز 24 شهرًا بعد موعد التسليم (حق الاسترداد) · **لا تقدم 6 أشهر متتالية** (مدة توفيق الأوضاع في القرار) · متأخرات أقساط أرض مستمرة مع ضمان غير كافٍ | القرار 2184 + ممارسة ACUD |
-| ⚫ فسخ | ACUD فسخت العقد (بالتراضي أو غيره) | تصريح ACUD عن 6 حالات |
-
-- **ما يتنبأ به النموذج:** «هل سيدخل الكمبوند مستوى 🔴 خلال الـ 6 أشهر القادمة؟» — يُحسب كل 3 أشهر، متوافقًا مع دورة مراجعة ACUD.
-- **النسب في المحاكاة:** نحو 8% يصلون متأخر/متعثر (تصريح ACUD)، والفسخ نسبة أقل كثيرًا (🟡 افتراض، لأننا نعرف عدد الحالات وليس من إجمالي كم).
-- **على الكمبوندات الحقيقية** نقول فقط «لا تقدم مرصود منذ 6 أشهر» — لا نقول «متعثر».
+Source (100% have an accepted record) · Completeness (≥ 6 DW images per quarter, else "not assessable") · Validity (probabilities 0-1, dB in range, dates valid) · Uniqueness (entity, period) · Consistency (every id in its register; row counts equal before/after joins) · Freshness (latest quarter ≤ 1 quarter old) · Separation (no `g_*` row joined to a real compound) · "Data or city?" (> 30% of compounds turn "no change" in one quarter → source event) · Stuck series (identical value 4 quarters in a row). Owners and decisions: `project-plan.md` section 9.
 
 ---
 
-## 8. أهم القيم الحقيقية التي يعتمد عليها التصميم
+## 10. Wording rules
 
-| القيمة | المصدر |
+| Allowed | Not allowed |
 | --- | --- |
-| إيداع الضمان **20/15/10/5/3%** من تكلفة الإنشاء حسب فئة المساحة؛ مهلة تسليم 12 شهرًا؛ استرداد بعد 24 شهرًا؛ مهلة توفيق أوضاع 6 أشهر | قرار رئيس الوزراء 2184/2022 (بوابة مجلس الوزراء) |
-| تقارير تقدم كل 3 أشهر من المهندس المشرف (م.54)، وشهادة صلاحية المبنى للإشغال (م.62) | قانون البناء 119/2008 |
-| 7–8% من المطورين متأخرون تأخرًا كبيرًا، فسخ بالتراضي لـ 6، مراجعة ميدانية كل 3 أشهر | تصريحات رئيس ACUD (سبتمبر–أكتوبر 2026) |
-| نسبة البناء المسموحة: نطاق **18–22.5%** (لا يوجد رقم رسمي منشور لـ R7/R8) | ACUD 2018 كما نُشر + تصريح مطوّر في R8 |
-| أقساط أرض R8: 5% جدية + 20% ثم الباقي على 4 سنوات | مصدر إخباري واحد (ثقة متوسطة) |
-| صدمة السيولة: تعويم 6 مارس 2024 — الدولار من 30.94 إلى 49.44، الفائدة +600 نقطة إلى 27.25% | البنك المركزي |
-| مقدم 8.5% وتقسيط 7.7 سنة في المتوسط (القاهرة الكبرى) | Knight Frank Q1 2025 |
-| تكلفة البناء 720–1,270 دولارًا/م²؛ سعر أرض ACUD من ~2,500 إلى 10–12 ألف جنيه/م² | Knight Frank؛ رئيس ACUD |
-| متوسط إنجاز R8 كله 44% (يونيو 2025) | دراسة Etqan (Daily News Egypt) |
-| استهلاك الكهرباء: ~153 كيلووات/شهر لكل مشترك سكني (متوسط مصر، 2023/24)؛ ذروة الصيف يونيو–أغسطس | التقرير السنوي للشركة القابضة لكهرباء مصر (حساب منه) |
-| شرائح الكهرباء: 0.68 → 2.23 جنيه/كيلووات (أغسطس 2024)، و0.68 → 2.89 (من فاتورة أغسطس 2026) | Enterprise + التقرير السنوي؛ الدستور وBanker |
-| المياه: ~200 لتر/فرد/يوم في المدن؛ الشرائح 2–4.5 جنيه/م³ (يونيو 2026، مصدر واحد) | رئيس الشركة القابضة للمياه (2018)؛ Banker News |
-| حجم الأسرة: 3.8 حضر، 4.1 إجمالي | المسح السكاني الصحي 2014، بحث الدخل والإنفاق 2019/20 |
-
----
-
-## 9. ما تغيّر عن ملف المواصفات (01-specs.md)
-
-| النقطة | كان | أصبح |
-| --- | --- | --- |
-| نسب الإيداع | 10–30% ❌ خطأ | 20/15/10/5/3% |
-| مؤشر الإنجاز TP-01 | NDBI أعلى = بناء أكثر ❌ | تباين القيم داخل الكمبوند مقارنةً بنفسه في نفس الموسم ناقص الصحراء المرجعية — اسمه «تغير عمراني مرصود» |
-| الطقس | استبعاد أيام الغبار والحر | علامة «راجع الصورة» + سياق؛ لا قرار رسمي يوقف البناء في الحر |
-| الكمبوندات | 33 خيالي | 32 حقيقي + ~33 نسخة افتراضية |
-| الإشغال | كهرباء ومياه مولّدة فقط | إضاءة ليلية حقيقية (رصد) + كهرباء ومياه مولّدة على مراجع حقيقية |
-| التعثر | «توقف خلال 8–12 أسبوعًا» | 5 مستويات من القرار 2184 وممارسة ACUD، والهدف: تعثر خلال 6 أشهر |
-| صدمة السيولة | أرقام أمثلة | تعويم مارس 2024 وأسعار الحديد والأسمنت الحقيقية |
-
----
-
-## 10. قواعد الصياغة (في الشرائح واللوحة)
-
-| ❌ لا نقول | ✅ نقول |
-| --- | --- |
-| «نسبة الإنجاز 70%» | «أعلن المطوّر 70%» + التاريخ + النطاق (مشروع/مرحلة/خرسانة) |
-| «ACUD تراجع كل المشروعات كل 3 أشهر» | «حسب تصريح رئيس ACUD» |
-| «10–12 شركة متعثرة» | «المتأخرون تأخرًا كبيرًا لا يتجاوزون نحو 7–8%» |
-| «رصيد ضمان سيليا» | «التزام محاسبي منشور في القوائم المالية» |
-| «نسبة البناء الرسمية 20%» | «نطاق 18–22.5% حسب ما نُشر» |
-| «سعر الحديد في السوق» | «السعر الاسترشادي في نشرة الوزارة» |
-| «قانون المطورين الجديد» | «مسودة قيد المناقشة» |
-| «أثبتنا أن الغبار يشوّه الصور» | «مؤشر ضعيف؛ نضع علامة مراجعة» |
-
----
-
-## 11. ما زال جاريًا
-
-| البند | الحالة |
-| --- | --- |
-| الإضاءة الليلية NASA Black Marble حتى سبتمبر 2026 | جاري |
-| Google Open Buildings (المباني وارتفاعها 2016–2023) | جاري |
-| مراجع الكهرباء والمياه | جُمعت (55 معلومة) — **تنتظر المراجعة المستقلة** قبل الاستخدام |
-| حدود الكمبوندات | 3 من 32 مرسومة، و6 لها موقع مؤكد. **نحتاج من الفريق تحديد مواقع الـ 26 الباقية على Google Maps** (دقيقة أو اثنتان لكل كمبوند) |
-| كراسة شروط ACUD (acud.eg/rfp) | الموقع معطل؛ في قائمة طلبات البيانات |
-
----
-
-## 12. ما سنطلبه من ACUD (آخر شريحة في العرض)
-
-كل جدول 🟠 مولّد يقابله مصدر حقيقي داخل ACUD — دخوله يستبدل المولّد:
-
-1. تقارير المهندس المشرف الربع سنوية ← `g_progress_true`
-2. كراسات شروط R7 وR8 ← نسبة البناء في `g_twins`
-3. حدود القطع والمطوّر لكل قطعة ← `boundary_polygon`
-4. الجدول الزمني المعتمد لكل مشروع ← `g_plan_monthly`
-5. سجل المراجعات الميدانية ونتائجها ← `g_inspections`
-6. سجل الإنذارات والمهل والفسخ ← `g_status_monthly`
-7. أقساط الأرض والمتأخرات ← `g_land_installments`
-8. أرصدة حسابات الضمان ← `g_escrow_monthly`
-9. طلبات العدادات وشهادات الإشغال وقراءات الاستهلاك ← `g_electricity_monthly`, `g_water_monthly`
-10. شكاوى الحاجزين مجمعة ومخفاة الهوية ← `g_complaints`
-
----
-
-## 13. أين الملفات
-
-كل البيانات الحقيقية في `Project/real_data/`. في كل مجلد: `records.csv` (المعلومة + الاقتباس + الرابط)، `verification.csv` (حكم المراجعة)، `raw/` و`scripts/`.
-
-| المجلد | المحتوى |
-| --- | --- |
-| `01_nac_city` | حقائق العاصمة وACUD |
-| `02_regulation_enforcement` | القرار 2184 وأحداث إنفاذ ACUD |
-| `03_projects_R7` · `04_projects_R8_other` | سجل الكمبوندات ونسب الإنجاز والأحداث |
-| `05_geo_satellite` | OSM وصور Sentinel-2 — **`sentinel_indices_v2.csv` هي المعتمدة** (v1 فيها خطأ) |
-| `06_weather_dust` | الطقس والغبار والحر |
-| `07_macro_prices` | الفائدة والدولار والتضخم والحديد والأسمنت |
-| `08_developer_disclosures` | إفصاحات طلعت مصطفى وبالم هيلز |
-| `09_laws_regulations` | قوانين البناء والمستهلك والمقاولين والبيانات والعمل |
-| `10_market_complaints` | السوق والشكاوى المجمعة |
-| `11_occupancy_infrastructure` | الإضاءة الليلية والإشغال |
-| `12_simulation_benchmarks` | مراجع المحاكاة |
-| `13_acud_rfp_conditions` | اشتراطات البناء وشروط الطرح |
-| `14_open_buildings_temporal` | المباني وارتفاعها (جاري) |
-| `15_compound_boundaries` | حدود الكمبوندات ومواقعها |
-| `16_utility_benchmarks` | مراجع الكهرباء والمياه (تنتظر المراجعة) |
-
-التقرير التفصيلي بكل المصادر والروابط: `Project/real_data/DATA_REPORT_AR.md`
+| "No observed change from above or in height for X quarters" | "Distressed" about a real compound |
+| "Passed the announced date by Y months" | "Completion 60%" or "finishing percentage" from images |
+| "Observed height 2023 ≈ 24 m (≈ 7-8 floors, estimated)" | "8 floors built" as a fact |
+| "Synthetic - for training only" on every generated output | Any generated number next to a real name |
