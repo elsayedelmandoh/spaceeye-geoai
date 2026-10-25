@@ -183,7 +183,7 @@ Planted on purpose, each with its row count in `defects_log.csv`, so the quality
 | 2 | Supervisor report entered twice with a different date | `g_progress_monthly` | ~1% of reports | Uniqueness |
 | 3 | Stuck meter: same reading 6+ months while meters_active rises | `g_utilities_monthly` | 2 twins | Accuracy (stuck series) |
 | 4 | Unknown twin id in the complaint feed | `g_complaints` | 1 id, ~15 rows | Consistency (foreign key) |
-| 5 | Phantom hour 24 Apr 2026 00:xx (does not exist in Cairo time) in complaint timestamps | `g_complaints` | ~5 rows | Clock |
+| 5 | Complaint dated before the twin was launched (date entry error) | `g_complaints` | ~5 rows | Validity (date range) |
 | 6 | Planted phone numbers inside complaint text | `g_complaints.text_ar` | ~10 texts | Masking test (`assert_zero_phones`) |
 
 Missing DW quarters (< 6 images, ~2-3%) are **not** a planted defect: they come naturally from the image-count model and the completeness gate flags them.
