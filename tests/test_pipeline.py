@@ -38,8 +38,8 @@ def test_first_promise_is_the_earliest_published_and_later_promises_do_not_reset
 
 
 def test_name_gate_matches_whole_words_in_english_and_arabic_and_ignores_accents():
-    pats = gates._patterns({gates._norm("Park Lane"), gates._norm("سيرانو"), gates._norm("Plató")})
-    assert gates._hits("the Park  Lane block", pats) == 1
-    assert gates._hits("code سيرانو here", pats) == 1
-    assert gates._hits("plato", pats) == 1
+    pats = gates._patterns({gates._norm("Zeta Heights"), gates._norm("زيتا"), gates._norm("Café Delta")})
+    assert gates._hits("the Zeta  Heights block", pats) == 1
+    assert gates._hits("code زيتا here", pats) == 1
+    assert gates._hits("cafe delta", pats) == 1
     assert gates._hits("C01 and D02 only, planet lanes", pats) == 0
