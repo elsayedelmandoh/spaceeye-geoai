@@ -1,0 +1,75 @@
+# spaceeye real-data pipeline (R1): paths, thresholds, seed.
+# data lives outside the repo; sources are audited files and are never modified.
+seed: 2026
+computed_on: "2026-10-26"        # fixed so two runs give identical outputs
+asof: "2026Q3"                    # latest quarter for the cycle list
+first_quarter: "2016Q1"           # quarter index 0
+last_quarter: "2026Q3"
+
+paths:
+  real_data: "F:/ACUD AI Data Lab/Project/real_data"
+  app_data: "F:/ACUD AI Data Lab/Project/app_data"
+  private: "F:/ACUD AI Data Lab/Project/private"
+
+# source files, relative to paths.real_data
+sources:
+  facts: "26_data_audit/facts"
+  boundaries: "26_data_audit/locations_v2/compound_boundaries_v3.geojson"
+  boundaries_added: "26_data_audit/locations_v3/boundaries_added.geojson"
+  decree: "26_data_audit/reference/decree_2184_canonical.csv"
+  macro: "26_data_audit/reference/macro_monthly_2023_2026.csv"
+  weather: "26_data_audit/reference/weather_monthly_2023_2026.csv"
+  veg_fixed: "26_data_audit/satellite/s2_plot_yearly_2019_2026_FIXED.csv"
+  plot_labels: "26_data_audit/satellite/radar_vs_obt_plot_years_ee.csv"
+  plot_to_compound: "26_data_audit/locations/dw_polygon_to_compound.csv"
+  dw_polygons: "17_builtup_2024_2026_options/dynamic_world_polygons_quarterly.csv"
+  dw_compounds: "28_team_ideas_tests/features/cache/dw_compounds_quarterly.csv"
+  s4_windows_glob: "28_team_ideas_tests/features/cache/s4_windows_*.csv"
+  plot_split: "28_team_ideas_tests/features/split_plots_seed2026.csv"
+  # a v6 file (29_height_final/v6/compound_height_yearly.csv) may replace this one later;
+  # rows are kept when `published` is true, or (no such column) when year <= heights_max_year
+  heights: "27_height_embedding/v4_builtmask/compound_height_2016_2025_builtmask.csv"
+
+heights_max_year: 2024
+
+# indicators
+k1_active: 0.02            # dynamic world 12-month change that counts as growth
+n_images_min: 6            # K4: dynamic world images in the quarter
+veg_complete: 0.10         # vegetation share that suggests "may be complete"
+activity_features_cap: 6   # quarters looked back for persistence features
+
+k5:
+  horizon_months: 12       # first deadline closer than this
+  max_rate: 0.15           # p95 quarterly built-share rise (225 plots)
+
+levels:
+  k2_l1: 4
+  k2_l2: 2                 # 2-3 -> level 2, 1 -> level 3
+  k3_l1: 24
+  k3_l2: 13                # 13-24 -> level 2, 1-12 -> level 3
+  combo_k2: 2
+  combo_k3: 12
+cycle_capacity: 8
+
+# backtest criterion (fixed on 2026-10-26 before any computation)
+backtest:
+  min_cases: 5
+  months_before: 6
+  levels: [1, 2]
+  first_quarter: "2019Q1"
+
+# compound table: generated fields (orange) and rules
+compounds:
+  coverage: 0.225
+  floors: 8                # ground + 7
+  far_cap: 1.8
+  unit_m2: [120, 170]
+  feddan_m2: 4200.83
+  cover_class: {limited: 0.20, small: 0.15}   # <50 / 50-<100 feddan, decree 2184
+
+drivers:
+  shock_fx_mom: 0.05       # month-on-month dollar rise that marks a shock month
+  # ramadan and eid ranges (calendar, +-1 day)
+  ramadan: [["2023-03-23", "2023-04-20"], ["2024-03-11", "2024-04-09"], ["2025-03-01", "2025-03-29"], ["2026-02-18", "2026-03-19"]]
+  eid: [["2023-04-21", "2023-04-23"], ["2023-06-28", "2023-07-01"], ["2024-04-10", "2024-04-12"], ["2024-06-16", "2024-06-19"],
+        ["2025-03-30", "2025-04-01"], ["2025-06-06", "2025-06-09"], ["2026-03-20", "2026-03-22"], ["2026-05-27", "2026-05-30"]]
