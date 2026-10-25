@@ -208,6 +208,8 @@ Operational:  K1 · K1b · K2 · K4 (guard) · share of cycle-list visits carrie
 
 ## 5. The simulator (Track B): 8 tables
 
+> **(updated 25 Oct 2026)** Detailed generator design, noise models, realistic defects and final schemas: `synthetic-data-plan.md`. Where the two differ, `synthetic-data-plan.md` is the reference.
+
 **Principle:** each table (1) has a real version at ACUD, and (2) feeds a signal. Every parameter is in `cfg_assumptions.yaml` with its source, or marked "assumption". Fixed seed. January 2023 → September 2026, monthly. **One script:** `simulate.py`. Every file is labelled "Synthetic - for training only" and has a data dictionary.
 
 | # | Table | Feeds | Real version held by |
