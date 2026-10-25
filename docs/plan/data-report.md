@@ -123,7 +123,7 @@ Nothing has been generated yet. The simulator is built on D2 (`simulate.py`). Th
 
 | # | Table | What it contains | One row = | Based on (real reference) | The real version is most likely held by |
 | --- | --- | --- | --- | --- | --- |
-| 1 | `g_twins` | Virtual twins | Twin | Area, units and district of a real reference compound; building coverage 18–22.5% | - |
+| 1 | `g_twins` | Virtual twins | Twin | Area, units and district of a real reference compound; building coverage 18–22.5% (ACUD cap 22.5%), total floor area ≤ 1.6 × land | - |
 | 2 | `g_plan_monthly` | Approved timeline | Twin × month | 3 years from land handover + announced dates | ACUD Planning Sector |
 | 3 | `g_progress_monthly` | Progress and what the satellite sees | Twin × month | Curves fitted to announced percentages and the R8 average of 44%; DW noise calibrated on real DW | Supervising engineer reports (Art. 54) |
 | 4 | `g_escrow_monthly` | Escrow, collections and cost | Twin × month | Deposit per 2184 (20/15/10/5/3%), 8.5% down payment and 7.7–12-year installments, cost per m² × steel and cement index, 2024 shock | ACUD Finance and the banks |
@@ -407,8 +407,9 @@ One row = twin · Size: ~33 · Columns: 🟢 real 1 · 🟡 assumption 1 · 🔵
 | `twin_id` | Twin identifier | ⚪ Key |
 | `template_compound_id` | The real reference compound | ⚪ Key |
 | `district / land_area_m2 / units_total` | From the reference compound | 🟢 Real |
-| `building_coverage_pct` | Building coverage | 🟡 Assumption |
-| `bua_m2` | Built-up area | 🔵 Derived |
+| `building_coverage_pct` | Building coverage, 18–22.5% (ACUD cap 22.5%) | 🟡 Assumption |
+| `floors` | Floors, 5–8 (cap ground + 7) | 🟡 Assumption |
+| `bua_m2` | Built-up area = land × min(coverage × floors, 1.6) | 🔵 Derived |
 | `land_handover_date` | Land handover | 🟠 Generated |
 | `contractual_delivery_date` | Contractual delivery date (the story itself is in `answer_key.csv`) | 🟠 Generated |
 
@@ -523,7 +524,7 @@ One row = complaint · Size: a few thousand (Arabic text for a sample only) · C
 | Escrow deposit **20/15/10/5/3%** of construction cost by area class; 12-month delivery grace period; refund after 24 months; 6-month status regularization period | Prime Minister's Decree 2184/2022 (Cabinet portal) |
 | Progress reports every 3 months from the supervising engineer (Art. 54), and the building occupancy certificate (Art. 62) | Building Law 119/2008 |
 | 7–8% of developers are seriously late, mutual termination for 6, field review every 3 months | Statements by the ACUD chairman (September–October 2026) |
-| Allowed building coverage: range **18–22.5%** (no official published number for R7/R8) | ACUD 2018 as published + a developer statement in R8 |
+| Building conditions for developer plots: ground floor **≤ 22.5%** of the plot, apartments ground + 7, villas ground + 1, **average occupancy factor 1.6** (total floor area ÷ land), basement allowed, services 8–12% of land. Developer designs announced at 18% (Moraya) and 22.5% (LA REVA). The binding value per plot is in its allocation contract (data request) | ACUD 2018 building conditions (Masrawy, 3 Feb 2018, RFP-0002) + developer statements (RFP-0008, R8-0072) |
 | Land installments: equal quarterly installments (since January 2024); detailed R8 terms not confirmed | Masrawy, Amwal Al Ghad |
 | Liquidity shock: the 6 March 2024 float. The dollar went from 30.94 to 49.44, the interest rate +600 basis points to 27.25% | Central Bank of Egypt |
 | 8.5% down payment and 7.7-year installment period on average (Greater Cairo) | Knight Frank Q1 2025 |
@@ -565,7 +566,7 @@ One row = complaint · Size: a few thousand (Arabic text for a sample only) · C
 | "ACUD reviews all projects every 3 months" | "According to the ACUD chairman's statement" |
 | "10–12 companies are distressed" | "Those seriously late are no more than about 7–8%" |
 | "Celia escrow balance" | "An accounting liability published in the financial statements" |
-| "The official building coverage is 20%" | "A range of 18–22.5% as published" |
+| "The official building coverage is 20%" | "ACUD caps the ground floor at 22.5% (2018 conditions); announced designs 18–22.5%" |
 | "The market price of steel" | "The indicative price in the ministry's bulletin" |
 | "The new developers law" | "A draft under discussion" |
 | "We proved that dust distorts the images" | "A weak indicator; we add a review flag" |

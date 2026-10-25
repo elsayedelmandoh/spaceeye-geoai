@@ -73,7 +73,7 @@ All values below are already in our real data folder. The generator reads them; 
 | Interest and inflation | CBE policy rate (+600 bp on 6 Mar 2024 to 27.25%), urban headline inflation | `cbe_policy_rates_monthly_derived.csv`, `inflation_monthly.csv` |
 | Temperature | Mean daily max by month: 19.5 °C (Jan) → 38.5 °C (Jul); ~15 days/year ≥ 40 °C | `06_weather_dust/nasa_power_daily_NAC_tidy.csv` |
 | Legal rules | Escrow 20/15/10/5/3% by area class; 12-month grace; refund after 24 months; 6-month regularization | Decree 2184/2022 (`r_regulations`) |
-| Market | Down payment 8.5%, installments 7.7 years (range 7-12); cost 720-1,270 USD/m²; coverage 18-22.5% | `12_simulation_benchmarks/benchmarks_summary.csv` |
+| Market | Down payment 8.5%, installments 7.7 years (range 7-12); cost 720-1,270 USD/m²; coverage 18-22.5% (ACUD cap 22.5%), floor area ratio ≤ 1.6, ground + 7 max | `12_simulation_benchmarks/benchmarks_summary.csv`, `13_acud_rfp_conditions` (RFP-0002) |
 | Utilities | 153 kWh/residential subscriber/month; 280-300 l/person/day; household 3.8 persons | `16_utility_benchmarks/benchmarks_utilities_summary.csv` |
 | Calibration targets | ~8% of developers seriously late (ACUD); R8 average progress 44% (Jun 2025) | `r_acud_events`, `r_progress_announced` |
 | Satellite statistics | see section 7.7 (computed from our real series) | `25_synthetic_calibration/calibration_stats.json` |
@@ -200,7 +200,7 @@ Missing DW quarters (< 6 images, ~2-3%) are **not** a planted defect: they come 
 
 ## 9. Realism checks (the output is used only if these pass)
 
-**Hard consistency (fail = do not use):** escrow balance ≥ 0 · collections ≤ value of units sold · true progress never decreases · occupied ≤ handed over ≤ units total · BUA per unit 90-250 m² · each story within ±1 twin of target · same seed → same files (hash check).
+**Hard consistency (fail = do not use):** escrow balance ≥ 0 · collections ≤ value of units sold · true progress never decreases · occupied ≤ handed over ≤ units total · BUA per unit 90-250 m² · BUA ÷ land ≤ 1.6 · each story within ±1 twin of target · same seed → same files (hash check).
 
 **Calibration targets (compare with real):**
 
@@ -233,9 +233,9 @@ Type key: `str` text, `int`, `float`, `date` (YYYY-MM-DD), `month` (YYYY-MM), `b
 | `district` | str | R7 / R8 | 🟢 | copied |
 | `land_area_m2` | float | m² | 🟢 | copied (feddan/acre converted) |
 | `units_total` | int | units | 🟢 | copied |
-| `building_coverage_pct` | float | 18-22.5 | 🟡 | U(18, 22.5) |
-| `floors` | int | 5-8 | 🟡 | chosen so BUA per unit is 90-250 m² (G+7 = 8 is the usual cap) |
-| `bua_m2` | float | m² | 🔵 | land × coverage × floors |
+| `building_coverage_pct` | float | 18-22.5 | 🟡 | U(18, 22.5); 22.5% is the ACUD cap (RFP-0002), 18% one developer's design (RFP-0008) |
+| `floors` | int | 5-8 | 🟡 | chosen so BUA per unit is 90-250 m²; ground + 7 = 8 is the ACUD cap |
+| `bua_m2` | float | m² | 🔵 | land × min(coverage × floors, 1.6): the ACUD average occupancy factor 1.6 caps total floor area (22.5% × 8 floors = 1.8 would break it) |
 | `escrow_class_pct` | float | 3-20 | 🟢 | Decree 2184 class by area |
 | `launch_date` | date | 2021-2023 | 🟠 | sampled; real launch year where known and inside the range |
 | `land_handover_date` | date | | 🟠 | launch + 3-12 months |

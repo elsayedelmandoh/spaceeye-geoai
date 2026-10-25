@@ -177,7 +177,7 @@ NASA Black Marble. District context and occupancy calibration for Track B; never
 
 | Table | Grain | Columns (type key in section 4) |
 | --- | --- | --- |
-| `g_twins` | twin | `twin_id`, `template_compound_id`, `developer_id` ⚪ · `district`, `land_area_m2`, `units_total` 🟢 (jittered) · `building_coverage_pct` 🟡 · `floors`, `bua_m2` 🔵 · `escrow_class_pct` 🟢 · `launch_date`, `land_handover_date`, `contractual_delivery_date` 🟠 |
+| `g_twins` | twin | `twin_id`, `template_compound_id`, `developer_id` ⚪ · `district`, `land_area_m2`, `units_total` 🟢 (jittered) · `building_coverage_pct` 🟡 (18-22.5%, ACUD cap 22.5%) · `floors` 🟡 (5-8, cap ground + 7) · `bua_m2` 🔵 (= land × min(coverage × floors, 1.6), ACUD average occupancy factor) · `escrow_class_pct` 🟢 · `launch_date`, `land_handover_date`, `contractual_delivery_date` 🟠 |
 | `g_plan_monthly` | twin × month | `twin_id`, `month` ⚪ · `planned_progress_pct` 🟠 |
 | `g_progress_monthly` | twin × month | `twin_id`, `month` ⚪ · `reported_progress_pct`, `report_date`, `facades_pct`, `dw_built_obs`, `dw_n_images`, `sar_vh_obs` 🟠 · `stall_flag` 🔵 |
 | `g_escrow_monthly` | twin × month | `twin_id`, `month` ⚪ · `units_sold`, `avg_unit_price_egp`, `collections_egp`, `deposits_egp`, `withdrawals_egp`, `balance_egp`, `cost_to_complete_egp` 🟠 · `required_min_pct`, `material_cost_index` 🟢 · `coverage_ratio` 🔵 |

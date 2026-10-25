@@ -89,7 +89,7 @@ Details are in `data-report.md`. We use only records marked `CONFIRMED` and `CON
 | Esri Wayback | A | Before/after images (display only) | ✅ |
 | Black Marble night lights (district) | A (context) + B (calibration) | One chart + occupancy speed | ✅ |
 | March 2024 shock + steel and cement + exchange rate | B | The shock and cost inflation | ✅ |
-| Simulation references (land, installments, cost per m², building ratio 18–22.5%, down payment 8.5%/7.7 years, electricity and water) | B | Simulator parameters | ✅ |
+| Simulation references (land, installments, cost per m², building ratio ≤ 22.5% and occupancy factor 1.6 (ACUD 2018), down payment 8.5%/7.7 years, electricity and water) | B | Simulator parameters | ✅ |
 
 ---
 
@@ -237,7 +237,7 @@ Result: about 8% reach "distressed", which is consistent with the ACUD statement
 
 ### Generation logic (monthly, for each twin)
 1. **Plan:** an S-curve over 36 months from land handover.
-2. **Cost:** built-up area (area × 18–22.5%) × cost per m² (720–1,270 USD × actual exchange rate) × steel and cement index.
+2. **Cost:** built-up area (land × min(coverage 18–22.5% × floors, 1.6), the ACUD occupancy factor) × cost per m² (720–1,270 USD × actual exchange rate) × steel and cement index.
 3. **Sales and collection:** sales curve; down payment 8.5% + installments over 7.7 years; the story reduces collection after the shock.
 4. **Escrow:** deposit = collection; minimum = Decree 2184 percentage by area category × phase cost; withdrawal = spending.
 5. **Spending and progress (the linking loop):** actual spending = the lower of planned spending and available cash → progress follows spending.
