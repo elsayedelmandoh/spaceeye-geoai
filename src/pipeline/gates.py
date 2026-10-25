@@ -12,7 +12,7 @@ import duckdb
 import pandas as pd
 
 from src.pipeline.build_real import ORIGINS
-from src.pipeline.common import APP, CFG, N_Q, months_between, qend, qindex, src
+from src.pipeline.common import APP, CFG, N_Q, PRIVATE, months_between, qend, qindex, src
 
 ACCEPTED = ("CONFIRMED", "CONFIRMED_MINOR_FIX", "AUDIT_LIVE_CHECKED")
 TEXT_EXT = {".csv", ".json", ".geojson", ".md", ".txt", ".yaml", ".yml"}
@@ -156,16 +156,24 @@ def _file_texts(path):
         yield path.read_bytes().decode("latin-1")
 
 
-def g_no_names(root=APP) -> dict:
+def generator_files() -> list:
+    """the private tables and dictionaries written by the generator (R2); they live outside app_data but must be free of names too."""
+    names = ("answer_key.parquet", "answer_key_complaints.parquet", "defects_log.csv", "stories.csv")
+    return [PRIVATE / n for n in names if (PRIVATE / n).exists()] + sorted((PRIVATE / "dictionaries").glob("*.md"))
+
+
+def g_no_names(root=APP, extra=None) -> dict:
+    """scan every file under `root` plus the generator's private tables (answer key, defects log, dictionaries)."""
     pats = _patterns(forbidden_names())
+    extra = generator_files() if extra is None else extra
+    files = [(p, str(p.relative_to(root))) for p in sorted(root.rglob("*")) if p.is_file()] + [(p, "private/" + p.name) for p in extra]
     bad = {}
-    for p in sorted(root.rglob("*")):
-        if p.is_file():
-            n = sum(_hits(chunk, pats) for chunk in _file_texts(p))
-            if n:
-                bad[str(p.relative_to(root))] = n
-    return _row("no_names", "Privacy", "no compound or developer name (english or arabic) in any output", "0 files with a match", "R1", "stop",
-                f"{len(pats)} patterns; files with a match: {', '.join(bad) if bad else 'none'}", not bad, "names appear only in the backtest slide, never in data", "STOP")
+    for p, label in files:
+        n = sum(_hits(chunk, pats) for chunk in _file_texts(p))
+        if n:
+            bad[label] = n
+    return _row("no_names", "Privacy", "no compound or developer name (english or arabic) in any output, generator tables included", "0 files with a match", "R1", "stop",
+                f"{len(pats)} patterns, {len(files)} files; files with a match: {', '.join(bad) if bad else 'none'}", not bad, "names appear only in the backtest slide, never in data", "STOP")
 
 
 # ---- extra check (not one of the nine) ---------------------------------------------------------------------------------------------------
