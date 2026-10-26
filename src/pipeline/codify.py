@@ -9,6 +9,8 @@ import json
 
 import numpy as np
 import pandas as pd
+from shapely import affinity
+from shapely.geometry import shape
 
 from src.pipeline.common import CFG, PRIVATE, RAW, SRC, src
 
@@ -127,6 +129,9 @@ def _satellite(cm: pd.DataFrame) -> None:
     s4.insert(1, "qi", (s4.Y - 2016) * 4 + 1)       # windows end 30 June
     _w(s4.drop(columns="Y").sort_values(["pid", "qi"]), "s4_windows_q2.csv")
 
+    wq = pd.concat([pd.read_csv(p) for p in sorted(glob.glob(str(SRC / CFG["sources"]["s4_windows_quarterly_glob"])))])
+    _w(wq.sort_values(["pid", "qi"]), "s4_windows_plots_quarterly.csv")  # windows ending every quarter, plots only (pid = OSM id)
+
     lab = pd.read_csv(src("plot_labels"), usecols=["osm_id", "year", "area_ha", "growth", "stable", "presence_fraction", "d_presence_fraction"])
     _w(lab.sort_values(["osm_id", "year"]), "plot_labels.csv")
     _w(pd.read_csv(src("plot_split")), "plot_split.csv")
@@ -147,6 +152,25 @@ def _satellite(cm: pd.DataFrame) -> None:
     _w(h[cols].sort_values(["code", "year"]), "heights.csv")
 
 
+def _plot_overlap() -> None:
+    """share of every compound's area covered by each OSM plot (local metric scale, plots only). used to drop leaking plots in the backtest variant of A."""
+    k = np.cos(np.radians(30.1))
+
+    def metric(g):
+        return affinity.scale(shape(g), xfact=111320 * k, yfact=110574, origin=(0, 0))
+
+    plots = {f["properties"]["osm_id"]: metric(f["geometry"]) for f in json.loads(src("osm_polygons").read_text(encoding="utf-8"))["features"]}
+    rows = []
+    for f in json.loads((RAW / "boundaries.geojson").read_text(encoding="utf-8"))["features"]:
+        cg = metric(f["geometry"])
+        for osm_id, pg in plots.items():
+            if pg.intersects(cg):
+                inter = pg.intersection(cg).area
+                rows.append((osm_id, f["properties"]["code"], round(inter / cg.area, 4), round(inter / pg.area, 4), round(inter / cg.union(pg).area, 4)))
+    out = pd.DataFrame(rows, columns=["osm_id", "code", "share_of_compound", "share_of_plot", "iou"])
+    _w(out[out.share_of_compound >= 0.01].sort_values(["code", "osm_id"]), "plot_compound_overlap.csv")
+
+
 def _reference() -> None:
     _w(pd.read_csv(src("macro")), "macro_monthly.csv")
     _w(pd.read_csv(src("weather")), "weather_monthly.csv")
@@ -160,6 +184,7 @@ def run() -> pd.DataFrame:
     _facts(cm)
     _geo(cm)
     _satellite(cm)
+    _plot_overlap()
     _reference()
     return cm
 
