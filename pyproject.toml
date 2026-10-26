@@ -26,6 +26,7 @@ dependencies = [
     "openpyxl",
     "pandera",
     "scikit-learn",
+    "shapely",
     "lightgbm",
     "streamlit",
     "plotly",

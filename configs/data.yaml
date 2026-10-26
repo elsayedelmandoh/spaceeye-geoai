@@ -25,6 +25,8 @@ sources:
   dw_polygons: "17_builtup_2024_2026_options/dynamic_world_polygons_quarterly.csv"
   dw_compounds: "28_team_ideas_tests/features/cache/dw_compounds_quarterly.csv"
   s4_windows_glob: "28_team_ideas_tests/features/cache/s4_windows_*.csv"
+  s4_windows_quarterly_glob: "30_district_retrospective/cache/w_*.csv"   # 12-month windows ending every quarter 2017Q4-2026Q3, 225 plots (audited recipe)
+  osm_polygons: "05_geo_satellite/raw/osm_polygons_all_bbox.geojson"
   plot_split: "28_team_ideas_tests/features/split_plots_seed2026.csv"
   # a v6 file (29_height_final/v6/compound_height_yearly.csv) may replace this one later;
   # rows are kept when `published` is true, or (no such column) when year <= heights_max_year
@@ -38,9 +40,22 @@ n_images_min: 6            # K4: dynamic world images in the quarter
 veg_complete: 0.10         # vegetation share that suggests "may be complete"
 activity_features_cap: 6   # quarters looked back for persistence features
 
-k5:
-  horizon_months: 12       # first deadline closer than this
-  max_rate: 0.15           # p95 quarterly built-share rise (225 plots)
+# a compound has started when A shows 4 consecutive active quarters or a launch / delivery event is published; K2 counts only after that
+start:
+  run_quarters: 4
+  events: [launch, delivery_start, delivery_progress, delivery_complete]
+
+# activity score A: windows ending every quarter, training windows end 2019Q1-2023Q4, label = OBT label of the plot-year whose 30 June is inside the window
+activity:
+  train_first_quarter: "2019Q1"
+  train_last_quarter: "2023Q4"
+  holdout_label_year: 2022          # T1/T2: train label year <= 2021 (windows ending <= 2021Q4), test label year >= 2022
+  eval_first_quarter: "2024Q1"      # T3 and the seasonal-spread test: windows ending 2024Q1 .. 2025Q4 on OBT-stable plots
+  eval_last_quarter: "2025Q4"
+  min_gain_ba: 3.0                  # T1, T2: A >= K1 + 3 balanced-accuracy points
+  max_false_alarm_extra: 5.0        # T3: A active share <= K1 active share + 5 points
+  max_seasonal_spread: 10.0         # points between the highest and lowest quarter-of-year active share on stable plots
+  overlap_exclude: 0.5              # backtest variant drops training plots covering this share of any compound
 
 levels:
   k2_l1: 4
