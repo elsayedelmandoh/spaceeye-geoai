@@ -11,7 +11,8 @@ story table (data plan section 4.2), plus "healthy" for the compounds that match
   new_start         first sustained activity at or after 2024Q3, nothing before: a new project
   slow_late         A active and K3 > 0 (first promised date passed)
   healthy           everything else
-the satellite flag A flickers by one quarter (R1 report, issue 3), so a 3-quarter majority vote is used before any rule.
+A used to flicker by one quarter (R1 report, issue 3); since the 26 Oct correction it is held for 4 quarters, the 3-quarter majority vote is kept and is now a no-op in practice.
+a compound that R1 labels "not started" (no 4-quarter run of activity, no launch event) and whose A is inactive in the last 4+ quarters still follows the plan table (gradual_stall), the reason says so.
 """
 
 from dataclasses import dataclass, field
@@ -167,7 +168,8 @@ def classify(s: Signals, qs: np.ndarray, k_now) -> tuple[str, str]:
         trailing += 1
     if trailing >= G["stall_quarters"]:
         s.onset = q_month(len(qs) - trailing) if trailing < len(qs) else None
-        return "gradual_stall", f"A inactive for the last {trailing} quarters (raw K2 = {int(k_now.K2)}), no handover announced"
+        state = f"K2 = {int(k_now.K2)} since construction started in {k_now.start_quarter}" if bool(k_now.started) else "construction not started in R1: no 4-quarter run of activity, no launch event"
+        return "gradual_stall", f"A inactive for the last {trailing} quarters ({state}), no handover announced"
     for a, n in runs(qs, False):
         after = qs[a + n:]
         if n >= G["recovery_gap_quarters"] and any(qs[:a]) and len(after) >= 2 and after[:2].all():
