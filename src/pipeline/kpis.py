@@ -1,19 +1,16 @@
 """
-propose: step 4. K2-K5, priority level, "may be complete" flag and the reason sentence, for every compound at every as-of quarter.
+propose: step 4. K2, K3, priority level, "may be complete" flag and the reason sentence, for every compound at every as-of quarter.
 every value at quarter q uses only data published by the end of q (clock frozen per quarter).
 input: sat_quarterly (with activity_prob/active), compounds, statements, sat_yearly. output: kpi_values.
 
-fixed definitions (written before any backtest):
-  K2  consecutive latest quarters with A inactive (stops at an active or a missing quarter).
-  K3  months since the end of the FIRST published delivery promise; 0 if a handover was announced or no date has passed.
-  K5  first date still ahead by 0-12 months, no handover announced, and either (a) A inactive and not finished, or
-      (b) required rise in built share to reach the "ready" level / remaining quarters > max_rate.
-      ready = median built share, in the quarter handover started, of the OTHER compounds whose handover start was published (leave-one-out).
-      finished = may be complete, or built share already at the ready level.
+fixed definitions (written before any backtest; K5 was dropped on 26 Oct 2026 because it added nothing, see FIXES_PROTOCOL):
+  started  at quarter q: A showed 4 consecutive active quarters ending at or before q (start = first quarter of the first such run), or a launch / delivery event was
+           published by the end of q (start = quarter of the event period, else of the publication). before that the state is "not started", not level 1.
+  K2  consecutive latest quarters with A inactive, counted only from the quarter construction started (stops at an active or a missing quarter); empty before the start.
+  K3  months since the end of the FIRST published delivery promise; 0 if a handover was announced or no date has passed. independent of `started`.
   may be complete = handover announced, or vegetation share >= veg_complete (latest year finished by the quarter end). caps the level at 3.
+  level = worst of K2 (after the start), K3 and the combined rule; not started with K3 = 0 has no level.
 """
-
-import math
 
 import numpy as np
 import pandas as pd
@@ -21,7 +18,7 @@ import pandas as pd
 from src.pipeline.build_real import first_promise
 from src.pipeline.common import CFG, N_Q, months_between, qend, qindex, qlabel
 
-L, K5C = CFG["levels"], CFG["k5"]
+L, ST = CFG["levels"], CFG["start"]
 FIRST_Q = qindex(CFG["backtest"]["first_quarter"])
 
 
@@ -30,31 +27,43 @@ def inactive(a) -> bool:
     return not pd.isna(a) and not bool(a)
 
 
-def add_k2(sat: pd.DataFrame) -> pd.DataFrame:
-    """K2 per compound-quarter from the active flag."""
-    out = []
-    for _, g in sat.sort_values("qi").groupby("code"):
-        n, k2 = 0, []
-        for a in g.active:
-            n = n + 1 if inactive(a) else 0
-            k2.append(np.nan if pd.isna(a) else n)
-        out.append(g.assign(K2=k2))
-    return pd.concat(out).sort_values(["code", "qi"]).reset_index(drop=True)
-
-
-def delivery_starts(stm: pd.DataFrame) -> pd.DataFrame:
-    """handover start events: code, date it was published, quarter it started (period start, else the publish date)."""
-    e = stm[(stm.kind == "event") & (stm.subtype == "delivery_start")].copy()
-    start = pd.to_datetime(e.period_start.fillna(e.published_date))
-    e["pub"], e["start_qi"] = pd.to_datetime(e.published_date), (start.dt.year - 2016) * 4 + (start.dt.month - 1) // 3
+def event_starts(stm: pd.DataFrame) -> pd.DataFrame:
+    """launch / delivery events: code, date published, quarter the event started (period start or date, never later than the publication)."""
+    e = stm[(stm.kind == "event") & stm.subtype.isin(ST["events"])].copy()
+    pub = pd.to_datetime(e.published_date)
+    start = pd.to_datetime(e.period_start.fillna(e.published_date)).where(lambda d: d <= pub, pub)
+    e["pub"], e["start_qi"] = pub, (start.dt.year - 2016) * 4 + (start.dt.month - 1) // 3
     return e[["code", "pub", "start_qi"]]
 
 
-def ready_level(code: str, asof: pd.Timestamp, starts: pd.DataFrame, built: pd.DataFrame) -> float:
-    """median built share at handover start of the other compounds that had announced a start by `asof` (nan if none)."""
-    s = starts[(starts.pub <= asof) & (starts.code != code)].drop_duplicates("code")
-    vals = [built.at[q, c] for c, q in zip(s.code, s.start_qi) if q in built.index and c in built]
-    return float(np.nanmedian(vals)) if len(vals) and not np.all(np.isnan(vals)) else np.nan
+def add_k2(sat: pd.DataFrame, stm: pd.DataFrame) -> pd.DataFrame:
+    """K2 and the construction-start state per compound-quarter (frozen clock: only runs and events known at the quarter count)."""
+    ev, run = event_starts(stm), ST["run_quarters"]
+    out = []
+    for code, g in sat.sort_values("qi").groupby("code"):
+        g = g.reset_index(drop=True)
+        act = g.active.fillna(False).astype(bool).tolist()
+        s_run = next((i for i in range(len(act) - run + 1) if all(act[i : i + run])), None)  # first run of `run` active quarters
+        mine = ev[ev.code == code]
+        k2, started, start_q = [], [], []
+        for i, q in enumerate(g.qi):
+            cands = [int(x) for x in mine[mine.pub <= qend(q)].start_qi]
+            if s_run is not None and s_run + run - 1 <= i:
+                cands.append(int(g.qi[s_run]))
+            st = min(cands) if cands else None
+            started.append(st is not None)
+            start_q.append(qlabel(st) if st is not None else None)
+            if st is None or pd.isna(g.active[i]):
+                k2.append(np.nan)
+                continue
+            n = 0
+            for j in range(i, -1, -1):
+                if g.qi[j] < st or not inactive(g.active[j]):
+                    break
+                n += 1
+            k2.append(n)
+        out.append(g.assign(K2=k2, started=started, start_quarter=start_q))
+    return pd.concat(out).sort_values(["code", "qi"]).reset_index(drop=True)
 
 
 def veg_latest(yearly: pd.DataFrame, code: str, qi: int) -> float:
@@ -64,18 +73,19 @@ def veg_latest(yearly: pd.DataFrame, code: str, qi: int) -> float:
     return float(v.veg_share.iloc[-1]) if len(v) else np.nan
 
 
-def level_of(k2: float, k3: int, k5: bool, complete: bool) -> int:
-    k2 = 0 if pd.isna(k2) else k2
+def level_of(k2: float, k3: int, complete: bool, started: bool = True) -> int | None:
+    """worst of K2 (only after construction started), K3 and the combined rule. None = "not started" (and no K3 date has passed either)."""
+    k2 = 0 if (pd.isna(k2) or not started) else k2
     if k2 >= L["k2_l1"] or k3 > L["k3_l1"] or (k2 >= L["combo_k2"] and k3 > L["combo_k3"]):
         lv = 1
     elif L["k2_l2"] <= k2 < L["k2_l1"] or L["k3_l2"] <= k3 <= L["k3_l1"]:
         lv = 2
     elif k2 == 1 or 1 <= k3 <= L["k3_l2"] - 1:
         lv = 3
-    else:
+    elif started:
         lv = 4
-    if k5:
-        lv = min(lv, 2)
+    else:
+        return None
     return max(lv, 3) if complete else lv
 
 
@@ -85,7 +95,13 @@ def reason(r: dict) -> str:
         return f"Not assessable: {r['n_images']} images in the quarter (minimum {CFG['n_images_min']})."
     p = []
     a = r["activity_prob"]
-    p.append(f"no building activity for {int(r['K2'])} quarter(s) (activity score {a:.2f})" if r["K2"] >= 1 else f"building activity detected (activity score {a:.2f})")
+    score = f"activity score {a:.2f}" if pd.notna(a) else "no activity score yet"
+    if not r["started"]:
+        p.append(f"construction not started: no {ST['run_quarters']}-quarter run of building activity and no published launch or construction event ({score})")
+    elif pd.notna(r["K2"]) and r["K2"] >= 1:
+        p.append(f"no building activity for {int(r['K2'])} quarter(s) ({score})")
+    else:
+        p.append(f"building activity detected ({score})")
     if r["handover"]:
         p.append("handover announced")
     elif r["first_end"] is None:
@@ -94,21 +110,15 @@ def reason(r: dict) -> str:
         p.append(f"first announced handover date ({r['first_end']:%b %Y}) passed by {r['K3']} months")
     else:
         p.append(f"first announced handover date ({r['first_end']:%b %Y}) is still ahead")
-    if r["K5"]:
-        if pd.notna(r["k5_rate_needed"]) and r["k5_rate_needed"] > K5C["max_rate"]:
-            p.append(f"at risk of missing it: built share must rise {r['k5_rate_needed']:.2f} per quarter (fastest observed {K5C['max_rate']:.2f})")
-        else:
-            p.append(f"at risk of missing it: no activity and not finished with {r['months_left']} months left")
     if r["may_be_complete"]:
         p.append("may be complete (" + ("handover announced" if r["handover"] else f"vegetation share {r['veg']:.2f}") + "): confirm on site")
     p.append(f"observation complete ({r['n_images']} images in the quarter)")
-    return f"Level {r['level']}: " + "; ".join(p) + "."
+    head = f"Level {r['level']}" if pd.notna(r["level"]) else "Not started"
+    return f"{head}: " + "; ".join(p) + "."
 
 
 def kpi_values(sat: pd.DataFrame, comp: pd.DataFrame, stm: pd.DataFrame, yearly: pd.DataFrame, run_id: str, upto: int = N_Q - 1) -> pd.DataFrame:
-    sat = add_k2(sat[sat.qi <= upto])
-    built = sat.pivot(index="qi", columns="code", values="built_prob_mean")
-    starts = delivery_starts(stm)
+    sat = add_k2(sat[sat.qi <= upto], stm)
     prom = stm[stm.kind == "promise"]
     hand = comp.set_index("code").handover_first_published
     rows = []
@@ -122,19 +132,12 @@ def kpi_values(sat: pd.DataFrame, comp: pd.DataFrame, stm: pd.DataFrame, yearly:
         complete = handover or (pd.notna(veg) and veg >= CFG["veg_complete"])
         months_left = months_between(asof, first_end) if first_end is not None else None
         k3 = max(0, -months_left) if first_end is not None and not handover else 0
-        ready, rate, k5 = np.nan, np.nan, False
-        if first_end is not None and not handover and 0 <= months_left <= K5C["horizon_months"] and pd.notna(r.built_prob_mean):
-            ready = ready_level(r.code, asof, starts, built)
-            rq = max(1, math.ceil(months_left / 3))
-            finished = complete or (pd.notna(ready) and r.built_prob_mean >= ready)
-            if pd.notna(ready):
-                rate = max(0.0, ready - r.built_prob_mean) / rq
-            k5 = bool((inactive(r.active) and not finished) or (pd.notna(rate) and rate > K5C["max_rate"]))
-        row = {"code": r.code, "quarter": qlabel(r.qi), "qi": r.qi, "activity_prob": r.activity_prob, "active": r.active, "K2": r.K2, "K3": k3, "K4": bool(r.K4),
-               "K5": k5, "k5_rate_needed": rate, "may_be_complete": bool(complete), "n_images": r.n_images}
-        row["level"] = level_of(r.K2, k3, k5, complete) if r.K4 else pd.NA
-        row["level_label"] = "not assessable" if not r.K4 else str(row["level"])
-        row["reason"] = reason({**row, "handover": handover, "first_end": first_end, "months_left": months_left, "veg": veg})
+        row = {"code": r.code, "quarter": qlabel(r.qi), "qi": r.qi, "activity_prob": r.activity_prob, "active": r.active, "started": bool(r.started), "start_quarter": r.start_quarter,
+               "K2": r.K2, "K3": k3, "K4": bool(r.K4), "may_be_complete": bool(complete), "n_images": r.n_images}
+        lv = level_of(r.K2, k3, complete, bool(r.started)) if r.K4 else None
+        row["level"] = pd.NA if lv is None else lv
+        row["level_label"] = "not assessable" if not r.K4 else "not started" if lv is None else str(lv)
+        row["reason"] = reason({**row, "handover": handover, "first_end": first_end, "veg": veg})
         row["k3_first_deadline"] = first_end
         rows.append(row)
     out = pd.DataFrame(rows)
@@ -145,7 +148,7 @@ def kpi_values(sat: pd.DataFrame, comp: pd.DataFrame, stm: pd.DataFrame, yearly:
 
 
 def rank_cycle(kpi: pd.DataFrame) -> pd.DataFrame:
-    """inspection order inside each quarter: level, then K2 descending, then K3 descending. the top N with level 1-3 form the cycle list."""
+    """inspection order inside each quarter: level, then K2 descending, then K3 descending. the top N with level 1-3 form the cycle list (not started compounds have no level)."""
     kpi = kpi.copy()
     kpi["cycle_rank"] = pd.array([pd.NA] * len(kpi), dtype="Int64")
     for q, g in kpi[kpi.level.notna() & (kpi.level <= 3)].groupby("qi"):
@@ -156,4 +159,4 @@ def rank_cycle(kpi: pd.DataFrame) -> pd.DataFrame:
 
 def cycle_list(kpi: pd.DataFrame, quarter: str) -> pd.DataFrame:
     c = kpi[(kpi.quarter == quarter) & kpi.cycle_rank.notna()].sort_values("cycle_rank")
-    return c[["cycle_rank", "code", "level", "K2", "K3", "K5", "may_be_complete"]]
+    return c[["cycle_rank", "code", "level", "K2", "K3", "may_be_complete"]]
