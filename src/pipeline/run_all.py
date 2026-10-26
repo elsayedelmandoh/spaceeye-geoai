@@ -42,8 +42,9 @@ def write_duckdb() -> None:
 
 
 def manifest() -> pd.DataFrame:
-    """hash of every output; the duckdb file is hashed by table content because its bytes carry no meaning."""
-    rows = [(str(p.relative_to(APP)), sha(p)) for p in sorted(APP.rglob("*")) if p.is_file() and p.suffix not in {".duckdb", ".md"} and p.name != "manifest.csv"]
+    """hash of every output of this pipeline (the generator's `sim/` folder has its own manifest); the duckdb file is hashed by table content because its bytes carry no meaning."""
+    rows = [(str(p.relative_to(APP)), sha(p)) for p in sorted(APP.rglob("*"))
+            if p.is_file() and p.suffix not in {".duckdb", ".md"} and p.name != "manifest.csv" and p.relative_to(APP).parts[0] != "sim"]
     con = duckdb.connect(str(APP / "spaceeye.duckdb"), read_only=True)
     for (tab,) in con.execute("select table_name from information_schema.tables order by 1").fetchall():
         df = con.execute(f"select * from {tab}").df().astype(str)
@@ -68,18 +69,34 @@ def main() -> int:
     for name, df in t.items():
         step(f"build_{name}", len(df), f"{df.shape[1]} columns")
 
-    model, thr, meta = activity.fit()
+    model, thr, meta = activity.fit_final()
+    mode = meta["mode"]
     activity.save(model, meta)
-    step("activity", meta["n_train"], f"threshold {thr:.4f}; oof ba {meta['oof_sens_spec_ba'][2]}; replay gain T1 {meta['replay']['T1']['gain_ba']} T2 {meta['replay']['T2']['gain_ba']}")
-    sat = t["sat_quarterly"].merge(activity.score(t["sat_quarterly"], model, thr)[["code", "qi", "activity_prob", "active"]], on=["code", "qi"], how="left")
-    t["sat_quarterly"] = kpis.add_k2(sat)
+    v = meta["validation"]
+    rq = meta.get("rejected_quarterly", {}).get("validation")
+    step("activity", meta["n_train"], f"mode {mode}; threshold {thr:.4f}; oof ba {meta['oof_sens_spec_ba'][2]}; T1 gain {v['T1']['gain_ba']} T2 {v['T2']['gain_ba']}; "
+         f"T3 A {v['T3']['A_active_pct']}% vs K1 {v['T3']['K1_active_pct']}%; seasonal spread {v['seasonal']['stable_plots_2024_2025']['A']['spread_pp']} pp"
+         + (f"; quarterly A rejected (T1 {rq['T1']['gain_ba']}, T2 {rq['T2']['gain_ba']}, T3 {rq['T3']['pass']}, spread {rq['seasonal']['stable_plots_2024_2025']['A']['spread_pp']})" if rq else ""))
+    leak = activity.overlapping_plots()
+    model_bt, thr_bt, meta_bt = activity.fit(leak, mode)  # backtest variant: trained without the plots that cover a compound
+    activity.save(model_bt, meta_bt, "_backtest")
+    step("activity_backtest", meta_bt["n_train"], f"{len(leak)} plots covering a compound left out of training; threshold {thr_bt:.4f}; T1 gain {meta_bt['validation']['T1']['gain_ba']} "
+         f"T2 {meta_bt['validation']['T2']['gain_ba']}")
+    raw_sat = t["sat_quarterly"]
+    sat = raw_sat.merge(activity.score(raw_sat, model, thr, mode=mode)[["code", "qi", "activity_prob", "active"]], on=["code", "qi"], how="left")
+    t["sat_quarterly"] = kpis.add_k2(sat, t["statements"])
     kpi = kpis.kpi_values(t["sat_quarterly"], t["compounds"], t["statements"], t["sat_yearly"], run_id)
-    step("kpis", len(kpi), f"asof {CFG['asof']}: " + ", ".join(f"level {k}: {v}" for k, v in kpi[kpi.quarter == CFG["asof"]].level_label.value_counts().sort_index().items()))
+    step("kpis", len(kpi), f"asof {CFG['asof']}: " + ", ".join(f"{k}: {v}" for k, v in kpi[kpi.quarter == CFG["asof"]].level_label.value_counts().sort_index().items()))
 
-    cases, summary = backtest_check.run(kpi, t["eval_outcomes"])
-    summary["frozen_clock_check"] = backtest_check.frozen_clock_check(model, thr, t["sat_quarterly"], kpi, t["compounds"], t["statements"], t["sat_yearly"], run_id)
+    sat_bt = raw_sat.merge(activity.score(raw_sat, model_bt, thr_bt, mode=mode)[["code", "qi", "activity_prob", "active"]], on=["code", "qi"], how="left")
+    kpi_bt = kpis.kpi_values(sat_bt, t["compounds"], t["statements"], t["sat_yearly"], run_id)
+    cases, summary = backtest_check.run(kpi_bt, t["eval_outcomes"])
+    summary["activity_variant"] = {"mode": mode, "plots_left_out": len(leak), "threshold": thr_bt}
+    summary["frozen_clock_check"] = backtest_check.frozen_clock_check(model, thr, mode, t["sat_quarterly"], kpi, t["compounds"], t["statements"], t["sat_yearly"], run_id)
     backtest_check.save(cases, summary)
-    step("backtest", len(cases), f"literal {summary['pre_registered_literal_reading']['n']}/8, point in time {summary['point_in_time_reading']['n']}/8, after start {summary['after_start_reading']['n']}/8; frozen clock {summary['frozen_clock_check']}")
+    kpi_bt.to_parquet(APP / "backtest" / "kpi_values_backtest.parquet", index=False)
+    step("backtest", len(cases), f"after start {summary['after_start_reading']['n']}/8, point in time {summary['point_in_time_reading']['n']}/8, literal {summary['literal_reading']['n']}/8; "
+         f"frozen clock {summary['frozen_clock_check']}")
 
     out = {**t, "kpi_values": kpi}
     write_real(out)
