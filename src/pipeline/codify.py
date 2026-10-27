@@ -81,7 +81,7 @@ def _facts(cm: pd.DataFrame) -> None:
     out["case"] = "E" + out.case_id.str.extract(r"C(\d)")[0]
     cols = ["case", "code", "outcome_type", "promise_original_period", "promise_original_published", "outcome_date", "outcome_first_published",
             "delay_months_vs_promise", "evidence_gate", "outcome_visible_by_2024Q2", "outcome_visible_by_2025Q2"]
-    _w(out[cols].sort_values("case"), "eval_outcomes.csv")
+    _w(out[out.code.notna()][cols].sort_values("case"), "eval_outcomes.csv")
 
     # private evidence file: where every fact comes from (names allowed here)
     names = cm.set_index("project_id").name_en
@@ -105,6 +105,8 @@ def _geo(cm: pd.DataFrame) -> None:
     feats = []
     for f in _boundary_features():
         p = f["properties"]
+        if p["compound_id"] not in pid2code:  # outside the scope
+            continue
         props = {"code": pid2code[p["compound_id"]], "boundary_confidence": p["boundary_confidence"],
                  "area_m2": float(p["area_m2"]), "area_ratio": float(p["area_ratio"])}
         feats.append({"type": "Feature", "properties": props, "geometry": f["geometry"]})
@@ -181,6 +183,7 @@ def _reference() -> None:
 def run() -> pd.DataFrame:
     RAW.mkdir(parents=True, exist_ok=True)
     cm = code_map()
+    cm = cm[cm.district.isin(CFG["scope_districts"])]  # the code map keeps all compounds; only the scope is copied on
     _facts(cm)
     _geo(cm)
     _satellite(cm)

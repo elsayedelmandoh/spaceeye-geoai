@@ -107,7 +107,8 @@ def run(units, drv, fin, cmp_, fin_def, cmp_def, defects, real, same_hash: bool,
     # calibration (reported, not failing)
     cal = []
     n = len(cmp_)
-    cal.append(_r("complaints_total", "calibration", f"{n}", "about 2,500 (2,000-3,000)", 2000 <= n <= 3000))
+    k = cmp_.code[cmp_.code.str.fullmatch(r"C\d\d") & (cmp_.code != GEN["defects"]["unknown_code"])].nunique() / 22  # the 2,000-3,000 band was set for 22 compounds
+    cal.append(_r("complaints_total", "calibration", f"{n}", f"about {2500 * k:,.0f} ({2000 * k:,.0f}-{3000 * k:,.0f})", 2000 * k <= n <= 3000 * k))
     wrong = float((cmp_.category != cmp_._true_cat).mean())
     cal.append(_r("complaints_wrong_category", "calibration", f"{wrong:.1%}", "10-15 % filed under the wrong category", 0.10 <= wrong <= 0.15))
     cal.append(_r("complaint_texts", "calibration", f"{int(cmp_.text_ar.notna().sum())}", "about 100 texts", int(cmp_.text_ar.notna().sum()) == GEN["complaints"]["n_texts"]))
