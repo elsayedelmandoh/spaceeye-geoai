@@ -70,6 +70,7 @@ def compounds() -> pd.DataFrame:
 def sat_quarterly() -> pd.DataFrame:
     """compound x quarter 2016Q1-2026Q3: dynamic world series, 12-month class shares, K1, K4. A and K2 are added later."""
     dw = pd.concat([_csv("dw_compounds_quarterly.csv"), _csv("dw_compounds_new.csv")]).drop_duplicates(["code", "qi"])
+    dw = dw[dw.code.isin(_csv("compounds.csv").code)]  # the pulled file can hold compounds outside the scope
     codes = sorted(dw.code.unique())
     grid = pd.MultiIndex.from_product([codes, range(N_Q)], names=["code", "qi"]).to_frame(index=False)
     out = grid.merge(dw, on=["code", "qi"], how="left")
