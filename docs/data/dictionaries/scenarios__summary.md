@@ -5,7 +5,7 @@ Actual schema;36rows. Synthetic - for training only
 | Column | Type | Unit/range | Origin | Meaning/method |
 | --- | --- | --- | --- | --- |
 | scenario_id | str | see meaning | generated/derived from generated | Named hypothetical intervention; baseline stays separate. |
-| code | str | registered compound codes plus a planted unknown code | key | compound code; from the compound; defect 4 replaces it in the configured number of rows |
+| code | str | registered compound codes plus a planted unknown code | key | Coded compound identifier; accepted prepared tables use registered R7 codes. Planted unknown codes occur only in raw/quarantined test inputs. |
 | initial_progress_pct | float64 | percent | generated/derived from generated | Latest supervisor progress report available by cutoff; explicit assumed zero if none exists. |
 | final_progress_pct | float64 | percent | generated/derived from generated | Last simulated progress in the forward horizon, not forecast handover/completion. |
 | gross_collections_egp | float64 | EGP | generated/derived from generated | Baseline future collections times intervention multiplier; sum over horizon in summary. |

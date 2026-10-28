@@ -93,10 +93,10 @@ T-SA-04 governance cards are already written and need review.
 | ID / tier | Remaining output | Dependency / acceptance |
 | --- | --- | --- |
 | T-SA-01 / Must | Agree current use-case compass; obtain signatures, instructor rubric and presentation duration. | Technical decisions exist; generic earlier compass text is not signed acceptance. |
-| T-SA-02 / Must | A/K2/K3/K4/K5/K6 cards with required fields/tags; KPI tree, levels table, kpi_reference schema. | configs/kpis.yaml has older energy/water examples, not accepted construction KPI cards. |
-| T-SA-03 / Must | Three explicit EGP-value settings without double counting. | Update/review cost_assumptions.yaml for this use case. Assumed fines are not measured savings or actual penalties. |
+| T-SA-02 / Must | A/K2/K3/K4/K5/K6 cards with required fields/tags; KPI tree, levels table, kpi_reference schema. | Create project-specific configs/kpis.yaml; the unrelated utility-demo file was retired. |
+| T-SA-03 / Must | Three explicit EGP-value settings without double counting. | Create project-specific configs/cost_assumptions.yaml for this use case. Assumed fines are not measured savings or actual penalties. |
 | T-SA-05 / Must | One-page decision memo in Arabic and English, same facts/order. | Use current evidence and binary model limitations. |
-| T-SA-06 / Must | Actual slides/deck and presentation script. | 01-presentation.md is a placeholder. Quote method, denominator, capacity, scope and generated-data status; preserve the original restricted backtest-slide name exception. |
+| T-SA-06 / Must | Actual slides/deck and presentation script. | The presentation script/deck have not been created; the empty placeholder was retired. Quote method, denominator, capacity, scope and generated-data status; preserve the original restricted backtest-slide name exception. |
 | T-SA-07 / Must | Wording audit with recorded checklist across docs/slides/screens. | Use priority level; never label a real compound financially distressed from synthetic data. |
 | T-SA-08 / Must | Trace every presented number to data/report/verifier evidence. | Complete after memo, slides and agent verification outputs exist. |
 | T-SA-09 / Must | Expected-questions sheet with concise answers. | Cover synthetic data, unsuccessful experiments, approved binary scope and actual inspection use. |

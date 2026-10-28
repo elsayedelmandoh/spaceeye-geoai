@@ -126,7 +126,7 @@ Goal: one command (`python -m src.pipeline.run_all`) builds the R7 tables, A, K2
 ### D3-D4: images for the compound file
 
 - [ ] **T-AH-15** [Should] D3 · Check Esri Wayback terms; then 2 Wayback images per R7 compound (before/after) with capture date + attribution · `app_data/images/<code>_{before,after}.jpg` + `images.csv` · reviewer: nada
-- [x] **T-AH-16** [Should] D3 · Open Buildings height 2016-2023 + 2024 v4 estimate (±2 m) and vegetation series ready per compound for screen 2 (height is context, never in the level) · reviewer: nada **Implemented; review pending.**
+- [x] **T-AH-16** [Should] D3 · Open Buildings height 2016-2023 + 2024 v4 estimate (context only; no fixed error guarantee) and vegetation series ready per compound for screen 2 (height is context, never in the level) · reviewer: nada **Implemented; review pending.**
   - Evidence: [implementation/output](../deliverables/annual-context.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [ ] **T-AH-17** [Could] D4 · Finishing vision-model test (Qwen-VL on Wayback): pass condition ≥ 75% agreement on ~50 held-out compound-images labelled blind by salma (T-SA-12); log in `team_ideas.md`; **cut at D4 if not passed**; flag in the inspection file only · reviewer: salma **Failed experiment; feature excluded.** See [recorded outcome](../REMAINING_TEAM_TASKS.md).
@@ -177,7 +177,7 @@ Goal: generated ACUD data for R7 → one `ml_dataset` (compound × quarter) → 
 
 ### D3: ml_dataset and classifier
 
-- [x] **T-EL-08** [Must] D3 · Build `ml_dataset` (1 row = compound × quarter, columns from `03-dataset.md` §8.4): X = Track A outputs + K3, K5, K6 + B1-B5; y = binary label; no feature reads `answer_key`; statements filtered by `published_date` · `app_data/ml/ml_dataset.parquet` + leakage test (corrupt data after the cutoff, features unchanged) · depends: T-EL-04, T-EL-06 · reviewer: ahmed **Implemented; review pending.**
+- [x] **T-EL-08** [Must] D3 · Build `ml_dataset` (1 row = compound × quarter, columns from the current DATASET_CONTRACT.md): X = Track A outputs + K3, K5, K6 + B1-B5; y = binary label; no feature reads `answer_key`; statements filtered by `published_date` · `app_data/ml/ml_dataset.parquet` + leakage test (corrupt data after the cutoff, features unchanged) · depends: T-EL-04, T-EL-06 · reviewer: ahmed **Implemented; review pending.**
   - Evidence: [implementation/output](../data/DATASET_CONTRACT.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-EL-09** [Must] D3 · B1-B5 triggers (§2) + K5 in EGP (eligible months × assumed rate × land value, 🟠) + rule with ACUD data (any of B1/B2/B3/B5 → level ≥ 2; B1 and K2 ≥ 2 → level 1; B4 context only) · reviewer: ahmed **Implemented; review pending.**
@@ -186,7 +186,7 @@ Goal: generated ACUD data for R7 → one `ml_dataset` (compound × quarter) → 
 - [x] **T-EL-10** [Must] D3 · Logistic regression baseline (never cut): per-class recall, macro-F1, recall@N for `distressed` vs random, counts as n of m · `ml/metrics.csv`, `ml/predictions.parquet` · reviewer: verina **Implemented; review pending.**
   - Evidence: [implementation/output](../data/CURRENT_MODEL_METRICS.csv).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-EL-11** [Should] D3 · Gradient boosting vs logistic, same split and metrics; if a model scores perfectly, document limitations; do not tune data/noise after viewing the test (`03-dataset.md` §7.6) · reviewer: verina **Implemented; review pending.**
+- [x] **T-EL-11** [Should] D3 · Gradient boosting vs logistic, same split and metrics; if a model scores perfectly, document limitations; do not tune data/noise after viewing the test (current binary protocol) · reviewer: verina **Implemented; review pending.**
   - Evidence: [implementation/output](../data/CURRENT_MODEL_METRICS.csv).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-EL-12** [Must] D3 · Early-warning comparison on R7: images alone vs images + ACUD data vs random, plus the rule itself; check on the 8 real `eval_outcomes` (check set only) · `app_data/EW_REPORT.md` · reviewer: ahmed **Implemented; review pending.**
@@ -246,7 +246,7 @@ Goal: Streamlit, 5 screens, track switch on every screen, passes the ten-second 
 - [ ] **T-NA-02** [Must] D2 · Screen 1 priority map: R7 boundaries coloured by level (level written as a word, grey = not assessable), cycle list with Arabic reason, CSV download; Track B list only · depends: T-AH-08 · reviewer: ahmed
 - [ ] **T-NA-03** [Must] D3 · Screen 2 compound file: DW and A curves, height (to 2024), announced markers, first announced date, vegetation, two Wayback images, K2-K6, lineage line (origin, run_id), inspection file button; Track B: binary probabilities + K5 in EGP (🟠) · depends: T-AH-16, T-EL-10 · reviewer: ahmed
 - [ ] **T-NA-04** [Must] D3 · `ops_visits` form: code, date, result (progressing / stalled / complete / not done), note; saved to `app_data/ops_visits.csv` · reviewer: verina
-- [ ] **T-NA-05** [Must] D3 · Screen 3 would it have warned: Track A frozen-clock table (1 of 8 and why); Track B per-class recall, macro-F1, recall@N vs random, B1-B5 per compound · depends: T-AH-10, T-EL-12 · reviewer: elsayed
+- [ ] **T-NA-05** [Must] D3 · Screen 3 would it have warned: Track A frozen-clock table (1 of 6 and why); Track B per-class recall, macro-F1, recall@N vs random, B1-B5 per compound · depends: T-AH-10, T-EL-12 · reviewer: elsayed
 - [ ] **T-NA-06** [Must] D3 · Screen 4 data trust: gates, coverage, not assessable, 1,009/1,026 facts, colour key 🟢🔵🟠 · depends: T-AH-11 · reviewer: ahmed
 - [ ] **T-NA-07** [Must] D4 · Screen 5 what if (twin): pick S1-S3, show which compounds change level and why; generated (🟠, banner, no map) · depends: T-EL-14 · reviewer: elsayed
 - [ ] **T-NA-08** [Must] D4 · Display rules check (§9): ≤ 4 main tiles, each with value + unit + denominator + "as of" + origin; the 5 forbidden mistakes; ten-second test on screen 1 with someone outside the team · reviewer: salma

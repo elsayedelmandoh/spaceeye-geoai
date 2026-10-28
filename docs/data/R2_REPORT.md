@@ -31,4 +31,4 @@ Historical progress is anchored reconstruction,not causal cash-to-progress histo
 
 ## Validation
 
-Historical12hard/11calibration checks retained as evidence. Current data-only audit:63checks PASS;extension:15checks PASS. Two-build equality is recorded separately in docs/data/REPRODUCIBILITY.json and local delivery_reproducibility.json;do not infer operational accuracy. See dictionaries/README.md and HANDOFF.md.
+Historical12hard/11calibration checks retained as evidence. Current data-only audit:63checks PASS;extension:15checks PASS. Saved full Track A/current model equality is recorded in FULL_TRACK_A_REPRODUCIBILITY.json and CURRENT_MODEL_REPRODUCIBILITY.json. A fresh data-only delivery run writes its own REPRODUCIBILITY.json/local delivery_reproducibility.json;do not infer operational accuracy. See dictionaries/README.md and HANDOFF.md.

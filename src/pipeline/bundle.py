@@ -109,7 +109,6 @@ def main():
     copy(APP / "data_completion" / "ops_visits_template.csv", "tables/inspection/ops_visits_template.csv")
     copy(APP / "scenarios" / "assumptions.json", "docs/financial_path_assumptions.json")
     copy(REPO / "configs" / "synthetic_sources.json", "docs/synthetic_sources.json")
-    copy(REPO / "docs" / "data" / "REPRODUCIBILITY.json", "docs/source_build_reproducibility.json")
     for source_group, name in [("data_completion", "inspection_capacity"), ("scenarios", "summary")]:
         source = REPO / "docs" / "data" / "dictionaries" / f"{source_group}__{name}.md"
         copy(source, f"dictionaries/{source.name}")

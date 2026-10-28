@@ -5,7 +5,7 @@ Actual schema;1116rows. Synthetic - for training only
 | Column | Type | Unit/range | Origin | Meaning/method |
 | --- | --- | --- | --- | --- |
 | quarter | str | see meaning | generated/derived from generated | Quarter of cutoff; flows cover its three months and stocks use its last month. |
-| code | str | registered compound codes plus a planted unknown code | key | compound code; from the compound; defect 4 replaces it in the configured number of rows |
+| code | str | registered compound codes plus a planted unknown code | key | Coded compound identifier; accepted prepared tables use registered R7 codes. Planted unknown codes occur only in raw/quarantined test inputs. |
 | scenario_id | str | see meaning | generated/derived from generated | Named hypothetical intervention; baseline stays separate. |
 | capacity | int64 | see meaning | generated/derived from generated | Proposed inspection count for this quarter;2,4or6,not building capacity. |
 | eligible_rank | float64 | see meaning | generated/derived from generated | Rank among priority1–3 only, sorted by level,K2descending,K3descending,code; missing for ineligible rows. |

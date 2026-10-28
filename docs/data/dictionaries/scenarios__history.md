@@ -4,7 +4,7 @@ Actual schema;326rows. Synthetic - for training only
 
 | Column | Type | Unit/range | Origin | Meaning/method |
 | --- | --- | --- | --- | --- |
-| code | str | registered compound codes plus a planted unknown code | key | compound code; from the compound; defect 4 replaces it in the configured number of rows |
+| code | str | registered compound codes plus a planted unknown code | key | Coded compound identifier; accepted prepared tables use registered R7 codes. Planted unknown codes occur only in raw/quarantined test inputs. |
 | month | str | YYYY-MM, 2023-01..2026-09 | key | calendar month; the row is the state at the end of that month; grid |
 | planned_pct | float64 | percent | generated | contractual plan: Weibull S-curve divided by its value at the end, 100 % exactly at the contractual delivery month; deadline = end of the first real promise when one exists, else plan start + 30-42 months (finished work: the month it really finished) |
 | reported_pct | float64 | percent | generated | supervisor-engineer progress report, only in months where a report arrived. in months with a real announced value it IS that value; quarterly report of the true progress at quarter end; optimistic developers add 2-8 points; rounding probability 16% (final multiples-of-5 share is checked separately); 5 % missing (35 % while stalled) |

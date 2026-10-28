@@ -19,10 +19,10 @@ Download the current ZIP from [ready-data](../../releases/ready-data/README.md),
 
 Scope is 12 R7 codes. Capacity is 4. Unknown values stay null. Join on the complete declared key, including quarter/month. Public statements require publication-date cutoffs. Keys, private truth, labels and post-cutoff observations never enter model X. Keep generated results distinct from real observations. Do not publish name mappings or private answer keys.
 
-The extended ML data has 180 rows and 40 features. The approved classifier is binary distressed/not_distressed; use its normalized probabilities and current evaluation report. Historical binary results at N=8 do not validate current N=4 or the expanded schema. Annual heights after 2024 are not approved measurements; an older height carried into a feature is still an older value.
+The extended ML data has 180 rows and 40 features. The approved classifier is binary distressed/not_distressed; use its normalized probabilities and current evaluation report. Use the current capacity-4 report; older experiment results do not validate the present schema. Annual heights after 2024 are not approved measurements; an older height carried into a feature is still an older value.
 
 ## Continue development
 
-Work on a feature branch and PR; never commit directly to main. Use the configured human Git identity. See [technical operations](technical-track-a.md), [data handoff](../data/HANDOFF.md), [sources and generation](../data/DATA_SOURCES_AND_GENERATION.md) and [small-task delivery status](../data/SMALL_TASKS_STATUS.md). For source rebuilding, configure local paths and run `uv sync --locked`; the prepared bundle alone cannot reproduce private/source ingestion.
+Work on a feature branch and PR; never commit directly to main. Use the configured human Git identity. See [technical operations](technical-track-a.md), [data handoff](../data/HANDOFF.md), [sources and generation](../data/DATA_SOURCES_AND_GENERATION.md) and [current task closure](../data/PARTIAL_TASKS_CLOSURE.md). For source rebuilding, configure local paths and run `uv sync --locked`; the prepared bundle alone cannot reproduce private/source ingestion.
 
 Route data/rule questions to Track A, generator/model questions to Track B, agent questions to the AI owner and interface questions to the dashboard owner. Named reviewer acceptance, final presentation and live deployment are not recorded by this handover.

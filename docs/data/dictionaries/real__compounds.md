@@ -4,7 +4,7 @@ Actual schema;12rows. Public/derived table; register origins remain explicit.
 
 | Column | Type | Unit/range | Origin | Meaning/method |
 | --- | --- | --- | --- | --- |
-| code | str | registered compound codes plus a planted unknown code | key | compound code; from the compound; defect 4 replaces it in the configured number of rows |
+| code | str | registered compound codes plus a planted unknown code | key | Coded compound identifier; accepted prepared tables use registered R7 codes. Planted unknown codes occur only in raw/quarantined test inputs. |
 | developer_code | str | see meaning | key | developer code; see current dataset contract and producing source module. |
 | district | str | see meaning | real | district; see current dataset contract and producing source module. |
 | land_area_m2 | float64 | see meaning | real/generated | Compound land area; adjacent land_area_origin states real or generated. |

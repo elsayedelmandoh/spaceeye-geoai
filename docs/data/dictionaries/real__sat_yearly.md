@@ -4,7 +4,7 @@ Actual schema;132rows. Public/derived table; register origins remain explicit.
 
 | Column | Type | Unit/range | Origin | Meaning/method |
 | --- | --- | --- | --- | --- |
-| code | str | registered compound codes plus a planted unknown code | key | compound code; from the compound; defect 4 replaces it in the configured number of rows |
+| code | str | registered compound codes plus a planted unknown code | key | Coded compound identifier; accepted prepared tables use registered R7 codes. Planted unknown codes occur only in raw/quarantined test inputs. |
 | year | int64 | see meaning | key | year; see current dataset contract and producing source module. |
 | veg_share | float64 | see meaning | derived | veg share; see current dataset contract and producing source module. |
 | n_built_cells | float64 | see meaning | real | n built cells; see current dataset contract and producing source module. |

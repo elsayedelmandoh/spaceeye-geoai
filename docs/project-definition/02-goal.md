@@ -1,1 +1,0 @@
-# Project Goal — spaceeye-geoai

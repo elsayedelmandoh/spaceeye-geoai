@@ -1,3 +1,5 @@
+> Program reference and unfinished project-signoff worksheet. Current technical decisions are in [D1_DECISIONS_CURRENT.md](D1_DECISIONS_CURRENT.md). This reference is not a signed SpaceEye compass; T-SA-01 remains pending.
+
 # 07 | project compass
 
 > Current technical decisions and unresolved approvals: [D1_DECISIONS_CURRENT](D1_DECISIONS_CURRENT.md). Implementation evidence: [partial-task closure](../data/PARTIAL_TASKS_CLOSURE.md). Original checkboxes require the named reviewer and are not auto-signed.
