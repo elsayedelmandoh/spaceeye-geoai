@@ -2,6 +2,8 @@
 
 Current release: 28 October 2026. Scope: 12 coded R7 compounds. Data preparation only; no dashboard, agent or new model evaluation is included.
 
+Delivery is merged into main at `b397f5e`,following the reviewed branch `feat/r1-r2-data-finalization`. Final evidence:47tests,touched-code lint and whitespace checks PASS;21table dictionaries;129equal artifacts across two data-only builds;protected inputs unchanged. See the completed delivery plan for integration decisions and commit history.
+
 ## Read first
 
 - [Implemented specifications](IMPLEMENTED_DATA_SPEC.md) and [dataset contract](DATASET_CONTRACT.md).
