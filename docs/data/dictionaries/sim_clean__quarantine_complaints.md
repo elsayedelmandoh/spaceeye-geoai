@@ -1,0 +1,13 @@
+# sim_clean/quarantine_complaints.parquet
+
+Actual schema;15rows. Synthetic - for training only
+
+| Column | Type | Unit/range | Origin | Meaning/method |
+| --- | --- | --- | --- | --- |
+| complaint_id | str |  | key | key;  |
+| code | str | registered compound codes plus a planted unknown code | key | compound code; from the compound; defect 4 replaces it in the configured number of rows |
+| created_at | datetime64[us] | Africa/Cairo local time, no zone | generated | when the complaint was filed; uniform day, office-hours-heavy hour; defect 5 puts 5 rows before launch |
+| channel | str | phone / portal / visit | generated | filing channel; 50 / 35 / 15 %; 5 % are the same buyer on a second channel within 7 days |
+| category | str | delay / stoppage / payment / quality / other | generated | category as filed by the complaint desk; from the causing event; 10-15 % filed under a wrong category on purpose |
+| text_ar | str | about 100 texts, the rest empty | generated | complaint text in Arabic written from templates (no LLM); 10 texts carry a planted fake phone number (defect 6); templates by true cause, spelling slips, mixed topics |
+| dq_reason | str | see meaning | generated/derived from generated | Observable reason for quarantine/rejection; phone masking also applies to rejected complaint text. |
