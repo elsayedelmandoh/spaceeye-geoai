@@ -41,8 +41,8 @@ These are task counts, not effort percentages. Legacy D-day labels remain planni
 | Member                     | Owns end to end                                                                   | Roles from §10 it covers                                               | Main code                                                                        |
 | -------------------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
 | **ahmed abdelhamid** | **Track A: images → rule → cycle list** (real data)                       | R1 data pipeline + R3 GIS and satellites + R4 Track A rule and backtest | `src/pipeline/`, `configs/data.yaml`                                         |
-| **elsayed elmandoh** | **AI component: inspection file agent + verification log + complaints classifier** | R4 agent part | `src/inference/`, `prompts/` |
 | **verina fouad**     | **Track B: generated ACUD data → `ml_dataset` → classifier → what-if** | R2 data and generator + R4 Track B classifier and early warning | `src/generator/`, `src/analysis/` |
+| **elsayed elmandoh** | **AI component: inspection file agent + verification log + complaints classifier** | R4 agent part | `src/inference/`, `prompts/` |
 | **nada shady**       | Dashboard (5 screens, track switch) + cycle list download + `ops_visits` form   | R5 dashboard part                                                       | `app.py`, `src/dashboard/`                                                   |
 | **salma magdy**      | KPI cards, value in EGP, governance docs, memo, presentation, independent checks  | R5 presentation part + doc parts of R1/R2/R3                            | `docs/deliverables/`, `configs/cost_assumptions.yaml`, `configs/kpis.yaml` |
 
@@ -144,7 +144,7 @@ Goal: one command (`python -m src.pipeline.run_all`) builds the R7 tables, A, K2
 
 ---
 
-## 5. elsayed: Track B end to end (generated data)
+## 5. verina: Track B end to end (generated data)
 
 Goal: generated ACUD data for R7 → one `ml_dataset` (compound × quarter) → binary classifier → probabilities in the compound file + early-warning comparison + what-if scenarios S1-S3. Track B reads Track A outputs and never redoes image work.
 
@@ -218,9 +218,9 @@ Goal: generated ACUD data for R7 → one `ml_dataset` (compound × quarter) → 
 
 ---
 
-## 6. verina: AI component
+## 6. elsayed: AI component + D4 digital twin what-if
 
-Goal: inspection files for 5 compounds where every number matches the source, plus a complaints classifier demo. Reads `kpi_values` only (same numbers as the dashboard).
+Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-EL-13/14/17 / S1-S3). Reads `kpi_values`; never overwrites base run.
 
 - [ ] **T-VE-01** [Must] D1 · Confirm `GEMINI_MODEL` and the call budget; prompts in `prompts/system/` and `prompts/templates/` · reviewer: elsayed
 - [ ] **T-VE-02** [Must] D2 · Agent tools as plain Python: `get_facts` (register + record_id + link), `get_kpis` (A, K2-K6, level, series), `get_images` (two Wayback images + capture date), `get_rules` (Decree 2184 articles) (§6 A) · `src/inference/tools.py` + tests on first-build data · reviewer: ahmed **Partial; see [remaining work](../REMAINING_TEAM_TASKS.md).**
@@ -312,3 +312,4 @@ Goal: every number in the docs and slides has a source or an origin mark and mat
 
 AH-16, EL-01, EL-10, EL-11 and EL-17 are implemented under BINARY_SCOPE_DECISION.md: contextual height with no fixed error guarantee, retired historical percentage claim, and reproducible binary distress models/workflow. Producing implementation tag: r7-binary-distress-2026-10-28. Main task marks indicate implementation; separate review checkboxes retain the human acceptance requirement. No colleague acceptance is signed automatically. Completion prediction is not an outstanding task.
 ### D4: digital twin what-if — reassigned to elsayed (already T-EL-13/14/17; confirmed)
+- [x] T-EL-13/14/17 [Must] D4 · Digital twin what-if (scenario runner, S1-S3, freeze) · reviewer: elsayed · Evidence: src/generator/scenarios.py + scenarios/
