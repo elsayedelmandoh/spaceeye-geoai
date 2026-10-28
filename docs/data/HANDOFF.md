@@ -1,10 +1,12 @@
 # R1/R2 data handoff
 
-Current release: 28 October 2026. Scope: 12 coded R7 compounds. The current partial-task extension adds Arabic committee exports, full Track A reproducibility, backtest explanations, scenario contracts, stronger masking and current model diagnostics. See [closure status](PARTIAL_TASKS_CLOSURE.md) and [current evaluation](EW_REPORT_CURRENT.md). Binary implementation acceptance is met; completion prediction has been removed by the team lead. Dashboard and inspection agent remain separate.
+Current release: v5, 28 October 2026. Scope: 12 coded R7 compounds. The current partial-task extension adds Arabic committee exports, full Track A reproducibility, backtest explanations, scenario contracts, stronger masking and current model diagnostics. See [closure status](PARTIAL_TASKS_CLOSURE.md) and [current evaluation](EW_REPORT_CURRENT.md). Binary implementation acceptance is met; completion prediction has been removed by the team lead. Dashboard and inspection agent remain separate.
 
 Delivery is merged into main at `b397f5e`,following the reviewed branch `feat/r1-r2-data-finalization`. Final evidence:47tests,touched-code lint and whitespace checks PASS;21table dictionaries;129equal artifacts across two data-only builds;protected inputs unchanged. See the completed delivery plan for integration decisions and commit history.
 
 ## Read first
+
+- [Approved binary scope and closed tasks](BINARY_SCOPE_DECISION.md), [v5 package validation](READY_V5_VALIDATION.json), implementation tag `r7-binary-distress-2026-10-28`.
 
 - [Remaining team tasks](../REMAINING_TEAM_TASKS.md): English teammate handoff covering every original task ID, remaining work, ready inputs and acceptance limits.
 
