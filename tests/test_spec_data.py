@@ -3,7 +3,12 @@
 import pandas as pd
 
 from src.pipeline import kpis
-from src.pipeline.complete_data import capacity_paths, land_assumptions, outcome_labels
+from src.pipeline.complete_data import (
+    capacity_paths,
+    land_assumptions,
+    outcome_labels,
+    quarterly_finances,
+)
 
 
 def test_fine_union_retains_exposure_and_does_not_double_count_grace():
@@ -64,3 +69,17 @@ def test_generated_allocation_and_old_price_are_bounded_and_reproducible():
     assert r.allocation_date_assumed < pd.Timestamp("2018-01-15")
     assert 2500 <= r.assumed_land_price_egp_m2 <= 5000
     assert r.assumed_land_value_egp == r.assumed_land_price_egp_m2 * 10000
+
+
+def test_quarterly_sales_are_summed_flows_and_balances_use_last_month():
+    mon = pd.DataFrame({"code": "C01", "month": pd.period_range("2024-01", periods=3, freq="M"),
+                        "units_sold": [2, 3, 4], "collections_egp": [100, 200, 300], "land_due_egp": 0,
+                        "land_paid_egp": 0, "kwh": 10, "planned_pct": [10, 20, 30], "cover_required_egp": 50,
+                        "cover_balance_egp": [1, 2, 3], "cost_to_complete_egp": 100, "land_months_late": 0,
+                        "meters_active": 2, "roads_paved_share": 0.1})
+    reports = pd.DataFrame({"code": ["C01"], "report_date": [pd.Timestamp("2024-04-01")], "reported_pct": [90]})
+    kpi = pd.DataFrame({"code": ["C01"], "quarter": ["2024Q1"], "K5_months": [1], "K6": [pd.NA]})
+    land = pd.DataFrame({"code": ["C01"], "assumed_land_value_egp": [1000], "fine_rate_month": [0.01]})
+    out = quarterly_finances(mon, reports, kpi, land).iloc[0]
+    assert out.units_sold == 9 and out.collections_egp == 600 and out.cover_balance_egp == 3
+    assert pd.isna(out.reported_pct)  # April report cannot enter a March cutoff

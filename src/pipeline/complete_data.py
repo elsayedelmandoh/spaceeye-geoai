@@ -84,9 +84,9 @@ def quarterly_finances(mon, reports, kpi, land):
         last = group.sort_values("month").iloc[-1]
         available = reports[(reports.code == code) & (reports.report_date <= qend(qindex(quarter)))].sort_values("report_date")
         row = {"code": code, "quarter": quarter, "month": str(last.month), "months_present": len(group)}
-        for col in ("collections_egp", "land_due_egp", "land_paid_egp", "kwh"):
+        for col in ("collections_egp", "land_due_egp", "land_paid_egp", "kwh", "units_sold"):
             row[col] = float(group[col].sum())
-        for col in ("planned_pct", "units_sold", "cover_required_egp", "cover_balance_egp", "cost_to_complete_egp", "land_months_late", "meters_active", "roads_paved_share"):
+        for col in ("planned_pct", "cover_required_egp", "cover_balance_egp", "cost_to_complete_egp", "land_months_late", "meters_active", "roads_paved_share"):
             row[col] = last[col]
         row["reported_pct"] = available.reported_pct.iloc[-1] if len(available) else np.nan
         row["report_date"] = available.report_date.iloc[-1] if len(available) else pd.NaT
@@ -222,7 +222,7 @@ def build(refresh_inputs=True):
             "excluded_from_X": ["already_completed_at_cutoff"], "split_counts": counts, "input_and_code_sha256": inputs,
             "target_definition": "Next six calendar months, excluding cutoff; distress takes precedence; completed means NEW full-project handover, never partial. Already-completed rows are flagged for exclusion from a transition classifier. Censored targets are null.",
             "fine_policy": {**CFG["fines"], "basis": "research screening proxy, not verified contractual eligibility; monthly union, stops accruing at first published handover"},
-            "complaint_rate": "90-day complaints per 1000 units sold at cutoff; own-history percentile requires 12 prior valid months. Historical binary EW instead used total register units.",
+            "complaint_rate": "90-day complaints per 1000 units sold in the cutoff MONTH (monthly flow, not cumulative sold inventory); own-history percentile requires 12 prior valid months. Historical binary EW instead used total register units. Sales-denominator stock is unavailable in the exported feed; interpret this as a flow-normalized diagnostic, not a buyer incidence rate.",
             "column_origins": {c: "key" if c in keys else "derived_public_observation" if c in [*F.SAT_ALL, "activity_prob", "K1", "K4", "K5_months", "K6", "may_be_complete", "observed_started", "start_observation_sufficient", "veg_share", "height_mean_m"] else "generated_or_derived_from_generated" for c in dataset},
             "missing_features": {c: int(dataset[c].isna().sum()) for c in features}, "dataset_sha256": run_all.sha(PRIVATE / "ml_dataset_extended.parquet"),
             "evaluation": "No classifier fitted. Previous binary dataset/results remain frozen and do not evaluate this schema, K6 policy or capacity 4."}
