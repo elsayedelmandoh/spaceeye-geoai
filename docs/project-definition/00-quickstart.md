@@ -1,16 +1,5 @@
-# project definition quickstart
+# Project definition
 
-use this section to define the project before writing code. keep each file focused on one decision area so the repo stays easy to scan and update.
+Use [the current product requirements](../requirements/01-specs.md) for problem, goal, design and constraints; [the dataset contract](../data/DATASET_CONTRACT.md) for data; and [the repository structure](08-structure.md) for implemented/planned modules.
 
-## suggested order
-
-01. problem: what pain exists and who feels it.
-02. goal: what success looks like.
-03. dataset: where the data comes from and what shape it has.
-04. solution: what you will build.
-05. constraints: what the system must respect.
-06. architecture: how the pieces fit together.
-07. stack: what tools you will use and why.
-08. structure: what each folder and file is for.
-09. workflow: how work moves from idea to delivery.
-10. references: references
+[References](10-references.md) retain supporting research. [Future work](11-future-work.md) points to approved open tasks. Empty title-only drafts were retired; use the authoritative documents rather than creating competing definitions.

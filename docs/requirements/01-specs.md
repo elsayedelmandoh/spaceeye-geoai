@@ -4,13 +4,12 @@
 
 # SpaceEye: R7 Digital Twin and Inspection Priority Observatory (New Administrative Capital)
 
-Last updated: 27 Oct 2026 · Team of 5 · Data and column details: [`03-dataset.md`](../project-definition/03-dataset.md)
+Last updated: 28 Oct 2026 · Team of 5 · Data and column details: [current dataset contract](../data/DATASET_CONTRACT.md)
 
 > **Synthetic data - for training only** applies to every generated table, chart and slide. Real public data is used as published, with its source.
 
-This file and `03-dataset.md` retain the full product design. Current implemented-data behavior is documented in `docs/data/`. Superseded drafts are retired from the repository and retained in local backups/Git history;they are not active plans. Section15records earlier design changes,not new implementation evidence.
+This file defines the current product requirements. Implemented data/schema and validation evidence are maintained in docs/data; the task board distinguishes delivered work from planned features.
 
-`docs/.internal/archive/SpaceEye.md` (27 Oct 2026, Arabic) is the plain-language team explainer. It is secondary: **when it disagrees with these two files, these two files win.** Its new results are merged here (section 15 B).
 
 ---
 
@@ -22,25 +21,25 @@ This file and `03-dataset.md` retain the full product design. Current implemente
 | **Decision owner** | Buildings & Facilities pillar lead, through the inspection committee. The system **recommends**; the committee **decides**. |
 | **Compass cell** | Type: preventive · Pillar: Buildings & Facilities · Condition: normal · Goal: stability (early detection of delay protects handover and investor trust) |
 | **Product** | Dashboard + **cycle list** sized to inspection capacity + an **inspection file** per compound + a form to record each visit result |
-| **Unit** | **R7 compounds only.** Of the 22 compounds confirmed in R7/R8 (boundary confidence ≥ 80%), only those in R7 stay; **R8 is removed to reduce scope**. Count: 12 R7 compounds; six public check cases; inspection capacity 4. Codes only (`C..`), developers `D..`. |
+| **Unit** | 12 coded R7 compounds, six public real-case checks, capacity 4. R8 is excluded; working boundaries retain reviewed confidence/provenance. |
 | **One idea** | **Inspection priority:** whom should the committee visit first this quarter, and why. Early warning is part of it, not a separate product. |
 | **Digital twin (light, compound level)** | The twin of R7 = for each compound: **observed state** (Track A, synced quarterly from satellites and statements) + **simulated hidden state** (generator: sales → cash → spending → progress → handover, Track B) + **what-if scenarios** (change an input, see which compounds move up in priority; section 9 screen 5). Not a 3D / building-level / live twin (section 1). |
 | **Track A: images** | Everything read from images (Dynamic World, Sentinel-2, Open Buildings, Wayback) → per compound-quarter: activity score A, K2, K4, vegetation, height (to 2024), finishing flag (if its test passes). With K3, K5, K6 from statements it drives the **priority level** (worst of the signals, no weights, section 2), the **map** and the **cycle list**. All real data. |
-| **Track B: numbers** | One tabular dataset `ml_dataset` (1 row = compound × quarter): **features X** = Track A outputs + K3, K5, K6 + ACUD-data inputs (B1-B5, generated today) → **label y** = outcome in the next 6 months: `distressed` / `completed` / `ongoing`. A **classification model** (logistic vs gradient boosting) learns y. It consumes Track A's outputs, so image work is never duplicated. Generated data → "Synthetic - for training only"; its probabilities show next to the rule in the compound file, never on the map. |
+| **Track B: numbers** | One tabular dataset `ml_dataset` (1 row = compound × quarter): **features X** = Track A outputs + K3, K5, K6 + ACUD-data inputs (B1-B5, generated today) → **label y** = outcome in the next 6 months: `distressed` / `not_distressed`. A **classification model** (logistic vs gradient boosting) learns y. It consumes Track A's outputs, so image work is never duplicated. Generated data → "Synthetic - for training only"; its probabilities show next to the rule in the compound file, never on the map. |
 | **Success criterion** | Fixed on 26 Oct 2026, before any computation: with the clock frozen, the satellite rule puts **≥ 5 of the 8** real delay cases in level 1-2 at least **6 months** before the delay became public. Plus: two runs give identical numbers; 100% of AI-written numbers match the log. **Track B (generated):** the pass condition written in `EW_PROTOCOL.md` before the early-warning run (recall@8 threshold, above random); its exact wording goes here (open item 1, section 16). |
 | **What we do not promise** | No "distress prediction" for a real compound, no "completion %" or "finishing %" from images. |
 | **Closing message** | "This is what public data alone can do. Give us your data, and the demo parts become real operation." |
 
 ### The key result so far (everyone must understand it)
 
-> **Scope note:** the results below are from the **first build on R7 + R8 (22 compounds)**. They are re-run on R7 only (open item 4); until then they are quoted as "first build, R7+R8".
+> **Current evidence:** R7 preparation, full Track A checks and binary evaluation have run. Current results are in BACKTEST_CURRENT.md and EW_REPORT_CURRENT.md; no pending R7 rerun or completion classifier is implied.
 
-- **Backtest: the satellite rule alone warned early on only 1 of 8 late cases** (target was 5). The criterion failed and is shown honestly.
-- **Why:** all 8 were still building until close to their deadline. Their delay happened in **finishing and handover**, which satellites cannot see.
+- **Current real-case backtest:** one of six cases under the after-start reading, zero of six at the frozen cutoff. The minimum-five-case success criterion was not achieved. Do not attribute every delay to finishing from these counts alone.
+- **Interpretation:** the saved rule did not establish sufficiently early alerts in this small check set. Review the per-case evidence and competing explanations; the counts alone do not prove a cause of delay.
 - **Meaning:** satellites tell "building or not" well. **Early warning of delay needs ACUD's data** (supervisor reports, contractual dates, meters, escrow).
 - **So Track B adds ACUD's data as features.** The presentation shows the difference in numbers: images alone (Track A) vs images + ACUD data (Track B, generated today).
-- **Current early-warning evidence:** use [the current capacity-4 report](../data/EW_REPORT_CURRENT.md), its class supports and random baseline. The older unattributed first-build 92/62/37 claim is retired pending a verified method/view/denominator. Historical R7 N=8 binary results remain separate.
-- **Caveat:** these numbers are on generated data. They show the idea works; they are not accuracy on reality.
+- **Current generated-data evaluation:** use the fixed capacity-4 report, exact method/view, class supports and random baseline. Unattributed historical percentage claims are retired.
+- **Caveat:** these numbers are on generated data. They are a diagnostic of the declared generator/model workflow, not real-world predictive accuracy.
 
 **Presentation message:** Public observations support inspection priorities; generated financial data supports hypothetical analysis. Current model scores are diagnostic and do not establish real-world predictive accuracy.
 
@@ -57,13 +56,13 @@ This file and `03-dataset.md` retain the full product design. Current implemente
 | Google Dynamic World quarterly, 2016Q1 → 2026Q3 | "Is it building?" from above, up to 2026 |
 | Activity score A (DW trend + DW class shares + Sentinel-2 indices) | Passed 5 tests; the base indicator (section 4) |
 | Sentinel-2 vegetation share (NDVI) | "May be complete" sign (95% on the test sample) |
-| Google Open Buildings heights 2016-2023 (+ 2024 v4 estimate ±2 m) | Context in the compound file, not part of the level |
+| Google Open Buildings heights 2016-2023 (+ 2024 v4 estimate context only, no fixed error guarantee) | Context in the compound file, not part of the level |
 | Published statements and events (promises, announced %, handover) | Second signal (K3) + backtest ground truth |
 | Decree 2184/2022 and Building Law 119/2008 | Legal thresholds for levels and cover |
 | Esri Wayback before/after images, 2 per compound | Display, judged by eye. Also the input of the finishing experiment (section 4), which stays out of the level |
 | Monthly drivers: USD/EGP, policy rate, rebar, cement, temperature, Ramadan/Eid | Anchors for the generator |
 | Generated ACUD data (stand-in until ACUD provides the real tables) | Feeds B1-B5 and Track B features |
-| Track B classifier (logistic vs gradient boosting) on `ml_dataset` | Learns distressed / completed / ongoing from images + numbers |
+| Track B classifier (logistic vs gradient boosting) on `ml_dataset` | Learns distressed / not_distressed from images + numbers |
 | K5 fine exposure and K6 never-started clock | Catch compounds that never build or sit past their grace period |
 | Inspection file agent + complaints classifier | The AI component |
 | Value in EGP as a 3-setting scenario | Required by the program |
@@ -77,7 +76,7 @@ This file and `03-dataset.md` retain the full product design. Current implemente
 | "Completion %" or "finishing %" as numbers | Interior work cannot be seen from space |
 | Monthly monitoring | Noise is larger than the signal; quarterly only |
 | Finishing from Sentinel-2 (colour, brightness, NDVI, water index, bare soil, texture) | 67%, target 75%: a signal, not enough. By eye in Wayback until the vision-model test passes |
-| Our height model for 2024-2026 | Failed its independent test (69-74%, target 80%); not shown in the product (section 4) |
+| Experimental post-2024 height products | Not approved; preserve only the accepted 2024 contextual estimate |
 | Paved roads as a real indicator | 81%, too weak; it lives in the generated tables (`roads_paved_share`) |
 | A weighted 0-100 priority score | Suggests precision that does not exist; replaced by levels |
 | Night lights per compound | 6-9 pixels; district context only |
@@ -127,7 +126,7 @@ K5 does not set the level on its own (its eligible months already come from K3 a
 
 - **"May be complete" rule:** handover announced, or vegetation share ≥ 0.10 → level capped at 3, flag "may be complete: confirm on site".
 - **Order inside a level:** K2 descending, then K3 descending.
-- **Cycle list:** the top N compounds with level 1-3; N = inspection capacity (`cycle_capacity`) ≈ **a third of the R7 compounds** (was 8 for 22 compounds; with R7 only, 8 would be almost every compound). Exact N: open item 4.
+- **Cycle list:** capacity 4, eligible priorities 1-3, ordered by priority level, descending K2/K3 and code. Stored capacity comparisons use 2/4/6 and do not change levels or cash.
 
 **Reason sentence** (one fixed template, filled by code, codes only). **Arabic** in everything the committee sees (dashboard, cycle list, inspection file); English in code and logs. English form of the template:
 "Level 1: no building activity for 4 quarter(s) (activity score 0.12); first announced handover date (Jun 2024) passed by 27 months; observation complete (14 images in the quarter)."
@@ -176,8 +175,8 @@ Operational:  A · K2 · K6 · K4 (guard) · share of cycle-list visits done    
 
 1. **Track A rule** = the levels in section 2. It ranks the cycle list.
 2. **Activity score A** replaced the old DW-only change rule after 5 pre-registered tests: +3 to +5 balanced-accuracy points over K1, half the false alarms, seasonal spread ≤ 10 points.
-3. **Ground truth `eval_outcomes`:** 8 real cases with a published outcome (handover, postponement, no handover after the promise).
-4. **Backtest (frozen clock):** apply the levels with data published before each quarter only. A frozen-clock check recomputes from data cut at the quarter and compares. Result: **1 of 8** warned ≥ 6 months early (target 5). Per case: what happened / why / what next, and a competing explanation rejected with a number. Small sample: counts, no percentages.
+3. **Ground truth `eval_outcomes`:** six real cases with a published outcome (handover, postponement, no handover after the promise).
+4. **Backtest (frozen clock):** apply the levels with data published before each quarter only. A frozen-clock check recomputes from data cut at the quarter and compares. Result: **1 of 6** warned ≥ 6 months early (target 5). Per case: what happened / why / what next, and a competing explanation rejected with a number. Small sample: counts, no percentages.
 5. **Track B classifier.** One compound-quarter row, 40 declared features, binary distressed/not_distressed target over the next six months, chronological split and training-only preprocessing. Logistic and histogram boosting are compared on satellite/combined inputs at capacity 4, with per-class recall, two-class macro-F1 and random ranking. Current primary test has 48 rows; repeated synthetic quarters are not independent real events. Fixed-seed chronological developer holdout is reported separately. The cycle list continues to use the rule. Completion is not a class or probability. Current evidence: EW_PROTOCOL_CURRENT.md, EW_REPORT_CURRENT.md and CURRENT_MODEL_METADATA.json.
 6. **No leakage:** statements filtered by `published_date`; quarters ≤ as-of; the model never reads `answer_key` features; training plots that cover ≥ 50% of a compound are excluded in a backtest variant.
 7. **Still to test on generated data:** FPMI and SAF (team ideas).
@@ -188,11 +187,11 @@ Operational:  A · K2 · K6 · K4 (guard) · share of cycle-list visits done    
 | "Passed its first announced date by Y months" | "Completion 60%" or "finishing %" from images |
 | "Observed height 2023 ≈ 24 m (estimated)" | "8 floors built" as a fact |
 | "Current generated-data diagnostic: quote method, split, n of m, capacity 4, random baseline and synthetic-data limit from EW_REPORT_CURRENT.md" |
-| "A compound-level digital twin of R7: quarterly sync from satellites, simulated finance until ACUD's data arrives" | "A 3D / real-time digital twin" | "The model predicts distress with 92% accuracy" |
+| "A compound-level digital twin of R7: quarterly sync from satellites, simulated finance until ACUD's data arrives" | "A 3D / real-time digital twin" | "The model predicts distress with an unsupported accuracy claim" |
 | "Priority level 1: visit first" | "Risk level" / "high-risk developer" |
 | "Eligible for review under contract terms for N months" | "Fined" / "owes X EGP" about a real compound |
 | "No construction start N months after the first launch" | "Land speculator" |
-| "Height 2024-2026: estimate, not approved" (slide only) | A height number for 2024-2026 in the dashboard |
+| "Approved height context through 2024; later observations remain unknown" | Claiming new measured 2025/2026 heights without an approved source |
 
 ---
 
@@ -228,13 +227,13 @@ Operational:  A · K2 · K6 · K4 (guard) · share of cycle-list visits done    
 
 Checked independently with GEDI / ICESat-2 laser, high-resolution images, and "stable buildings must stay stable".
 
-**Adopted now:** 2016-2023 real from Google; 2024 the v4 estimate (±2 m). Our 2024-2026 model is not used in the product (not in the dashboard, not in the level); it appears only as an honest experiment on a slide. Height is **context in the compound file, not part of the level**.
+**Adopted now:** available OBT observations through 2023 and the approved v4 estimate for 2024, as context without a fixed error guarantee. No later experimental height or finishing product is published. Missing annual values stay null; use the annual coverage report.
 
 ---
 
 ## 5. The generator (stand-in for ACUD data)
 
-Design and columns: `03-dataset.md` section 7. Summary:
+Design and columns: the current DATASET_CONTRACT.md and DATA_SOURCES_AND_GENERATION.md. Summary:
 
 - **Stories come from each compound's real signals.** If the satellite sees a stall, money and complaints reflect it. Stories: healthy, slow_late, partly_delivered, gradual_stall, stall_recovery, new_start.
 - **Generated supervisor reports equal the developer's real announced % exactly** in every statement month.
@@ -278,7 +277,7 @@ Inspection procedure (proposed; ACUD sets the real one): confirm with a second s
 
 ## 8. Pipeline and quality gates
 
-**Status:** the first build (real data, generator, database, indicators and levels, early warning) is done and merged in `main` at commit `a0f03fd`; its results are the current numbers in this file. The code is being rebuilt after this plan is final. The dashboard is the next step.
+**Status:** prepared v5 data, Track A rule/backtest, quality checks and current binary diagnostics are implemented. Use the task/review board for unfinished dashboard/agent/forms/presentation work and current human acceptance. Current workflow: src.pipeline.team_run; historical experiment CLI is not the default.
 
 **Tools:** Python + DuckDB + Streamlit. Entry points: `src.pipeline.run_all` (R1: real tables + indicators + gates), `src.generator.simulate` (R2: generator + realism checks), `uv run pytest tests/ -v`.
 
@@ -303,13 +302,13 @@ Inspection procedure (proposed; ACUD sets the real one): confirm with a second s
 
 ## 9. Dashboard (Streamlit, 5 screens, two tracks)
 
-**Track switch** at the top of every screen: **"Track A: images"** (default, all real) / **"Track B: images + numbers (generated)"**. Track B adds the B signals and the classifier's probabilities (distressed / completed / ongoing). In Track B a fixed orange banner "Synthetic - for training only" stays on, every generated number carries 🟠, and **the map is hidden** (no generated number on a map of real places).
+**Track switch** at the top of every screen: **"Track A: images"** (default, public/derived) / **"Track B: images + numbers (generated)"**. Track B adds the B signals and the classifier's probabilities (distressed / not_distressed). In Track B a fixed orange banner "Synthetic - for training only" stays on, every generated number carries 🟠, and **the map is hidden** (no generated number on a map of real places).
 
 | Screen | Answers | Content |
 | --- | --- | --- |
 | 1 Priority map | Whom first? | R7 boundaries by level, cycle list with reason sentence, download; grey = not assessable. Map in Track A only; list only in Track B |
 | 2 Compound file | Why this one? | DW and A curves, Open Buildings height, "developer announced" markers, first announced date, vegetation, two Wayback images, K2-K6, inspection file button, visit form, lineage line. Track B: classifier probabilities + K5 in EGP (🟠) |
-| 3 Would it have warned? | Backtest + evidence | Track A: frozen-clock table, 1 of 8, and why. Track B: per-class recall, macro-F1, recall@N (images vs images + numbers vs random); B1-B5 per compound |
+| 3 Would it have warned? | Backtest + evidence | Track A: frozen-clock table, 1 of 6, and why. Track B: per-class recall, macro-F1, recall@N (images vs images + numbers vs random); B1-B5 per compound |
 | 4 Data trust | How far to trust? | Gates, coverage, not assessable, 1,009/1,026, colour key 🟢🔵🟠 |
 | 5 What if? (twin) | Who moves up if conditions change? | Pick a scenario, re-run the generator from the as-of quarter, show which R7 compounds change priority level and why. Generated (🟠, orange banner, no map) |
 
@@ -346,7 +345,7 @@ All roles review each other; one person owns each deliverable. The docs name **r
 | D1 | Compass signed (use-case canvas, 8 checks) · boundaries confirmed · config written · section 14 decisions signed · rubric and presentation length asked |
 | D2 | First Track A cycle list with reason sentences (incl. K5, K6) · generator tables built |
 | D3 (also) | `ml_dataset` built; first Track B classifier run |
-| D3 | Backtest table · `run_all` builds everything · all realism checks pass |
+| D3 | Backtest table · `run_all` builds everything · public/derivedism checks pass |
 | D4 | Mid-term review (10 min) · early-warning comparison · agent + 5 files + verification log · code freeze |
 | D5 | Everything submitted · knowledge transfer pack · two timed rehearsals · backup video · cross-review · fixes only |
 | D6 | Presentation: status scan → freshness check → comparison → deep dive → decision |
@@ -381,7 +380,7 @@ All roles review each other; one person owns each deliverable. The docs name **r
 4. Seeing construction from space: DW, activity score, Open Buildings height, Wayback before/after.
 5. Track A rule: priority level = the worst of K2, K3, K6 → 4 levels, with legal references; K5 fine-eligible months; the S-curve plan gap (B5) explained in one picture.
 6. Live demo (Track A): map, cycle list, open a compound, reason sentence, inspection file, record a visit.
-7. Backtest: 1 of 8 and why. **The only place real names may appear**, and only next to real signals.
+7. Backtest: 1 of 6 and why. **The only place real names may appear**, and only next to real signals.
 8. Track B: `ml_dataset` (X, y) and the binary classifier; recall@N for distressed on generated data, R7 (current capacity-4 diagnostics: see EW_REPORT_CURRENT.md; synthetic-data limitation is mandatory); complaints classifier.
 8b. The twin: one what-if scenario live (screen 5), showing which compounds move up.
 9. Value in EGP (3 settings).
@@ -396,7 +395,7 @@ Annual value    = cost of current policy − cost of proposed policy
 Current policy  = (projects × 4 visits) × cost per visit
 Proposed policy = (cycle-list visits × 4) × cost per visit + operating cost + (missed cases × cost of late detection)
 ```
-Three settings in `configs/cost_assumptions.yaml`. Wording: "Under these assumptions, from X to Y million EGP per year".
+Planned T-SA-03 output: three project-specific settings in `configs/cost_assumptions.yaml`; not yet implemented. Wording: "Under these assumptions, from X to Y million EGP per year".
 
 | Expected question | Answer |
 | --- | --- |
@@ -420,7 +419,7 @@ Three settings in `configs/cost_assumptions.yaml`. Wording: "Under these assumpt
 | Little ground truth | Present by case, no accuracy claim |
 | Wayback terms | Display with attribution and capture date; the finishing experiment runs only after the terms are checked, and never feeds the level |
 | Mixing generated with real | Track switch, Track A by default; separation gate (generated columns only enter Track B, each marked 🟠); map hidden in Track B; orange banner |
-| Classifier only learns the generator's own rules | Labels come from hidden truth, not from the status rule the features mimic; check on the 8 real cases; if a model scores perfectly, add noise (`03-dataset.md` 7.6) |
+| Classifier learns generator assumptions | Preserve fixed chronology/parameters and report current diagnostics honestly. The real cases are a separate public-rule check, not matched real financial training data. Independent field validation remains necessary; do not change noise/data after inspecting the test. |
 | K5 in EGP read as a real fine | EGP only in Track B with 🟠 and "assumed rate"; real side shows eligible months only |
 | Unlabelled generated data presented as real (e.g. the TerraPulse notebook: NDBI, built area and heights are formulas + random noise) | Never used as data; every number needs a source or an origin mark |
 | A name leaks | `no_names` gate stops the run |
@@ -452,78 +451,9 @@ Three settings in `configs/cost_assumptions.yaml`. Wording: "Under these assumpt
 
 ---
 
-## 15. What changed from the older drafts
+## 15. Current approved decisions
 
-### A) From the five archived drafts
-
-| Topic | Older drafts | Now | Why |
-| --- | --- | --- | --- |
-| Compounds | 29 named (24-25 Oct); parcels (TerraPulse) | 22 coded `C01..C22` | Only 22 boundaries reached ≥ 80% confidence; names removed |
-| Base indicator | K1 DW change + K1b radar | Activity score A | A passed 5 tests; radar only 63% |
-| K3 | Months since the **last** announced date | Months since the **first** announced date | Later promises must not reset the clock |
-| K1 threshold | 0.03 | 0.02 (input to A only) | `configs/data.yaml` |
-| Success criterion | ≥ 2 of 3 named cases | ≥ 5 of 8 cases, ≥ 6 months early | Fixed before computation; result 1 of 8 |
-| Track B unit | ~33 virtual twins, 15 fictional developers, 8 `g_*` tables | The 22 coded compounds, 1 wide `fin_monthly` + `complaints` + private `answer_key` | Stories follow real signals; reports match real announcements |
-| Fact count | 863 / 846 | 1,026 / 1,009 (17 removed, 0 invented) | Later audit |
-| Brand and area | TerraPulse, R7 only | SpaceEye (area: R7 only since section E) | Repo identity |
-| Decree 2184 progress | S-curve 15/45/75/100% by year (TerraPulse) | Art. 4: cover released at 30/25/20/15/10% certified progress | Rechecked against the full decree text |
-| Apartment footprint | 20% (TerraPulse) | Ground floor ≤ 22.5%, ground + 7, FAR 1.6-1.8 | ACUD 2018 conditions, audited |
-| Developer data source | Property Finder, Nawy (TerraPulse) | Developer pages and official statements only | Broker sites are banned as sources |
-| Earlier still (old specs) | Horus city, 33 fictional compounds, NDBI, cover 10-30%, weighted score | All replaced as above | Factual errors and no real signal |
-
-### B) From `SpaceEye.md` (27 Oct 2026, now in `docs/.internal/archive/`)
-
-| Topic | `SpaceEye.md` says | Decision here |
-| --- | --- | --- |
-| Name of the 1-4 level | "Risk level" (مستوى خطر) | **Priority level**; risk reads as a verdict on the developer |
-| Early-warning result | Unattributed first-build percentages retired | Current diagnostic methods, class supports and capacity-4 comparison are in EW_REPORT_CURRENT.md; original historical attribution remains unverified |
-| Height 2024-2026 | Our model, "estimate, not approved" | Not in the dashboard or the level; slide only |
-| Finishing | Sentinel-2 67% ❌; Qwen-VL on Wayback ⏳ | Experiment with a ≥ 75% condition; inspection-file flag only if it passes; Esri terms first |
-| Boundary sources | "Maps and real-estate sites, matched with images" | Allowed for location only, image-confirmed, method logged; never for numbers |
-| Reason sentence | Arabic | Arabic for the committee, English in code and logs, one template |
-| Code status | Done and merged in `main` | True at `a0f03fd`; being rebuilt; its results stay as the current numbers |
-| Water | No water meters | Confirmed: electricity meters only |
-| `fin_monthly` rows | 993 | = 990 + 3 duplicate reports (defect 2); no conflict |
-| Team lead's name, outside files (`DATA_PLAN_FINAL.md`, `team_ideas.md`) | Named | Roles only in the docs; outside files listed in `03-dataset.md` section 2 |
-
-### C) Track structure and the TerraPulse pipeline summary (27 Oct 2026)
-
-| Topic | Before / TerraPulse says | Decision here |
-| --- | --- | --- |
-| Tracks | Track A (real) + Track B ("with your data") | **One track**: one pipeline, one list, one dashboard with a data switch |
-| Approach | Rule for A; models for B | **One rule** (worst of signals) in both modes; models are evidence |
-| Idea | Spatial digital twin, schedule variance vs a legal S-curve | **Inspection priority**; schedule variance = B5 from the contractual plan |
-| S-curve | Decree 2184 milestones 15/45/75/100% | Not in the decree; the S-curve is the shape of a contractual plan |
-| Red alert | Schedule variance > 30% from satellite "progress" | Levels only; no completion % from images |
-| Data | 4 tables + `master_r7_chronological_timeseries` (10,950 rows, every 5 days, 2018-2023) | Rejected: the notebook's NDBI, built area and heights are formulas + random noise, not observations |
-| Heights | Google heights per snapshot | Google heights are yearly, to 2023 |
-| Roof slab uniformity, structural volume | Indicators | Candidate idea, to test (section 4) |
-| Models | XGBoost / LightGBM on the master table | Logistic + gradient boosting as evidence only |
-
-### D) Two tracks, fines and never-started (27 Oct 2026, replaces the one-track decision in C)
-
-| Topic | Before | Now |
-| --- | --- | --- |
-| Tracks | One track with a data switch | **Track A: images** (rule, map, cycle list, real) + **Track B: numbers** (`ml_dataset` X, y → classifier). B reads A's outputs |
-| Model role | Evidence only | Track B's product: binary probabilities in the compound file; the cycle list still uses the rule |
-| Label | Binary `label_distress_next_6m` | `distressed` / `completed` / `ongoing` in the next 6 months |
-| Fines (غرامات) | Not covered | **K5**: fine-eligible months (real) + EGP on generated data with an assumed rate |
-| Never started (مش بيبني أصلاً) | "Not started → watch", no level | **K6**: months since first launch with no start; 13-24 → level 2, > 24 → level 1 |
-
-### E) R7 only and the digital twin (27 Oct 2026)
-
-| Topic | Before | Now |
-| --- | --- | --- |
-| Area | R7 + R8, 22 compounds | **R7 only** (R8 removed to reduce scope); count: open item 4 |
-| Cycle capacity / metric | N = 8, recall@8 | N ≈ a third of R7 compounds, recall@N; results re-run on R7 |
-| Digital twin | Rejected as a separate product (C) | **Light compound-level twin**: observed state (Track A) + simulated hidden state (generator) + what-if screen. 3D / live twin out of scope |
-| Activity score A training plots | 225 plots across the capital | Kept (training data, not scope); A is not retrained |
-| R8 data already collected | In the tables | Audited R8 files stay untouched in `real_data/`; R8 is filtered out of every built table; R8 "44% average progress" kept only as a generator calibration reference |
-| What-if scenarios | Not defined | S1 dollar shock, S2 collections drop, S3 capacity N ± 2 ship; S4 materials, S5 grace next (section 9) |
-| Track B data size | 22 compounds | R7 only (~150 rows); time split, developer holdout only if ≥ 3 test developers; no R8 or virtual rows |
-| Project name | Inspection Priority Observatory (R7/R8) | R7 Digital Twin and Inspection Priority Observatory |
-
----
+Use [the current decision register](D1_DECISIONS_CURRENT.md) and [binary scope decision](../data/BINARY_SCOPE_DECISION.md). Superseded design comparisons remain in Git history/local backups, not the active product plan. Current implementation marks do not imply human reviewer acceptance.
 
 ## 16. Open items (facts still needed)
 

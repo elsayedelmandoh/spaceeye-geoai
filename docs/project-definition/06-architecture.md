@@ -1,1 +1,0 @@
-# System Architecture — spaceeye-geoai

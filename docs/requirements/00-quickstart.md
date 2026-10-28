@@ -1,11 +1,10 @@
-# requirements quickstart
+# Requirements index
 
-use this section to capture raw team thinking, requirements gathering, and pre-definition work. once settled, formalize into `project-definition/`.
+- [Current product specification](01-specs.md).
+- [Task owners, implementation marks and human reviews](02-team-roles-and-tasks.md).
+- [Remaining tasks](../REMAINING_TEAM_TASKS.md).
+- [Program timeline and missing calendar inputs](04-timeline.md).
+- [Program compass reference](05-project-compass.md) and [current technical decisions](D1_DECISIONS_CURRENT.md).
+- [Current data contract](../data/DATASET_CONTRACT.md), [approved binary scope](../data/BINARY_SCOPE_DECISION.md).
 
-## contents
-
-- `01-related-work.md` — competitor landscape, prior art research (know what exists)
-- `02-research-notes.md` — raw observations, exploration logs (investigate)
-- `03-courses.md` — skill gap analysis, learning objectives (learn)
-- `04-timeline.md` — working milestones and schedule (plan)
-- `05-sprints/` — dated meeting notes (e.g. `jun-8-2026.md`)
+The original D-day labels are planning labels. Actual program day/signatures need team input. Unused old hourly-DST research and references to missing extension scripts were retired; source/generation evidence is maintained in docs/data.

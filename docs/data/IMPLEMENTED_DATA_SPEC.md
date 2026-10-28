@@ -55,7 +55,7 @@ Unobserved launch dates cannot be used to repair every pre-launch complaint; thi
 
 One training row is a compound and quarterly cutoff. X is the explicit feature list in ml_dataset_metadata.json.
 The target is distress in the next six months, with censored targets null. Keys, hidden truth, administrative warning/status, fitted predictions and labels never enter X.
-The historical binary evaluation/export remains frozen. The new private/ml_dataset_extended.parquet adds the proposed observed features and K5/K6, quarterly financial observations, and y_outcome_6m (distressed/completed/ongoing) alongside the binary target. Current fitting is documented separately in EW_REPORT_CURRENT.md.
+The historical binary evaluation/export remains frozen. The new private/ml_dataset_extended.parquet adds the proposed observed features and K5/K6, quarterly financial observations, and y_outcome_6m (distressed/not_distressed) alongside the binary target. Current fitting is documented separately in EW_REPORT_CURRENT.md.
 The expanded dataset covers15quarterly cutoffs,2023Q1–2026Q3. Early unavailable history/trends remain null. Completed means new full-project handover within the next six months, never a partial handover; distress takes precedence. Already-completed cutoff rows are flagged for exclusion from a transition classifier. Censored targets are null.
 
 Keep the declared time split and embargo. The old N=8 results are historical and do not evaluate current capacity4 or the expanded schema. No metric-based noise tuning.

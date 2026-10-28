@@ -5,7 +5,7 @@ Actual schema;57rows. Public/derived table; register origins remain explicit.
 | Column | Type | Unit/range | Origin | Meaning/method |
 | --- | --- | --- | --- | --- |
 | statement_id | str | see meaning | key | statement id; see current dataset contract and producing source module. |
-| code | str | registered compound codes plus a planted unknown code | key | compound code; from the compound; defect 4 replaces it in the configured number of rows |
+| code | str | registered compound codes plus a planted unknown code | key | Coded compound identifier; accepted prepared tables use registered R7 codes. Planted unknown codes occur only in raw/quarantined test inputs. |
 | kind | str | see meaning | real | kind; see current dataset contract and producing source module. |
 | subtype | str | see meaning | real | subtype; see current dataset contract and producing source module. |
 | detail | str | see meaning | real | detail; see current dataset contract and producing source module. |

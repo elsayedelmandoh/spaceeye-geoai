@@ -4,7 +4,7 @@ Actual schema;372rows. Public/derived table; register origins remain explicit.
 
 | Column | Type | Unit/range | Origin | Meaning/method |
 | --- | --- | --- | --- | --- |
-| code | str | registered compound codes plus a planted unknown code | derived | compound code; from the compound; defect 4 replaces it in the configured number of rows |
+| code | str | registered compound codes plus a planted unknown code | derived | Coded compound identifier; accepted prepared tables use registered R7 codes. Planted unknown codes occur only in raw/quarantined test inputs. |
 | quarter | str | see meaning | derived | Quarter of cutoff; flows cover its three months and stocks use its last month. |
 | qi | int64 | see meaning | derived | qi; see current dataset contract and producing source module. |
 | activity_prob | float64 | see meaning | derived | activity prob; see current dataset contract and producing source module. |

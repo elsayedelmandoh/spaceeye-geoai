@@ -4,7 +4,7 @@ Actual schema;12rows. Synthetic - for training only
 
 | Column | Type | Unit/range | Origin | Meaning/method |
 | --- | --- | --- | --- | --- |
-| code | str | registered compound codes plus a planted unknown code | key | compound code; from the compound; defect 4 replaces it in the configured number of rows |
+| code | str | registered compound codes plus a planted unknown code | key | Coded compound identifier; accepted prepared tables use registered R7 codes. Planted unknown codes occur only in raw/quarantined test inputs. |
 | cutoff | str | see meaning | generated/derived from generated | Last month whose observations may initialize the forward path. |
 | initial_progress_pct | float64 | percent | generated/derived from generated | Latest supervisor progress report available by cutoff; explicit assumed zero if none exists. |
 | progress_basis | str | see meaning | generated/derived from generated | Whether initial progress comes from a known report or assumed zero. |

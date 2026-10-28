@@ -1,6 +1,4 @@
-"""propose: application entrypoint -- run this to execute the full project lifecycle.
-input: .env, configs/default.yaml, trained model from artifacts/training/models/.
-output: project runs, user receives results and visualizations."""
+"""Dashboard placeholder: prints settings only. Use src.pipeline.team_run for the implemented workflow."""
 
 from src.config.config import settings
 

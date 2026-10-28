@@ -4,7 +4,7 @@ Actual schema;12rows. Synthetic - for training only
 
 | Column | Type | Unit/range | Origin | Meaning/method |
 | --- | --- | --- | --- | --- |
-| code | str | registered compound codes plus a planted unknown code | key | compound code; from the compound; defect 4 replaces it in the configured number of rows |
+| code | str | registered compound codes plus a planted unknown code | key | Coded compound identifier; accepted prepared tables use registered R7 codes. Planted unknown codes occur only in raw/quarantined test inputs. |
 | land_area_m2 | float64 | see meaning | generated/derived from generated | Compound land area; adjacent land_area_origin states real or generated. |
 | land_area_origin | str | see meaning | generated/derived from generated | Origin of register land area; retain alongside generated financial assumptions. |
 | allocation_date_assumed | datetime64[us] | calendar date | generated/derived from generated | Generated allocation6–18months before first public/observed anchor, bounded below by2016-01-01; retrospective calibration, excluded from X/public K6. |

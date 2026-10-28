@@ -5,6 +5,7 @@ output: Settings singleton with resolved absolute paths.
 """
 
 from pathlib import Path
+
 from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -28,8 +29,6 @@ class Settings(BaseSettings):
     _ARTIFACTS_REL: Path = Path("artifacts")
     _LOGS_REL: Path = Path("logs")
     _FIGURES_REL: Path = Path("evals/figures")
-    DATASETS_12M = Path("data/nac-dataset-12months")
-    DATASETS_4M = Path("data/nac-dataset-4months")
 
 
     # Exposed strongly-typed absolute paths

@@ -5,7 +5,7 @@ Actual schema;648rows. Synthetic - for training only
 | Column | Type | Unit/range | Origin | Meaning/method |
 | --- | --- | --- | --- | --- |
 | scenario_id | str | see meaning | generated/derived from generated | Named hypothetical intervention; baseline stays separate. |
-| code | str | registered compound codes plus a planted unknown code | key | compound code; from the compound; defect 4 replaces it in the configured number of rows |
+| code | str | registered compound codes plus a planted unknown code | key | Coded compound identifier; accepted prepared tables use registered R7 codes. Planted unknown codes occur only in raw/quarantined test inputs. |
 | cutoff | str | see meaning | generated/derived from generated | Last month whose observations may initialize the forward path. |
 | month | str | YYYY-MM, 2023-01..2026-09 | key | calendar month; the row is the state at the end of that month; grid |
 | initial_progress_pct | float64 | percent | generated/derived from generated | Latest supervisor progress report available by cutoff; explicit assumed zero if none exists. |

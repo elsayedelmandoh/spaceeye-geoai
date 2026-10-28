@@ -4,7 +4,7 @@ Actual schema;180rows. Synthetic - for training only
 
 | Column | Type | Unit/range | Origin | Meaning/method |
 | --- | --- | --- | --- | --- |
-| code | str | registered compound codes plus a planted unknown code | key | compound code; from the compound; defect 4 replaces it in the configured number of rows |
+| code | str | registered compound codes plus a planted unknown code | key | Coded compound identifier; accepted prepared tables use registered R7 codes. Planted unknown codes occur only in raw/quarantined test inputs. |
 | quarter | str | see meaning | generated/derived from generated | Quarter of cutoff; flows cover its three months and stocks use its last month. |
 | month | str | YYYY-MM, 2023-01..2026-09 | key | calendar month; the row is the state at the end of that month; grid |
 | months_present | int64 | see meaning | generated/derived from generated | Number of observed financial months contributing to this quarter; required3. |
