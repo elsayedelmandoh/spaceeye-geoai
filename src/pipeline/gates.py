@@ -1,5 +1,5 @@
 """
-propose: step 5. the 9 quality gates of docs/plan/project-plan.md section 9 plus a "no names" gate.
+propose: step 5. the quality gates of docs/requirements/01-specs.md section 8 plus a "no names" gate.
 input: the built tables, kpi_values, the files in app_data. output: quality_checks_log rows (gate, status PASS/FLAG/FIX/STOP, value, impact).
 the no-names gate never writes a matched name anywhere: it reports file paths and counts only.
 """

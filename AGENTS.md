@@ -1,34 +1,37 @@
-# spaceeye-geoai — AGENTS.md (compact, repo-specific)
+# Repository working guide
 
-Latest mandatory Git workflow: perform every edit/commit on a feature branch. Never work, commit or push directly on main. Publish through a pull request. Keep the configured human author identity; no assistant attribution or co-author trailers. The prepared v2 team ZIP under releases/ready-data is explicitly approved for publication;raw/private source folders remain excluded.
+## Git workflow
 
-Current data-release entry point: `docs/data/HANDOFF.md`. Actual R1/R2 contracts and current reports are in `docs/data/`; the historical template/Oasis notes below do not override them. Data-only rebuilding must not fit models. The user authorized branch creation, fetching teammates' changes, explicit commits, push and merge for this delivery. Use the configured human Git identity without assistant attribution or co-author trailers.
+- Work and commit on a feature branch only. Never edit,commit or push directly on main.
+- Fetch and review teammates' changes before publishing. Use pull requests;never force-push or overwrite unreviewed work.
+- Use the configured human Git author/committer identity. No assistant attribution or co-author trailers.
 
-Repo: smart-city graduation project (`spaceeye-geoai`, synthetic `ACUD_Oasis` dataset). Not operational ACUD data. All outputs must say `Synthetic data — for training only`.
+## Current scope and references
 
-## Would an agent miss this?
+- SpaceEye monitors12coded R7compounds. R8is out of scope. Inspection capacity is4.
+- Product design: docs/requirements/01-specs.md and docs/project-definition/03-dataset.md.
+- Actual implemented data: docs/data/HANDOFF.md,IMPLEMENTED_DATA_SPEC.md,DATASET_CONTRACT.md and current reports/dictionaries.
+- Component inputs: docs/data/COMPONENT_DATA_PROTOCOL.md. Retired docs/plan drafts must not be restored.
+- Keep repository instructions current;Git history and external local backups retain superseded material.
 
-- `pyproject.toml`: python>=3.12, `pytest>=8.0.0`, `streamlit`/`fastapi`/`uvicorn`, `duckdb`/`pandera`, `scikit-learn`/`lightgbm`, `plotly`, `google-genai`, `sqlglot`. Package: `src/` (hatch build). `PROJECT_NAME` = `spaceeye-geoai` (verified in `src/config/config.py`) — source of truth for repo identity.
-- `.env.example`: `ENV=development`, `MASK_SALT` (never default in prod — `spaceeye-geoai-default-salt-` is dev-only), `GEMINI_API_KEY`, `GEMINI_MODEL=gemini-2.5-flash`. `.env` is gitignored (`.gitignore` includes `.env`) — never commit secrets. Set `.env` before work.
-- `Makefile`: `make install` = `uv sync`; `lint` = `ruff check src/ tests/`; `format` = `ruff format src/ tests/`; `test` = `uv run pytest tests/ -v`; `clean` = remove `__pycache__` + `.pytest_cache`. Use `uv`, not `pip`.
-- Notebooks: primary workspace. Sequential: `00-quickstart.ipynb` → `01-data-acquisition/` → `02-eda/` → `03-data-preprocessing/` → `04-feature-engineering/` → `05-model-training/` → `06-model-evaluation/` → `07-model-testing/`. Don't skip `01-` before `03-`.
-- Source conventions: import globals via `from src.config.settings import *`, helpers via `from src.utils.helper import *`. Never hardcode paths/thresholds — use `settings.py` / `helper.py` (`AGENTS.md` §11 verified in repo).
-- `src/config/config.py`: `Settings` loads `.env` via `pydantic-settings`; `BASE_DIR` resolved from `__file__`. `create_required_directories()` bootstraps `data/`, `artifacts/`, `logs/`, `evals/figures/`.
-- Dataset: synthetic `ACUD_Oasis` (fictional district, `data/nac-dataset-*`, `data/processed/oasis.duckdb`). Real ACUD data must never appear in outputs. Disclaimer required per `docs/project-definition/05-constraints.md`.
-- PII masking (`src/pii_masking.py`): regex-based (not LLM) authority; `MaskConfig()` defaults; `assert_zero_phones()` must return `True` (verified by `tests/test_masking.py`). `MASK_SALT` must change for production.
-- Tests (`tests/`): `test_masking.py` enforces exactly 6 `CANONICAL_CATEGORIES`, `SPECIAL_BUILDINGS` = `{"B-0112","B-0240","B-0269"}`, zero unmasked phones, deterministic salted sha-256. `test_app.py`, `test_cleaning.py`, `test_settings.py` exist. `pytest.ini_options` in `pyproject.toml`: `pythonpath=["."]`, `testpaths=["tests"]`.
-- `docs/project-definition/07-architecture.md`: does NOT exist (`grep` confirmed absent). Architecture info is in `08-structure.md` and `06-architecture.md`. Planning protocol (`AGENTS.md` §2) uses `docs/.internal/plan/todo.md` and `.internal/plan/lessons.md`.
-- `README.md`: renamed to `spaceeye-geoai — Graduation Project`. All synthetic disclaimers updated (`Synthetic data only — for spaceeye-geoai training`).
-- `docs/requirements/ACUD-company.md`: merged into `docs/requirements/01-quickinfo.md` (company context + `spaceeye-geoai` company description appended at line 114+); original removed.
-- `docs/.internal/agent-workflow/06-system-prompt.md`: agent prompt references ACUD program context; preserved (not rewritten blindly). References dataset names (`ACUD_Oasis`) which are dataset identifiers, not project name — kept.
+## Data and implementation
 
-## Preserved behavioral rules (verified relevant)
+- Use uv and the checked-in lockfile;Python>=3.12. Run uv sync --locked for setup.
+- Real sources,raw outputs and private evaluation truth live outside the repo under Project;paths are in configs/data.yaml.
+- Only the explicitly approved prepared team bundle is distributed in releases/ready-data. Never publish raw inputs,name maps,hidden answer keys,credentials or model checkpoints.
+- Distinguish public observations,derived indicators and generated assumptions. Generated products carry Synthetic - for training only.
+- Keep codes only in outputs. Mask phone text. Never use private truth to repair observations or as model features.
+- Use publication/availability cutoffs. Unknown observations stay unknown. Fit preprocessing only on training data.
+- Preserve module structure: src/pipeline for data,src/generator for simulation,src/analysis for evaluation.
+- Financial fine rates,allocation dates and simulated visits are assumptions,not actual contracts,assessed fines or fieldwork.
+- No post2024height or finishing product was approved by the prior experiments.
 
-- Ponytail mode (`AGENTS.md` §0.5): active, full, no exceptions. Ladder applies: YAGNI → reuse this codebase → stdlib → native feature → installed dependency (`pydantic`, `duckdb`, `pandera`) → one line → minimum working code. `# ponytail: ...` comments for deliberate simplifications.
-- Safety (`AGENTS.md` §1): never delete without confirmation; show impact before acting; `.env` secrets only; preserve `src/` module structure (`docs/project-definition/07-architecture.md` missing — don't invent it).
-- Planning (`AGENTS.md` §2): 3+ steps → `docs/.internal/plan/todo.md` with `- [ ]`; verify before start; mark `in_progress`/`completed`; add review; capture `lessons.md`; stop and re-plan on failure.
-- Subagent delegation (`AGENTS.md` §3): `explore` for codebase, `librarian` for external docs, `oracle` for architecture/debug (only after 2+ failed fixes), `metis` for ambiguous scope, `momus` for plan review. Always `run_in_background=true`; never redo delegated work manually.
-- Verification (`AGENTS.md` §4): never complete without evidence — [ ] relevant tests, [ ] logs checked, [ ] before/after diffed, [ ] staff-engineer check. `lsp_diagnostics` after file edits; build/test exit 0 required.
-- File discipline (`AGENTS.md` §7): no unnecessary files; don't modify outside scope; delete over add.
-- Communication (`AGENTS.md` §9): terse, lowercase, no em dash (`—`), no filler; code/commits/PRs written normally.
-- Environment (`AGENTS.md` §10): `.env` from `.env.example`; `conda` env `python=3.12`; `uv sync`; activate before work; `.env` never committed.
+## Validation and communication
+
+- Relevant tests: uv run --locked --offline pytest -q. Lint touched code with ruff;check diffs before commit.
+- Data-only build: python -m src.pipeline.complete_data. Two-build delivery: python -m src.pipeline.delivery.
+- Component preparation: python -m src.pipeline.component_data. None of these component tasks requires new model fitting.
+- Full src.pipeline.run_all and src.pipeline.release include existing fitting/evaluation;do not rerun them for documentation-only edits.
+- Record multi-step plans/review and lessons in docs/.internal/plan;publish current team-facing status in docs/data.
+- Supporting documentation,code and helpers are English. Original Arabic complaint text remains data.
+- Keep scope focused. Delegate a read-only review when useful;do not duplicate its work. Do not claim completion without execution evidence.

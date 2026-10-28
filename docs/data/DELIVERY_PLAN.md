@@ -28,7 +28,7 @@ New commits use Ahmed Abdelhameed's configured Git identity, without assistant a
 
 ## Integration decisions
 
-The remote's product documents, team roles, structure, references, timeline and `CLAUDE.md` are preserved. The imported product design still contains intended future work; implementation status is linked explicitly to the data contracts. Historical `docs/plan` documents are retained with archive notices rather than discarded.
+The team's current product documents,roles,structure,references and CLAUDE.md are preserved. Superseded docs/plan drafts and the previous timeline were subsequently retired at the user's explicit request,after local backup;Git history retains them. Current implementation status is linked to docs/data rather than obsolete plans.
 
 The incoming metadata renames the package to `spaceeye-geoai`, adds matplotlib and makes dev tools a dependency group. Those changes are accepted and `uv.lock` is regenerated to match them. No unrelated dependency-policy rewrite is introduced.
 
