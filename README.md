@@ -1,5 +1,7 @@
 # SpaceEye: R7 Digital Twin and Inspection Priority Observatory
 
+**Team data:** [download the ready-data ZIP](releases/ready-data/SpaceEye_R7_READY_DATA_2026-10-28_v2.zip?raw=1) and follow the [three-step guide](releases/ready-data/README.md). No raw-data downloads or pipeline rebuild are needed for using the prepared tables.
+
 > Data release, 28 October 2026: R1/R2 now include K5/K6, capacity4, prepared data,180-row/40-feature expanded data and separate financial scenarios. Start with [the current handoff](docs/data/HANDOFF.md), [R1 report](docs/data/R1_REPORT.md), [R2 report](docs/data/R2_REPORT.md) and [delivery plan](docs/data/DELIVERY_PLAN.md). The product design below is retained; it includes work beyond this data-only release.
 
 Graduation project for the New Administrative Capital (ACUD AI Data Lab program). It answers one question: **which compounds in district R7 should the inspection committee visit first this cycle, and why?** The system recommends; the committee decides.

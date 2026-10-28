@@ -14,7 +14,9 @@ The full product specifications in `docs/requirements/01-specs.md` and `docs/pro
 
 ## Data locations and boundaries
 
-Edit `configs/data.yaml` paths on another machine. The paths currently point to the external `Project/real_data`, `Project/app_data` and `Project/private` directories. These datasets, private mappings, labels, DuckDB files and credentials are not in Git. Clone the repository for code/docs, then obtain authorized external input files separately.
+The approved prepared team bundle is now available under [releases/ready-data](../../releases/ready-data/README.md), including a separate training export and simple English usage instructions. Use it directly without the original external input folders. It excludes raw inputs, hidden answer keys, name mappings, models and credentials.
+
+For rebuilding the full source pipeline, edit `configs/data.yaml` paths on another machine and obtain the additional external inputs separately. Those paths currently point to `Project/real_data`, `Project/app_data` and `Project/private`; the complete source/private directories are not committed. Only the explicitly approved ready-data ZIP is an exception.
 
 Public/derived R1 tables live in `app_data/real`. Deliberately dirty historical operations stay in `app_data/sim`; cleaned and quarterly tables in `app_data/sim_clean`. Financial scenarios are separate in `app_data/scenarios`. Every generated product is labelled `Synthetic - for training only`.
 

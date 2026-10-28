@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+Mandatory Git workflow: all work and commits use a feature branch, never main. No direct push to main; publish through a pull request. The explicitly approved prepared v2 ZIP in releases/ready-data can be shared; raw inputs, name mappings, hidden answer keys and models remain excluded. Team instructions: releases/ready-data/README.md.
+
 ## Current R1/R2 release
 
 Read `docs/data/HANDOFF.md` and `docs/data/DELIVERY_PLAN.md` first. They supersede older implementation-status statements below. Use `uv run --locked --offline python -m src.pipeline.complete_data` for data-only rebuilding; `src.pipeline.delivery` checks two complete data-only runs and writes current reports/dictionaries. Do not rerun model fitting for documentation changes. Scope is12R7 compounds;capacity4;K5is a policy proxy with assumed EGP;K6enters priority;the current expanded data has180rows/40features. Prior N=8binary evaluation is historical. The full product specs are preserved; the implementation contracts are in `docs/data/`.
