@@ -6,6 +6,8 @@ Delivery is merged into main at `b397f5e`,following the reviewed branch `feat/r1
 
 ## Read first
 
+- [Remaining team tasks](../REMAINING_TEAM_TASKS.md): English teammate handoff covering every original task ID, remaining work, ready inputs and acceptance limits.
+
 - [Current evaluation protocol](EW_PROTOCOL_CURRENT.md), [model card](../deliverables/method-card.md), [scenario contract](SCENARIO_CONTRACT_CURRENT.md), [full-run evidence](FULL_TRACK_A_REPRODUCIBILITY.json) and [technical decisions](../requirements/D1_DECISIONS_CURRENT.md). Older sections below describe the preserved base delivery; the linked extension supersedes their no-new-fitting statements.
 
 - [Small-task additions and remaining product work](SMALL_TASKS_STATUS.md), including technical operations, handover, quality, governance, responsible use and the proposed ACUD data request.
