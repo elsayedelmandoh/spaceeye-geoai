@@ -18,7 +18,7 @@ from src.pipeline.common import APP, BASE_DIR, PRIVATE
 PROJECT = APP.parent
 REPO = BASE_DIR
 RELEASES = PROJECT / "releases"
-TAG = "SpaceEye_R7_READY_DATA_2026-10-28_v4"
+TAG = "SpaceEye_R7_READY_DATA_2026-10-28_v5"
 
 
 def sha(path):
@@ -131,6 +131,10 @@ def main():
         copy(REPO / "docs/data" / name, "docs/" + name)
     for name in ("EW_PROTOCOL_CURRENT.md", "EW_REPORT_CURRENT.md", "CURRENT_MODEL_METADATA.json", "CURRENT_MODEL_METRICS.csv", "CURRENT_MODEL_REPRODUCIBILITY.json", "BACKTEST_CURRENT.md", "FULL_TRACK_A_REPRODUCIBILITY.json", "ANNUAL_CONTEXT_COVERAGE.csv", "DEFECT_AUDIT_CURRENT.json", "SCENARIO_CONTRACT_CURRENT.md"):
         copy(REPO / "docs/data" / name, "docs/" + name)
+    copy(REPO / "docs/data/BINARY_SCOPE_DECISION.md", "docs/BINARY_SCOPE_DECISION.md")
+    holdout = APP / "ml_current/developer_holdout_predictions.parquet"
+    if holdout.exists():
+        copy(holdout, "current/developer_holdout_predictions.parquet")
     for label in ("S1", "S2", "S3"):
         copy(APP / "partial_task_exports" / label / "who_moved_and_why.csv", f"what_if/{label}/who_moved_and_why.csv")
     for relative in ("backtest/cases_explained.csv", "backtest/summary.json", "defects_audit.csv", "annual_context.csv", "scenario_contract.json"):
@@ -157,7 +161,8 @@ def main():
         "training_unique_keys": not data.duplicated(["code", "quarter"]).any(),
         "censored_targets_null": data.loc[data.label_censored, metadata["targets"]].isna().all().all(),
         "training_known_codes": set(data.code) == codes,
-        "unsupported_completed_predictions_null": pd.read_parquet(APP / "ml_current/predictions.parquet").p_completed.isna().all(),
+        "binary_probabilities_normalized": pd.read_parquet(APP / "ml_current/predictions.parquet")[["p_distressed", "p_not_distressed"]].sum(axis=1).sub(1).abs().lt(1e-10).all(),
+        "completion_prediction_removed": "p_completed" not in pd.read_parquet(APP / "ml_current/predictions.parquet").columns,
     }
     complaints = pd.read_parquet(target / "tables" / "operations" / "complaints.parquet")
     checks["masked_complaints"] = not complaints.text_ar.dropna().map(lambda text: bool(PHONE.search(text))).any()
@@ -194,7 +199,7 @@ Generated operations and hypothetical financial paths are labelled: Synthetic - 
 - Prepared operations: 540 monthly financial rows, 180 financial quarters, 1,334 complaints with phone masking, and 12 synthetic allocation/fine-assumption records.
 - Hypothetical financial paths: 648 rows, initial states, comparison summary and declared assumptions.
 - Inspection selections: baseline capacity 4, with alternatives 2 and 6. The visit template is empty; no visit outcomes were invented.
-- Training export: 180 rows and 40 declared features, with binary and three-class targets kept separate from X.
+- Training export: 180 rows and 40 declared features, with equivalent boolean/categorical binary distress targets kept separate from X.
 - Complaint classification:100labeled masked texts from the existing feed with conservative group splits,plus a SEPARATE296-text generated five-class capability benchmark. Use the benchmark alone for balanced capability work;do not combine the corpora or claim real complaint accuracy.
 - Inspection inputs:180cutoff-safe JSON contexts under `inspection/inspection_contexts/`,indexed in `inspection/index.csv`. Public facts and generated operations/visits are separated;no hidden targets are agent inputs. Missing imagery is marked rather than fabricated.
 - Review extensions:`tables/review/synthetic_visits.parquet` has58generated exercise visits,not actual fieldwork. `hypothetical_priorities.parquet` has648financial-path priority rows with same-month baseline comparisons,using the declared frozen-context/projected-B5rule.
@@ -221,7 +226,7 @@ This bundle is standalone for reading, analysis and interface development. It do
 
 - X is exactly the `features` list in the training metadata. Keys, targets, `label_censored` and `already_completed_at_cutoff` are not features.
 - Training ends at 2024Q4; 2025Q1 is embargoed; the time test is 2025Q2–2026Q1. The final two quarters have incomplete future horizons and must be excluded from supervised fitting and target metrics.
-- The three-class target requires new full-project handover within the next six months; partial handover is insufficient. Distress takes precedence. There are zero completed training examples and one completed test example, so this export does not establish a reliable three-class classifier.
+- The target is distressed/not_distressed during the next six months. Completion prediction has been removed by the team lead. The two probabilities are normalized; not_distressed does not imply completed or guaranteed healthy. Source handover facts and rule caps remain context.
 - K5 is a research-policy screening proxy. Fine amounts, the illustrative 1% monthly rate and allocation records are generated assumptions, not assessed fines or verified contracts. Relief is an optional hypothetical case gated by the news publication date, not automatic entitlement.
 - Retrospectively generated allocation dates do not enter X or replace public K6. Insufficient observation remains unknown; do not automatically replace missing values with zero.
 - Monthly unit sales are flows and are summed over each quarter. The training complaint diagnostic is normalized by cutoff-month sales, not cumulative sold inventory or buyer incidence.
@@ -230,7 +235,7 @@ This bundle is standalone for reading, analysis and interface development. It do
 
 Raw inputs, quarantined/rejected observations, hidden answer keys, code-to-name mappings and models are excluded. Parquet is authoritative for types and null values; CSV is provided for convenient viewing. Original Arabic complaint text is data and remains unchanged.
 
-Every distributed file has a SHA-256 entry in `MANIFEST.csv`. Run `verify_package.py` after extraction to check transfer integrity. Version4 adds Arabic committee reasons, full Track A reproducibility, current model diagnostics, explained real-case checks and S1/S2/S3 handoff. `current_ml_current` contains conditional observed-class probabilities; `p_completed` is null because training has no completed examples. See docs/EW_REPORT_CURRENT.md and docs/SCENARIO_CONTRACT_CURRENT.md before using current outputs. Earlier prepared v3 remains a separate historical version.
+Every distributed file has a SHA-256 entry in `MANIFEST.csv`. Run `verify_package.py` after extraction to check transfer integrity. Version5 adopts the approved binary distress scope: current_ml_current contains p_distressed and p_not_distressed, summing to one. Completion prediction and its missing-class acceptance blocker are removed. Read docs/BINARY_SCOPE_DECISION.md and docs/EW_REPORT_CURRENT.md. Earlier versioned ZIPs retain historical experiments.
 """)
     write(target / "examples" / "read_ready_data.py", '''from pathlib import Path
 import json

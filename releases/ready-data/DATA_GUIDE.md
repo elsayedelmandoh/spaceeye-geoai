@@ -1,86 +1,38 @@
-# Which data should I use?
+# SpaceEye v5 data guide
 
-Scope: **12 coded R7 compounds**. `code` identifies a compound; `developer_code` identifies a developer. Join tables on their keys, not row order. A month is `YYYY-MM`; a quarter is `YYYYQn`.
+## Choose a table
 
-| Your task | Start with | Contents |
+| Need | Location | Meaning |
 | --- | --- | --- |
-| Current inspection priorities | `tables/inspection/cycle_list.csv` | Latest selected compounds, priority and supporting indicators. Capacity is 4. |
-| Quarterly indicator charts | `tables/real/kpi_values.parquet` | 372 rows; priority levels, K2, K3, K5 and K6. |
-| Satellite monitoring | `tables/real/sat_quarterly.parquet` and `sat_yearly.parquet` | 516 quarterly / 132 annual rows; activity and approved observation products. |
-| Map and register | `tables/real/compound_boundaries.geojson` and `compounds.parquet` | Coded polygons and register fields; origin columns distinguish observed and generated values. |
-| Published evidence | `tables/real/statements.parquet` | 57 coded published statements. A real statement is not independent proof of physical completion. |
-| Financial analysis | `tables/operations/fin_monthly.parquet` or `fin_quarterly.parquet` | 540 monthly / 180 quarterly prepared rows. Flows sum over a quarter; stocks use its last month. |
-| Complaint analysis | `tables/operations/complaints.parquet` | 1,334 accepted synthetic complaints with phone masking. Original Arabic text remains as data. |
-| Fine assumptions | `tables/operations/fine_assumptions.parquet` | 12 generated contract/allocation assumptions; exact rates and dates are not verified contracts. |
-| Hypothetical financial comparisons | `tables/financial_paths/paths.parquet` and `summary.csv` | 648 forward rows: baseline, lower collections and higher imported cost. |
-| Capacity comparisons | `tables/inspection/inspection_capacity.csv` | Selections under capacities 2, 4 and 6. Capacity changes selection only. |
-| Machine-learning work | `training/ml_dataset_extended.parquet` and `metadata.json` | 180 rows, exact 40-feature list, binary/three-class targets and censoring flags. |
-| Complaint classifier | `training/complaints_benchmark.parquet` and `complaints_benchmark_metadata.json` |296generated texts;train152/validation40/test104;all5classes in each split,body families isolated. Synthetic capability only. |
-| Labels for existing complaint texts | `training/complaints_training.parquet` and `complaints_metadata.json` |100masked feed texts with correct synthetic category targets. Small grouped holdouts lack some classes;do not mix with the benchmark. |
-| Inspection agent inputs | `inspection/index.csv` and its referenced JSON files |180cutoff-safe contexts with coded facts,safe source references,generated operations and follow-up questions;no hidden targets. |
-| Visit exercises | `tables/review/synthetic_visits.parquet` |58explicitly generated visit records tied to selected cycles. Real-visit template stays empty;these are not real field evidence. |
-| Financial priority comparison | `tables/review/hypothetical_priorities.parquet` |648rows applying frozen cutoff context plus projected B5gap>20;capacity4 and same-month baseline comparisons. Not predicted future satellite priority. |
+| Public/derived observations and indicators | tables/real/ | Coded register, satellite/annual context, statements and KPIs |
+| Prepared synthetic operations | tables/operations/ | Monthly/quarterly finance, masked complaints, assumed fine inputs |
+| Inspection selection | tables/inspection/ | Capacity-limited cycle list and 2/4/6 comparisons |
+| Current primary model outputs | tables/current/ml_current.parquet | 720 rows: four methods x 180 cutoffs; binary distressed/not_distressed probabilities |
+| What-if KPI handoff | tables/current/S1.parquet, S2.parquet, S3.parquet | Frozen-context hypothetical priority changes; S3 changes capacity only |
+| What-if explanations | what_if/ | Monthly baseline comparisons and trigger context |
+| Training | training/ml_dataset_extended.parquet, metadata.json | 180 rows, exact 40-feature list, equivalent boolean/categorical binary distress targets |
+| Complaint classification | See TABLES.csv and component protocol | Separate 100-text feed and 296-text benchmark; preserve their own splits and never merge them for evaluation |
+| Inspection-agent inputs | inspection/ | 180 cutoff-safe JSON contexts; these are inputs, not verified final reports |
+| Visits and priority exercises | tables/review/ | Explicitly synthetic exercises, not actual inspections |
+| Secondary model check | current/developer_holdout_predictions.parquet when supplied | Fixed-seed chronological developer holdout; see metadata/status and metrics view |
 
-Equivalent CSV copies of Parquet tables are under `csv/`. `TABLES.csv` lists all table names and row counts, including SQL names in `spaceeye_ready.duckdb`. Field definitions are in `dictionaries/` and `training/dictionary.md`.
+TABLES.csv lists exact SQL names, paths and counts. CSV copies are under csv/. Field dictionaries and source/generation records are bundled. Parquet is authoritative for types/nulls.
 
-## Read a table
+## Model contract
 
-From inside the extracted folder:
+Target: distressed/not_distressed in the next six months, excluding cutoff month. y_outcome_6m and label_distress_next_6m encode the same distress event. Completion is not predicted. Source handover facts and already_completed_at_cutoff remain descriptive/cohort information, excluded from X.
 
-```python
-import pandas as pd
+Train <=2024Q4; embargo 2025Q1; time test 2025Q2?2026Q1. Exclude censored/already-handed-over rows from fitting/evaluation. Censored targets stay null. Use only metadata.features as X; exclude keys, targets, censoring and cohort flags. Fit preprocessing on training data only.
 
-finance = pd.read_parquet("tables/operations/fin_quarterly.parquet")
-print(finance.head())
-```
+Primary prediction key: method/code/quarter. p_distressed + p_not_distressed = 1. Not_distressed does not mean completed, continuously active or guaranteed healthy. Current metrics include class support, per-class recall, binary macro-F1 and recall@4 against 2,000 random draws. Repeated synthetic quarters are not independent real events. Read docs/EW_PROTOCOL_CURRENT.md and docs/EW_REPORT_CURRENT.md before interpreting scores.
 
-```python
-import duckdb
+## Important limits
 
-with duckdb.connect("spaceeye_ready.duckdb", read_only=True) as con:
-    priorities = con.execute(
-        "SELECT * FROM inspection_cycle_list ORDER BY cycle_rank"
-    ).df()
-```
+- Public observation, derived calculation and generated assumption are separate origins. Keep the synthetic label on generated displays.
+- Annual heights are contextual OBT observations through 2023 plus the approved 2024 estimate. Later heights stay unknown; no fixed +/-2m surveying guarantee remains in the plan.
+- K5 and monetary fines are screening/assumption examples, not actual contractual assessments or measured savings.
+- S1/S2 use last simulated month per quarter and explicitly freeze public context; S3 preserves levels and changes only capacity selection.
+- Preserve publication cutoffs, missing values, masking, codes-only exports and the 2019Q2 quality FLAG.
+- Current raw/template generation, real field collection, dashboard and inspection agent are separate from this standalone prepared bundle.
 
-## Training: use the declared features only
-
-```python
-import json
-import pandas as pd
-
-with open("training/metadata.json", encoding="utf-8") as file:
-    meta = json.load(file)
-data = pd.read_parquet(meta["dataset"])
-train = (
-    data.quarter.le("2024Q4")
-    & ~data.label_censored
-    & ~data.already_completed_at_cutoff
-)
-X_train = data.loc[train, meta["features"]]
-y_train = data.loc[train, "label_distress_next_6m"]
-```
-
-Do not include keys, targets, censoring flags or already-completed flags in X. Fit imputation/scaling on training only. Keep the time split: train through 2024Q4, embargo 2025Q1, test 2025Q2–2026Q1. The last two quarters have censored targets and are excluded from supervised fitting/target metrics.
-
-## Definitions to remember
-
-- **K5:** union of screening months under the declared research policy. EGP amounts and the 1% monthly rate are assumptions, not actual assessed fines. Relief is optional, not universal entitlement.
-- **K6:** time without confirmed observed start since a known launch/promise reference. Missing evidence remains unknown; do not fill it with zero automatically. Retrospectively generated allocation dates are excluded from X/public K6.
-- **Three-class target:** distress takes precedence; `completed` requires new full-project handover in the future six months. Partial handover does not count. There are zero completed training examples and one completed test example; no reliable three-class model is claimed.
-- Monthly `units_sold` is a flow. The training complaint diagnostic uses cutoff-month sales, not cumulative buyer inventory.
-- Financial paths are hypothetical, not handover forecasts. Historical N=8 model results do not validate the current capacity 4 or expanded feature schema.
-- Read `docs/validation_summary.json` for retained limitations, including the 2019Q2 coverage flag.
-
-Use the ready bundle for analysis, GIS, interface development and carefully defined modelling work. Rebuilding the original source pipeline requires additional external inputs and is a separate task.
-
-For complaint work,use only `text_ar` as X and `label_category` as y,filtered by the supplied split. Desk categories,template/group IDs and evaluation flags are not features. Never report these generated-template results as real complaint accuracy. Inspection contexts separate published evidence from generated operations/visits;missing imagery is explicitly marked. Full component definitions:docs/COMPONENT_DATA_PROTOCOL.md inside the bundle.
-
-## Version 4 additions
-
-- Inspection CSV now includes English/Arabic reasons, priority words and lineage.
-- `tables/current/ml_current.parquet`: 720 rows, four model methods x 180 cutoffs; `p_completed` is unknown, not zero. The model output is not an accepted three-class probability distribution.
-- `tables/current/S1.parquet` and `S2.parquet`: last simulated month per quarter, with frozen public context; `what_if/` has monthly change explanations.
-- `tables/current/S3.parquet`: capacity 2/6 re-selection over original quarters, preserving levels; include scenario_id in its key.
-- `current/backtest/cases_explained.csv`: coded source outcomes, rule explanations and numeric competing-explanation checks.
-- `docs/`: current protocol, metrics, model metadata, two reproducibility reports, annual coverage and six-defect audit. Local fitted models remain excluded.
+Run verify_package.py after extraction. See docs/BINARY_SCOPE_DECISION.md for the approved scope change. Older ZIPs preserve earlier experiment definitions; do not use their completion-class schema as a current requirement.

@@ -1,6 +1,6 @@
 # R1/R2 data handoff
 
-Current release: 28 October 2026. Scope: 12 coded R7 compounds. The current partial-task extension adds Arabic committee exports, full Track A reproducibility, backtest explanations, scenario contracts, stronger masking and current model diagnostics. See [closure status](PARTIAL_TASKS_CLOSURE.md) and [current evaluation](EW_REPORT_CURRENT.md). Three-class acceptance remains unmet because completed has no training examples. Dashboard and inspection agent remain separate.
+Current release: 28 October 2026. Scope: 12 coded R7 compounds. The current partial-task extension adds Arabic committee exports, full Track A reproducibility, backtest explanations, scenario contracts, stronger masking and current model diagnostics. See [closure status](PARTIAL_TASKS_CLOSURE.md) and [current evaluation](EW_REPORT_CURRENT.md). Binary implementation acceptance is met; completion prediction has been removed by the team lead. Dashboard and inspection agent remain separate.
 
 Delivery is merged into main at `b397f5e`,following the reviewed branch `feat/r1-r2-data-finalization`. Final evidence:47tests,touched-code lint and whitespace checks PASS;21table dictionaries;129equal artifacts across two data-only builds;protected inputs unchanged. See the completed delivery plan for integration decisions and commit history.
 
@@ -28,7 +28,7 @@ For rebuilding the full source pipeline, edit `configs/data.yaml` paths on anoth
 
 Public/derived R1 tables live in `app_data/real`. Deliberately dirty historical operations stay in `app_data/sim`; cleaned and quarterly tables in `app_data/sim_clean`. Financial scenarios are separate in `app_data/scenarios`. Every generated product is labelled `Synthetic - for training only`.
 
-The current expanded data table is `private/ml_dataset_extended.parquet`: 180 rows, 40 explicitly listed features, binary and three-class targets. Metadata records keys, origins, censoring, source hashes and exact feature names. The older `ml_dataset.parquet` (132 rows, 26 features) belongs to the historical binary experiment.
+The current expanded data table is `private/ml_dataset_extended.parquet`: 180 rows, 40 explicitly listed features, equivalent boolean/categorical binary distress targets. Metadata records keys, origins, censoring, source hashes and exact feature names. The older `ml_dataset.parquet` (132 rows, 26 features) belongs to the historical binary experiment.
 
 ## Important implementation decisions
 
@@ -38,7 +38,7 @@ The current expanded data table is `private/ml_dataset_extended.parquet`: 180 ro
 4. Relief at 50% and 12-month scheduling are optional scenarios after the 18 November 2024 publication, not universal permanent entitlement.
 5. Inspection capacity is 4, with stored selections for 2/4/6. Only eligible levels 1–3 are selected. Capacity does not change levels, cash or progress.
 6. Financial flows, including monthly units sold, sum over a quarter; stocks use its last month. The expanded complaint diagnostic divides 90-day complaints by units sold in the cutoff month, not cumulative sold inventory; do not describe it as buyer incidence.
-7. Three-class labels are data only: future distress takes precedence; completion requires new full-project handover. Censored targets are null and already-completed rows are separately flagged. There are zero completed training examples and one completed time-test example. No classifier was fitted for this schema.
+7. Current targets encode binary next-six-month distress. Completion prediction was removed by the team lead. Primary train/test contain both classes; probabilities are normalized. Handover facts and cutoff-cohort exclusions remain separate context.
 8. Historical progress is anchored reconstruction. The independent forward engine uses cutoff-only reports/finance, common productivity draws, finite assumed liquidity/credit and accounting invariants. It does not forecast handover or occupancy and need not show an effect when cash does not bind.
 
 ## Validation and commands
@@ -54,7 +54,7 @@ The last command performs two complete **data-only** builds, compares all scoped
 
 `src.pipeline.run_all` and `src.pipeline.release` include existing model fitting/evaluation. Do not use them for a documentation-only or current data-only refresh. If you deliberately change data behavior, re-run relevant tests and delivery evidence after that change.
 
-The prior N=8 binary scores are historical: 4/4 positive rows for the combined rule versus 3/4 for satellite-only, with one independent new onset. They do not validate capacity 4, the expanded feature schema or a three-class classifier. The historical real-case backtest remains 1/6 after-start and 0/6 at cutoff. Existing 2019Q2 coverage FLAG remains visible; missing data and failed research are not erased by a passing release audit.
+The prior N=8 binary scores are historical: 4/4 positive rows for the combined rule versus 3/4 for satellite-only, with one independent new onset. They do not validate capacity 4, the expanded feature schema or the current classifier. The historical real-case backtest remains 1/6 after-start and 0/6 at cutoff. Existing 2019Q2 coverage FLAG remains visible; missing data and failed research are not erased by a passing release audit.
 
 The saved R1 `run_log` and `quality_checks_log` retain the full-pipeline run history. Current data-only lineage/gate results are in `data_completion/audit.json`, `data_completion/quality_checks.csv` and `release_audit.json`; the delivery does not relabel old fitting logs as new fitting runs.
 
@@ -62,7 +62,7 @@ The saved R1 `run_log` and `quality_checks_log` retain the full-pipeline run his
 
 Component data is now supplied by src.pipeline.component_data:100gold-labeled feed texts,a separate296-text complaint benchmark,180inspection contexts,58explicitly synthetic visit exercises and648hypothetical financial-priority rows. See COMPONENT_DATA_PROTOCOL.md and the current ready-data bundle. Existing source tables are unchanged;no hidden cause/answer key enters inspection inputs. Generated visits are not actual fieldwork or independent validation.
 
-Remaining product work: UI,agent/complaint-classifier implementation,three-class fitting/model comparison at capacity4,actual field data collection and deployment. Financial-to-priority DATA now exists under the declared hypothetical frozen-context/projected-B5rule;it is not validated operational forecasting. Actual contractual rates/eligibility and allocation records remain unknown despite synthetic stand-ins.
+Remaining product work: UI,agent/complaint-classifier implementation,independent real-world validation/calibration,actual field data collection and deployment. Financial-to-priority DATA now exists under the declared hypothetical frozen-context/projected-B5rule;it is not validated operational forecasting. Actual contractual rates/eligibility and allocation records remain unknown despite synthetic stand-ins.
 
 Published heights remain OBT 2016–2023 and the approved v4 estimate for 2024. Later height/finishing/roads experiments did not justify a new approved product. Earlier local handoff contains server/archive history; no new server training was launched for the current data updates.
 

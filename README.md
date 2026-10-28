@@ -2,7 +2,7 @@
 
 **Team handoff:** [remaining tasks, owners and dependencies](docs/REMAINING_TEAM_TASKS.md).
 
-**Team data:** [download the ready-data ZIP](releases/ready-data/SpaceEye_R7_READY_DATA_2026-10-28_v4.zip?raw=1) and follow the [three-step guide](releases/ready-data/README.md). Includes complaint-classification data,inspection contexts,generated visit exercises and hypothetical financial-priority outputs. No raw downloads or pipeline rebuild are needed.
+**Team data:** [download the ready-data ZIP](releases/ready-data/SpaceEye_R7_READY_DATA_2026-10-28_v5.zip?raw=1) and follow the [three-step guide](releases/ready-data/README.md). Includes complaint-classification data,inspection contexts,generated visit exercises and hypothetical financial-priority outputs. No raw downloads or pipeline rebuild are needed.
 
 > Data release, 28 October 2026: R1/R2 now include K5/K6, capacity4, prepared data,180-row/40-feature expanded data and separate financial scenarios. Start with [the current handoff](docs/data/HANDOFF.md), [R1 report](docs/data/R1_REPORT.md), [R2 report](docs/data/R2_REPORT.md) and [delivery plan](docs/data/DELIVERY_PLAN.md). The product design below is retained; it includes work beyond this data-only release.
 
@@ -122,4 +122,4 @@ notebooks/      exploration
 [![linkedin](https://img.shields.io/badge/salma-linkedin-0077b5?style=for-the-badge&logo=linkedin&logocolor=white)](https://www.linkedin.com/in/salma-magdy-ml/)
 [![github](https://img.shields.io/badge/GitHub-repo-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/elsayedelmandoh/spaceeye-geoai)
 
-Current partial-task extension: [implementation and remaining conditions](docs/data/PARTIAL_TASKS_CLOSURE.md), [capacity-4 diagnostics](docs/data/EW_REPORT_CURRENT.md). Completion has no training support; no operational three-class accuracy claim is made.
+Current partial-task extension: [implementation and remaining conditions](docs/data/PARTIAL_TASKS_CLOSURE.md), [capacity-4 diagnostics](docs/data/EW_REPORT_CURRENT.md). Completion prediction is removed; current binary implementation is complete. Independent real validation is not claimed.

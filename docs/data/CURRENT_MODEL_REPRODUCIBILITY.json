@@ -1,6 +1,6 @@
 {
   "status": "PASS",
-  "equal_files": 8,
+  "equal_files": 13,
   "includes_saved_models": true,
-  "scope": "Repeated current fixed-parameter fit; same data, metadata, protocol and source"
+  "scope": "Repeated approved binary fits: fixed time and chronological developer holdout; identical inputs/protocol/source"
 }

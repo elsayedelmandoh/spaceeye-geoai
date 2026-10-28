@@ -33,12 +33,12 @@ def test_pre_model_masking_handles_unicode_phones_and_supplied_names():
         assert_safe_texts(["Call 01012345678"])
 
 
-def test_missing_completed_probability_stays_unknown_and_imputer_is_train_only():
-    model = estimator("logistic").fit(pd.DataFrame({"x": [0., 2., 4., np.nan]}), ["ongoing", "ongoing", "distressed", "distressed"])
+def test_binary_probabilities_are_normalized_and_imputer_is_train_only():
+    model = estimator("logistic").fit(pd.DataFrame({"x": [0., 2., 4., np.nan]}), ["not_distressed", "not_distressed", "distressed", "distressed"])
     before = model.steps[0][1].statistics_.copy()
     out = probabilities(model, pd.DataFrame({"x": [np.nan, 1e9]}))
-    assert out.completed.isna().all()
-    np.testing.assert_allclose(out[["distressed", "ongoing"]].sum(axis=1), 1)
+    assert set(out.columns) == {"distressed", "not_distressed"}
+    np.testing.assert_allclose(out.sum(axis=1), 1)
     np.testing.assert_equal(before, model.steps[0][1].statistics_)
 
 

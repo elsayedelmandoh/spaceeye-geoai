@@ -1,17 +1,17 @@
 # SpaceEye: remaining team tasks
 
-Prepared on 28 October 2026, after delivery v4. Based on the original **02-team-roles-and-tasks.md** supplied by the team lead. Original task IDs, owners and priority tiers are preserved.
+Updated on 28 October 2026 for approved binary scope and delivery v5. AH-16, EL-01, EL-10, EL-11 and EL-17 are no longer open implementation tasks; see [scope decision](data/BINARY_SCOPE_DECISION.md). Based on the original **02-team-roles-and-tasks.md** supplied by the team lead. Original task IDs, owners and priority tiers are preserved.
 
 This is an implementation snapshot, not an assessment of individual effort. Work on other branches or outside this repository requires evidence before being credited. Original checkboxes require the named reviewer; this document does not sign on anyone's behalf.
 
 ## 1. Start here
 
-- [Ready-data download and English guide](https://github.com/elsayedelmandoh/spaceeye-geoai/blob/feat/complete-partial-tasks/releases/ready-data/README.md).
-- [Implementation evidence and limitations](https://github.com/elsayedelmandoh/spaceeye-geoai/blob/feat/complete-partial-tasks/docs/data/PARTIAL_TASKS_CLOSURE.md).
-- [Current model report](https://github.com/elsayedelmandoh/spaceeye-geoai/blob/feat/complete-partial-tasks/docs/data/EW_REPORT_CURRENT.md).
+- [Ready-data download and English guide](https://github.com/elsayedelmandoh/spaceeye-geoai/blob/feat/binary-distress-scope/releases/ready-data/README.md).
+- [Implementation evidence and limitations](https://github.com/elsayedelmandoh/spaceeye-geoai/blob/feat/binary-distress-scope/docs/data/PARTIAL_TASKS_CLOSURE.md).
+- [Current model report](https://github.com/elsayedelmandoh/spaceeye-geoai/blob/feat/binary-distress-scope/docs/data/EW_REPORT_CURRENT.md).
 - [Original board](requirements/02-team-roles-and-tasks.md), [current data contract](data/DATASET_CONTRACT.md), [technical decisions](requirements/D1_DECISIONS_CURRENT.md).
 
-Use **SpaceEye_R7_READY_DATA_2026-10-28_v4.zip**: 23 ready tables and 292 files. It includes prepared observations, generated operations, 180-row/40-feature training data, complaint corpora, inspection contexts, synthetic visit exercises, current model diagnostics and S1/S2/S3 outputs. Raw sources, private name mappings, hidden truth and model checkpoints are excluded.
+Use **SpaceEye_R7_READY_DATA_2026-10-28_v5.zip**: 23 ready tables, with binary model outputs. It includes prepared observations, generated operations, 180-row/40-feature training data, complaint corpora, inspection contexts, synthetic visit exercises, current model diagnostics and S1/S2/S3 outputs. Raw sources, private name mappings, hidden truth and model checkpoints are excluded.
 
 Current scope: **12 R7 compounds, six public backtest cases, inspection capacity 4**. Older references to 22 compounds, eight cases or capacity 8 are historical. The rough implementation estimate is approximately halfway complete, not an estimate of remaining hours.
 
@@ -23,13 +23,13 @@ Current scope: **12 R7 compounds, six public backtest cases, inspection capacity
 - **Qualification:** usable output exists, but an original claim or condition is unsupported.
 - **Optional:** may be deferred using the original Could/Should cut order.
 
-The list below covers **44 IDs with an unresolved implementation, evidence, decision or optional condition**. Section 10 lists **31 IDs with implementation/output evidence awaiting their original review**, and section 9 records **one failed/excluded experiment**. Together these account for all **76 original IDs**; they are not equally sized jobs.
+The list below covers **39 IDs with an unresolved implementation, evidence, decision or optional condition**. Section 10 lists **36 IDs with implementation/output evidence awaiting their original review**, and section 9 records **one failed/excluded experiment**. Together these account for all **76 original IDs**; they are not equally sized jobs.
 
 ## 3. Shared tasks
 
 | ID / tier | Owner | Existing work | Remaining action and acceptance |
 | --- | --- | --- | --- |
-| T-ALL-01 / Must | Whole team | Technical decisions implemented/documented. | Obtain actual agreement/signatures, including the missing-class and height qualifications. Do not invent signatures. |
+| T-ALL-01 / Must | Whole team | Technical decisions implemented/documented. | Obtain actual agreement/signatures, including the approved binary scope and contextual-height description. Do not invent signatures. |
 | T-ALL-02 / Must | Ahmed + Salma | R7 counts/capacity resolved. | Confirm the training-program day and update actual dates. Calendar date alone does not establish D1–D6. |
 | T-ALL-03 / Must | Salma | No completed rehearsal evidence identified. | Prepare/rehearse the ten-minute mid-term review and retain a brief record. |
 | T-ALL-04 / Must | Whole team | Artifacts, evidence and PRs exist. | Perform the original cross-review: Ahmed/Sayed, Verina/Nada, Salma on docs. Record findings and actual acceptance in PRs. |
@@ -41,7 +41,6 @@ The list below covers **44 IDs with an unresolved implementation, evidence, deci
 | --- | --- | --- |
 | T-AH-14 / Should | Partial: K1 exists; current activity fallback is q2hold. | Implement/document a configurable K1 fallback for future A failures and verify its effect. q2hold is not the requested K1 switch. |
 | T-AH-15 / Should | Build: experimental imagery exists locally; the required compound-level handoff is not ready. | Check permitted use; provide two before/after images per compound, capture dates, attribution and images.csv. Do not substitute map-release dates for verified capture dates. |
-| T-AH-16 / Should | Qualification: annual height/vegetation tables and coverage export are ready. | Review/accept the documented accuracy qualification: +/-2m is not a verified survey guarantee. Approved heights end in 2024. No vegetation rebuild is needed. |
 | T-AH-18 / Could | Optional: matching completed roof-uniformity evidence was not established. | Locate existing evidence first. If retained, register acceptance before testing Google-height roof/slab uniformity; otherwise record deferral/cut. |
 | T-AH-19 / Must | Partial: full command and reproducibility evidence exist. | Agree/tag the accepted presentation revision and document its command. Two full runs already matched; do not repeat fitting for documentation-only changes. |
 
@@ -51,12 +50,8 @@ Reuse [technical operations](deliverables/technical-track-a.md), [annual context
 
 | ID / tier | Status / existing work | Remaining action and acceptance |
 | --- | --- | --- |
-| T-EL-01 / Must | Qualification: current methods/splits/denominators documented; unattributed historical percentage retired. | If still required, locate the original artifact identifying the exact first-build 92% method/view/denominator. Otherwise approve retiring that claim. Do not guess attribution. |
-| T-EL-10 / Must | Data/decision: logistic diagnostics, predictions and all requested metric types exist. | Obtain supportable completed-class training coverage and register the next experiment, or explicitly approve a two-class scope. Current training has zero completed examples; p_completed stays null. |
-| T-EL-11 / Should | Data/decision: boosting/logistic comparison exists on the same split. | Resolve class coverage before three-class acceptance. Do not alter data/noise after inspecting scores to obtain a preferred result; register any new experiment. |
 | T-EL-15 / Could | Optional: S1/S2/S3 ready; extra cases incomplete. | If retained, implement S4 material cost +40% and S5 grace 12 to 6 months with separate outputs/assumptions. Fine-relief examples are not these tests. |
 | T-EL-16 / Could | Optional: matching FPMI/SAF deliverables were not established. | Locate prior results first. If missing and retained, write conditions before testing and log in team_ideas.md; otherwise defer. |
-| T-EL-17 / Must | Partial: one workflow command, reproducible fits and producing revision exist. | Agree/freeze accepted Track B scope/revision. A supported three-class release remains blocked by missing completed training examples; document any approved scope change. |
 
 Reuse [protocol](data/EW_PROTOCOL_CURRENT.md), [method card](deliverables/method-card.md), [metrics](data/CURRENT_MODEL_METRICS.csv), [fit reproducibility](data/CURRENT_MODEL_REPRODUCIBILITY.json), [S1/S2/S3 contract](data/SCENARIO_CONTRACT_CURRENT.md).
 
@@ -82,7 +77,7 @@ Current app.py prints settings; it is not the requested Streamlit dashboard. Exi
 | --- | --- | --- |
 | T-NA-01 / Must | Streamlit entrypoint, Track A/B switch, fixed synthetic banner and generated-value marks. | Runnable app, Track A default; no map in Track B. |
 | T-NA-02 / Must | Priority map, cycle list, Arabic reasons and CSV download; Track B list only. | AH-08 data ready. Coded boundaries, priority words, distinct unassessable state. |
-| T-NA-03 / Must | Compound screen: series, publication markers, annual context, imagery, KPIs, lineage, inspection report access. | Most inputs ready; imagery/report depend on AH-15/VE-06. Unsupported completion probability must display as unknown. |
+| T-NA-03 / Must | Compound screen: series, publication markers, annual context, imagery, KPIs, lineage, inspection report access. | Most inputs ready; imagery/report depend on AH-15/VE-06. Display p_distressed and p_not_distressed; no completion probability is required. |
 | T-NA-04 / Must | Real ops_visits form and persistence: code/date/result/note. | Empty template and synthetic exercises exist. Store actual entries separately from synthetic examples. |
 | T-NA-05 / Must | Would-it-have-warned screen. | Use current six-case check and capacity-4 metrics/limits; do not present historical eight-case/N=8 figures as current. |
 | T-NA-06 / Must | Data-trust screen: quality, coverage, unassessable records and origin key. | Current logs ready. Preserve 2019Q2 FLAG; verify old fixed fact-count figures before display. |
@@ -100,11 +95,11 @@ T-SA-04 governance cards are already written and need review.
 | T-SA-01 / Must | Agree current use-case compass; obtain signatures, instructor rubric and presentation duration. | Technical decisions exist; generic earlier compass text is not signed acceptance. |
 | T-SA-02 / Must | A/K2/K3/K4/K5/K6 cards with required fields/tags; KPI tree, levels table, kpi_reference schema. | configs/kpis.yaml has older energy/water examples, not accepted construction KPI cards. |
 | T-SA-03 / Must | Three explicit EGP-value settings without double counting. | Update/review cost_assumptions.yaml for this use case. Assumed fines are not measured savings or actual penalties. |
-| T-SA-05 / Must | One-page decision memo in Arabic and English, same facts/order. | Use current evidence and missing-class limits. |
+| T-SA-05 / Must | One-page decision memo in Arabic and English, same facts/order. | Use current evidence and binary model limitations. |
 | T-SA-06 / Must | Actual slides/deck and presentation script. | 01-presentation.md is a placeholder. Quote method, denominator, capacity, scope and generated-data status; preserve the original restricted backtest-slide name exception. |
 | T-SA-07 / Must | Wording audit with recorded checklist across docs/slides/screens. | Use priority level; never label a real compound financially distressed from synthetic data. |
 | T-SA-08 / Must | Trace every presented number to data/report/verifier evidence. | Complete after memo, slides and agent verification outputs exist. |
-| T-SA-09 / Must | Expected-questions sheet with concise answers. | Cover synthetic data, unsuccessful experiments, missing completion support and actual inspection use. |
+| T-SA-09 / Must | Expected-questions sheet with concise answers. | Cover synthetic data, unsuccessful experiments, approved binary scope and actual inspection use. |
 | T-SA-10 / Must | Final thirteen-deliverable and done-when checklists. | Check artifacts, working demo and real reviewer acceptance; prepared data alone is insufficient. |
 | T-SA-11 / Should | Current timeline with real program day, dates and owners. | Team input required; do not copy retired milestones as current dates. |
 | T-SA-12 / Could | Blind labelling support only if a new finishing experiment is retained. | Locate prior labels first. Existing finishing product was rejected; do not restart solely to tick an obsolete experiment. |
@@ -117,37 +112,35 @@ This is a failed experiment, rather than missing application implementation. It 
 
 ## 10. Existing outputs: review and reuse
 
-These 31 IDs have implementation/output evidence. Retain named review requirements; do not rebuild solely because original checkboxes remain unticked.
+These 36 IDs have implementation/output evidence. Retain named review requirements; do not rebuild solely because original checkboxes remain unticked.
 
 | Owner | IDs | Existing output |
 | --- | --- | --- |
-| Ahmed | T-AH-01, T-AH-02, T-AH-03, T-AH-04, T-AH-05, T-AH-06, T-AH-07, T-AH-08, T-AH-09, T-AH-10, T-AH-11, T-AH-12, T-AH-13, T-AH-20, T-AH-21 | Scope/config/rule, Arabic CSV, lineage, checks, explained backtest, two full-run reproducibility, technical operations and handover. Running/reporting the backtest is complete; its original success criterion was not achieved. |
-| Elsayed | T-EL-02, T-EL-03, T-EL-04, T-EL-05, T-EL-06, T-EL-07, T-EL-08, T-EL-09, T-EL-12, T-EL-13, T-EL-14, T-EL-18, T-EL-19 | Protocol, synthetic data/labels, dictionaries/features, fine assumptions, current comparisons, S1/S2/S3, method card and ACUD request. Pre-launch defect validation uses private generator audit; public launch coverage remains incomplete. |
+| Ahmed | T-AH-01, T-AH-02, T-AH-03, T-AH-04, T-AH-05, T-AH-06, T-AH-07, T-AH-08, T-AH-09, T-AH-10, T-AH-11, T-AH-12, T-AH-13, T-AH-16, T-AH-20, T-AH-21 | Scope/config/rule, Arabic CSV, lineage, checks, explained backtest, two full-run reproducibility, technical operations and handover. Running/reporting the backtest is complete; its original success criterion was not achieved. |
+| Elsayed | T-EL-01, T-EL-02, T-EL-03, T-EL-04, T-EL-05, T-EL-06, T-EL-07, T-EL-08, T-EL-09, T-EL-10, T-EL-11, T-EL-12, T-EL-13, T-EL-14, T-EL-17, T-EL-18, T-EL-19 | Protocol, synthetic data/labels, dictionaries/features, fine assumptions, current comparisons, S1/S2/S3, method card and ACUD request. Pre-launch defect validation uses private generator audit; public launch coverage remains incomplete. |
 | Verina | T-VE-07, T-VE-09 | Masking baseline/tests and responsible-use note; these do not implement the AI verifier. |
 | Salma | T-SA-04 | Governance cards; roles/policies need actual acceptance. |
 
-Saved validation: 57 tests and touched-source Ruff passed; two full Track A runs matched 276 manifest entries; repeated current-model fits produced eight identical files; 23 saved realism checks passed; six planted defects matched; ZIP CRC and all 291 manifest hashes passed. The current team_run command completed. Make itself was not installed here.
+Saved validation: 57 tests and touched-source Ruff passed; two full Track A runs matched 276 manifest entries; repeated current-model fits produced 13 identical files; 23 saved realism checks passed; six planted defects matched; ZIP CRC and all 291 manifest hashes passed. The current team_run command completed. Make itself was not installed here.
 
 ## 11. Recommended sequence
 
 1. Agree supported model scope, program day and optional cuts. Read the current bundle/limitations.
 2. Build the dashboard skeleton/map/compound/visit form and deterministic inspection tools/template using existing inputs; assign separate owners if working in parallel.
 3. Finish verifier, stored inspection reports and complaint-classifier comparison. Add optional LLM prose after the deterministic path works.
-4. Integrate trust/evaluation/what-if screens; complete KPI/value cards and committee guidance. Display missing imagery/class support honestly.
+4. Integrate trust/evaluation/what-if screens; complete KPI/value cards and committee guidance. Display missing imagery and model uncertainty honestly.
 5. Complete memo/deck, number/wording audits, cross-review, accepted revision tags, rehearsals and backup video.
 
-Could-tier experiments/S4/S5 are cut first. Wayback images may be deferred under the original Should-tier cut order if access/terms/preparation remain unresolved. Keep the deterministic report and logistic baseline; do not describe present diagnostics as an accepted three-class model.
+Could-tier experiments/S4/S5 are cut first. Wayback images may be deferred under the original Should-tier cut order if access/terms/preparation remain unresolved. Keep the deterministic report and binary logistic baseline. Completion prediction is outside the plan.
 
 ## 12. Git and distribution status
 
-Before this documentation update, the feature branch was clean and matched its pushed upstream: no earlier local code/data changes were waiting for push. The v4 ZIP was already published and verified against its local file.
+The previous v4 delivery and task document were pushed. This v5 update changes the approved model scope, target encoding, current fits, plans and bundle; it must be committed and published on the binary-scope feature branch. Raw sources, hidden truth and checkpoints remain excluded.
 
-This update adds only this document and its navigation links. It requires no dataset rebuild, ZIP replacement, model fitting or raw-data upload. Use feature branches/PRs, preserve teammates' changes and use the configured human Git identity. Never push directly to main.
-
-The existing implementation review is [PR #3](https://github.com/elsayedelmandoh/spaceeye-geoai/pull/3). Feature-branch publication is distinct from merge/reviewer acceptance; check its current GitHub state before assuming main contains v4.
+The previous implementation review is [PR #3](https://github.com/elsayedelmandoh/spaceeye-geoai/pull/3). Feature-branch publication is distinct from merge/reviewer acceptance; check its current GitHub state before assuming main contains the latest delivery.
 
 ## 13. Related requests outside the original board
 
-Water/gas meter connection counts are not implemented in v4. The original Track B task explicitly specified electricity meters only. The existing generated meters_active field is the stock of active electricity meters at each month, not new connections during that month. Satellite dw12_water describes surface-water context, not utility connections or consumption.
+Water/gas meter connection counts are not implemented in v5. The original Track B task explicitly specified electricity meters only. The existing generated meters_active field is the stock of active electricity meters at each month, not new connections during that month. Satellite dw12_water describes surface-water context, not utility connections or consumption.
 
 The published roads_paved_share is generated. The attempted real roads detector did not meet its acceptance gates. Do not replace generated labels with real-observation labels. These utility/roads qualifications do not add new IDs to the original 76-task count; any additional implementation should receive an explicit owner and scope.

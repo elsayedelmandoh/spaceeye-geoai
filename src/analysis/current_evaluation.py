@@ -1,4 +1,4 @@
-"""Current-schema, fixed-time evaluation; never modify labels to create missing classes."""
+"""Current binary distress evaluation under the team lead's revised scope."""
 
 import hashlib
 import json
@@ -15,7 +15,7 @@ from sklearn.preprocessing import StandardScaler
 
 from src.pipeline.common import APP, BASE_DIR, CFG, PRIVATE
 
-CLASSES = ["distressed", "completed", "ongoing"]
+CLASSES = ["distressed", "not_distressed"]
 OUT = APP / "ml_current"
 PROTOCOL = BASE_DIR / "docs/data/EW_PROTOCOL_CURRENT.md"
 
@@ -38,8 +38,10 @@ def estimator(kind):
 
 
 def probabilities(model, frame):
+    if set(model.classes_) != set(CLASSES):
+        raise ValueError("Binary training must contain both declared distress classes")
     fitted = model.predict_proba(frame)
-    return pd.DataFrame({name: fitted[:, list(model.classes_).index(name)] if name in model.classes_ else np.nan
+    return pd.DataFrame({name: fitted[:, list(model.classes_).index(name)]
                          for name in CLASSES}, index=frame.index)
 
 
@@ -77,6 +79,41 @@ def random_recalls(test, draws=2000):
     return np.array(values)
 
 
+def developer_diagnostic(frame, train_mask, test_mask, public, features, metrics):
+    """Fixed-seed, chronological holdout; never select developers by their labels."""
+    available = sorted(frame.loc[test_mask, "developer_code"].unique())
+    if len(available) < 3:
+        return {"status": "SKIPPED", "reason": "Fewer than three test developers"}
+    held = sorted(np.random.default_rng(2026).choice(available, size=3, replace=False).tolist())
+    train = frame.loc[train_mask & ~frame.developer_code.isin(held)]
+    test = frame.loc[test_mask & frame.developer_code.isin(held)]
+    result = {"held_developers": held, "seed": 2026, "train_rows": len(train), "test_rows": len(test)}
+    if test.developer_code.nunique() < 3 or set(train.y_outcome_6m) != set(CLASSES):
+        return {**result, "status": "SKIPPED", "reason": "Fixed holdout lacks three test developers or both training classes; no outcome-driven reselection"}
+    predictions = []
+    for kind in ("logistic", "boosting"):
+        for group, columns in (("satellite", public), ("combined", features)):
+            method = f"{kind}_{group}"
+            model = estimator(kind).fit(train[columns].astype(float), train.y_outcome_6m)
+            p = probabilities(model, test[columns].astype(float))
+            guess = pd.Series(model.predict(test[columns].astype(float)), index=test.index)
+            for name in CLASSES:
+                actual = test.y_outcome_6m.eq(name)
+                hits, total = int((actual & guess.eq(name)).sum()), int(actual.sum())
+                metrics.append({"view": "developer_holdout", "method": method, "metric": "class_recall", "class": name,
+                                "value": hits / total if total else None, "numerator": hits, "denominator": total})
+            metrics.append({"view": "developer_holdout", "method": method, "metric": "macro_f1_binary", "class": "all",
+                            "value": float(f1_score(test.y_outcome_6m, guess, labels=CLASSES, average="macro", zero_division=0)), "numerator": None, "denominator": len(test)})
+            part = test[["code", "quarter"]].copy()
+            part["method"], part["view"] = method, "developer_holdout"
+            part["p_distressed"], part["p_not_distressed"] = p.distressed, p.not_distressed
+            part["synthetic_label"] = "Synthetic - for training only"
+            predictions.append(part)
+            joblib.dump(model, OUT / "models" / f"{method}_developer.joblib")
+    pd.concat(predictions, ignore_index=True).to_parquet(OUT / "developer_holdout_predictions.parquet", index=False)
+    return {**result, "status": "FITTED", "train_classes": train.y_outcome_6m.value_counts().to_dict(), "test_classes": test.y_outcome_6m.value_counts().to_dict()}
+
+
 def run():
     protocol_hash = sha(PROTOCOL)  # Existing frozen protocol must exist before fitting.
     path = PRIVATE / "ml_dataset_extended.parquet"
@@ -90,9 +127,11 @@ def run():
         raise ValueError("Training table does not match its metadata")
     train_mask, test_mask = masks(frame)
     train, test = frame.loc[train_mask], frame.loc[test_mask]
-    if train.y_outcome_6m.nunique() < 2:
-        raise ValueError("Fewer than two observed training classes")
-    unsupported = sorted(set(CLASSES) - set(train.y_outcome_6m))
+    if set(train.y_outcome_6m) != set(CLASSES) or set(test.y_outcome_6m) != set(CLASSES):
+        raise ValueError("Both binary classes are required in primary train and test")
+    known = frame.loc[~frame.label_censored]
+    if not known.y_outcome_6m.eq(np.where(known.label_distress_next_6m.astype(bool), "distressed", "not_distressed")).all():
+        raise ValueError("Categorical and boolean distress targets disagree")
     public = [c for c in features if meta["column_origins"][c] == "derived_public_observation"]
     if not public or "K5_egp" in public:
         raise ValueError("Invalid public feature set")
@@ -113,7 +152,7 @@ def run():
             part["predicted_class"] = pred
             for name in CLASSES:
                 part["p_" + name] = p[name]
-            part["probability_scope"] = "conditional on observed training classes" if unsupported else "three classes"
+            part["probability_scope"] = "binary future distress"
             part["synthetic_label"] = "Synthetic - for training only"
             predictions.append(part)
             scores[method] = p.distressed
@@ -123,7 +162,7 @@ def run():
                 support = int(actual.eq(name).sum())
                 metrics.append({"method": method, "metric": "class_recall", "class": name, "value": float(recall) if support else None,
                                 "numerator": int((actual.eq(name) & guess.eq(name)).sum()), "denominator": support})
-            metrics.append({"method": method, "metric": "macro_f1_three_declared_classes", "class": "all",
+            metrics.append({"method": method, "metric": "macro_f1_binary", "class": "all",
                             "value": float(f1_score(actual, guess, labels=CLASSES, average="macro", zero_division=0)), "numerator": None, "denominator": len(test)})
             confusions[method] = confusion_matrix(actual, guess, labels=CLASSES).tolist()
             joblib.dump(model, OUT / "models" / f"{method}.joblib")
@@ -135,36 +174,45 @@ def run():
                         "value": hits / total if total else None, "numerator": hits, "denominator": total})
     random_values = random_recalls(test)
     random_summary = {"draws": 2000, "mean": float(np.nanmean(random_values)), "low": float(np.nanquantile(random_values, .025)), "high": float(np.nanquantile(random_values, .975))}
+    for metric in metrics:
+        metric["view"] = "time_test"
+    developer_holdout = developer_diagnostic(frame, train_mask, test_mask, public, features, metrics)
     result = {"scope": "Synthetic - for training only", "protocol_sha256_before_fit": protocol_hash,
               "train_rows": len(train), "test_rows": len(test), "train_classes": train.y_outcome_6m.value_counts().to_dict(),
-              "test_classes": test.y_outcome_6m.value_counts().to_dict(), "unsupported_training_classes": unsupported,
-              "three_class_acceptance": not unsupported and set(CLASSES).issubset(set(test.y_outcome_6m)),
+              "test_classes": test.y_outcome_6m.value_counts().to_dict(), "target": "distressed / not_distressed in next six months",
+              "binary_implementation_acceptance": True,
               "classes": CLASSES, "confusion_matrices": confusions, "random_at_4": random_summary,
               "public_features": public, "combined_features": features,
-              "developer_holdout": "Not fitted: completed has no training support before any additional developer exclusion.",
+              "developer_holdout": developer_holdout,
               "input_sha256": {"dataset": sha(path), "metadata": sha(PRIVATE / "ml_dataset_extended_metadata.json"),
                                "protocol": protocol_hash, "source": sha(BASE_DIR / "src/analysis/current_evaluation.py")},
-              "limits": ["No completed training example; its probability is null, not zero.", "Per-row synthetic labels are not independent real events.", "Real-case check set is not used for fitting or tuning."]}
+              "limits": ["Completion prediction removed by the team lead; handover observations remain context.", "Per-row synthetic labels are not independent real events.", "Real-case check set is not used for fitting or tuning."]}
     if sha(PROTOCOL) != protocol_hash:
         raise RuntimeError("Protocol changed during fitting")
-    pd.concat(predictions, ignore_index=True).to_parquet(OUT / "predictions.parquet", index=False)
+    combined = pd.concat(predictions, ignore_index=True)
+    probabilities_sum = combined[["p_distressed", "p_not_distressed"]].sum(axis=1)
+    binary = combined[["p_distressed", "p_not_distressed"]]
+    if not np.allclose(probabilities_sum, 1) or not binary.notna().all().all() or not ((binary >= 0) & (binary <= 1)).all().all():
+        raise RuntimeError("Invalid binary probabilities")
+    combined.to_parquet(OUT / "predictions.parquet", index=False)
     pd.DataFrame(metrics).to_csv(OUT / "metrics.csv", index=False)
     (OUT / "metadata.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
     pd.DataFrame({"draw": range(2000), "recall_at_4": random_values}).to_csv(OUT / "random_draws.csv", index=False)
     docs = BASE_DIR / "docs/data"
     (docs / "CURRENT_MODEL_METADATA.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
     pd.DataFrame(metrics).to_csv(docs / "CURRENT_MODEL_METRICS.csv", index=False)
-    ranking = pd.DataFrame(metrics).query("metric == 'distressed_recall_at_4'")
+    ranking = pd.DataFrame(metrics).query("metric == 'distressed_recall_at_4' and view == 'time_test'")
     lines = ["# Current early-warning evaluation", "", "Synthetic - for training only. See [frozen protocol](EW_PROTOCOL_CURRENT.md).", "",
-             f"Training: {len(train)} rows. Time test: {len(test)} rows. Capacity: 4. Unsupported training classes: {', '.join(unsupported) or 'none'}.", "",
-             "**Three-class acceptance: " + ("PASS" if result["three_class_acceptance"] else "NOT MET") + ".** Missing-class probabilities remain null; fitted probabilities are conditional on the observed classes.", "",
+             f"Training: {len(train)} rows. Time test: {len(test)} rows. Capacity: 4. Target: distressed / not_distressed.", "",
+             "**Binary implementation acceptance: PASS.** Both classes are represented; the two probabilities sum to one. Completion prediction is outside the approved scope.", "",
              "| Method | Distressed cases selected | Recall@4 |", "| --- | --- | --- |"]
     lines += [f"| {r.method} | {r.numerator:g} of {r.denominator:g} | {r.value:.3f} |" for r in ranking.itertuples()]
     lines += ["", f"Random: 2,000 draws, mean {random_summary['mean']:.3f}, 95% interval [{random_summary['low']:.3f}, {random_summary['high']:.3f}].",
               "", "Class support, per-class recall and macro-F1: [metrics](CURRENT_MODEL_METRICS.csv). Exact split, feature sets and confusion counts: [metadata](CURRENT_MODEL_METADATA.json).",
-              "", "This updates the schema/capacity experiment; historical N=8 results remain separate. A completed test case can count as a miss even though its training class is absent. Scores do not establish real-world predictive accuracy or fairness."]
+              "", f"Secondary developer holdout: {developer_holdout['status']}; see metadata and the metrics view column.",
+              "", "This is the current binary scope; historical N=8 and v4 three-class-scope results remain separate. Scores do not establish real-world predictive accuracy or fairness."]
     (docs / "EW_REPORT_CURRENT.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
-    print(f"Current evaluation fitted four diagnostics; train={len(train)}, test={len(test)}, unsupported={unsupported}")
+    print(f"Binary evaluation PASS; train={len(train)}, test={len(test)}, developer_holdout={developer_holdout['status']}")
     return result
 
 

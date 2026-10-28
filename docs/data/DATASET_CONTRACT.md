@@ -1,4 +1,4 @@
-> Current partial-task extension (28 October 2026): Arabic exports, full-run reproducibility and current observed-class diagnostics are now implemented. Read [PARTIAL_TASKS_CLOSURE.md](PARTIAL_TASKS_CLOSURE.md). Older no-fitting statements refer to the base data-only delivery. Completed probability stays null; three-class acceptance is not met.
+> Current partial-task extension (28 October 2026): Arabic exports, full-run reproducibility and current observed-class diagnostics are now implemented. Read [PARTIAL_TASKS_CLOSURE.md](PARTIAL_TASKS_CLOSURE.md). Older no-fitting statements refer to the base data-only delivery. Binary distress prediction is the approved scope; no completion class/probability remains.
 
 # Dataset: SpaceEye R7 final data contract
 
@@ -101,7 +101,7 @@ The raw simulation is retained alongside these outputs. Its six planted defects 
 
 private/ml_dataset_extended.parquet:180rows over15cutoffs (2023Q1–2026Q3),40declared features, keys code/developer_code/quarter/qi/month. Includes the proposed K1/K4, vegetation, approved height, K5/K6, completion-context and financial observations. No failed finishing feature is invented. See ml_dataset_extended_metadata.json and dictionaries/ml_dataset_extended.md for exact X, origins, missingness, source hashes and labels.
 
-Both label_distress_next_6m and y_outcome_6m are evaluation-only targets. The latter is distressed/completed/ongoing: distress takes precedence; completed requires NEW full-project handover in the future six months. Already-completed cutoff rows are flagged for exclusion from transition classification. Partial handover is never full completion. Both targets are null with an incomplete horizon. There are zero completed training rows and one completed time-test row; no three-class model was trained.
+Both label_distress_next_6m and y_outcome_6m are evaluation-only encodings of the same binary next-six-month distress event. y_outcome_6m is distressed/not_distressed; handover without distress maps to not_distressed. Censored targets are null. Already-handed-over cutoff rows are excluded from the modelling cohort; source handover facts remain context.
 
 Expanded complaint rate uses complaints over90days per1000units SOLD at cutoff, with own-history percentile requiring12prior valid months. The older binary experiment used total register units; its results are not copied onto this schema.
 
@@ -129,7 +129,7 @@ Current design:132 rows over11quarterly cutoffs, 2023Q4–2026Q2.
 Training through2024Q4; embargo2025Q1; labelled time test2025Q2–2026Q1; 2026Q2censored.
 The exporter records exact split/class/missing counts, dtypes, source hashes and feature groups.
 The public ew/dataset_summary.json contains aggregates only, not private row-level labels.
-This historical experiment remains binary. The separate expanded data-only deliverable supplies three-class labels without claiming sufficient examples for training.
+This historical experiment remains binary. The expanded current deliverable supplies binary targets and current fixed-split model comparisons.
 
 ## Forward scenarios
 
@@ -155,4 +155,4 @@ This reuses saved observations and builds the requested data extension without m
 release_audit.json and the output manifests are the completion evidence. Unresolved calibration or coverage flags remain visible.
 The unchanged real-case backtest and regenerated binary results are reported honestly with event counts; a handful of synthetic positives is not operational accuracy.
 
-K5 amounts are assumed policy scenarios, not contract fines. Three-class labels are data only. K6 thresholds and capacity4 were explicitly requested before rebuilding. No newly approved post2024height is introduced.
+K5 amounts are assumed policy scenarios, not contract fines. Binary labels are generated evaluation targets, not real-world diagnoses. K6 thresholds and capacity4 were explicitly requested before rebuilding. No newly approved post2024height is introduced.

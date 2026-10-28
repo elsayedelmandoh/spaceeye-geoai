@@ -32,7 +32,7 @@
 - Data-only build: python -m src.pipeline.complete_data. Two-build delivery: python -m src.pipeline.delivery.
 - Component preparation: python -m src.pipeline.component_data. None of these component tasks requires new model fitting.
 - Full src.pipeline.run_all and src.pipeline.release include existing fitting/evaluation;do not rerun them for documentation-only edits.
-- Current end-to-end entry: python -m src.pipeline.team_run --full. Current evaluation protocol/results: docs/data/EW_PROTOCOL_CURRENT.md and EW_REPORT_CURRENT.md. Unsupported completed probability stays null; never insert completion labels merely to make a three-class fit succeed.
+- Current end-to-end entry: python -m src.pipeline.team_run --full. Current evaluation protocol/results: docs/data/EW_PROTOCOL_CURRENT.md and EW_REPORT_CURRENT.md. Current target is binary distressed/not_distressed; completion prediction is removed by the team lead. See docs/data/BINARY_SCOPE_DECISION.md.
 - Record multi-step plans/review and lessons in docs/.internal/plan;publish current team-facing status in docs/data.
 - Supporting documentation,code and helpers are English. Original Arabic complaint text remains data.
 - Keep scope focused. Delegate a read-only review when useful;do not duplicate its work. Do not claim completion without execution evidence.

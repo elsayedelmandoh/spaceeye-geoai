@@ -23,7 +23,7 @@ def main():
     quality()
     from src.pipeline.source_catalog import main as sources
     sources()
-    print("Current team delivery complete; read missing-class and review limitations before use")
+    print("Current team delivery complete; read the current binary metrics and review limitations before use")
 
 
 if __name__ == "__main__":

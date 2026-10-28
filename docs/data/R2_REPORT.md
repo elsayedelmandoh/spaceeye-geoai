@@ -18,12 +18,12 @@ Keys/targets never enter X. Expanded metadata declares exact40features and origi
 
 | Split | Rows | Classes |
 | --- | ---: | --- |
-| train | 96 | {'ongoing': 89, 'distressed': 7} |
-| embargo | 12 | {'ongoing': 10, 'distressed': 2} |
-| time_test | 48 | {'ongoing': 43, 'distressed': 4, 'completed': 1} |
+| train | 96 | {'not_distressed': 89, 'distressed': 7} |
+| embargo | 12 | {'not_distressed': 10, 'distressed': 2} |
+| time_test | 48 | {'not_distressed': 44, 'distressed': 4} |
 | censored | 24 | {} |
 
-Censored targets are null. Distress takes precedence;completed requires new full-project handover in the next six months,not a partial phase. Already-completed cutoffs are flagged for exclusion. Zero completed training rows and one completed test row preclude a supported three-class classifier. Current observed-class diagnostics are separate in EW_REPORT_CURRENT.md;this data-only writer does not fit them. Old132-row/26-feature binary dataset and N=8scores are historical evidence,not validation of capacity4/new schema.
+Censored targets are null. Categorical and boolean targets represent the same next-six-month distress event;completion is not predicted. Already-handed-over cutoffs are flagged for cohort exclusion. The approved classifier is binary distressed/not_distressed,with both classes in training and test. Current observed-class diagnostics are separate in EW_REPORT_CURRENT.md;this data-only writer does not fit them. Old132-row/26-feature binary dataset and N=8scores are historical evidence,not validation of capacity4/new schema.
 
 ## Simulation limits
 

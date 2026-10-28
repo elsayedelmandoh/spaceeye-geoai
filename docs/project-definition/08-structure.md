@@ -28,7 +28,7 @@ spaceeye-geoai/
 │   │   └── pulls/                     #   earth engine pulls (dw, s2 windows, vegetation) · [planned T-AH-15] wayback.py
 │   ├── generator/                     # [elsayed] Track B data: python -m src.generator.simulate
 │   │   ├── inputs.py, stories.py, economy.py, truth.py, observe.py, complaints.py
-│   │   ├── answer.py                  #   hidden truth + label (3 classes, T-EL-06)
+│   │   ├── answer.py                  #   hidden truth + label (2 classes, T-EL-06)
 │   │   ├── defects.py, checks.py      #   6 planted defects, realism checks
 │   │   ├── dictionaries.py, plots.py
 │   │   └── scenarios.py               #   [planned T-EL-13] what-if S1-S5, base run never overwritten
@@ -36,7 +36,7 @@ spaceeye-geoai/
 │   │   ├── ew_features.py             #   features <= cutoff
 │   │   ├── ew_eval.py                 #   rule with B triggers, models, recall@N vs random
 │   │   ├── ew_report.py, early_warning.py
-│   │   └── ml_dataset.py              #   [planned T-EL-08] compound x quarter X, y + 3-class classifier
+│   │   └── ml_dataset.py              #   [planned T-EL-08] compound x quarter X, y + binary classifier
 │   ├── inference/                     # [verina] AI component
 │   │   ├── generate.py                #   gemini call helpers (stub today)
 │   │   ├── tools.py                   #   [planned T-VE-02] get_facts, get_kpis, get_images, get_rules
@@ -48,7 +48,7 @@ spaceeye-geoai/
 ├── prompts/                           # [verina] system/, templates/, few-shot/ for the inspection file
 ├── tests/
 │   ├── test_pipeline.py               # quarter helpers, worst-of-signals level, K2 start rule, first promise, name gate (+ K5/K6, R7 filter)
-│   ├── test_generator.py              # generator math, phone masking pattern (+ 3-class label, scenarios determinism)
+│   ├── test_generator.py              # generator math, phone masking pattern (+ binary label, scenarios determinism)
 │   ├── test_early_warning.py          # top-N ties, no data after cutoff (+ ml_dataset leakage)
 │   └── test_inference.py              # [planned T-VE-05/07] verifier catches a wrong number, zero phones after masking
 ├── notebooks/                         # exploration only; repeatable logic lives in src/

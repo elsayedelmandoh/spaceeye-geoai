@@ -1,93 +1,61 @@
 {
   "scope": "Synthetic - for training only",
-  "protocol_sha256_before_fit": "b4407417e28e5fbabdfb365ac08d0cd74950db13795ddf414213bb74db9bd97f",
+  "protocol_sha256_before_fit": "a91086318ecfd20acf64204063c5d86d60a50b3ee3d2b01734f68a02c05b74e7",
   "train_rows": 96,
   "test_rows": 48,
   "train_classes": {
-    "ongoing": 89,
+    "not_distressed": 89,
     "distressed": 7
   },
   "test_classes": {
-    "ongoing": 43,
-    "distressed": 4,
-    "completed": 1
+    "not_distressed": 44,
+    "distressed": 4
   },
-  "unsupported_training_classes": [
-    "completed"
-  ],
-  "three_class_acceptance": false,
+  "target": "distressed / not_distressed in next six months",
+  "binary_implementation_acceptance": true,
   "classes": [
     "distressed",
-    "completed",
-    "ongoing"
+    "not_distressed"
   ],
   "confusion_matrices": {
     "logistic_satellite": [
       [
         1,
-        0,
         3
       ],
       [
-        0,
-        0,
-        1
-      ],
-      [
         5,
-        0,
-        38
+        39
       ]
     ],
     "logistic_combined": [
       [
         1,
-        0,
         3
       ],
       [
-        0,
-        0,
-        1
-      ],
-      [
         2,
-        0,
-        41
+        42
       ]
     ],
     "boosting_satellite": [
       [
         0,
-        0,
         4
       ],
       [
         0,
-        0,
-        1
-      ],
-      [
-        0,
-        0,
-        43
+        44
       ]
     ],
     "boosting_combined": [
       [
         0,
-        0,
         4
       ],
       [
-        0,
-        0,
-        1
-      ],
-      [
         1,
-        0,
-        42
+        43
       ]
     ]
   },
@@ -159,15 +127,32 @@
     "activity_prob",
     "land_months_late"
   ],
-  "developer_holdout": "Not fitted: completed has no training support before any additional developer exclusion.",
+  "developer_holdout": {
+    "held_developers": [
+      "D02",
+      "D05",
+      "D12"
+    ],
+    "seed": 2026,
+    "train_rows": 56,
+    "test_rows": 20,
+    "status": "FITTED",
+    "train_classes": {
+      "not_distressed": 50,
+      "distressed": 6
+    },
+    "test_classes": {
+      "not_distressed": 20
+    }
+  },
   "input_sha256": {
-    "dataset": "603534e6561dad7b04ed78b1528cfea35626d8eaf4b03f8868c2afe22a4c7f28",
-    "metadata": "6c77f95e2cd7da48ff84af60b36da23d0384a03472e7fff38b95b29110c93e64",
-    "protocol": "b4407417e28e5fbabdfb365ac08d0cd74950db13795ddf414213bb74db9bd97f",
-    "source": "4fa3b428846bf79b437f27383cc01bf5a4dd60db597f62b1cb5eabcc19bce3aa"
+    "dataset": "eb2737d66f81e6f766180ecc409186001b106c39b6c3c4ed2987054c6707b5b7",
+    "metadata": "093548e251f97e9dae5cfbbe7fe33617da1bd6b632245939abbb9f413dff4ab7",
+    "protocol": "a91086318ecfd20acf64204063c5d86d60a50b3ee3d2b01734f68a02c05b74e7",
+    "source": "d47b551ee22deb55b82435adb0821c2f9293094548c6e53766836b6e94d6528e"
   },
   "limits": [
-    "No completed training example; its probability is null, not zero.",
+    "Completion prediction removed by the team lead; handover observations remain context.",
     "Per-row synthetic labels are not independent real events.",
     "Real-case check set is not used for fitting or tuning."
   ]

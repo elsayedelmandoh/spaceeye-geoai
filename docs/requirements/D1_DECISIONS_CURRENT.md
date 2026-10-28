@@ -10,7 +10,7 @@ Tasks ALL-01/02: implemented technical decisions, not team signatures. Calendar 
 | Priority | Worst applicable K2/K3/K6 signal, assessability and completion cap; financial B triggers separately documented |
 | Fine policy | K5 union of screening months; 12-month grace; illustrative 1% monthly rate and synthetic land values, not assessed fines |
 | Capacity | 4, with 2/4/6 sensitivity; eligible levels 1–3 for operational selection |
-| Labels | Three-class six-month target exists; completed has no training support, so current fits are explicitly limited |
+| Labels | Binary next-six-month distressed/not_distressed; completion prediction removed by the team lead |
 | Thresholds | Fixed configuration; no changes to obtain a successful backtest or model score |
 | Names and origin | Coded outputs, pre-model masking, source/derived/generated distinction and synthetic label |
 | Height | Approved through 2024; no +/-2m survey guarantee; no later experimental product adopted |

@@ -16,7 +16,7 @@ Inspection contexts exclude private truth and separate generated sections. Befor
 
 Satellite coverage, vegetation, roofs and source availability may affect projects differently. The present scope is only 12 R7 compounds and six public backtest cases. Missing evidence remains unknown rather than a negative finding. Annual height after 2024 is not an approved observation. The existing 2019Q2 data-event flag must remain visible.
 
-Synthetic finance, complaints, visits and labels reflect declared generator assumptions. They do not demonstrate real-world accuracy or fairness. Current three-class training has no completed example. Historical binary performance at capacity 8 does not validate the current features or capacity 4. Complaint-template splits limit direct leakage, but generated wording is not representative evidence of actual users or dialects.
+Synthetic finance, complaints, visits and labels reflect declared generator assumptions. They do not demonstrate real-world accuracy or fairness. Current prediction scope is distressed/not_distressed; no completion class is predicted. Historical binary performance at capacity 8 does not validate the current features or capacity 4. Complaint-template splits limit direct leakage, but generated wording is not representative evidence of actual users or dialects.
 
 ## Output review and correction
 
