@@ -1,5 +1,7 @@
 """unit tests for the synthetic generator: small pure functions only (no app_data, no earth engine)."""
 
+from itertools import pairwise
+
 import numpy as np
 
 from src.generator import defects, stories, truth
@@ -17,7 +19,7 @@ def test_majority_vote_removes_one_quarter_flicker_and_runs_find_the_stall():
 def test_isotonic_fit_is_non_decreasing_and_keeps_the_mean():
     y = [3.0, 1.0, 2.0, 5.0, 4.0]
     f = stories.isotonic(y)
-    assert all(b >= a for a, b in zip(f, f[1:])) and abs(sum(f) - sum(y)) < 1e-9
+    assert all(b >= a for a, b in pairwise(f)) and abs(sum(f) - sum(y)) < 1e-9
 
 
 def test_bridge_passes_through_every_knot_and_never_falls():

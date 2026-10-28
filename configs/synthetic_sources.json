@@ -1,0 +1,36 @@
+{
+  "checked_on": "2026-10-28",
+  "purpose": "Retrospective calibration context for synthetic data. Sources do not disclose individual contracts or validate our assumed 1% monthly rate.",
+  "sources": [
+    {
+      "id": "PRICE_CONTEXT_2026",
+      "published": "2026-10-05",
+      "url": "https://banker.news/155071",
+      "supports": "Reported residential land offers around EGP2500/m2 initially and EGP10000-12000/m2 in2026, attributed to the company chairman.",
+      "does_not_support": "Exact historical price paid by any coded compound. Our pre2023 range2500-5000 is an interpolation assumption, not a quoted range."
+    },
+    {
+      "id": "PRICE_EXISTING_AUDIT",
+      "published": "2026-10-04",
+      "url": "https://almalnews.com/2139367/خالد-عباس-70-ألف-جنيه-سعر-متر/",
+      "local_evidence": "Project/real_data/26_data_audit/reference/parameters_audited.csv; BEN-0010/0011",
+      "supports": "Existing audit independently retained the historical/current offer-price context and explicitly marked individual contract prices as generated."
+    },
+    {
+      "id": "RELIEF_2024",
+      "published": "2024-11-18",
+      "url": "https://hapijournal.com/2024/11/18/خفض-غرامات-التنفيذ-50-العاصمة-الإدارية/",
+      "supports": "Reported up-to50% execution-fine reduction for immediate payment and12-month interest-free scheduling. Temporary measures with eligibility conditions.",
+      "does_not_support": "Universal entitlement, a permanent relief period, an exact monthly fine rate, or a decision on any coded project."
+    },
+    {
+      "id": "CONTRACT_CONTEXT_2020",
+      "published": "2020-09-20",
+      "url": "https://www.cairo24.com/879515",
+      "supports": "Reported fines and enforcement depend on contract provisions and project schedule.",
+      "does_not_support": "A universal1% rate or project-specific assessed fines."
+    }
+  ],
+  "unsupported_exact_parameters": ["allocation lead6-18months", "1%monthly fine rate", "individual allocation dates", "individual contract land prices"],
+  "rule": "These values remain generated. News is context, never proof of a project's hidden record. Allocation dates conditioned on full history are excluded from model X."
+}

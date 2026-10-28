@@ -1,5 +1,11 @@
 # SpaceEye-GeoAI: Horus City Construction & Default Risk Radar
 
+Current scope (28 October 2026): R7 construction monitoring and inspection priority for 12 coded compounds. The data release combines public observations, explicitly synthetic internal-operation tables, prepared data, a private binary training export and separate hypothetical financial scenarios.
+
+Current contracts: [specifications](docs/requirements/01-specs.md), [dataset](docs/project-definition/03-dataset.md). Latest data-only handoff: `../Project/DATA_COMPLETION_FROM_SPECS.md`. Build data without model fitting: `uv run --locked --offline --with matplotlib python -m src.pipeline.complete_data`. Final audit: `../Project/app_data/release_audit.json`.
+
+The older utilities/Oasis template below is retained as historical scaffolding; it does not describe the current R7 data release or its accepted results.
+
 Internal decision-support platform for smart utilities, waste dispatch, and citizen triage. Combines energy, water, waste, and citizen-service data on a single trusted layer.
 
 > **Synthetic data only — for spaceeye-geoai training, not operational use.** Every number is computed from the `ACUD_Oasis` dataset or marked as a target/hypothesis.
@@ -28,9 +34,9 @@ how to adapt this project
 - [Key Features](#key-features)
 - [Setup](#setup)
   - [0. Prerequisites](#0-prerequisites)
-  - [1. Clone the Repository](#1-clone-the-repository) 
-  - [2. Create Conda Environment](#2-create-conda-environment) 
-  - [3. Environment Variables](#3-environment-variables) 
+  - [1. Clone the Repository](#1-clone-the-repository)
+  - [2. Create Conda Environment](#2-create-conda-environment)
+  - [3. Environment Variables](#3-environment-variables)
   - [4. Usage](#usage)
 - [project structure](#project-structure)
 - [Contributing](#contributing)

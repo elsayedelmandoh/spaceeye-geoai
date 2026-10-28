@@ -67,7 +67,25 @@ levels:
   k3_l2: 13                # 13-24 -> level 2, 1-12 -> level 3
   combo_k2: 2
   combo_k3: 12
-cycle_capacity: 8
+  k6_l1: 24
+  k6_l2: 13
+cycle_capacity: 4          # 12 R7 compounds / 3, fixed before rebuilding
+inspection_capacity_fraction: 0.3333333333333333
+
+# Policy simulation requested from the imported specs, NOT an assessed legal fine.
+fines:
+  assumption: true
+  fine_rate_month: 0.01   # illustrative 1% of assumed land value/month; contract rate unavailable
+  land_price_egp_m2: [2500, 12000]
+  grace_months: 12
+  overlap: union         # a month meeting both conditions is counted once
+  allocation_lead_months: [6, 18] # generated lag before first public/observed anchor, not a measured rate
+  earliest_allocation: "2016-01-01"
+  old_contract_price_egp_m2: [2500, 5000] # retrospective envelope; exact contract prices unknown
+  recent_contract_price_egp_m2: [5000, 12000]
+  relief_published: "2024-11-18"
+  relief_discount_scenario: 0.50 # maximum reported discount; scenario, not automatic entitlement
+  relief_installments_months: 12
 
 # backtest criterion (fixed on 2026-10-26 before any computation)
 backtest:
@@ -120,6 +138,28 @@ generator:
     ar1: {rho: 0.5, sigma: 0.15}
     season: {ramadan: -0.20, jul_aug: -0.10, eid_week: -0.30}
     inactive_weight: 0.05
+  # Diagnostic bands, proportional to scope. Not fitted to a model score or claimed population rates.
+  calibration:
+    reference_compounds: 22
+    ever_distressed_min: 1
+    ever_distressed_max: 7
+  # Forward scenario assumptions only; these are not measured company cash/credit or forecasts.
+  scenarios:
+    cutoff: "2025-03"
+    horizon_months: 18
+    history_months: 6
+    min_capacity_pct: 0.5
+    max_capacity_pct: 4.0
+    working_cash_months: 1.0
+    credit_months: 2.0
+    overhead_cost_share_month: 0.001
+    release_share: 0.75
+    annual_credit_rate_pct: 20.0
+    productivity_sd: 0.05
+    collections_drop: 0.25
+    shock_months: 6
+    usd_cost_rise: 0.30
+    imported_share: 0.40
   cost:
     usd_m2: [720, 1270]
     imported_share: 0.40

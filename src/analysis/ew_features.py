@@ -7,6 +7,7 @@ output: DataFrame from build_table(); every feature is computed from data dated 
 import numpy as np
 import pandas as pd
 
+from src.generator.defects import PHONE
 from src.pipeline.common import APP, PRIVATE, REAL, qindex, qlabel
 
 SIM = APP / "sim"
@@ -32,14 +33,17 @@ def qend_month(quarter: str) -> pd.Period:
 
 
 def clean_fin(fin: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, int]:
-    """monthly table (one row per code, month; escrow balances reported in thousands fixed) and the report events."""
+    """Unique monthly rows, unit corrections, and valid report events; never invent a report date."""
     fin = fin.copy()
     fin["month"] = pd.PeriodIndex(fin["month"], freq="M")
-    rep = fin.loc[fin["reported_pct"].notna() & fin["report_date"].notna(), ["code", "report_date", "reported_pct"]]
+    mon = fin.sort_values(["code", "month"], kind="stable").drop_duplicates(["code", "month"], keep="first").reset_index(drop=True)
+    mon["report_date"] = pd.to_datetime(mon["report_date"], errors="coerce")
+    invalid = mon.reported_pct.notna() & (mon.report_date.isna() | mon.report_date.dt.to_period("M").ne(mon.month))
+    mon.loc[invalid, ["reported_pct", "report_date"]] = [np.nan, pd.NaT]
+    rep = mon.loc[mon.reported_pct.notna() & mon.report_date.notna(), ["code", "report_date", "reported_pct"]]
     rep = rep.sort_values(["code", "report_date"]).reset_index(drop=True)
-    mon = fin.sort_values(["code", "month"]).drop_duplicates(["code", "month"], keep="first").reset_index(drop=True)
     fixed = 0
-    for _, idx in mon.groupby("code").groups.items():
+    for idx in mon.groupby("code").groups.values():
         bal = mon.loc[idx, "cover_balance_egp"].to_numpy(dtype=float).copy()
         for i in range(1, len(bal)):
             prev = bal[i - 1]
@@ -48,6 +52,22 @@ def clean_fin(fin: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, int]:
                 fixed += 1
         mon.loc[idx, "cover_balance_egp"] = bal
     return mon, rep, fixed
+
+
+def clean_complaints(cmp_: pd.DataFrame, codes, start, end) -> tuple[pd.DataFrame, pd.DataFrame, int]:
+    """Use observable keys/time bounds; mask phones in accepted and quarantined text. No answer-key repairs."""
+    out = cmp_.copy()
+    out["created_at"] = pd.to_datetime(out["created_at"], errors="coerce")
+    masked = 0
+    if "text_ar" in out:
+        has_phone = out.text_ar.fillna("").str.contains(PHONE)
+        masked = int(has_phone.sum())
+        out.loc[has_phone, "text_ar"] = out.loc[has_phone, "text_ar"].map(lambda t: PHONE.sub("[PHONE]", t))
+    bad_code = ~out.code.isin(codes)
+    bad_date = out.created_at.isna() | (out.created_at < pd.Timestamp(start)) | (out.created_at >= pd.Timestamp(end))
+    reason = np.where(bad_code & bad_date, "unknown_code;invalid_date", np.where(bad_code, "unknown_code", "invalid_date"))
+    bad = bad_code | bad_date
+    return out.loc[~bad].copy(), out.loc[bad].assign(dq_reason=reason[bad]), masked
 
 
 def complaint_rates(cmp_: pd.DataFrame, units: pd.Series, months: pd.PeriodIndex) -> pd.DataFrame:
@@ -77,6 +97,7 @@ class Source:
         self.kpi = pd.read_parquet(REAL / "kpi_values.parquet").set_index(["code", "quarter"])
         self.sat_lag_q = sat_lag_q
         self.months = pd.period_range("2023-01", "2026-09", freq="M")
+        self.cmp, _, _ = clean_complaints(self.cmp, self.compounds.index, self.months[0].start_time, (self.months[-1] + 1).start_time)
         self.rates = complaint_rates(self.cmp, self.compounds["units"], self.months)
         self.codes = sorted(self.compounds.index)
 
@@ -119,7 +140,7 @@ def snapshot(src: Source, month: pd.Period) -> pd.DataFrame:
         r["cmp_hist_n"] = len(hist)
         r["cmp_pctl"] = 0.5 if len(hist) < 6 or pd.isna(now) else ((hist < now).sum() + 0.5 * (hist == now).sum()) / len(hist)
         rows.append(r)
-    return pd.DataFrame(rows).set_index("code")
+    return pd.DataFrame(rows).set_index("code").reindex(columns=INTERNAL + ["cmp_hist_n"])
 
 
 def sat_features(src: Source, quarter: str) -> pd.DataFrame:
@@ -145,13 +166,13 @@ def sat_features(src: Source, quarter: str) -> pd.DataFrame:
     return now
 
 
-def build_table(sat_lag_q: int = 0, src: Source | None = None) -> pd.DataFrame:
+def build_table(sat_lag_q: int = 0, src: Source | None = None, quarters=None) -> pd.DataFrame:
     src = src or Source(sat_lag_q)
     ak = pd.read_parquet(PRIVATE / "answer_key.parquet")[["code", "month", "story", "true_distress", "label_distress_next_6m", "label_censored"]]
     ak["month"] = pd.PeriodIndex(ak["month"], freq="M")
     ak = ak.set_index(["code", "month"])
     frames = []
-    for quarter in CUTOFF_QUARTERS:
+    for quarter in CUTOFF_QUARTERS if quarters is None else quarters:
         m = qend_month(quarter)
         now, then = snapshot(src, m), snapshot(src, m - LAG_MONTHS)
         f = now.copy()

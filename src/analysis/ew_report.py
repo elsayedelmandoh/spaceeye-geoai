@@ -4,17 +4,13 @@ input: the state and results from early_warning.prepare() / evaluate_all().
 output: app_data/ew/*.csv, *.png and app_data/EW_REPORT.md.
 """
 
-import matplotlib
+import numpy as np
+import pandas as pd
+from sklearn.inspection import permutation_importance
 
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt  # noqa: E402
-import numpy as np  # noqa: E402
-import pandas as pd  # noqa: E402
-from sklearn.inspection import permutation_importance  # noqa: E402
-
-from src.analysis import ew_eval as E  # noqa: E402
-from src.analysis import ew_features as F  # noqa: E402
-from src.pipeline.common import APP  # noqa: E402
+from src.analysis import ew_eval as E
+from src.analysis import ew_features as F
+from src.pipeline.common import APP
 
 OUT = APP / "ew"
 INK, MUTED = "#1f2933", "#6b7280"
@@ -29,6 +25,45 @@ def pct(x, nd=0):
 
 def num(x, nd=1):
     return "-" if x is None or (isinstance(x, float) and np.isnan(x)) else f"{x:.{nd}f}"
+
+
+def report_facts(st: dict, n: int) -> dict:
+    """Describe the actual evaluation inputs, including empty holdout/event sets."""
+    d = st["table"]
+    train = d[E.train_mask(d)]
+    test = d[d["quarter"].isin(E.TEST_LABEL_Q) & ~d["censored"]]
+    held = d[d["developer"].isin(st["held"])]
+    held_test = test[test["developer"].isin(st["held"])]
+    quarters = sorted(d["quarter"].unique())
+    positives = test[test["label"]]
+    current = positives[positives["distress_now"]]
+    flagged = sum(min(n, len(g)) for _, g in test.groupby("quarter"))
+    max_hits = sum(min(n, int(g["label"].sum())) for _, g in test.groupby("quarter"))
+    rate = float(test["label"].mean()) if len(test) else np.nan
+
+    def events_text(events):
+        return "، ".join(f"{e.code} ({e.onset})" for e in events.itertuples()) or "لا توجد أحداث"
+
+    return {
+        "n_compounds": int(d["code"].nunique()), "n_cutoffs": len(quarters),
+        "first_cutoff": quarters[0], "last_cutoff": quarters[-1],
+        "test_period": f"{E.TEST_LABEL_Q[0]}–{E.TEST_LABEL_Q[-1]}",
+        "test_rows": len(test), "test_positives": len(positives),
+        "test_new_rows": int((test["label"] & ~test["distress_now"]).sum()),
+        "test_current_rows": len(current), "test_current_codes": "، ".join(sorted(current["code"].unique())) or "لا يوجد",
+        "train_positives": int(train["label"].sum()),
+        "train_positive_codes": int(train.loc[train["label"], "code"].nunique()),
+        "all_positive_codes": int(d.loc[d["label"] & ~d["censored"], "code"].nunique()),
+        "held_count": int(held["code"].nunique()),
+        "held_codes": "، ".join(sorted(held["code"].unique())) or "لا يوجد",
+        "held_positives": int(held_test["label"].sum()),
+        "held_events": int(st["ev_test"].get("code", pd.Series(dtype=str)).isin(held["code"]).sum()),
+        "test_events": len(st["ev_test"]), "all_events": len(st["ev_all"]),
+        "test_events_text": events_text(st["ev_test"]),
+        "precision_ceiling": max_hits / flagged if flagged else np.nan,
+        "test_rate": rate, "constant_brier": rate * (1 - rate),
+        "one_hit_points": 100 / len(positives) if len(positives) else np.nan,
+    }
 
 
 def decide(res_time: pd.DataFrame, res_ext: pd.DataFrame) -> dict:
@@ -81,7 +116,7 @@ def topn_lists(d: pd.DataFrame, score: str, n: int, show_p: str | None = None) -
 def importances(d: pd.DataFrame) -> dict:
     tr = d[E.train_mask(d)]
     te = d[d["quarter"].isin(E.TEST_LABEL_Q) & ~d["censored"]]
-    _, (imp, sc, lr) = E.fit_predict("lr", F.FEATURES, tr, te)
+    _, (_imp, _sc, lr) = E.fit_predict("lr", F.FEATURES, tr, te)
     coef = pd.Series(lr.coef_[0], index=F.FEATURES).sort_values(key=abs, ascending=False)
     _, gb = E.fit_predict("gb", F.FEATURES, tr, te)
     pi = permutation_importance(gb, te[F.FEATURES].astype(float), te["label"].astype(int), scoring="average_precision",
@@ -95,11 +130,15 @@ def calibration(d: pd.DataFrame, kind: str):
     ext = d[~d["censored"] & d[f"p_{kind}_both_cv"].notna()]
     rt = E.reliability(te["label"].to_numpy(), te[f"p_{kind}_both_time"].to_numpy(), 4)
     rx = E.reliability(ext["label"].to_numpy(), ext[f"p_{kind}_both_cv"].to_numpy(), 5)
-    brier = lambda y, p: float(np.mean((p - y.astype(float)) ** 2))  # noqa: E731
+    brier = lambda y, p: float(np.mean((p - y.astype(float)) ** 2))
     return rt, rx, brier(te["label"].to_numpy(), te[f"p_{kind}_both_time"].to_numpy()), brier(ext["label"].to_numpy(), ext[f"p_{kind}_both_cv"].to_numpy())
 
 
 def plot_calibration(d: pd.DataFrame):
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
     fig, axes = plt.subplots(2, 2, figsize=(8, 7), sharex=True, sharey=True)
     stats = {}
     for i, kind in enumerate(("lr", "gb")):
@@ -140,6 +179,10 @@ def event_leads(st: dict, methods: dict) -> pd.DataFrame:
 
 
 def plot_leads(ev: pd.DataFrame):
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
     events = ev[ev["method"] == "rule"][["code", "onset"]].reset_index(drop=True)
     labels = [f"{r.code}\n{r.onset}" + ("\n(test)" if pd.Period(r.onset, "M") >= E.TEST_ONSET_FROM else "") for r in events.itertuples()]
     keys = ["sat", "rule", "b", "lr", "gb"]
