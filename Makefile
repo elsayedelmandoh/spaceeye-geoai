@@ -1,9 +1,19 @@
-.PHONY: install test lint format clean
+.PHONY: install run quality-report test lint format clean
 
 # --- Environment ---
 install:
 	uv sync
 	uv run nbstripout --install
+
+# Prepared data from configured local inputs; no model fitting or image downloads.
+run:
+	uv run --locked --offline python -m src.pipeline.complete_data
+	uv run --locked --offline python -m src.pipeline.component_data
+	uv run --locked --offline python -m src.pipeline.source_catalog
+	uv run --locked --offline python -m src.pipeline.quality_report
+
+quality-report:
+	uv run --locked --offline python -m src.pipeline.quality_report
 
 # --- Quality ---
 lint:

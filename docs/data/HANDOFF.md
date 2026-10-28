@@ -6,6 +6,8 @@ Delivery is merged into main at `b397f5e`,following the reviewed branch `feat/r1
 
 ## Read first
 
+- [Small-task additions and remaining product work](SMALL_TASKS_STATUS.md), including technical operations, handover, quality, governance, responsible use and the proposed ACUD data request.
+
 - [Data sources and generation logic](DATA_SOURCES_AND_GENERATION.md),with coded source registry,input hashes and exact parameter exports.
 
 - [Implemented specifications](IMPLEMENTED_DATA_SPEC.md) and [dataset contract](DATASET_CONTRACT.md).

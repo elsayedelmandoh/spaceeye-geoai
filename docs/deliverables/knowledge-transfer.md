@@ -1,0 +1,28 @@
+# SpaceEye handover: start here
+
+Task T-AH-21. Prepared data is available; dashboard, inspection agent and current three-class evaluation remain product work.
+
+## Use the data
+
+Download the current ZIP from [ready-data](../../releases/ready-data/README.md), extract it and follow [DATA_GUIDE](../../releases/ready-data/DATA_GUIDE.md). The bundle provides DuckDB, Parquet, CSV, inspection JSON contexts, dictionaries, examples and an integrity verifier. Use coded identifiers as join keys. Keep the original ZIP and verify it before editing copies.
+
+| Need | Starting point |
+| --- | --- |
+| Public/derived indicators and geometry | Bundle real tables and coded boundaries; read their dictionaries |
+| Generated finances, complaints and fines | Prepared operations tables; retain `Synthetic - for training only` |
+| Train a model | Separate ML export, declared feature list, targets, censoring and time split |
+| Build the inspection agent | Inspection contexts; images are explicitly absent |
+| Train complaint classification | Choose one supplied corpus and keep its predefined splits; do not merge corpora |
+| Prototype visits / what-if | Explicitly synthetic visits and hypothetical priority tables |
+
+## Rules that must survive the handover
+
+Scope is 12 R7 codes. Capacity is 4. Unknown values stay null. Join on the complete declared key, including quarter/month. Public statements require publication-date cutoffs. Keys, private truth, labels and post-cutoff observations never enter model X. Keep generated results distinct from real observations. Do not publish name mappings or private answer keys.
+
+The extended ML data has 180 rows and 40 features. Three-class training currently has no completed example; decide on a defensible training strategy before fitting. Historical binary results at N=8 do not validate current N=4 or the expanded schema. Annual heights after 2024 are not approved measurements; an older height carried into a feature is still an older value.
+
+## Continue development
+
+Work on a feature branch and PR; never commit directly to main. Use the configured human Git identity. See [technical operations](technical-track-a.md), [data handoff](../data/HANDOFF.md), [sources and generation](../data/DATA_SOURCES_AND_GENERATION.md) and [small-task delivery status](../data/SMALL_TASKS_STATUS.md). For source rebuilding, configure local paths and run `uv sync --locked`; the prepared bundle alone cannot reproduce private/source ingestion.
+
+Route data/rule questions to Track A, generator/model questions to Track B, agent questions to the AI owner and interface questions to the dashboard owner. Named reviewer acceptance, final presentation and live deployment are not recorded by this handover.
