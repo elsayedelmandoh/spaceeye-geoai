@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Mandatory Git workflow: all work and commits use a feature branch, never main. No direct push to main; publish through a pull request. The explicitly approved prepared v2 ZIP in releases/ready-data can be shared; raw inputs, name mappings, hidden answer keys and models remain excluded. Team instructions: releases/ready-data/README.md.
+Mandatory Git workflow: all work and commits use a feature branch,never main. No direct push to main;publish through a pull request. The approved current prepared bundle in releases/ready-data can be shared;raw inputs,name mappings,hidden answer keys and models remain excluded. Team instructions:releases/ready-data/README.md. Component inputs/protocol:docs/data/COMPONENT_DATA_PROTOCOL.md. Retired docs/plan drafts must not be restored.
 
 ## Current R1/R2 release
 

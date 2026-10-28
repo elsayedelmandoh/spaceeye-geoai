@@ -1,5 +1,7 @@
 # R2 current release report,28October2026
 
+Component-data extension:100labeled feed texts,separate296-text complaint benchmark,180inspection contexts,58synthetic visit exercises and648hypothetical financial-priority rows are now prepared without fitting models. Current source:src.pipeline.component_data;definitions:COMPONENT_DATA_PROTOCOL.md. Corrected earlier overbroad completion claims:these component inputs were added after the base R1/R2tables. Generated visits and priorities are not field evidence or validated forecasts.
+
 Synthetic - for training only
 
 Scope12R7compounds. Raw reconstruction:543financial rows/1349complaints. Prepared:540financial rows/1334complaints. Quarterly financial rows:180. Expanded dataset:180rows/40features.

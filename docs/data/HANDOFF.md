@@ -6,6 +6,8 @@ Delivery is merged into main at `b397f5e`,following the reviewed branch `feat/r1
 
 ## Read first
 
+- [Data sources and generation logic](DATA_SOURCES_AND_GENERATION.md),with coded source registry,input hashes and exact parameter exports.
+
 - [Implemented specifications](IMPLEMENTED_DATA_SPEC.md) and [dataset contract](DATASET_CONTRACT.md).
 - Generated [R1 report](R1_REPORT.md), [R2 report](R2_REPORT.md), [actual-schema dictionaries](dictionaries/README.md), and [two-build evidence](REPRODUCIBILITY.json).
 - [Delivery plan](DELIVERY_PLAN.md), including remote-integration decisions.
@@ -52,7 +54,9 @@ The saved R1 `run_log` and `quality_checks_log` retain the full-pipeline run his
 
 ## Work outside this delivery
 
-No new UI, agent, complaint classifier, three-class fitting, model comparison at capacity 4, actual inspection records, financial-shock-to-priority mapping or deployment was completed here. Only an empty visit schema is supplied. Real contractual rates/eligibility and actual allocation records remain unknown; synthetic stand-ins do not become verified observations.
+Component data is now supplied by src.pipeline.component_data:100gold-labeled feed texts,a separate296-text complaint benchmark,180inspection contexts,58explicitly synthetic visit exercises and648hypothetical financial-priority rows. See COMPONENT_DATA_PROTOCOL.md and the current ready-data bundle. Existing source tables are unchanged;no hidden cause/answer key enters inspection inputs. Generated visits are not actual fieldwork or independent validation.
+
+Remaining product work: UI,agent/complaint-classifier implementation,three-class fitting/model comparison at capacity4,actual field data collection and deployment. Financial-to-priority DATA now exists under the declared hypothetical frozen-context/projected-B5rule;it is not validated operational forecasting. Actual contractual rates/eligibility and allocation records remain unknown despite synthetic stand-ins.
 
 Published heights remain OBT 2016–2023 and the approved v4 estimate for 2024. Later height/finishing/roads experiments did not justify a new approved product. Earlier local handoff contains server/archive history; no new server training was launched for the current data updates.
 
