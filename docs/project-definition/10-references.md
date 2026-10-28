@@ -2,7 +2,7 @@
 
 - spaceeye-geoai AI & Data Readiness Program — Day 1/9 curriculum (problem types, data dictionary, labels, severity matrix)
 - `data/full/` and `data/lite/` 
-- `docs/requirements/01-specs.md` + `docs/project-definition/03-dataset.md` — the plan to follow (older drafts in `docs/.internal/archive/`)
+- `docs/requirements/01-full-plan.md` — full plan to MUST follow it
 - `docs/project-definition/` — problem, goal, dataset, architecture, workflow
 - `docs/.internal/` — agent workflows, planning templates
 - `AGENTS.md` — agent operating rules (safety, planning, delegation, verification) — ponytail mode, style rules, environment setup

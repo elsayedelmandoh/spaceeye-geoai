@@ -1,6 +1,8 @@
-# SpaceEye-GeoAI: City Construction & Default Risk Radar
+# SpaceEye-GeoAI: Horus City Construction & Default Risk Radar
 
+Internal decision-support platform for smart utilities, waste dispatch, and citizen triage. Combines energy, water, waste, and citizen-service data on a single trusted layer.
 
+> **Synthetic data only — for spaceeye-geoai training, not operational use.** Every number is computed from the `ACUD_Oasis` dataset or marked as a target/hypothesis.
 
 <p align="center">
   <img src="evals/figures/res1.png" alt="spaceeye-geoai — res1" width="45%">
