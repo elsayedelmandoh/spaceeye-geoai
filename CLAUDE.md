@@ -1,3 +1,5 @@
+> Current partial-task extension (28 October 2026): Arabic exports, full-run reproducibility and current observed-class diagnostics are now implemented. Read [docs/data/PARTIAL_TASKS_CLOSURE.md](docs/data/PARTIAL_TASKS_CLOSURE.md). Older no-fitting statements refer to the base data-only delivery. Binary distress prediction is the approved scope; no completion class/probability remains.
+
 # CLAUDE.md
 
 Mandatory Git workflow: all work and commits use a feature branch,never main. No direct push to main;publish through a pull request. The approved current prepared bundle in releases/ready-data can be shared;raw inputs,name mappings,hidden answer keys and models remain excluded. Team instructions:releases/ready-data/README.md. Component inputs/protocol:docs/data/COMPONENT_DATA_PROTOCOL.md. Retired docs/plan drafts must not be restored.

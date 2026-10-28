@@ -1,3 +1,5 @@
+> Current partial-task extension (28 October 2026): Arabic exports, full-run reproducibility and current observed-class diagnostics are now implemented. Read [PARTIAL_TASKS_CLOSURE.md](PARTIAL_TASKS_CLOSURE.md). Older no-fitting statements refer to the base data-only delivery. Binary distress prediction is the approved scope; no completion class/probability remains.
+
 # SpaceEye: R7 Inspection Priority and Data Release
 
 Updated: 28 October 2026. Current implementation contract; historical plans and the imported Notebook drafts are background.
@@ -10,7 +12,7 @@ Help an inspection committee prioritize coded compounds in R7 and see the eviden
 Current scope: 12 coded compounds; R8 sources remain archived for later. No real developer or compound name appears in application outputs.
 
 The implemented data release includes public-data tables, inspected priority indicators, a historical synthetic reconstruction of internal operations,
-prepared synthetic tables, a frozen binary evaluation dataset, an expanded data-only dataset with binary/three-class labels, and separate hypothetical forward financial scenarios.
+prepared synthetic tables, a frozen binary evaluation dataset, an expanded dataset with equivalent boolean/categorical binary distress targets, and separate hypothetical forward financial scenarios.
 A dashboard, inspection-file LLM, complaints classifier and visit-recording UI are not implemented by this data release.
 
 ## Public observations and priority
@@ -53,7 +55,7 @@ Unobserved launch dates cannot be used to repair every pre-launch complaint; thi
 
 One training row is a compound and quarterly cutoff. X is the explicit feature list in ml_dataset_metadata.json.
 The target is distress in the next six months, with censored targets null. Keys, hidden truth, administrative warning/status, fitted predictions and labels never enter X.
-The historical binary evaluation/export remains frozen. The new private/ml_dataset_extended.parquet adds the proposed observed features and K5/K6, quarterly financial observations, and y_outcome_6m (distressed/completed/ongoing) alongside the binary target. No new classifier is trained.
+The historical binary evaluation/export remains frozen. The new private/ml_dataset_extended.parquet adds the proposed observed features and K5/K6, quarterly financial observations, and y_outcome_6m (distressed/completed/ongoing) alongside the binary target. Current fitting is documented separately in EW_REPORT_CURRENT.md.
 The expanded dataset covers15quarterly cutoffs,2023Q1–2026Q3. Early unavailable history/trends remain null. Completed means new full-project handover within the next six months, never a partial handover; distress takes precedence. Already-completed cutoff rows are flagged for exclusion from a transition classifier. Censored targets are null.
 
 Keep the declared time split and embargo. The old N=8 results are historical and do not evaluate current capacity4 or the expanded schema. No metric-based noise tuning.

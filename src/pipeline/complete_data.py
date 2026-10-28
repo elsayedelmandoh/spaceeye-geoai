@@ -109,11 +109,7 @@ def quarterly_finances(mon, reports, kpi, land):
 
 
 def outcome_labels(keys, truth, comp):
-    """Labels only: future six months, distress precedence, NEW full handover.
-
-    Already fully handed-over rows are flagged for exclusion from a future
-    transition classifier. Partial handover never counts as full completion.
-    """
+    """Binary future distress labels; handover state only defines the cutoff cohort."""
     truth = truth.copy()
     truth["month"] = pd.PeriodIndex(truth.month, freq="M")
     total = comp.set_index("code").units
@@ -126,8 +122,7 @@ def outcome_labels(keys, truth, comp):
         censored = len(horizon) != 6 or horizon.month.nunique() != 6
         already = bool(len(now) and now.handed_over_units.iloc[-1] >= total[r.code])
         distress = bool(horizon.true_distress.any())
-        completed = bool(not already and horizon.handed_over_units.ge(total[r.code]).any())
-        label = None if censored else "distressed" if distress else "completed" if completed else "ongoing"
+        label = None if censored else "distressed" if distress else "not_distressed"
         rows.append({"code": r.code, "quarter": r.quarter, "y_outcome_6m": label,
                      "label_distress_next_6m": pd.NA if censored else distress, "label_censored": censored,
                      "already_completed_at_cutoff": already})
@@ -207,7 +202,9 @@ def build(refresh_inputs=True):
     write_table(quarterly, APP / "sim_clean" / "fin_quarterly.parquet")
     write_table(dataset, PRIVATE / "ml_dataset_extended.parquet")
     caps.to_csv(OUT / "inspection_capacity.csv", index=False)
-    kpis.cycle_list(kpi, CFG["asof"]).to_csv(OUT / "cycle_list.csv", index=False)
+    cycle = kpis.cycle_list(kpi, CFG["asof"])
+    cycle.to_csv(OUT / "cycle_list.csv", index=False, encoding="utf-8-sig")
+    cycle.to_csv(REAL / f"cycle_list_{CFG['asof']}.csv", index=False, encoding="utf-8-sig")
     counts = {}
     for split, mask in (("train", dataset.quarter.le("2024Q4")), ("embargo", dataset.quarter.eq("2025Q1")),
                         ("time_test", dataset.quarter.between("2025Q2", "2026Q1")), ("censored", dataset.label_censored)):
@@ -220,12 +217,12 @@ def build(refresh_inputs=True):
     meta = {"synthetic_label": LABEL, "dataset": "private/ml_dataset_extended.parquet", "rows": len(dataset), "keys": keys,
             "features": features, "targets": ["label_distress_next_6m", "y_outcome_6m"], "censor_column": "label_censored",
             "excluded_from_X": ["already_completed_at_cutoff"], "split_counts": counts, "input_and_code_sha256": inputs,
-            "target_definition": "Next six calendar months, excluding cutoff; distress takes precedence; completed means NEW full-project handover, never partial. Already-completed rows are flagged for exclusion from a transition classifier. Censored targets are null.",
+            "target_definition": "Binary distressed/not_distressed in the next six calendar months, excluding cutoff. Completion is not predicted. Already-handed-over cutoffs are excluded from the cohort. Censored targets are null. Boolean and categorical targets encode the same distress event.",
             "fine_policy": {**CFG["fines"], "basis": "research screening proxy, not verified contractual eligibility; monthly union, stops accruing at first published handover"},
             "complaint_rate": "90-day complaints per 1000 units sold in the cutoff MONTH (monthly flow, not cumulative sold inventory); own-history percentile requires 12 prior valid months. Historical binary EW instead used total register units. Sales-denominator stock is unavailable in the exported feed; interpret this as a flow-normalized diagnostic, not a buyer incidence rate.",
             "column_origins": {c: "key" if c in keys else "derived_public_observation" if c in [*F.SAT_ALL, "activity_prob", "K1", "K4", "K5_months", "K6", "may_be_complete", "observed_started", "start_observation_sufficient", "veg_share", "height_mean_m"] else "generated_or_derived_from_generated" for c in dataset},
             "missing_features": {c: int(dataset[c].isna().sum()) for c in features}, "dataset_sha256": run_all.sha(PRIVATE / "ml_dataset_extended.parquet"),
-            "evaluation": "No classifier fitted. Previous binary dataset/results remain frozen and do not evaluate this schema, K6 policy or capacity 4."}
+            "evaluation": "Current binary evaluation is separate in ml_current and EW_REPORT_CURRENT.md; historical experiments remain versioned evidence."}
     (PRIVATE / "ml_dataset_extended_metadata.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
     (PRIVATE / "dictionaries" / "ml_dataset_extended.md").write_text("# Expanded data contract\n\n" + LABEL + "\n\n" +
         "| Column | Role | Type |\n| --- | --- | --- |\n" + "\n".join(f"| {c} | {'X' if c in features else 'key' if c in keys else 'target/evaluation only'} | {dataset[c].dtype} |" for c in dataset) + "\n", encoding="utf-8")

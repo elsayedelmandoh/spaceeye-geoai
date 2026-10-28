@@ -100,6 +100,7 @@ def main() -> int:
 
     out = {**t, "kpi_values": kpi}
     write_real(out)
+    kpis.cycle_list(kpi, CFG["asof"]).to_csv(REAL / f"cycle_list_{CFG['asof']}.csv", index=False, encoding="utf-8-sig")
     qlog = gates.run_gates(t, kpi)
     step("gates", len(qlog), ", ".join(f"{r.gate}={r.status}" for r in qlog.itertuples()))
     stop = qlog[qlog.status == "STOP"]

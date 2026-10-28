@@ -231,3 +231,5 @@ docs/plan/
 
 # Explicitly approved prepared team bundle only; raw/private datasets stay ignored.
 !releases/ready-data/SpaceEye_R7_READY_DATA_2026-10-28_v3.zip
+!releases/ready-data/SpaceEye_R7_READY_DATA_2026-10-28_v4.zip
+!releases/ready-data/SpaceEye_R7_READY_DATA_2026-10-28_v5.zip

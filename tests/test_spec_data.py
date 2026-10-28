@@ -46,15 +46,15 @@ def test_capacity_scenarios_only_select_eligible_rows():
     assert not out.loc[out.code.isin(["C07", "C08"]), "selected"].any()
 
 
-def test_completion_label_requires_full_handover_and_full_future_horizon():
+def test_binary_label_ignores_future_handover_and_requires_full_future_horizon():
     truth = pd.DataFrame({"code": "C01", "month": pd.period_range("2024-01", periods=8, freq="M").astype(str), "handed_over_units": [0, 30, 30, 30, 100, 100, 100, 100], "true_distress": False})
     keys = pd.DataFrame({"code": ["C01"] * 3, "quarter": ["2024Q1", "2024Q2", "2024Q3"], "month": ["2024-01", "2024-02", "2024-03"]})
     comp = pd.DataFrame({"code": ["C01"], "units": [100]})
     out = outcome_labels(keys, truth, comp)
-    assert out.y_outcome_6m.iloc[:2].tolist() == ["completed", "completed"]
+    assert out.y_outcome_6m.iloc[:2].tolist() == ["not_distressed", "not_distressed"]
     assert pd.isna(out.y_outcome_6m.iloc[2])
     partial = truth.assign(handed_over_units=30)
-    assert outcome_labels(keys, partial, comp).y_outcome_6m.iloc[0] == "ongoing"
+    assert outcome_labels(keys, partial, comp).y_outcome_6m.iloc[0] == "not_distressed"
     truth.loc[2, "true_distress"] = True
     assert outcome_labels(keys, truth, comp).y_outcome_6m.iloc[0] == "distressed"
 

@@ -1,36 +1,19 @@
 # Ready data: start here
 
-**[Download the ready-data ZIP](SpaceEye_R7_READY_DATA_2026-10-28_v3.zip?raw=1)**
+**[Download v5](SpaceEye_R7_READY_DATA_2026-10-28_v5.zip?raw=1)** and [read the data guide](DATA_GUIDE.md).
 
-This is the final prepared dataset for the team. No raw downloads or data-pipeline rebuild are needed to use it. All instructions and helpers are in English.
+Current scope: 12 coded R7 compounds, capacity 4, 180 training rows and 40 features. Version 5 adopts the team lead's binary prediction scope: distressed / not_distressed in the next six months. Completion prediction is removed; source handover facts remain context.
 
-## Three steps
+1. Extract the complete ZIP.
+2. Open its README.md. Use csv/ for spreadsheets, tables/ for Parquet, or spaceeye_ready.duckdb for SQL.
+3. Run verify_package.py to verify every packaged file against its manifest.
 
-1. Download the ZIP and extract it.
-2. Open the extracted `README.md`. For spreadsheets, use `csv/`; for Python, use Parquet; for SQL, open `spaceeye_ready.duckdb`.
-3. Read [the short data guide](DATA_GUIDE.md) to choose the right tables.
+The package includes 23 ready tables, boundaries, the separate training export, Arabic committee lists, complaint corpora, inspection contexts, synthetic visits, financial/priority exercises, current binary predictions/metrics and S1/S2/S3 handoff. Generated products retain Synthetic - for training only. None is actual fieldwork or validated operational forecasting.
 
-## Python example
+`tables/current/ml_current.parquet` has four primary model methods; key: method/code/quarter. Its p_distressed and p_not_distressed sum to one. Secondary developer-holdout predictions are under current/ when that fixed split is supported; metric views are identified explicitly. No p_completed field is required.
 
-If you have cloned this repository, first run `uv sync --locked` from its root. After extracting the ZIP into this directory, run this from the repository root:
+Training ends 2024Q4; 2025Q1 is embargoed; time test is 2025Q2 through 2026Q1. Exclude censored/already-handed-over cutoffs from supervised work and use exactly the declared feature list. Not_distressed does not imply completion or guaranteed health.
 
-```powershell
-uv run --locked python releases/ready-data/SpaceEye_R7_READY_DATA_2026-10-28_v3/examples/read_ready_data.py
-```
+[Scope decision](../../docs/data/BINARY_SCOPE_DECISION.md), [current report](../../docs/data/EW_REPORT_CURRENT.md), [remaining tasks](../../docs/REMAINING_TEAM_TASKS.md).
 
-The example reads the inspection list and prepares the training feature table. It does not fit a model. It also works in another Python environment with pandas, pyarrow and duckdb installed.
-
-## What's included?
-
-- 19 ready-use tables,plus boundary polygons and the empty real-visit template.
-- A separate training dataset: **180 rows and 40 declared features**, with metadata explaining features and targets.
-- **100 labeled feed complaints** plus a separate **296-text five-class benchmark**,with isolated template-family splits. Do not combine the corpora for evaluation.
-- **180 inspection-input JSON contexts**,cutoff-filtered and indexed by code/quarter.
-- **58 generated visit exercises** and **648 hypothetical financial-priority rows**,with explicit simulation labels and baseline comparisons. These are not actual fieldwork or validated forecasts.
-- CSV copies, column dictionaries, a working example and a file-integrity checker.
-
-Raw inputs, rejected records, hidden answer keys, name mappings, models and credentials are excluded. Prepared source tables are unchanged from the validated local v2 bundle. Generated operations and hypothetical financial paths are labelled **Synthetic - for training only**.
-
-The optional [SHA-256 file](SpaceEye_R7_READY_DATA_2026-10-28_v3.zip.sha256.txt) verifies the ZIP. The extracted `verify_package.py` checks all package files. Version3supersedes version2;only the current bundle is retained in the working repository.
-
-Sources and how generated fields were made: [data sources and generation logic](../../docs/data/DATA_SOURCES_AND_GENERATION.md),[coded source catalog](../../docs/data/SOURCE_CATALOG.csv),[input-file hashes](../../docs/data/SOURCE_INPUTS.csv) and [exact generation settings](../../docs/data/GENERATION_PARAMETERS.json). Copies are also included inside the ZIP under docs/.
+[ZIP SHA256](SpaceEye_R7_READY_DATA_2026-10-28_v5.zip.sha256.txt). Raw data, quarantines, private names/truth, credentials and model checkpoints are excluded. Earlier versioned ZIPs are historical snapshots; do not mix their targets/prediction schemas with v5.

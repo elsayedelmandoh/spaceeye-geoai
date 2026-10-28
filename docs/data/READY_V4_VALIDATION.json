@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "files": 292,
+  "ready_tables": 23,
+  "bytes": 1439723,
+  "sha256": "bf9128036e8a881cd121317b2322147108d9be694fc850a731f3e08a3d75a29d",
+  "source_commit": "915d8578b5891b2c05043b272caa20bcb122dd26",
+  "model_rows": 720,
+  "completed_probability": "null; unsupported training class",
+  "crc_and_all_manifest_hashes": "PASS",
+  "scenario_schema_and_labels": "PASS"
+}

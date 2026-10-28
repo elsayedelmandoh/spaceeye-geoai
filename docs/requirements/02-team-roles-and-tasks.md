@@ -1,5 +1,7 @@
 # 02-team-roles-and-tasks.md
 
+> Current technical decisions and unresolved approvals: [D1_DECISIONS_CURRENT](D1_DECISIONS_CURRENT.md). Implementation evidence: [partial-task closure](../data/PARTIAL_TASKS_CLOSURE.md). Original checkboxes require the named reviewer and are not auto-signed.
+
 # SpaceEye: Team Roles and Task Board
 
 ACUD AI & Data Readiness Program · Graduation project (D1-D6) · Team of 5
@@ -37,7 +39,7 @@ Source of every task: [`01-specs.md`](01-specs.md) (section numbers in brackets,
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
 | ahmed → elsayed, verina, nada | `real/kpi_values.parquet` (A, K2-K6, level, reason, cycle_rank, origin, run_id), `real/compounds.parquet`, `real/compound_boundaries.geojson`           | D2       |
 | ahmed → nada, salma           | `real/quality_checks_log.parquet`, `backtest/cases.csv`, `backtest/summary.json`                                                                        | D3       |
-| elsayed → nada, verina        | `sim/fin_monthly.parquet`, `sim/complaints.parquet`, `ml/predictions.parquet` (code, quarter, p_distressed, p_completed, p_ongoing), `ml/metrics.csv` | D3       |
+| elsayed → nada, verina        | `sim/fin_monthly.parquet`, `sim/complaints.parquet`, `ml/predictions.parquet` (code, quarter, p_distressed, p_not_distressed), `ml/metrics.csv` | D3       |
 | elsayed → nada                | `scenarios/<S1..S3>/kpi_values.parquet` (same columns as the base)                                                                                          | D4       |
 | verina → nada                 | `files/<code>_<quarter>.html`, `ai_verification_log.csv`                                                                                                  | D4       |
 
@@ -47,7 +49,7 @@ Until a contract file exists, consumers build on the first-build outputs (commit
 
 ## 3. Shared tasks (whole team)
 
-- [ ] **T-ALL-01** [Must] D1 · Sign the D1 decisions (§14): R7 only, light twin, two tracks, worst-of-signals rule incl. K6 and B triggers, K5 definition + assumed fine rate, 3-class label, thresholds frozen, boundary ≥ 80%, codes only, generated label text · signed list in `docs/requirements/05-project-compass.md` · reviewer: all
+- [ ] **T-ALL-01** [Must] D1 · Sign the D1 decisions (§14): R7 only, light twin, two tracks, worst-of-signals rule incl. K6 and B triggers, K5 definition + assumed fine rate, binary label, thresholds frozen, boundary ≥ 80%, codes only, generated label text · signed list in `docs/requirements/05-project-compass.md` · reviewer: all
 - [ ] **T-ALL-02** [Must] D1 · Fill open items 2 and 4 (§16): today's program day; how many of the 22 coded compounds and of the 8 backtest cases are in R7 · updated §16 + §10 · owner: ahmed (item 4), salma (item 2)
 - [ ] **T-ALL-03** [Must] D4 · Mid-term review (10 min) rehearsed once · owner: salma
 - [ ] **T-ALL-04** [Must] D5 · Cross-review: each member reviews one other member's deliverables end to end (ahmed ↔ elsayed, verina ↔ nada, salma reviews all docs) · review notes in PRs
@@ -99,27 +101,27 @@ Goal: one command (`python -m src.pipeline.run_all`) builds the R7 tables, A, K2
 
 ## 5. elsayed: Track B end to end (generated data)
 
-Goal: generated ACUD data for R7 → one `ml_dataset` (compound × quarter) → 3-class classifier → probabilities in the compound file + early-warning comparison + what-if scenarios S1-S3. Track B reads Track A outputs and never redoes image work.
+Goal: generated ACUD data for R7 → one `ml_dataset` (compound × quarter) → binary classifier → probabilities in the compound file + early-warning comparison + what-if scenarios S1-S3. Track B reads Track A outputs and never redoes image work.
 
 ### D1: protocol before any run
 
-- [ ] **T-EL-01** [Must] D1 · Fill open item 1 from the first build (`app_data/EW_REPORT.md`): which method and view gave 92%, and recall@8 of the simple rule · §0 and §3 updated · reviewer: ahmed
-- [ ] **T-EL-02** [Must] D1 · Write `EW_PROTOCOL.md` **before** the R7 run: label (3 classes, next 6 months), split (time; developer holdout only if ≥ 3 test developers), metrics (per-class recall, macro-F1, recall@N for `distressed` vs random top-N, 2,000 draws), pass condition · `app_data/EW_PROTOCOL.md` + wording copied to §0 · reviewer: salma
+- [ ] **T-EL-01** [Must] D1 ? Resolved implementation: retire the unattributed historical percentage claim; current method/view/denominator recorded in EW_REPORT_CURRENT.md ? approved scope: BINARY_SCOPE_DECISION.md ? reviewer: ahmed
+- [ ] **T-EL-02** [Must] D1 · Write `EW_PROTOCOL.md` **before** the R7 run: label (2 classes, next 6 months), split (time; developer holdout only if ≥ 3 test developers), metrics (per-class recall, macro-F1, recall@N for `distressed` vs random top-N, 2,000 draws), pass condition · `app_data/EW_PROTOCOL.md` + wording copied to §0 · reviewer: salma
 - [ ] **T-EL-03** [Must] D1 · Assumed monthly fine rate for K5 in EGP (open item 3) in `configs/data.yaml` with `assumption: true` · reviewer: ahmed
 
 ### D2: generator on R7
 
 - [ ] **T-EL-04** [Must] D2 · Regenerate on R7 only from ahmed's `kpi_values` (stories from real signals, reports equal real announced %, electricity meters only) (§5) · `sim/fin_monthly.parquet`, `sim/complaints.parquet`, private `answer_key` · depends: T-AH-09 · reviewer: ahmed
 - [ ] **T-EL-05** [Must] D2 · 6 planted defects caught by the gates + hard and calibration realism checks pass · `realism_checks.csv`, `defects_log.csv` · reviewer: ahmed
-- [ ] **T-EL-06** [Must] D2 · 3-class label in `answer_key`: `distressed` / `completed` (handover reached) / `ongoing` in the next 6 months, with censoring flag; update `src/generator/answer.py` + dictionary + test · reviewer: verina
+- [ ] **T-EL-06** [Must] D2 ? Binary next-six-month distressed/not_distressed labels with censoring; boolean source label and equivalent categorical extended export; dictionary and regression checks ? src/pipeline/complete_data.py ? reviewer: verina
 - [ ] **T-EL-07** [Must] D2 · Data dictionaries for every generated table (column, type, unit, origin 🟠) · `dictionaries/*.md` · reviewer: salma
 
 ### D3: ml_dataset and classifier
 
-- [ ] **T-EL-08** [Must] D3 · Build `ml_dataset` (1 row = compound × quarter, columns from `03-dataset.md` §8.4): X = Track A outputs + K3, K5, K6 + B1-B5; y = 3-class label; no feature reads `answer_key`; statements filtered by `published_date` · `app_data/ml/ml_dataset.parquet` + leakage test (corrupt data after the cutoff, features unchanged) · depends: T-EL-04, T-EL-06 · reviewer: ahmed
+- [ ] **T-EL-08** [Must] D3 · Build `ml_dataset` (1 row = compound × quarter, columns from `03-dataset.md` §8.4): X = Track A outputs + K3, K5, K6 + B1-B5; y = binary label; no feature reads `answer_key`; statements filtered by `published_date` · `app_data/ml/ml_dataset.parquet` + leakage test (corrupt data after the cutoff, features unchanged) · depends: T-EL-04, T-EL-06 · reviewer: ahmed
 - [ ] **T-EL-09** [Must] D3 · B1-B5 triggers (§2) + K5 in EGP (eligible months × assumed rate × land value, 🟠) + rule with ACUD data (any of B1/B2/B3/B5 → level ≥ 2; B1 and K2 ≥ 2 → level 1; B4 context only) · reviewer: ahmed
 - [ ] **T-EL-10** [Must] D3 · Logistic regression baseline (never cut): per-class recall, macro-F1, recall@N for `distressed` vs random, counts as n of m · `ml/metrics.csv`, `ml/predictions.parquet` · reviewer: verina
-- [ ] **T-EL-11** [Should] D3 · Gradient boosting vs logistic, same split and metrics; if a model scores perfectly, add noise (`03-dataset.md` §7.6) · reviewer: verina
+- [ ] **T-EL-11** [Should] D3 · Gradient boosting vs logistic, same split and metrics; if a model scores perfectly, document limitations; do not tune data/noise after viewing the test (`03-dataset.md` §7.6) · reviewer: verina
 - [ ] **T-EL-12** [Must] D3 · Early-warning comparison on R7: images alone vs images + ACUD data vs random, plus the rule itself; check on the 8 real `eval_outcomes` (check set only) · `app_data/EW_REPORT.md` · reviewer: ahmed
 
 ### D4: digital twin what-if
@@ -159,7 +161,7 @@ Goal: Streamlit, 5 screens, track switch on every screen, passes the ten-second 
 
 - [ ] **T-NA-01** [Must] D1 · App skeleton: `app.py` runs `streamlit run app.py`, track switch (Track A default / Track B), orange banner "Synthetic - for training only" fixed in Track B, 🟠 on generated numbers, map hidden in Track B · reviewer: verina
 - [ ] **T-NA-02** [Must] D2 · Screen 1 priority map: R7 boundaries coloured by level (level written as a word, grey = not assessable), cycle list with Arabic reason, CSV download; Track B list only · depends: T-AH-08 · reviewer: ahmed
-- [ ] **T-NA-03** [Must] D3 · Screen 2 compound file: DW and A curves, height (to 2024), announced markers, first announced date, vegetation, two Wayback images, K2-K6, lineage line (origin, run_id), inspection file button; Track B: 3-class probabilities + K5 in EGP (🟠) · depends: T-AH-16, T-EL-10 · reviewer: ahmed
+- [ ] **T-NA-03** [Must] D3 · Screen 2 compound file: DW and A curves, height (to 2024), announced markers, first announced date, vegetation, two Wayback images, K2-K6, lineage line (origin, run_id), inspection file button; Track B: binary probabilities + K5 in EGP (🟠) · depends: T-AH-16, T-EL-10 · reviewer: ahmed
 - [ ] **T-NA-04** [Must] D3 · `ops_visits` form: code, date, result (progressing / stalled / complete / not done), note; saved to `app_data/ops_visits.csv` · reviewer: verina
 - [ ] **T-NA-05** [Must] D3 · Screen 3 would it have warned: Track A frozen-clock table (1 of 8 and why); Track B per-class recall, macro-F1, recall@N vs random, B1-B5 per compound · depends: T-AH-10, T-EL-12 · reviewer: elsayed
 - [ ] **T-NA-06** [Must] D3 · Screen 4 data trust: gates, coverage, not assessable, 1,009/1,026 facts, colour key 🟢🔵🟠 · depends: T-AH-11 · reviewer: ahmed
@@ -195,7 +197,7 @@ Goal: every number in the docs and slides has a source or an origin mark and mat
 | -- | --------------------------------------------------------------------------- | ---------------------------------------------- | ---------------------------------- |
 | 1  | KPI cards + tree + levels table                                             | salma                                          | T-SA-02                            |
 | 2  | Pipeline with gates + `quality_checks_log.csv` + quality report           | ahmed                                          | T-AH-11, T-AH-12                   |
-| 3  | Track A rule (K2-K6), backtest, Track B `ml_dataset` + 3-class classifier | ahmed (A), elsayed (B)                         | T-AH-04..10, T-EL-08..12           |
+| 3  | Track A rule (K2-K6), backtest, Track B `ml_dataset` + binary classifier | ahmed (A), elsayed (B)                         | T-AH-04..10, T-EL-08..12           |
 | 4  | Dashboard (track switch) + cycle list + `ops_visits`                      | nada                                           | T-NA-01..08                        |
 | 5  | Method card + monitoring plan                                               | elsayed (method card), ahmed (monitoring plan) | T-EL-18, T-AH-20                   |
 | 6  | Risks and responsible-AI note + `ai_verification_log`                     | verina                                         | T-VE-05, T-VE-09                   |
@@ -220,3 +222,7 @@ Goal: every number in the docs and slides has a source or an origin mark and mat
 7. T-NA-05 becomes a slide
 
 **Never cut:** Track A rule and cycle list (T-AH-01..13), Track B logistic baseline (T-EL-08..10). If the what-if screen is not ready, say "observatory", not "digital twin" (§13).
+
+## Approved binary-scope closure, 28 October 2026
+
+AH-16, EL-01, EL-10, EL-11 and EL-17 are implemented under BINARY_SCOPE_DECISION.md: contextual height with no fixed error guarantee, retired historical percentage claim, and reproducible binary distress models/workflow. Producing implementation tag: r7-binary-distress-2026-10-28. Original checkboxes retain named-review requirements; no colleague acceptance is signed automatically. Completion prediction is not an outstanding task.
