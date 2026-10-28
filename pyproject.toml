@@ -3,15 +3,18 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "base-product"
+name = "spaceeye-geoai"
 version = "0.1.0"
-description = "starter template for turning a project idea into a python product"
+description = "SpaceEye: R7 digital twin and inspection priority observatory (New Administrative Capital). Which compounds should the inspection committee visit first, and why."
 readme = "README.md"
 license = {text = "MIT"}
-keywords = ["smart city", "New Administrative Capital"]
+keywords = ["smart city", "New Administrative Capital", "dynamic world", "sentinel-2", "inspection priority", "digital twin"]
 authors = [
     {name = "elsayed elmandoh", email = "elsayedelmandoh7@gmail.com"},
-    {name = "member 2", email = "member2@example.com"},
+    {name = "verina fouad"},
+    {name = "ahmed abdelhamid"},
+    {name = "nada shady"},
+    {name = "salma magdy"},
 ]
 requires-python = ">=3.12"
 dependencies = [
@@ -28,6 +31,7 @@ dependencies = [
     "scikit-learn",
     "shapely",
     "lightgbm",
+    "matplotlib",
     "streamlit",
     "plotly",
     "google-genai",
@@ -42,9 +46,13 @@ torch = [
 pulls = [
     "earthengine-api",
 ]
+
+# installed by plain `uv sync` (optional extras are not)
+[dependency-groups]
 dev = [
     "pytest>=8.0.0",
     "nbstripout>=0.8.0",
+    "ruff",
 ]
 
 [tool.hatch.build.targets.wheel]

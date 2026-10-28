@@ -1,115 +1,104 @@
-# SpaceEye-GeoAI: Horus City Construction & Default Risk Radar
+# SpaceEye: R7 Digital Twin and Inspection Priority Observatory
 
-Internal decision-support platform for smart utilities, waste dispatch, and citizen triage. Combines energy, water, waste, and citizen-service data on a single trusted layer.
+Graduation project for the New Administrative Capital (ACUD AI Data Lab program). It answers one question: **which compounds in district R7 should the inspection committee visit first this cycle, and why?** The system recommends; the committee decides.
 
-> **Synthetic data only — for spaceeye-geoai training, not operational use.** Every number is computed from the `ACUD_Oasis` dataset or marked as a target/hypothesis.
+> **Synthetic data - for training only** applies to every generated table, chart and slide. Real public data (satellites, published statements, decrees) is used as published, with its source. Compounds and developers appear as codes only (`C..`, `D..`), never by name.
 
-<p align="center">
-  <img src="evals/figures/res1.png" alt="spaceeye-geoai — res1" width="45%">
-  &nbsp; &nbsp;
-  <img src="evals/figures/res2.png" alt="spaceeye-geoai — res2" width="45%">
-</p>
-
-<figure align="center">
-  <img src="evals/figures/res.png" alt="res" width="80%">
-  <figcaption>caption description</figcaption>
-</figure>
-
-how to adapt this project
-
-1. Confirm project identity: SpaceEye-GeoAI (smart-city construction & risk radar).
-2. Confirm dataset constraints and reference sources before implementation.
-3. Move repeatable logic out of notebooks and into `src/`.
-4. Keep tests small, deterministic, and focused on the critical path.
+The full plan is in [`docs/requirements/01-specs.md`](docs/requirements/01-specs.md); data and columns are in [`docs/project-definition/03-dataset.md`](docs/project-definition/03-dataset.md). When any other doc disagrees, those two win.
 
 
 ## Table of Contents
 - [Overview](#overview)
-- [Key Features](#key-features)
+- [How it works](#how-it-works)
+- [Results so far](#results-so-far)
 - [Setup](#setup)
-  - [0. Prerequisites](#0-prerequisites)
-  - [1. Clone the Repository](#1-clone-the-repository) 
-  - [2. Create Conda Environment](#2-create-conda-environment) 
-  - [3. Environment Variables](#3-environment-variables) 
-  - [4. Usage](#usage)
-- [project structure](#project-structure)
+- [Usage](#usage)
+- [Project structure](#project-structure)
 - [Contributing](#contributing)
-- [Author](#author)
+- [Authors](#authors)
 
 
 ## Overview
-- **Problem:** District IOC watches utility and citizen feeds separately; one real event appears in multiple places; alarm fatigue and manual triage slow response.
-- **Goal:** Detect energy waste, water leaks, bin overflows, and citizen-complaint clusters earlier — with one parent ticket per incident, zero personal-data leaks, and transparent AI recommendations.
-- **Solution:** 4 operational modules (Energy, Water, Waste, Citizen Services) on a dual-schema (`raw_*` / `cleaned_*`) DuckDB layer + 5-tab Streamlit control room.
-- **Results:** Benchmark tables, forecast error by season, Gemini vs keyword baseline accuracy, dispatch backtest (trips saved vs overflow), Data Trust Score.
+- **Problem:** ACUD follows hundreds of developers and projects with a field review every 3 months; seriously late projects are found late.
+- **Goal:** rank R7 compounds by **priority level** so the committee visits the right ones first, with a reason for each.
+- **Product:** dashboard + **cycle list** sized to inspection capacity + an **inspection file** per compound + a form to record each visit result.
+- **Digital twin (light, compound level):** observed state from satellites and statements, simulated hidden state (finance until ACUD shares its data), and what-if scenarios. Not a 3D or real-time twin.
 
 
-## Key Features
-* **Energy module:** Detects off-hours and weekend waste in government/CBD buildings using seasonal baselines (not fixed thresholds).
-* **Water module:** Flags leaks from night-flow rise + pressure drop patterns, with a 5-step confirmation workflow.
-* **Waste module:** Prioritises which bins need a truck today and which fixed-route trips can be cancelled safely.
-* **Citizen Services module:** Routes Egyptian-Arabic complaints with Gemini triage (>73% keyword baseline target), masked personal data, and one parent ticket per cluster.
+## How it works
+
+**Track A: images (all real).** Dynamic World, Sentinel-2, Google Open Buildings and published statements give, per compound and quarter:
+
+| Signal | Meaning |
+| --- | --- |
+| A | activity score: probability the compound is building this quarter |
+| K2 | quarters with no activity (after construction started) |
+| K3 | months since the **first** announced handover date passed |
+| K4 | assessability (enough images, boundary confidence >= 80%) |
+| K5 | months in a fine-eligible state |
+| K6 | months since launch with no construction start |
+
+**Priority level = the worst of K2, K3 and K6** (no weights): 1 inspect now, 2 inspect this cycle, 3 document review, 4 routine. Thresholds are fixed in `configs/data.yaml` and follow Decree 2184/2022.
+
+**Track B: numbers (generated).** A generator simulates the ACUD data we do not have yet (escrow cover, land arrears, complaints, meters, plan vs reported progress) from each compound's real signals. A classifier (logistic regression vs gradient boosting) learns the outcome in the next 6 months (`distressed` / `completed` / `ongoing`) from Track A outputs + these numbers.
+
+**AI component:** an inspection file agent (code fills the numbers, Gemini writes one paragraph and 3 visit questions, every number is checked against the source) and a complaints classifier with regex masking of personal data before any model.
+
+
+## Results so far
+
+First build, R7 + R8 (22 compounds), being re-run on R7 only:
+
+- **Backtest:** the satellite rule alone warned at least 6 months early on **1 of 8** real late cases (target 5). The criterion failed: all 8 kept building, and their delay was in finishing and handover, which satellites cannot see.
+- **Early warning on generated data:** recall@8 for distressed compounds: **satellites + company data 92%, satellites alone 62%, random 37%.** These are generated data; they show the idea works, not accuracy on reality.
+
+> "Satellites see that buildings exist, but not the delay. ACUD's data completes the picture."
 
 
 ## Setup
-0. Prerequisites
-Before running this project, ensure you have the following installed:
-* [Git](https://git-scm.com/)
-* [Anaconda](https://www.anaconda.com/) or Miniconda
-* Python 3.12 (recommended)
-* Valid API Keys (if applicable)
 
-1. Clone the Repository
+Prerequisites: Git, Python 3.12, [uv](https://docs.astral.sh/uv/).
+
 ```bash
 git clone https://github.com/elsayedelmandoh/spaceeye-geoai
 cd spaceeye-geoai
+make install            # uv sync + nbstripout git hook
+cp .env.example .env    # set MASK_SALT, GEMINI_API_KEY, GEMINI_MODEL
 ```
 
-2. Create Conda Environment
+**Data lives outside the repo.** Set `paths:` in `configs/data.yaml` to your copies of `real_data` (audited sources, read only), `app_data` (built outputs) and `private` (code map, hidden truth). None of them are committed.
+
+
+## Usage
+
 ```bash
-# Create & activate the environment
-conda create -n envname python=3.12 -y
-conda activate envname
-
-# Install pip and project dependencies
-conda install pip -y
-pip install -r requirements.txt
+python -m src.pipeline.run_all          # real tables, activity score, KPIs, levels, backtest, quality gates, duckdb (exit 1 if a gate stops)
+python -m src.generator.simulate        # generated ACUD data + realism checks (needs run_all first)
+python -m src.analysis.early_warning    # Track B early-warning comparison -> app_data/EW_REPORT.md
+make test                               # unit tests
 ```
 
-3. Environment Variables
-Create a `.env` file at the project root and add your necessary API keys or configuration variables:
-```bash
-# Example .env file
-API_KEY=your_api_key_here
+Two runs give identical outputs (`seed` and `computed_on` are fixed in `configs/data.yaml`). Earth Engine downloads (`src/pipeline/pulls/`) need `uv sync --extra pulls`; their results are already cached in `app_data/raw`. The Streamlit dashboard is the next step.
+
+
+## Project structure
+
+```text
+configs/        data.yaml (paths, thresholds, seed), kpis.yaml, cost_assumptions.yaml
+src/pipeline/   Track A: codify -> build_real -> activity -> kpis -> backtest_check -> gates (run_all)
+src/generator/  Track B: generated ACUD data (simulate)
+src/analysis/   Track B: early-warning features, evaluation, report
+tests/          unit tests
+docs/           requirements/ (plan), project-definition/ (dataset, constraints)
+notebooks/      exploration
 ```
-
-Or copy .env.example file
-
-```
-# environment variables
-cp .env.example .env
-```
-
-4. Usage — run locally
-To start the Streamlit control room:
-```bash
-python app.py
-```
-Open the URL printed in the terminal. All 5 tabs load from `data/processed/oasis.duckdb`.
-
-**Note:** The dashboard only shows data when the `cleaned_*` tables exist. If you see empty charts, run the data-quality audit notebook first (`notebooks/01_data_quality_audit.ipynb`).
-
-
-## project structure
-
-see `docs/project-definition/08-structure.md`
 
 
 ## Contributing
-Contributions are welcome. Before contributing:
-1. Confirm the dataset contract (`docs/project-definition/`) hasn't changed.
-2. Run the data-quality audit (`tests/test_masking.py`, `tests/test_cleaning.py`).
-3. Keep all user-facing output labelled `Synthetic data — spaceeye-geoai training only`.
+1. Read `docs/requirements/01-specs.md` section 14 (rules that never break).
+2. Work on a branch; run `make lint` and `make test`.
+3. No compound or developer name in any output (the `no_names` gate stops the run), no generated number joined into a real table, and every generated output labelled `Synthetic - for training only`.
+4. Never change a threshold after seeing a result.
 
 
 ## Authors
@@ -125,5 +114,4 @@ Contributions are welcome. Before contributing:
 [![linkedin](https://img.shields.io/badge/ahmed-linkedin-0077b5?style=for-the-badge&logo=linkedin&logocolor=white)](https://www.linkedin.com/in/ahmed-abdelhameed-ai/)
 [![linkedin](https://img.shields.io/badge/nada-linkedin-0077b5?style=for-the-badge&logo=linkedin&logocolor=white)](https://www.linkedin.com/in/nadashady/)
 [![linkedin](https://img.shields.io/badge/salma-linkedin-0077b5?style=for-the-badge&logo=linkedin&logocolor=white)](https://www.linkedin.com/in/salma-magdy-ml/)
-[![linkedin-post](https://img.shields.io/badge/post-linkedin-0077b5?style=for-the-badge&logo=linkedin&logocolor=white)]()
-[![github](https://img.shields.io/badge/GitHub-repo-100000?style=for-the-badge&logo=github&logoColor=white)]()
+[![github](https://img.shields.io/badge/GitHub-repo-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/elsayedelmandoh/spaceeye-geoai)
