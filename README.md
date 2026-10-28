@@ -1,10 +1,12 @@
 # SpaceEye: R7 Digital Twin and Inspection Priority Observatory
 
+> Data release, 28 October 2026: R1/R2 now include K5/K6, capacity4, prepared data,180-row/40-feature expanded data and separate financial scenarios. Start with [the current handoff](docs/data/HANDOFF.md), [R1 report](docs/data/R1_REPORT.md), [R2 report](docs/data/R2_REPORT.md) and [delivery plan](docs/data/DELIVERY_PLAN.md). The product design below is retained; it includes work beyond this data-only release.
+
 Graduation project for the New Administrative Capital (ACUD AI Data Lab program). It answers one question: **which compounds in district R7 should the inspection committee visit first this cycle, and why?** The system recommends; the committee decides.
 
 > **Synthetic data - for training only** applies to every generated table, chart and slide. Real public data (satellites, published statements, decrees) is used as published, with its source. Compounds and developers appear as codes only (`C..`, `D..`), never by name.
 
-The full plan is in [`docs/requirements/01-specs.md`](docs/requirements/01-specs.md); data and columns are in [`docs/project-definition/03-dataset.md`](docs/project-definition/03-dataset.md). When any other doc disagrees, those two win.
+The full product plan is in [`docs/requirements/01-specs.md`](docs/requirements/01-specs.md); data design is in [`docs/project-definition/03-dataset.md`](docs/project-definition/03-dataset.md). For the implemented R1/R2 release, [the implementation contract](docs/data/IMPLEMENTED_DATA_SPEC.md) and [dataset contract](docs/data/DATASET_CONTRACT.md) identify current behavior and supersede older implementation-status claims.
 
 
 ## Table of Contents

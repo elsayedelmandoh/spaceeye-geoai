@@ -221,3 +221,7 @@ docs/.internal/
 .omo/
 .remember/
 .codegraph/
+
+# Public data contracts/reports only; actual datasets remain outside the repo.
+!docs/data/
+!docs/data/**

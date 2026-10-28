@@ -1,0 +1,25 @@
+# Actual output dictionaries
+
+Schema documentation only; no private rows or real names. Existing raw simulation/private dictionaries remain next to their artifacts. Expanded X and target roles are in private/ml_dataset_extended_metadata.json.
+
+- [data_completion/inspection_capacity](data_completion__inspection_capacity.md)
+- [real/compounds](real__compounds.md)
+- [real/drivers_monthly](real__drivers_monthly.md)
+- [real/eval_outcomes](real__eval_outcomes.md)
+- [real/kpi_values](real__kpi_values.md)
+- [real/quality_checks_log](real__quality_checks_log.md)
+- [real/rules](real__rules.md)
+- [real/run_log](real__run_log.md)
+- [real/sat_quarterly](real__sat_quarterly.md)
+- [real/sat_yearly](real__sat_yearly.md)
+- [real/statements](real__statements.md)
+- [scenarios/history](scenarios__history.md)
+- [scenarios/initial_state](scenarios__initial_state.md)
+- [scenarios/paths](scenarios__paths.md)
+- [scenarios/summary](scenarios__summary.md)
+- [sim_clean/complaints](sim_clean__complaints.md)
+- [sim_clean/fin_monthly](sim_clean__fin_monthly.md)
+- [sim_clean/fin_quarterly](sim_clean__fin_quarterly.md)
+- [sim_clean/fine_assumptions](sim_clean__fine_assumptions.md)
+- [sim_clean/quarantine_complaints](sim_clean__quarantine_complaints.md)
+- [sim_clean/rejected_reports](sim_clean__rejected_reports.md)

@@ -93,6 +93,8 @@ def build() -> dict:
     season = inputs.seasonal_work(drv)
     devs, drains = developers(sigs), drain_masks(sigs)
     healthy = [s.code for s in sigs if s.story == "healthy"]
+    if len(healthy) < 2:  # small scopes: any compound that is not stalling
+        healthy = [s.code for s in sigs if s.story not in ("gradual_stall", "stall_recovery")]
     bulk_code, viral_code = (str(x) for x in rng_for(10).choice(healthy, 2, replace=False))
     units = []
     for s in sigs:

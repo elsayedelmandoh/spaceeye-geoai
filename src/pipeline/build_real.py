@@ -70,6 +70,7 @@ def compounds() -> pd.DataFrame:
 def sat_quarterly() -> pd.DataFrame:
     """compound x quarter 2016Q1-2026Q3: dynamic world series, 12-month class shares, K1, K4. A and K2 are added later."""
     dw = pd.concat([_csv("dw_compounds_quarterly.csv"), _csv("dw_compounds_new.csv")]).drop_duplicates(["code", "qi"])
+    dw = dw[dw.code.isin(_csv("compounds.csv").code)]  # the pulled file can hold compounds outside the scope
     codes = sorted(dw.code.unique())
     grid = pd.MultiIndex.from_product([codes, range(N_Q)], names=["code", "qi"]).to_frame(index=False)
     out = grid.merge(dw, on=["code", "qi"], how="left")
@@ -168,7 +169,7 @@ def _o(real=(), derived=(), generated=(), key=()) -> dict:
 ORIGINS = {
     "compounds": _o(real=["district", "coverage_max", "boundary_confidence", "boundary_area_m2"], derived=["bua_m2", "cover_pct", "first_deadline", "first_deadline_published", "handover_first_published"],
                     generated=["floors_allowed"], key=["code", "developer_code", "land_area_origin", "floors_origin", "units_origin"]) | {"land_area_m2": "real|generated", "units": "real|generated"},
-    "sat_quarterly": _o(real=["n_images"], derived=["built_prob_mean", "K1", "K4", "activity_prob", "active", "K2", "started"] + ["dw12_" + c for c in DW_CLASSES], key=["code", "quarter", "qi", "start_quarter"]),
+    "sat_quarterly": _o(real=["n_images"], derived=["built_prob_mean", "K1", "K4", "activity_prob", "active", "K2", "started", "observed_started", "observed_start_quarter", "observed_start_source", "start_observation_sufficient", "launch_date_asof", "launch_first_published", "K6"] + ["dw12_" + c for c in DW_CLASSES], key=["code", "quarter", "qi", "start_quarter"]),
     "sat_yearly": _o(real=["n_built_cells"], derived=["veg_share"], key=["code", "year", "veg_origin", "height_origin"]) | {c: "real|derived" for c in ["height_mean_m", "height_p90_m", "share_built_ge20m"]},
     "statements": _o(real=["detail", "published_date", "scope", "period_start", "period_end", "value", "qualifier", "verdict", "origin", "record_id", "subtype", "kind"], key=["statement_id", "code"]),
     "eval_outcomes": _o(real=["outcome_type", "promise_original_period", "promise_original_published", "outcome_date", "outcome_first_published", "delay_months_vs_promise",
@@ -176,6 +177,10 @@ ORIGINS = {
     "drivers_monthly": _o(real=["usd_egp", "policy_rate_pct", "rebar_egp_t", "cement_egp_t", "tmax_mean_c", "days_tmax_ge40"], derived=["materials_index", "shock_month", "ramadan_days", "eid_days"], key=["month"]),
     "rules": _o(real=["source", "article", "rule", "value", "unit", "origin"], key=["rule_id"]),
 }
+
+
+ORIGINS["sat_quarterly"].update({c: "derived" for c in (
+    "start_reference_date_asof", "start_reference_published", "start_reference_source")})
 
 
 def build_all() -> dict[str, pd.DataFrame]:

@@ -5,12 +5,18 @@ output: app_data/EW_REPORT.md, app_data/ew/*.csv and *.png.
 run: uv run --with matplotlib python -m src.analysis.early_warning
 """
 
+import hashlib
+import json
+from pathlib import Path
+
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 
 from src.analysis import ew_eval as E
 from src.analysis import ew_features as F
 from src.analysis import ew_report as R
-from src.pipeline.common import APP, PRIVATE
+from src.pipeline.common import APP, BASE_DIR, CFG, PRIVATE, REAL
 
 OUT = APP / "ew"
 METHODS = {
@@ -27,6 +33,116 @@ METHODS = {
     "gb_int": ("GB، ميزات الداخلي بس", "p_gb_internal_{view}", "p_gb_internal_{view}"),
 }
 MODEL_KEYS = {"lr", "gb", "lr_sat", "lr_int", "gb_sat", "gb_int"}
+
+
+def input_hashes() -> dict:
+    """Fingerprint the actual inputs and source code without copying private labels."""
+    paths = {
+        "real/compounds.parquet": REAL / "compounds.parquet",
+        "real/kpi_values.parquet": REAL / "kpi_values.parquet",
+        "sim/fin_monthly.parquet": F.SIM / "fin_monthly.parquet",
+        "sim/complaints.parquet": F.SIM / "complaints.parquet",
+        "private/answer_key.parquet": PRIVATE / "answer_key.parquet",
+        "configs/data.yaml": BASE_DIR / "configs" / "data.yaml",
+        "src/pipeline/common.py": BASE_DIR / "src" / "pipeline" / "common.py",
+    }
+    paths.update({f"src/analysis/{name}.py": BASE_DIR / "src" / "analysis" / f"{name}.py"
+                  for name in ("early_warning", "ew_features", "ew_eval", "ew_report")})
+    for folder in ("pipeline", "generator"):
+        paths.update({p.relative_to(BASE_DIR).as_posix(): p for p in sorted((BASE_DIR / "src" / folder).glob("*.py"))})
+    return {name: hashlib.sha256(path.read_bytes()).hexdigest() for name, path in sorted(paths.items())}
+
+
+def run_provenance(st: dict, hashes: dict) -> dict:
+    """Record which data, scope and frozen evaluation settings produced this run."""
+    identity = json.dumps(hashes, sort_keys=True).encode()
+    return {
+        "run_id": "EW-" + hashlib.sha256(identity).hexdigest()[:12],
+        "sha256": hashes, "scope_districts": CFG.get("scope_districts", []),
+        "codes": sorted(st["table"]["code"].unique()),
+        "cutoffs": sorted(st["table"]["quarter"].unique()),
+        "train_last": E.TRAIN_LAST, "test_label_quarters": E.TEST_LABEL_Q,
+        "test_all_quarters": E.TEST_ALL_Q, "test_onset_from": str(E.TEST_ONSET_FROM),
+        "top_n": E.N_DEFAULT, "held_developers": st["held"], "held_seed": st["held_seed"],
+    }
+
+
+TRAINING_KEYS = ["code", "developer_code", "quarter", "month"]
+TARGET, CENSOR = "label_distress_next_6m", "label_censored"
+
+
+def training_dataset(table: pd.DataFrame) -> pd.DataFrame:
+    """Persist only the declared X, keys and evaluation-only y; never hidden truth or fitted predictions."""
+    forbidden = {*TRAINING_KEYS, "developer", "story", "distress_now", "warning_issued", "status_level", "label", "censored", TARGET, CENSOR}
+    if any(c in forbidden or c.startswith(("true_", "label_", "p_", "score_", "alert_")) for c in F.FEATURES):
+        raise ValueError("An evaluation-only or fitted column was declared as a training feature")
+    out = table[["code", "developer", "quarter", "month", *F.FEATURES, "label", "censored"]].rename(
+        columns={"developer": "developer_code", "label": TARGET, "censored": CENSOR}).copy()
+    if out.duplicated(["code", "quarter"]).any():
+        raise ValueError("Training dataset has duplicate compound-quarter keys")
+    out[TARGET] = pd.array(out[TARGET], dtype="boolean")
+    if (out[TARGET].isna() & ~out[CENSOR]).any():
+        raise ValueError("An uncensored training row has no target")
+    out.loc[out[CENSOR], TARGET] = pd.NA
+    out["month"] = out["month"].astype(str)
+    return out.sort_values(["quarter", "code"]).reset_index(drop=True)
+
+
+def training_metadata(data: pd.DataFrame, hashes: dict) -> dict:
+    """The frozen time split, censoring and binary class counts are auditable independently of model scores."""
+    masks = {
+        "train": (data["quarter"] <= E.TRAIN_LAST) & ~data[CENSOR],
+        "time_test": data["quarter"].isin(E.TEST_LABEL_Q) & ~data[CENSOR],
+        "censored": data[CENSOR],
+    }
+    counts = {name: {"rows": int(mask.sum()), "positive": int(data.loc[mask, TARGET].sum()),
+                     "negative": int((~data.loc[mask, TARGET]).sum()), "unlabelled": int(data.loc[mask, TARGET].isna().sum())}
+              for name, mask in masks.items()}
+    return {
+        "synthetic_label": CFG["generator"]["label"],
+        "purpose": "Historical reconstruction / mechanism experiment, not measured operational accuracy",
+        "keys": TRAINING_KEYS, "features": list(F.FEATURES), "target": TARGET, "censor_column": CENSOR,
+        "feature_groups": {"public_observation_derived": list(F.SAT_ALL), "generated_operations_derived": list(F.INTERNAL_ALL)},
+        "target_definition": "true distress in any of the next six months; excludes the cutoff month",
+        "horizon_months": 6, "classes": {"false": "no future distress", "true": "future distress"},
+        "censoring_rule": "Target is null when the complete next-six-month horizon is unavailable; these rows never enter fitting or row metrics.",
+        "rows": len(data), "compounds": int(data.code.nunique()), "cutoffs": sorted(data.quarter.unique()),
+        "train_last": E.TRAIN_LAST, "test_label_quarters": E.TEST_LABEL_Q, "split_counts": counts,
+        "excluded_uncensored_quarters": sorted(data.loc[~(masks["train"] | masks["time_test"] | masks["censored"]), "quarter"].unique()),
+        "features_only_rule": "X is exactly features; keys, target and censor flag never enter X. Fit imputation/scaling on training only.",
+        "feature_preparation": "src/analysis/ew_features.py: deduplicate monthly financial keys, validate report dates against recorded month, repair detected thousand-EGP balance entries, and use only records available at each cutoff. Exact implementation is source-hashed.",
+        "feature_missing_values": {c: int(data[c].isna().sum()) for c in F.FEATURES},
+        "dtypes": {c: str(data[c].dtype) for c in data.columns}, "input_and_source_sha256": hashes,
+    }
+
+
+def export_training_dataset(st: dict, hashes: dict, folder: Path = PRIVATE, public_folder: Path = OUT) -> dict:
+    data = training_dataset(st["table"])
+    meta = training_metadata(data, hashes)
+    meta["run_id"] = run_provenance(st, hashes)["run_id"]
+    folder.mkdir(parents=True, exist_ok=True)
+    path = folder / "ml_dataset.parquet"
+    tab = pa.Table.from_pandas(data, preserve_index=False)
+    tab = tab.replace_schema_metadata({**(tab.schema.metadata or {}), b"synthetic_label": meta["synthetic_label"].encode(),
+                                      b"features": json.dumps(meta["features"]).encode(), b"target": TARGET.encode(), b"censor_column": CENSOR.encode()})
+    pq.write_table(tab, path)
+    meta["dataset_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+    metadata_path = folder / "ml_dataset_metadata.json"
+    metadata_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+    dictionary = folder / "dictionaries" / "ml_dataset.md"
+    dictionary.parent.mkdir(parents=True, exist_ok=True)
+    lines = ["# Binary training dataset (private)", "", meta["synthetic_label"], "",
+             "One row per compound and quarterly cutoff. X is exactly the feature list below. Hidden truth and fitted predictions are excluded.",
+             "The target uses the next six months and is null for censored rows; exclude those rows from supervised fitting and row metrics. See ml_dataset_metadata.json for the frozen split and hashes.", "",
+             "| column | role | type |", "| --- | --- | --- |"]
+    lines += [f"| `{c}` | {'feature X' if c in F.FEATURES else 'key (not X)' if c in TRAINING_KEYS else 'target y' if c == TARGET else 'censor flag (not X)'} | {data[c].dtype} |" for c in data]
+    dictionary.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    public_folder.mkdir(parents=True, exist_ok=True)
+    public = {k: meta[k] for k in ("synthetic_label", "purpose", "run_id", "rows", "compounds", "cutoffs", "features", "feature_groups", "target", "censor_column", "split_counts")}
+    public["private_dataset"] = "private/ml_dataset.parquet"
+    (public_folder / "dataset_summary.json").write_text(json.dumps(public, ensure_ascii=False, indent=2), encoding="utf-8")
+    return {"private/" + p.relative_to(folder).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+            for p in (path, metadata_path, dictionary)}
 
 
 def never_distressed() -> set:
@@ -122,6 +238,7 @@ def lists_md(d: pd.DataFrame, score: str, n: int, p_col: str | None) -> str:
 
 def run() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
+    hashes = input_hashes()
     st = prepare()
     d = st["table"]
     res = evaluate_all(st)
@@ -144,8 +261,9 @@ def run() -> None:
 
     keys = ["sat", "k2", "b", "rule", "lr", "gb"]
     t, x = res["time"].set_index("key"), res["ext"].set_index("key")
+    facts = R.report_facts(st, res["n"])
     pos_t, ev_t = int(t.loc["rule", "positives"]), int(t.loc["rule", "events"])
-    ceiling = pos_t / (E.N_DEFAULT * len(E.TEST_LABEL_Q))
+    ceiling = facts["precision_ceiling"]
     piv = ev.pivot(index=["code", "onset"], columns="method", values="lead").reset_index()
     cau = ev.pivot(index=["code", "onset"], columns="method", values="caught").reset_index()
     pv = piv[["code", "onset"]].copy()
@@ -155,8 +273,10 @@ def run() -> None:
     imp_lr = R.md_table(pd.DataFrame({"الميزة": imp["lr"].head(8).index, "معامل (standardized)": [f"{v:+.2f}" for v in imp["lr"].head(8)]}))
     imp_gb = R.md_table(pd.DataFrame({"الميزة": imp["gb"].head(8).index, "permutation (average precision)": [f"{v:.3f}" for v in imp["gb"].head(8)]}))
     held = "، ".join(st["held"])
-    n_held = d[d["developer"].isin(st["held"])]["code"].nunique()
-    held_codes = "، ".join(sorted(d[d["developer"].isin(st["held"])]["code"].unique()))
+    n_held, held_codes = facts["held_count"], facts["held_codes"]
+    seed_note = (f"البذرة الأصلية `{E.SPLIT_SEED}` حققت شرط وجود صف إيجابي في المجموعة المحجوزة."
+                 if st["held_seed"] == E.SPLIT_SEED else
+                 f"البذرة اتحرّكت من `{E.SPLIT_SEED}` إلى `{st['held_seed']}` لوجود صف إيجابي في المجموعة المحجوزة (حسب الشرط المكتوب).")
     names = {"rule": "القاعدة البسيطة (2)", "lr": "اللوجستي", "gb": "الـGB"}
     if prod == "rule":
         adopt_txt = "الموديلات ما كسبتش القاعدة في recall@8 والـlead في الرؤيتين معًا (والتعادل بيروح للقاعدة)، فـ**القاعدة البسيطة (2) هي المنتج**."
@@ -167,48 +287,48 @@ def run() -> None:
     dec_rows = []
     for m, nm in (("lr", "لوجستي"), ("gb", "GB")):
         w = dec[m]["wins"]
-        yn = lambda b: "كسب" if b else "ما كسبش"  # noqa: E731
+        yn = lambda b: "كسب" if b else "ما كسبش"
         dec_rows.append({"الموديل": nm, "recall@8 زمني": yn(w["time"]["recall"]), "lead زمني": yn(w["time"]["lead"]),
                          "recall@8 مكمّل": yn(w["ext"]["recall"]), "lead مكمّل": yn(w["ext"]["lead"]), "القرار": "معتمد" if dec[m]["adopt"] else "مش معتمد"})
     rnd_t, rnd_x = res["random_time"]["recall"][0], res["random_ext"]["recall"][0]
-    md = f"""# تقرير الإنذار المبكر (EW_REPORT): 26 أكتوبر 2026
+    md = f"""# تقرير الإنذار المبكر (EW_REPORT): {facts['n_compounds']} كمبوند، حتى {facts['last_cutoff']}
 
 > **Synthetic - for training only. النتايج دي على داتا مولّدة إحنا كتبنا آلياتها (R2).** بتثبت **الآلية** (إشارات داخلية + قمر ← تنبيه قبل التعثر بشهور) و**قيمة الداتا**، ومش دقة في العالم الحقيقي، وما تتقالش كأن "الموديل بيتنبأ بالتعثر بدقة X". أكواد بس، مفيش أي اسم كمبوند أو مطوّر. البروتوكول اتكتب قبل أي نتيجة: `EW_PROTOCOL.md`.
 
 ## 1. الخلاصة
 - {adopt_txt} القاعدة = الأسوأ بين مستوى R1 ومحفزات B (غطاء 2184، أقساط الأرض، الشكاوى، فجوة المخطط والمعلن).
-- **الاختبار الزمني** (2025Q2–2026Q1، {pos_t} صف إيجابي، {ev_t} حدث بداية تعثر): القاعدة (2) جابت **{R.pct(t.loc['rule', 'recall'])}** recall@8 ({int(t.loc['rule', 'tp'])} من {pos_t}) وprecision {R.pct(t.loc['rule', 'precision'])} (السقف الممكن {R.pct(ceiling)} لأن كل ربع فيه 3–4 إيجابيات بس)، مقابل **{R.pct(t.loc['sat', 'recall'])}** لقاعدة القمر وحده و{R.pct(rnd_t)} لـtop-8 عشوائي.
-- **الرؤية المكمّلة** (11 تاريخ حساب، 6 أحداث): قاعدة القمر وحده {R.pct(x.loc['sat', 'recall'])} (العشوائي {R.pct(rnd_x)}) وفاتها {int(x.loc['sat', 'events'] - x.loc['sat', 'events_caught'])} من {int(x.loc['sat', 'events'])} أحداث، والقاعدة (2) {R.pct(x.loc['rule', 'recall'])}، والـGB {R.pct(x.loc['gb', 'recall'])}، واللوجستي {R.pct(x.loc['lr', 'recall'])}.
-- **القمر وحده بيتأخر، والإشارات الداخلية هي اللي بتقود الإنذار المبكر** (أقساط الأرض والفجوة). ده متسق مع رسالة المشروع: القمر بيكشف "بيبني ولا لأ"، والإنذار المبكر بالتعثر محتاج داتا الشركة.
-- **القرار مش مستقر:** الموديلات بتكسب في الرؤية المكمّلة وبتتعادل أو تخسر في الزمني، والنتيجة بتتقلب مع N وتأخير القمر (القسم 8). الفرق بين القاعدة والموديل جوه الضوضاء (حدثين وإصابة أو اتنين).
+- **الاختبار الزمني** ({facts['test_period']}، {pos_t} صف إيجابي، {ev_t} حدث بداية تعثر): القاعدة (2) جابت **{R.pct(t.loc['rule', 'recall'])}** recall@{res['n']} ({int(t.loc['rule', 'tp'])} من {pos_t}) وprecision {R.pct(t.loc['rule', 'precision'])} (السقف الممكن {R.pct(ceiling)} من عدد الإيجابيات وسعة القوائم الفعلية)، مقابل **{R.pct(t.loc['sat', 'recall'])}** لقاعدة القمر وحده و{R.pct(rnd_t)} لـtop-{res['n']} عشوائي.
+- **الرؤية المكمّلة** ({facts['n_cutoffs']} تاريخ حساب، {facts['all_events']} أحداث): قاعدة القمر وحده {R.pct(x.loc['sat', 'recall'])} (العشوائي {R.pct(rnd_x)}) وفاتها {int(x.loc['sat', 'events'] - x.loc['sat', 'events_caught'])} من {int(x.loc['sat', 'events'])} أحداث، والقاعدة (2) {R.pct(x.loc['rule', 'recall'])}، والـGB {R.pct(x.loc['gb', 'recall'])}، واللوجستي {R.pct(x.loc['lr', 'recall'])}.
+- **قيمة الإشارات الداخلية والقمر** تتقارن في جدول ablation، بالاسترجاع وزمن الإنذار والإنذارات الكاذبة. أي مكسب هنا يخص آليات البيانات المولّدة في النطاق الحالي.
+- **القرار على عينة صغيرة:** جدول الحساسية (القسم 8) يعرض أثر تغيير N وتأخير القمر. في الاختبار {ev_t} حدث بداية تعثر فقط، فلا نعتبر فروق الأداء إثباتًا لدقة تشغيلية.
 
 ## 2. الإعداد (مختصر، التفاصيل في البروتوكول)
-- 22 كمبوند × 11 تاريخ حساب (نهاية كل ربع 2023Q4–2026Q2). الهدف `label_distress_next_6m`. الميزات من داتا ≤ تاريخ الحساب (اختبار وحدة بيبوّظ الداتا بعد التاريخ ويتأكد إن الميزات ما اتغيّرتش)، و`reported_pct` بعد `report_date` بس. الرصيد بالألف (العيب 1) اتصلّح من الداتا نفسها: {st['fixed']} صف.
-- تدريب ≤ 2024Q4، **embargo 2025Q1**، اختبار 2025Q2–2026Q1 (88 صف)، 2026Q2 للقائمة الحية والأحداث (الليبل مقطوع).
+- {facts['n_compounds']} كمبوند × {facts['n_cutoffs']} تاريخ حساب (نهاية كل ربع {facts['first_cutoff']}–{facts['last_cutoff']}). الهدف `label_distress_next_6m`. الميزات من داتا ≤ تاريخ الحساب (اختبار وحدة بيبوّظ الداتا بعد التاريخ ويتأكد إن الميزات ما اتغيّرتش)، و`reported_pct` بعد `report_date` بس. الرصيد بالألف (العيب 1) اتصلّح من الداتا نفسها: {st['fixed']} صف.
+- تدريب ≤ {E.TRAIN_LAST}، **embargo 2025Q1**، اختبار {facts['test_period']} ({facts['test_rows']} صف غير مقطوع)، {facts['last_cutoff']} للقائمة الحية والأحداث (الليبل مقطوع).
 - فصل المطوّرين: {held} ({held_codes}).
 
 ### سجل الانحرافات عن البروتوكول (اتحدّدوا في الكود قبل أول تشغيل)
 1. **embargo 2025Q1** (مذكور في البروتوكول): التدريب ≤ 2024Q4 بدل ≤ 2025Q1.
-2. **seed فصل المطوّرين:** `20261026` ما طلّعش مطوّر معاه صف إيجابي في الاختبار، فاتحرّك لـ`{st['held_seed']}` (حسب الشرط المكتوب).
-3. **حجم القائمة في فصل المطوّرين:** المجموعة {n_held} كمبوندات بس، فالـN اتقاس بالنسبة (8 × {n_held}/22) = **{res['n_dev']}** (البروتوكول ما حددش التقريب).
-4. **lead time** بيتحسب لأبكر تاريخ حساب في آخر 12 شهر كان فيه الكمبوند في القائمة، فكمبوند فاضل في القائمة بسبب تعثر قديم (زي C07 بعد تعافيه) بيطلع له lead كبير. تضخيم معروف.
+2. **seed فصل المطوّرين:** {seed_note}
+3. **حجم القائمة في فصل المطوّرين:** المجموعة {n_held} كمبوندات بس، فالـN اتقاس بالنسبة ({res['n']} × {n_held}/{facts['n_compounds']}) = **{res['n_dev']}** (البروتوكول ما حددش التقريب).
+4. **lead time** بيتحسب لأبكر تاريخ حساب في آخر 12 شهر كان فيه الكمبوند في القائمة، فاستمرار كمبوند في القائمة بعد تعثر سابق ممكن يضخّم زمن الإنذار لحدث لاحق.
 
-## 3. المقارنة الرئيسية: اختبار زمني (2025Q2–2026Q1)، قائمة 8 من 22
+## 3. المقارنة الرئيسية: اختبار زمني ({facts['test_period']})، قائمة {res['n']} من {facts['n_compounds']}
 {R.comparison_table(res['time'], keys, res['random_time'])}
 
-أحداث الاختبار: C07 (2026-09) و C14 (2026-08). 13 صف إيجابي منهم 3 كمبوندات كانت متعثرة قبل الاختبار (C01 و C09 و C20)، فالاسترجاع على الصفوف بيعكس "هل القائمة بتمسك المتعثرين فعلًا"، وrecall على الـonset الجديد (صفين) هو الاختبار الحقيقي للإنذار المبكر.
+أحداث الاختبار: {facts['test_events_text']}. فيه {facts['test_positives']} صف إيجابي، منهم {facts['test_current_rows']} صف متعثر بالفعل عند تاريخ الحساب (الأكواد: {facts['test_current_codes']}). الاسترجاع على الصفوف بيشمل المتعثر الحالي؛ الاسترجاع على صفوف الـonset الجديد ({facts['test_new_rows']}) وأحداث البداية أقرب لسؤال الإنذار المبكر.
 
 ### نمط التنبيه (القاعدة: مستوى ≤ 2، المحفز B: أي محفز، الموديل: احتمال ≥ 0.5)
 {R.alert_table(res['time'], ['sat', 'b', 'rule', 'lr', 'gb'])}
 
-في نمط التنبيه القاعدة (2) بتمسك كل الأحداث لكن بتنبّه على {R.num(t.loc['rule', 'alert_alerts_per_q'], 0)} كمبوند من 22 كل ربع، وده أكتر من سعة التفتيش. فالقائمة المحدودة (top-N) هي الاستخدام العملي، والتنبيه من غير حد مش.
+في نمط التنبيه القاعدة (2) بتلتقط {R.pct(t.loc['rule', 'alert_event_recall'])} من الأحداث وبتنبّه على {R.num(t.loc['rule', 'alert_alerts_per_q'])} كمبوند من {facts['n_compounds']} في الربع في المتوسط. نقارن عدد التنبيهات بسعة التفتيش {res['n']}؛ القائمة المحدودة (top-N) هي المقارنة عند ميزانية ثابتة.
 
 ## 4. فصل المطوّرين (موديل متدرّب من غير {held}، متقيّم عليهم)
-المجموعة {n_held} كمبوندات ({held_codes})، قائمة {res['n_dev']}، صف إيجابي واحد (C07 في 2026Q1) وحدث واحد. **مفيش استنتاج ممكن من الرقم ده**؛ بيتعرض لأن البروتوكول طلبه.
+المجموعة {n_held} كمبوندات ({held_codes})، قائمة {res['n_dev']}، {facts['held_positives']} صف إيجابي و{facts['held_events']} حدث بداية. الأعداد محدودة؛ **الجدول لا يكفي لاستنتاج أداء قابل للتعميم**.
 {R.comparison_table(res['dev'], keys)}
 
-## 5. الرؤية المكمّلة: طيّات المطوّرين على كل التواريخ (6 أحداث)
-الزمن مش محترم هنا (التدريب على تواريخ أحدث لمطوّرين تانيين)، فالأرقام أكتر تفاؤلًا للموديلات من الاختبار الزمني. القواعد من غير تدريب فأرقامها هي نفسها على الـ11 تاريخ.
+## 5. الرؤية المكمّلة: طيّات المطوّرين على كل التواريخ ({facts['all_events']} أحداث)
+الزمن مش محترم هنا (التدريب على تواريخ أحدث لمطوّرين تانيين)، فالأرقام قد تكون أكتر تفاؤلًا للموديلات من الاختبار الزمني. القواعد من غير تدريب فأرقامها محسوبة على {facts['n_cutoffs']} تاريخ.
 {R.comparison_table(res['ext'], keys, res['random_ext'])}
 
 ## 6. Lead time
@@ -221,7 +341,7 @@ def run() -> None:
 ## 7. المعايرة
 ![calibration](ew/calibration.png)
 
-Brier: لوجستي {cal['lr'][0]:.3f} (زمني) / {cal['lr'][1]:.3f} (مكمّل)، GB {cal['gb'][0]:.3f} / {cal['gb'][1]:.3f}. للمرجع، توقّع ثابت بنسبة الإيجابيات في الاختبار (15%) Brier ≈ 0.126. الاحتمالات مش معايرة (`class_weight` متوازن بيرفعها) وعدد الصفوف في كل شريحة صغير، فبتتستخدم للترتيب مش كاحتمال حقيقي. القاعدة مش احتمال فمالهاش معايرة.
+Brier: لوجستي {cal['lr'][0]:.3f} (زمني) / {cal['lr'][1]:.3f} (مكمّل)، GB {cal['gb'][0]:.3f} / {cal['gb'][1]:.3f}. للمقارنة الوصفية، توقّع ثابت بنسبة الإيجابيات المرصودة في الاختبار ({R.pct(facts['test_rate'], 1)}) يعطي Brier {R.num(facts['constant_brier'], 3)}؛ النسبة دي محسوبة بعد الاختبار وليست baseline متاحًا مسبقًا. الاحتمالات مش معايرة (`class_weight` متوازن بيرفعها) وعدد الصفوف في كل شريحة صغير، فبتتستخدم للترتيب مش كاحتمال حقيقي. القاعدة مش احتمال فمالهاش معايرة.
 
 ## 8. قاعدة المنتج والحساسية
 {R.md_table(pd.DataFrame(dec_rows))}
@@ -230,7 +350,7 @@ Brier: لوجستي {cal['lr'][0]:.3f} (زمني) / {cal['lr'][1]:.3f} (مكمّ
 
 {sens}
 
-(كل خلية = recall@N / ميديان lead بالشهور.) النتيجة بتتقلب مع اختيارات صغيرة (N=5 أو تأخير ربع في القمر)، وده تأكيد إن الفرق بين الموديل والقاعدة مش مستقر على داتا بالصغر ده (22 كمبوند، 6 أحداث). **القرار المعتمد هو الرئيسي (أول صف)** لأنه المكتوب في البروتوكول قبل النتايج.
+(كل خلية = recall@N / ميديان lead بالشهور.) الحساسية تعرض تغييرات N وتأخير ربع في القمر، على {facts['n_compounds']} كمبوند و{facts['all_events']} أحداث. **القرار المعتمد هو الرئيسي (أول صف)** لأنه المكتوب في البروتوكول قبل النتايج؛ جداول الحساسية لا تستخدم لاختيار إعداد بعد النتيجة.
 
 ## 9. أنهي ميزات مهمة؟
 **لوجستي (معاملات standardized، تدريب ≤ 2024Q4):**
@@ -239,31 +359,40 @@ Brier: لوجستي {cal['lr'][0]:.3f} (زمني) / {cal['lr'][1]:.3f} (مكمّ
 **GB (permutation importance على صفوف الاختبار):**
 {imp_gb}
 
-- أقساط الأرض المتأخرة (`land_late`) وفجوة المخطط والمعلن (`gap`) من أهم الميزات، وهي إشارات داخلية (ACUD-type) مش قمر. القمر (A و K2) وزنه قليل في GB، ومعامل اتجاه K2 في اللوجستي سالب (ضوضاء على 4 كمبوندات إيجابية في التدريب، مش تفسير).
+- ترتيب الميزات الفعلي ومعاملاتها في الجدولين أعلاه. حجم التدريب {facts['train_positives']} صف إيجابي من {facts['train_positive_codes']} كمبوندات؛ إشارة معامل وحدها لا تثبت علاقة سببية.
 - **تنبيه:** `land_late` عداد تراكمي بيطلع عالي في الكمبوندات اللي المولّد بيوقّفها، فأهميته جزء منها من تصميم المولّد.
 
 ### أثر مجموعات الميزات (ablation)
 {ablation_table(res['time'], res['ext'])}
 
-القمر وحده (قاعدة أو موديل) أضعف بوضوح من الداخلي وحده، والداخلي وحده بيوصل لمستوى الاتنين مع بعض أو أعلى. يعني **قيمة الداتا الداخلية في الإنذار المبكر واضحة، وإضافة القمر في الموديل ما حسّنتش الاسترجاع هنا**. من أسباب ده إن القمر بيتأخر عن التعثر المخفي: C09 اتعثر في 2024-09، وK2 بقى ≥ 1 في 2025Q2.
+نقارن القمر وحده والداخلي وحده والدمج من الجدول، لكل موديل ورؤية. التعادل في الاسترجاع لا يعني أن الدمج أضاف دقة، وأهمية البيانات الداخلية هنا تخص آليات المولّد.
 
-## 10. قوايم الدورة: أعلى 8 في كل تاريخ حساب (المنتج: {names[prod]})
-"✓" = صف إيجابي (هيتعثر في 6 شهور أو متعثر)، "؟" = ليبل مقطوع. الترتيب: المستوى ثم عدد محفزات B ثم K2 ثم K3. محفز الفجوة (> 20 نقطة) بيطلع على أغلب الكمبوندات، ومحفز ساعة K3 بيدخّل كمبوندات تسليمها متأخر وكاشها كفاية (C10 و C15 و C18)، فالقائمة بتتملي بغير المتعثرين.
+## 10. قوايم الدورة: أعلى {res['n']} في كل تاريخ حساب (المنتج: {names[prod]})
+"✓" = صف إيجابي (هيتعثر في 6 شهور أو متعثر)، "؟" = ليبل مقطوع. ترتيب القاعدة: المستوى ثم عدد محفزات B ثم K2 ثم K3، والموديل بترتيب احتماله؛ التعادل بالكود. القائمة قد تضم غير المتعثرين لاستكمال السعة، وجملة السبب توضح المحفزات.
 {lists_md(d, score, E.N_DEFAULT, p_col)}
 
 ## 11. حدود
 1. **داتا مولّدة بآليات إحنا كتبناها:** القصص طالعة من إشارات القمر الحقيقية، والتحصيل والفجوة والأقساط مولّدة. التجربة تثبت اتساق الآلية، مش إن الإنذار هيشتغل على داتا الشركة.
-2. **حجم صغير جدًا:** 22 كمبوند، 6 بس فيهم إيجابي، 12 صف إيجابي في التدريب (من 4 كمبوندات)، 13 في الاختبار (3 منهم متعثرين من قبل)، حدثين onset في الاختبار و6 في المكمّل. إصابة واحدة بتغيّر النسبة 8 نقاط. مفيش فواصل ثقة ولا اختبار دلالة غير المقارنة بالعشوائي.
-3. **الليبل بيفضل 1 طول التعثر،** فالاسترجاع على الصفوف بيكافئ مسك المتعثر الحالي. الـonset الجديد (صفين) هو الأقرب للإنذار المبكر.
-4. **فصل المطوّرين** اتقيّم على مجموعة صغيرة جدًا وصف إيجابي واحد: مفيش استنتاج.
+2. **حجم صغير جدًا:** {facts['n_compounds']} كمبوند، {facts['all_positive_codes']} فيهم صف إيجابي؛ {facts['train_positives']} صف إيجابي في التدريب (من {facts['train_positive_codes']} كمبوندات)، و{pos_t} في الاختبار، و{ev_t} حدث بداية في الاختبار و{facts['all_events']} في المكمّل. إصابة صف إيجابي واحدة تغيّر الاسترجاع {R.num(facts['one_hit_points'])} نقطة مئوية. مفيش فواصل ثقة ولا اختبار دلالة غير المقارنة بالعشوائي.
+3. **الليبل بيفضل 1 طول التعثر،** فالاسترجاع على الصفوف بيكافئ مسك المتعثر الحالي. صفوف الـonset الجديد ({facts['test_new_rows']}) أقرب للإنذار المبكر.
+4. **فصل المطوّرين** اتقيّم على {n_held} كمبوندات و{facts['held_positives']} صف إيجابي و{facts['held_events']} حدث؛ الحجم لا يكفي لاستنتاج أداء عام.
 5. **افتراضات توقيت:** بيانات الشهر متاحة آخره، وربع القمر متاح عند نهايته (حساسية تأخير ربع موجودة).
 6. **ربط القمر بالتعثر جزء منه بتصميم المولّد** (القصة بتتبني من A و K2 الحقيقيين)، فالنتيجة بتدل على الآلية مش على قيمة القمر الحقيقية.
 7. **الرؤية المكمّلة غير زمنية** (تسرّب بين مطوّرين على مستوى الزمن)، فهي دليل مساند مش رقم رئيسي.
 
 ## 12. الملفات
 `app_data/ew/`: `comparison_*.csv` (كل الأنماط والحساسيات)، `topn_lists.csv`، `event_leads.csv`، `feature_importance.csv`، `lead_time.png`، `calibration.png`. الكود: `src/analysis/early_warning.py` (+ `ew_features.py` و`ew_eval.py` و`ew_report.py`)، واختباراته `tests/test_early_warning.py`. الأمر: `uv run --with matplotlib python -m src.analysis.early_warning`.
+`run_provenance.json` يسجل بصمات ملفات المدخلات والكود ونطاق التشغيل؛ بيانات الإجابة الخاصة لا تنسخ فيه، بل بصمتها فقط. `app_data/manifest.csv` يتحدّث بعد اكتمال التشغيل بنجاح.
+جدول التدريب الثنائي محفوظ في `private/ml_dataset.parquet`، ومعه قائمة X والهدف والتقسيم والبصمات في `private/ml_dataset_metadata.json`. `app_data/ew/dataset_summary.json` يعرض المجاميع فقط. المتغيرات الخاصة وحالة الإنذار والتنبؤات ليست ضمن X.
 """
     (APP / "EW_REPORT.md").write_text(md, encoding="utf-8")
+    if input_hashes() != hashes:
+        raise RuntimeError("EW inputs changed during evaluation; outputs must be regenerated")
+    provenance = run_provenance(st, hashes)
+    provenance["training_output_sha256"] = export_training_dataset(st, hashes)
+    (OUT / "run_provenance.json").write_text(json.dumps(provenance, ensure_ascii=False, indent=2), encoding="utf-8")
+    from src.pipeline.run_all import manifest
+    manifest()
     print("report written; product:", prod)
 
 

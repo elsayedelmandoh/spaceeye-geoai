@@ -95,7 +95,7 @@ def main() -> int:
     summary["frozen_clock_check"] = backtest_check.frozen_clock_check(model, thr, mode, t["sat_quarterly"], kpi, t["compounds"], t["statements"], t["sat_yearly"], run_id)
     backtest_check.save(cases, summary)
     kpi_bt.to_parquet(APP / "backtest" / "kpi_values_backtest.parquet", index=False)
-    step("backtest", len(cases), f"after start {summary['after_start_reading']['n']}/8, point in time {summary['point_in_time_reading']['n']}/8, literal {summary['literal_reading']['n']}/8; "
+    step("backtest", len(cases), f"after start {summary['after_start_reading']['n']}/{summary['n_cases']}, point in time {summary['point_in_time_reading']['n']}/{summary['n_cases']}, literal {summary['literal_reading']['n']}/{summary['n_cases']}; "
          f"frozen clock {summary['frozen_clock_check']}")
 
     out = {**t, "kpi_values": kpi}

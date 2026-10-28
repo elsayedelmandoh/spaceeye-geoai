@@ -1,5 +1,11 @@
 # CLAUDE.md
 
+## Current R1/R2 release
+
+Read `docs/data/HANDOFF.md` and `docs/data/DELIVERY_PLAN.md` first. They supersede older implementation-status statements below. Use `uv run --locked --offline python -m src.pipeline.complete_data` for data-only rebuilding; `src.pipeline.delivery` checks two complete data-only runs and writes current reports/dictionaries. Do not rerun model fitting for documentation changes. Scope is12R7 compounds;capacity4;K5is a policy proxy with assumed EGP;K6enters priority;the current expanded data has180rows/40features. Prior N=8binary evaluation is historical. The full product specs are preserved; the implementation contracts are in `docs/data/`.
+
+Commits use the repository's configured human author/committer identity. Do not add assistant attribution or co-author trailers. Preserve both current work and teammates' changes when integrating branches; no force push.
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## What this project is

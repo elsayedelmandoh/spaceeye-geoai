@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 
 from src.generator.defects import PHONE
-from src.generator.inputs import GEN, MONTHS, M_END, N, O0, mi
+from src.generator.inputs import GEN, M_END, MONTHS, O0, N, mi
 from src.generator.observe import season_kwh
 from src.generator.truth import handover_floor
 
@@ -21,6 +21,14 @@ TOL = 10.0
 
 def _r(check, kind, value, rule, ok) -> dict:
     return {"check": check, "kind": kind, "value": value, "rule": rule, "ok": bool(ok)}
+
+
+def distress_calibration_bounds(n_compounds: int) -> tuple[int, int]:
+    """Scale the declared historical calibration band by scope, never by observed model performance."""
+    cal = GEN["calibration"]
+    low = min(n_compounds, cal["ever_distressed_min"])
+    high = min(n_compounds, max(low, int(np.ceil(cal["ever_distressed_max"] * n_compounds / cal["reference_compounds"]))))
+    return low, high
 
 
 def anchors(units) -> tuple[list, list]:
@@ -107,7 +115,8 @@ def run(units, drv, fin, cmp_, fin_def, cmp_def, defects, real, same_hash: bool,
     # calibration (reported, not failing)
     cal = []
     n = len(cmp_)
-    cal.append(_r("complaints_total", "calibration", f"{n}", "about 2,500 (2,000-3,000)", 2000 <= n <= 3000))
+    k = cmp_.code[cmp_.code.str.fullmatch(r"C\d\d") & (cmp_.code != GEN["defects"]["unknown_code"])].nunique() / 22  # the 2,000-3,000 band was set for 22 compounds
+    cal.append(_r("complaints_total", "calibration", f"{n}", f"about {2500 * k:,.0f} ({2000 * k:,.0f}-{3000 * k:,.0f})", 2000 * k <= n <= 3000 * k))
     wrong = float((cmp_.category != cmp_._true_cat).mean())
     cal.append(_r("complaints_wrong_category", "calibration", f"{wrong:.1%}", "10-15 % filed under the wrong category", 0.10 <= wrong <= 0.15))
     cal.append(_r("complaint_texts", "calibration", f"{int(cmp_.text_ar.notna().sum())}", "about 100 texts", int(cmp_.text_ar.notna().sum()) == GEN["complaints"]["n_texts"]))
@@ -134,7 +143,9 @@ def run(units, drv, fin, cmp_, fin_def, cmp_def, defects, real, same_hash: bool,
     cal.append(_r("kwh_per_occupied_unit", "calibration", f"{kwh_per:.0f} kWh/month (mean over {len(occ_u)} compounds)", "yearly mean 140-170", 140 <= kwh_per <= 170))
     # stories vs distress
     dist = sum(1 for u in units if u.distress[O0:].sum() >= 3)
-    cal.append(_r("compounds_ever_distressed", "calibration", f"{dist} of {len(units)} (true, hidden, 3+ months)", "1-7 of 22 (ACUD says ~8 % of developers are seriously late; real signals here show more stalled-looking compounds)", 1 <= dist <= 7))
+    low, high = distress_calibration_bounds(len(units))
+    cal.append(_r("compounds_ever_distressed", "calibration", f"{dist} of {len(units)} (true, hidden, 3+ months)",
+                  f"{low}-{high} of {len(units)} (declared scope-scaled simulation calibration band, not an observed distress rate)", low <= dist <= high))
     late_any = sum(1 for u in units if (u.sig.k3[O0:] > 0).any())
     cal.append(_r("compounds_late_at_some_point", "calibration", f"{late_any} of {len(units)} (K3 > 0, from the real promises)", "informational (real signal)", True))
     return pd.DataFrame(out + cal), a, pd.DataFrame(miss, columns=["code", "month", "satellite_implied", "truth", "explained_by"])

@@ -12,7 +12,16 @@ import duckdb
 import pandas as pd
 
 from src.pipeline.build_real import ORIGINS
-from src.pipeline.common import APP, CFG, N_Q, PRIVATE, months_between, qend, qindex, src
+from src.pipeline.common import (
+    APP,
+    CFG,
+    N_Q,
+    PRIVATE,
+    months_between,
+    qend,
+    qindex,
+    src,
+)
 
 ACCEPTED = ("CONFIRMED", "CONFIRMED_MINOR_FIX", "AUDIT_LIVE_CHECKED")
 TEXT_EXT = {".csv", ".json", ".geojson", ".md", ".txt", ".yaml", ".yml"}
@@ -130,7 +139,7 @@ def _hits(text: str, pats: list[tuple[str, re.Pattern]]) -> int:
 
 
 def _patterns(names: set[str]) -> list[tuple[str, re.Pattern]]:
-    return [(n, re.compile(r"(?<![a-z0-9])" + re.escape(n) + r"(?![a-z0-9])" if n.isascii() else re.escape(n))) for n in sorted(names)]
+    return [(n, re.compile(r"(?<![a-z0-9_])" + re.escape(n) + r"(?![a-z0-9_])" if n.isascii() else re.escape(n))) for n in sorted(names)]
 
 
 def _file_texts(path):

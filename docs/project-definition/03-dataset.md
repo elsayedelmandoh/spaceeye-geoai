@@ -1,5 +1,7 @@
 # Dataset: SpaceEye (R7 Digital Twin and Inspection Priority Observatory)
 
+> Implementation update,28October2026: the team's full dataset design is preserved below. [DATASET_CONTRACT.md](../data/DATASET_CONTRACT.md) and generated [table dictionaries](../data/dictionaries/README.md) describe the actual R1/R2 release and take precedence for current counts/fields.12R7compounds;540prepared financial rows;1334prepared complaints;180financial quarters;180expanded dataset rows/40features. See [R1_REPORT.md](../data/R1_REPORT.md) and [R2_REPORT.md](../data/R2_REPORT.md). K5is a policy proxy, EGP is assumed, and old N=8evaluation does not validate capacity4.
+
 Last updated: 27 Oct 2026 · Plan, indicators and levels: [`01-specs.md`](../requirements/01-specs.md) · Plain-Arabic team explainer: `docs/.internal/archive/SpaceEye.md` (secondary; this file wins on conflict)
 
 > **In three lines**

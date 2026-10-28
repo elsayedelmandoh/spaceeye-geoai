@@ -1,5 +1,7 @@
 # 01-specs.md
 
+> Implementation update,28October2026: this full product design is retained from the team's latest main branch. The current R1/R2 data implementation is specified in [IMPLEMENTED_DATA_SPEC.md](../data/IMPLEMENTED_DATA_SPEC.md), [DATASET_CONTRACT.md](../data/DATASET_CONTRACT.md) and [HANDOFF.md](../data/HANDOFF.md). Current scope12R7 compounds,capacity4,K5policy proxy/assumed EGP,K6priority,180rows/40features. Three-class labels exist; no new classifier or dashboard was trained/built. Older percentages/counts and pending statuses in this design are historical or planned, not current validation.
+
 # SpaceEye: R7 Digital Twin and Inspection Priority Observatory (New Administrative Capital)
 
 Last updated: 27 Oct 2026 · Team of 5 · Data and column details: [`03-dataset.md`](../project-definition/03-dataset.md)

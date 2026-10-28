@@ -6,18 +6,21 @@ origin: generated (orange) = invented by the generator; derived (blue) = compute
 
 from pathlib import Path
 
+import pandas as pd
+
 from src.generator.inputs import GEN
+from src.pipeline.common import REAL
 
 LABEL = GEN["label"]
 GEN_, DER, KEY = "generated", "derived", "key"
 
 FIN = [
-    ("code", "str", "C01..C22", "compound code (same codes as the real tables)", KEY, "from the register"),
-    ("month", "str", "YYYY-MM, 2023-01..2026-09", "calendar month; the row is the state at the end of that month", KEY, "grid"),
+    ("code", "str", "registered compound codes", "compound code (same codes as the real tables)", KEY, "from the current scoped register"),
+    ("month", "str", f"YYYY-MM, {GEN['start']}..{GEN['end']}", "calendar month; the row is the state at the end of that month", KEY, "grid"),
     ("planned_pct", "float", "0-100 %", "contractual plan: Weibull S-curve divided by its value at the end, 100 % exactly at the contractual delivery month", GEN_,
      "deadline = end of the first real promise when one exists, else plan start + 30-42 months (finished work: the month it really finished)"),
     ("reported_pct", "float", "0-100 %, mostly empty", "supervisor-engineer progress report, only in months where a report arrived. in months with a real announced value it IS that value", GEN_,
-     "quarterly report of the true progress at quarter end; optimistic developers add 2-8 points; 30 % rounded to 5; 5 % missing (35 % while stalled)"),
+     f"quarterly report of the true progress at quarter end; optimistic developers add 2-8 points; rounding probability {GEN['reports']['round5_share']:.0%} (final multiples-of-5 share is checked separately); 5 % missing (35 % while stalled)"),
     ("report_date", "date", "", "date of the report; 15-45 days after the quarter end (late-style developers up to 75); real publication date for announced values", GEN_, "see reported_pct"),
     ("units_sold", "int", "units / month", "units sold in the month", GEN_, "hazard (launch spike, slow tail) x demand (policy rate, Ramadan, post-float boom 2-4 months after 6 Mar 2024), negative-binomial noise"),
     ("avg_price_egp", "float", "EGP per unit", "average contract price of the units sold in the month (empty when none sold)", GEN_, "launch price per m2 = cost x U(1.4, 2.0); list jumps 15-40 % after the float; +0.5 %/month"),
@@ -42,7 +45,7 @@ FIN = [
 ]
 CMP = [
     ("complaint_id", "str", "CMP-000001..", "complaint number (assigned in order of creation)", KEY, "sequence"),
-    ("code", "str", "C01..C22 (one planted unknown code)", "compound code", KEY, "from the compound; defect 4 replaces it in 15 rows"),
+    ("code", "str", "registered compound codes plus a planted unknown code", "compound code", KEY, "from the compound; defect 4 replaces it in the configured number of rows"),
     ("created_at", "datetime", "Africa/Cairo local time, no zone", "when the complaint was filed", GEN_, "uniform day, office-hours-heavy hour; defect 5 puts 5 rows before launch"),
     ("channel", "str", "phone / portal / visit", "filing channel", GEN_, "50 / 35 / 15 %; 5 % are the same buyer on a second channel within 7 days"),
     ("category", "str", "delay / stoppage / payment / quality / other", "category as filed by the complaint desk", GEN_, "from the causing event; 10-15 % filed under a wrong category on purpose"),
@@ -65,14 +68,18 @@ DEF = [
     ("defect_id", "int", "1-6", "defect number", KEY, ""), ("table, column", "str", "", "where it was planted", KEY, ""), ("rows_affected", "int", "", "rows changed (duplicates: rows added)", GEN_, ""),
     ("description, expected_gate, detail", "str", "", "what was done, which gate should catch it, which compounds/months/ids", GEN_, ""),
 ]
-SPECS = {"fin_monthly": ("fin_monthly: compound x month, 22 x 45 = 990 rows (+ duplicate-report rows from defect 2)", FIN),
+SPECS = {"fin_monthly": ("fin_monthly: compound x month (+ duplicate-report rows from defect 2)", FIN),
          "complaints": ("complaints: one row per complaint", CMP), "answer_key": ("answer_key (private): compound x month hidden truth", AK),
          "answer_key_complaints": ("answer_key_complaints (private): true cause per complaint", AKC), "defects_log": ("defects_log (private): the six planted defects", DEF)}
 
 
 def write(name: str, folder: Path) -> Path:
     title, cols = SPECS[name]
-    lines = [f"# {title}", "", f"**{LABEL}.** Every number here is generated; none describes a real compound or developer. Origin: generated = invented by the generator, derived = computed from other columns, key = identifier.", "",
+    if name == "fin_monthly":
+        count = len(pd.read_parquet(REAL / "compounds.parquet"))
+        months = len(pd.period_range(GEN["start"], GEN["end"], freq="M"))
+        title = f"fin_monthly: compound x month, {count} x {months} = {count * months} base rows (+ logged duplicate-report rows from defect 2)"
+    lines = [f"# {title}", "", f"**{LABEL}.** These operational records and hidden states are simulated, with selected supervisor observations anchored to published statements. They are not real company financial or complaint records. Origin: generated = produced by the generator, derived = computed from other columns, key = identifier.", "",
              "| column | type | unit / range | meaning | origin | how it is made |", "| --- | --- | --- | --- | --- | --- |"]
     lines += [f"| `{c}` | {t} | {u} | {m} | {o} | {h} |" for c, t, u, m, o, h in cols]
     folder.mkdir(parents=True, exist_ok=True)
