@@ -210,10 +210,8 @@ __marimo__/
 # ignore all artifacts content (keep dirs via .gitkeep)
 artifacts/**/*
 !artifacts/**/.gitkeep
-data/
 *.npy
 *.pt
-logs/
 *.zip
 
 # private docs and notes

@@ -1,0 +1,7 @@
+{
+  "mode": "two full src.pipeline.run_all runs, including activity fitting",
+  "equal_manifests": true,
+  "artifacts": 276,
+  "protected_simulation_and_historical_binary_evaluation_unchanged": true,
+  "status": "PASS"
+}
