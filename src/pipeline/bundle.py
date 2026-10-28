@@ -275,13 +275,13 @@ print("PASS:", len(rows), "package files match SHA-256 manifest")
     with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as bundle:
         for path in sorted(target.rglob("*")):
             if path.is_file():
-                info = zipfile.ZipInfo(f"{target.name}/{path.relative_to(target).as_posix()}", date_time=(2026, 10, 28, 0, 0, 0))
+                info = zipfile.ZipInfo(f"{TAG}/{path.relative_to(target).as_posix()}", date_time=(2026, 10, 28, 0, 0, 0))
                 info.compress_type = zipfile.ZIP_DEFLATED
                 bundle.writestr(info, path.read_bytes())
     with zipfile.ZipFile(archive) as bundle:
         assert bundle.testzip() is None
         for row in manifest:
-            assert hashlib.sha256(bundle.read(f"{target.name}/{row['file']}")).hexdigest() == row["sha256"]
+            assert hashlib.sha256(bundle.read(f"{TAG}/{row['file']}")).hexdigest() == row["sha256"]
     write(archive.with_suffix(".zip.sha256.txt"), f"{sha(archive)}  {archive.name}")
     print(json.dumps({"status": "PASS", "zip": str(archive), "bytes": archive.stat().st_size, "files": len(manifest) + 1, "ready_tables": len(tables), "training_rows": len(data), "features": len(metadata["features"]), "no_names": "PASS", "phones": "masked"}, ensure_ascii=False))
 

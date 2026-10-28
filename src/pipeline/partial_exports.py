@@ -87,6 +87,7 @@ def scenario_exports():
         frame["run_id"] = "SC-" + original + "-" + hashlib.sha256((APP / "scenarios/paths.parquet").read_bytes()).hexdigest()[:10]
         frame["level_word"] = frame.level.map({1: "first", 2: "second", 3: "third", 4: "fourth"}).fillna("not assessable")
         frame["level_word_ar"] = frame.level.map({1: "الأولى", 2: "الثانية", 3: "الثالثة", 4: "الرابعة"}).fillna("غير قابل للتقييم")
+        frame["level_label"] = frame.level.map(lambda value: str(int(value)) if pd.notna(value) else "not assessable")
         frame["reason_ar"] = "حالة افتراضية بسياق رصد ثابت؛ يلزم تحقق ميداني مستقل."
         (OUT / label).mkdir(exist_ok=True)
         # Last simulated month in each quarter; all public context is explicitly frozen.
