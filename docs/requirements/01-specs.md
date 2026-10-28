@@ -8,7 +8,7 @@ Last updated: 27 Oct 2026 · Team of 5 · Data and column details: [`03-dataset.
 
 > **Synthetic data - for training only** applies to every generated table, chart and slide. Real public data is used as published, with its source.
 
-This file and `03-dataset.md` are the only live plan documents. They merge and replace five older drafts, now in `docs/.internal/archive/` (`project-plan.md`, `data-report.md`, `synthetic-data-plan.md`, `TEAM_DATA_SUMMARY.md`, `TerraPulse_ACUD_Data_Architecture_and_Story.md`). Where the drafts disagreed, the newest decision (26 Oct 2026) wins; section 15 lists what changed.
+This file and `03-dataset.md` retain the full product design. Current implemented-data behavior is documented in `docs/data/`. Superseded drafts are retired from the repository and retained in local backups/Git history;they are not active plans. Section15records earlier design changes,not new implementation evidence.
 
 `docs/.internal/archive/SpaceEye.md` (27 Oct 2026, Arabic) is the plain-language team explainer. It is secondary: **when it disagrees with these two files, these two files win.** Its new results are merged here (section 15 B).
 

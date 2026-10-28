@@ -15,6 +15,11 @@ Scope: **12 coded R7 compounds**. `code` identifies a compound; `developer_code`
 | Hypothetical financial comparisons | `tables/financial_paths/paths.parquet` and `summary.csv` | 648 forward rows: baseline, lower collections and higher imported cost. |
 | Capacity comparisons | `tables/inspection/inspection_capacity.csv` | Selections under capacities 2, 4 and 6. Capacity changes selection only. |
 | Machine-learning work | `training/ml_dataset_extended.parquet` and `metadata.json` | 180 rows, exact 40-feature list, binary/three-class targets and censoring flags. |
+| Complaint classifier | `training/complaints_benchmark.parquet` and `complaints_benchmark_metadata.json` |296generated texts;train152/validation40/test104;all5classes in each split,body families isolated. Synthetic capability only. |
+| Labels for existing complaint texts | `training/complaints_training.parquet` and `complaints_metadata.json` |100masked feed texts with correct synthetic category targets. Small grouped holdouts lack some classes;do not mix with the benchmark. |
+| Inspection agent inputs | `inspection/index.csv` and its referenced JSON files |180cutoff-safe contexts with coded facts,safe source references,generated operations and follow-up questions;no hidden targets. |
+| Visit exercises | `tables/review/synthetic_visits.parquet` |58explicitly generated visit records tied to selected cycles. Real-visit template stays empty;these are not real field evidence. |
+| Financial priority comparison | `tables/review/hypothetical_priorities.parquet` |648rows applying frozen cutoff context plus projected B5gap>20;capacity4 and same-month baseline comparisons. Not predicted future satellite priority. |
 
 Equivalent CSV copies of Parquet tables are under `csv/`. `TABLES.csv` lists all table names and row counts, including SQL names in `spaceeye_ready.duckdb`. Field definitions are in `dictionaries/` and `training/dictionary.md`.
 
@@ -68,3 +73,5 @@ Do not include keys, targets, censoring flags or already-completed flags in X. F
 - Read `docs/validation_summary.json` for retained limitations, including the 2019Q2 coverage flag.
 
 Use the ready bundle for analysis, GIS, interface development and carefully defined modelling work. Rebuilding the original source pipeline requires additional external inputs and is a separate task.
+
+For complaint work,use only `text_ar` as X and `label_category` as y,filtered by the supplied split. Desk categories,template/group IDs and evaluation flags are not features. Never report these generated-template results as real complaint accuracy. Inspection contexts separate published evidence from generated operations/visits;missing imagery is explicitly marked. Full component definitions:docs/COMPONENT_DATA_PROTOCOL.md inside the bundle.
