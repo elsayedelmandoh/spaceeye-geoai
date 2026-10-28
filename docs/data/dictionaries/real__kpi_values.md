@@ -33,6 +33,9 @@ Actual schema;372rows. Public/derived table; register origins remain explicit.
 | level | Int64 | see meaning | derived | level; see current dataset contract and producing source module. |
 | level_label | str | see meaning | derived | level label; see current dataset contract and producing source module. |
 | reason | str | see meaning | derived | reason; see current dataset contract and producing source module. |
+| reason_ar | str | see meaning | derived | Committee-facing Arabic rule explanation, generated from the same cutoff evidence as reason. |
+| level_word | str | see meaning | derived | Ordinal priority word; not an independent risk probability. |
+| level_word_ar | str | see meaning | derived | Arabic ordinal priority word for committee export. |
 | k3_first_deadline | datetime64[us] | see meaning | derived | k3 first deadline; see current dataset contract and producing source module. |
 | cycle_rank | Int64 | see meaning | derived | cycle rank; see current dataset contract and producing source module. |
 | origin | str | see meaning | derived | Declared provenance category; not a guarantee of operational validity. |

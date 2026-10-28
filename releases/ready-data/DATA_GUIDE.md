@@ -75,3 +75,12 @@ Do not include keys, targets, censoring flags or already-completed flags in X. F
 Use the ready bundle for analysis, GIS, interface development and carefully defined modelling work. Rebuilding the original source pipeline requires additional external inputs and is a separate task.
 
 For complaint work,use only `text_ar` as X and `label_category` as y,filtered by the supplied split. Desk categories,template/group IDs and evaluation flags are not features. Never report these generated-template results as real complaint accuracy. Inspection contexts separate published evidence from generated operations/visits;missing imagery is explicitly marked. Full component definitions:docs/COMPONENT_DATA_PROTOCOL.md inside the bundle.
+
+## Version 4 additions
+
+- Inspection CSV now includes English/Arabic reasons, priority words and lineage.
+- `tables/current/ml_current.parquet`: 720 rows, four model methods x 180 cutoffs; `p_completed` is unknown, not zero. The model output is not an accepted three-class probability distribution.
+- `tables/current/S1.parquet` and `S2.parquet`: last simulated month per quarter, with frozen public context; `what_if/` has monthly change explanations.
+- `tables/current/S3.parquet`: capacity 2/6 re-selection over original quarters, preserving levels; include scenario_id in its key.
+- `current/backtest/cases_explained.csv`: coded source outcomes, rule explanations and numeric competing-explanation checks.
+- `docs/`: current protocol, metrics, model metadata, two reproducibility reports, annual coverage and six-defect audit. Local fitted models remain excluded.

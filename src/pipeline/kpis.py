@@ -220,6 +220,33 @@ def reason(r: dict) -> str:
     return f"{head}: " + "; ".join(p) + "."
 
 
+def reason_ar(r: dict) -> str:
+    """Committee-facing Arabic data, using the same evidence as the English reason."""
+    if not r["K4"]:
+        return f"غير قابل للتقييم: عدد الصور {r['n_images']} خلال الربع؛ الحد الأدنى {CFG['n_images_min']}."
+    parts = []
+    if not r["started"]:
+        parts.append("بداية التنفيذ غير مؤكدة وفق قاعدة البداية المستخدمة")
+    elif pd.notna(r["K2"]) and r["K2"] >= 1:
+        parts.append(f"لم يرصد نشاط بناء منذ {int(r['K2'])} ربع")
+    else:
+        parts.append("رصد نشاط بناء")
+    if r["handover"]:
+        parts.append("يوجد إعلان تسليم منشور")
+    elif r["first_end"] is None:
+        parts.append("لا يوجد موعد تسليم معلن متاح")
+    elif r["K3"] > 0:
+        parts.append(f"تجاوز أول موعد تسليم معلن ({r['first_end']:%Y-%m-%d}) بمقدار {r['K3']} شهر")
+    else:
+        parts.append(f"أول موعد تسليم معلن ({r['first_end']:%Y-%m-%d}) لم يحن بعد")
+    if pd.notna(r.get("K6")):
+        parts.append(f"لم تتأكد بداية مرصودة منذ {int(r['K6'])} شهر من أول إعلان إطلاق أو وعد متاح")
+    if r["may_be_complete"]:
+        parts.append("قد يكون مكتملًا وفق إعلان التسليم أو الغطاء النباتي؛ يلزم تحقق ميداني")
+    parts.append(f"عدد الصور خلال الربع {r['n_images']}")
+    return "؛ ".join(parts) + "."
+
+
 def kpi_values(sat: pd.DataFrame, comp: pd.DataFrame, stm: pd.DataFrame, yearly: pd.DataFrame, run_id: str, upto: int = N_Q - 1) -> pd.DataFrame:
     sat = add_k2(sat[sat.qi <= upto], stm)
     prom = stm[stm.kind == "promise"]
@@ -244,6 +271,9 @@ def kpi_values(sat: pd.DataFrame, comp: pd.DataFrame, stm: pd.DataFrame, yearly:
         row["level"] = pd.NA if lv is None else lv
         row["level_label"] = "not assessable" if not r.K4 else "not started" if lv is None else str(lv)
         row["reason"] = reason({**row, "handover": handover, "first_end": first_end, "veg": veg})
+        row["reason_ar"] = reason_ar({**row, "handover": handover, "first_end": first_end, "veg": veg})
+        row["level_word"] = "not assessable" if not r.K4 else "not started" if lv is None else {1: "first", 2: "second", 3: "third", 4: "fourth"}[lv]
+        row["level_word_ar"] = "غير قابل للتقييم" if not r.K4 else "بداية غير مؤكدة" if lv is None else {1: "الأولى", 2: "الثانية", 3: "الثالثة", 4: "الرابعة"}[lv]
         row["k3_first_deadline"] = first_end
         rows.append(row)
     out = pd.DataFrame(rows)
@@ -273,4 +303,4 @@ def rank_cycle(kpi: pd.DataFrame) -> pd.DataFrame:
 
 def cycle_list(kpi: pd.DataFrame, quarter: str) -> pd.DataFrame:
     c = kpi[(kpi.quarter == quarter) & kpi.cycle_rank.notna()].sort_values("cycle_rank")
-    return c[["cycle_rank", "code", "level", "K2", "K3", "K5_months", "K6", "may_be_complete"]]
+    return c[["cycle_rank", "code", "quarter", "level", "level_word", "level_word_ar", "K2", "K3", "K5_months", "K6", "may_be_complete", "reason", "reason_ar", "origin", "run_id", "computed_at"]]

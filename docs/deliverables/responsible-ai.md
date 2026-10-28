@@ -8,7 +8,7 @@ SpaceEye supports inspection prioritization and training demonstrations for code
 
 ## Data minimization and access
 
-Prepared exports use codes and mask planted telephone numbers. Private names/mappings, raw defects, quarantines, answer keys and model checkpoints are excluded from the team bundle. Access to them remains limited to authorized maintainers. The current masking evidence does not establish exhaustive detection of every real name or identifier; real free text needs an additional review before any model/provider receives it.
+Prepared exports use codes and mask planted telephone numbers. The pre-model baseline additionally handles Unicode phone formats, explicitly labelled personal-name fields and supplied name dictionaries. It masks accepted and rejected complaint text before export; its zero-detectable-identifiers assertion and regression checks do not establish exhaustive detection of every real name or identifier. Real free text needs an additional review before any model/provider receives it. Private mappings, raw defects, quarantines, answer keys and model checkpoints are excluded from the team bundle; their access remains limited to authorized maintainers.
 
 Inspection contexts exclude private truth and separate generated sections. Before enabling external AI calls, confirm provider/model, budget, destination, access and retention settings, and the fields permitted to leave the environment. No external AI call, provider configuration or production access-control system is implemented by this note.
 

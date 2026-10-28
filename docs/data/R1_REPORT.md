@@ -31,9 +31,9 @@ K2retains the evaluated legacy start convention. Separate observed start require
 - data_or_city: **FLAG**;1 quarters flagged: 2019Q2.
 - stuck_series: **PASS**;0 stuck points.
 - veg_pull_check: **PASS**;max diff 0.0000 on 24 rows.
-- no_names: **PASS**;77 patterns, 121 files; files with a match: none.
+- no_names: **PASS**;77 patterns, 339 files; files with a match: none.
 
-DuckDB matches current real tables. Historical real-case backtest remains1/6after-start and0/6at cutoff; it was not retuned or re-evaluated under this data-only policy extension. Activity mode remainsq2hold; published heights are OBT2016–2023+v4estimate2024. Public sources were not all re-opened during this release.
+DuckDB matches current real tables. The saved real-case backtest is documented in BACKTEST_CURRENT.md; full Track A reproducibility is in FULL_TRACK_A_REPRODUCIBILITY.json. This data-only report writer does not rerun fitting or retune the criterion. Activity mode remainsq2hold; published heights are OBT2016–2023+v4estimate2024. Public sources were not all re-opened during this release.
 
 ## Rebuild
 

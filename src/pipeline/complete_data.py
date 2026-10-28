@@ -207,7 +207,9 @@ def build(refresh_inputs=True):
     write_table(quarterly, APP / "sim_clean" / "fin_quarterly.parquet")
     write_table(dataset, PRIVATE / "ml_dataset_extended.parquet")
     caps.to_csv(OUT / "inspection_capacity.csv", index=False)
-    kpis.cycle_list(kpi, CFG["asof"]).to_csv(OUT / "cycle_list.csv", index=False)
+    cycle = kpis.cycle_list(kpi, CFG["asof"])
+    cycle.to_csv(OUT / "cycle_list.csv", index=False, encoding="utf-8-sig")
+    cycle.to_csv(REAL / f"cycle_list_{CFG['asof']}.csv", index=False, encoding="utf-8-sig")
     counts = {}
     for split, mask in (("train", dataset.quarter.le("2024Q4")), ("embargo", dataset.quarter.eq("2025Q1")),
                         ("time_test", dataset.quarter.between("2025Q2", "2026Q1")), ("censored", dataset.label_censored)):

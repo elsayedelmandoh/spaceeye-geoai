@@ -1,3 +1,5 @@
+> Current partial-task extension (28 October 2026): Arabic exports, full-run reproducibility and current observed-class diagnostics are now implemented. Read [PARTIAL_TASKS_CLOSURE.md](PARTIAL_TASKS_CLOSURE.md). Older no-fitting statements refer to the base data-only delivery. Completed probability stays null; three-class acceptance is not met.
+
 # Dataset: SpaceEye R7 final data contract
 
 Updated: 28 October 2026. Implementation: [IMPLEMENTED_DATA_SPEC.md](IMPLEMENTED_DATA_SPEC.md). Handoff: [HANDOFF.md](HANDOFF.md).

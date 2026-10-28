@@ -1,5 +1,7 @@
 # 02-team-roles-and-tasks.md
 
+> Current technical decisions and unresolved approvals: [D1_DECISIONS_CURRENT](D1_DECISIONS_CURRENT.md). Implementation evidence: [partial-task closure](../data/PARTIAL_TASKS_CLOSURE.md). Original checkboxes require the named reviewer and are not auto-signed.
+
 # SpaceEye: Team Roles and Task Board
 
 ACUD AI & Data Readiness Program · Graduation project (D1-D6) · Team of 5

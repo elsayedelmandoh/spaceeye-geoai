@@ -1,6 +1,6 @@
 # 01-specs.md
 
-> Implementation update,28October2026: this full product design is retained from the team's latest main branch. The current R1/R2 data implementation is specified in [IMPLEMENTED_DATA_SPEC.md](../data/IMPLEMENTED_DATA_SPEC.md), [DATASET_CONTRACT.md](../data/DATASET_CONTRACT.md) and [HANDOFF.md](../data/HANDOFF.md). Current scope12R7 compounds,capacity4,K5policy proxy/assumed EGP,K6priority,180rows/40features. Three-class labels exist; no new classifier or dashboard was trained/built. Older percentages/counts and pending statuses in this design are historical or planned, not current validation.
+> Implementation update, 28 October 2026: current scope is 12 R7 codes, six real check cases and capacity 4. Arabic committee exports, current model diagnostics and full-run reproducibility are now implemented. Read [PARTIAL_TASKS_CLOSURE](../data/PARTIAL_TASKS_CLOSURE.md), [EW_REPORT_CURRENT](../data/EW_REPORT_CURRENT.md) and [the frozen protocol](../data/EW_PROTOCOL_CURRENT.md). Completed has no training support; three-class acceptance is unmet. Earlier product text is design/history, not current validation.
 
 # SpaceEye: R7 Digital Twin and Inspection Priority Observatory (New Administrative Capital)
 
@@ -22,7 +22,7 @@ This file and `03-dataset.md` retain the full product design. Current implemente
 | **Decision owner** | Buildings & Facilities pillar lead, through the inspection committee. The system **recommends**; the committee **decides**. |
 | **Compass cell** | Type: preventive · Pillar: Buildings & Facilities · Condition: normal · Goal: stability (early detection of delay protects handover and investor trust) |
 | **Product** | Dashboard + **cycle list** sized to inspection capacity + an **inspection file** per compound + a form to record each visit result |
-| **Unit** | **R7 compounds only.** Of the 22 compounds confirmed in R7/R8 (boundary confidence ≥ 80%), only those in R7 stay; **R8 is removed to reduce scope**. Count: open item 4. Codes only (`C..`), developers `D..`. |
+| **Unit** | **R7 compounds only.** Of the 22 compounds confirmed in R7/R8 (boundary confidence ≥ 80%), only those in R7 stay; **R8 is removed to reduce scope**. Count: 12 R7 compounds; six public check cases; inspection capacity 4. Codes only (`C..`), developers `D..`. |
 | **One idea** | **Inspection priority:** whom should the committee visit first this quarter, and why. Early warning is part of it, not a separate product. |
 | **Digital twin (light, compound level)** | The twin of R7 = for each compound: **observed state** (Track A, synced quarterly from satellites and statements) + **simulated hidden state** (generator: sales → cash → spending → progress → handover, Track B) + **what-if scenarios** (change an input, see which compounds move up in priority; section 9 screen 5). Not a 3D / building-level / live twin (section 1). |
 | **Track A: images** | Everything read from images (Dynamic World, Sentinel-2, Open Buildings, Wayback) → per compound-quarter: activity score A, K2, K4, vegetation, height (to 2024), finishing flag (if its test passes). With K3, K5, K6 from statements it drives the **priority level** (worst of the signals, no weights, section 2), the **map** and the **cycle list**. All real data. |
@@ -39,10 +39,10 @@ This file and `03-dataset.md` retain the full product design. Current implemente
 - **Why:** all 8 were still building until close to their deadline. Their delay happened in **finishing and handover**, which satellites cannot see.
 - **Meaning:** satellites tell "building or not" well. **Early warning of delay needs ACUD's data** (supervisor reports, contractual dates, meters, escrow).
 - **So Track B adds ACUD's data as features.** The presentation shows the difference in numbers: images alone (Track A) vs images + ACUD data (Track B, generated today).
-- **Early-warning result (generated data, first build at commit `a0f03fd`):** recall@8, the share of truly distressed compounds that were in the top 8 of the quarter's list: **satellites + company data 92% · satellites alone 62% · random 37%**. Method and split behind the 92%, and the recall@8 of the product rule itself (public + ACUD signals): *open item 1 (from `app_data/EW_REPORT.md`)*.
+- **Current early-warning evidence:** use [the current capacity-4 report](../data/EW_REPORT_CURRENT.md), its class supports and random baseline. The older unattributed first-build 92/62/37 claim is retired pending a verified method/view/denominator. Historical R7 N=8 binary results remain separate.
 - **Caveat:** these numbers are on generated data. They show the idea works; they are not accuracy on reality.
 
-**Presentation message:** "Satellites see that buildings exist, but not the delay, because the delay happens in finishing. ACUD's data completes the picture: with it the warning catches 92% instead of 62% (generated data)."
+**Presentation message:** Public observations support inspection priorities; generated financial data supports hypothetical analysis. Current model scores are diagnostic and do not establish real-world predictive accuracy.
 
 ---
 
@@ -178,7 +178,7 @@ Operational:  A · K2 · K6 · K4 (guard) · share of cycle-list visits done    
 2. **Activity score A** replaced the old DW-only change rule after 5 pre-registered tests: +3 to +5 balanced-accuracy points over K1, half the false alarms, seasonal spread ≤ 10 points.
 3. **Ground truth `eval_outcomes`:** 8 real cases with a published outcome (handover, postponement, no handover after the promise).
 4. **Backtest (frozen clock):** apply the levels with data published before each quarter only. A frozen-clock check recomputes from data cut at the quarter and compares. Result: **1 of 8** warned ≥ 6 months early (target 5). Per case: what happened / why / what next, and a competing explanation rejected with a number. Small sample: counts, no percentages.
-5. **Track B classifier.** Dataset `ml_dataset` (columns in `03-dataset.md` section 8.4): 1 row = compound × quarter, X = Track A outputs + K3, K5, K6 + ACUD-data inputs, **y = outcome in the next 6 months, 3 classes: `distressed` / `completed` (handover reached) / `ongoing`**. Labels come from the generated hidden truth (`answer_key`); the 8 real `eval_outcomes` are a check set only (too few to train). Models: logistic regression vs gradient boosting. Metrics: per-class recall, macro-F1, **recall@N for `distressed`** (N = cycle capacity) against a random top-N list. **Small data (R7 only, ~150 rows):** time split; developer holdout only if ≥ 3 developers stay in the test set; counts reported (n of m), stated as a limitation. No R8 rows and no extra virtual compounds are added for training. Its probabilities show next to the rule in the compound file; the cycle list still uses the rule. The first build (`a0f03fd`) ran the binary version (`label_distress_next_6m`) for each compound-month: Compared methods: satellite rule, K2 alone, B triggers alone, simple rule (satellite + B), logistic regression, gradient boosting; each model on satellite features, internal features, and both. Views: time split (train to 2024Q4, test labels 2025Q2-2026Q1), held-out developers, cross-validation by developer, so no developer is in both train and test. **Metric: recall@8** (of the truly distressed compounds, how many were in the top 8 of the quarter) + precision, against a random top-8 list (2,000 draws). Result: 92% / 62% / 37% (section 0).
+5. **Track B classifier.** Dataset `ml_dataset` (columns in `03-dataset.md` section 8.4): 1 row = compound × quarter, X = Track A outputs + K3, K5, K6 + ACUD-data inputs, **y = outcome in the next 6 months, 3 classes: `distressed` / `completed` (handover reached) / `ongoing`**. Labels come from the generated hidden truth (`answer_key`); the 8 real `eval_outcomes` are a check set only (too few to train). Models: logistic regression vs gradient boosting. Metrics: per-class recall, macro-F1, **recall@N for `distressed`** (N = cycle capacity) against a random top-N list. **Small data (R7 only, ~150 rows):** time split; developer holdout only if ≥ 3 developers stay in the test set; counts reported (n of m), stated as a limitation. No R8 rows and no extra virtual compounds are added for training. Its probabilities show next to the rule in the compound file; the cycle list still uses the rule. The first build (`a0f03fd`) ran the binary version (`label_distress_next_6m`) for each compound-month: Compared methods: satellite rule, K2 alone, B triggers alone, simple rule (satellite + B), logistic regression, gradient boosting; each model on satellite features, internal features, and both. Views: time split (train to 2024Q4, test labels 2025Q2-2026Q1), held-out developers, cross-validation by developer, so no developer is in both train and test. **Metric: recall@8** (of the truly distressed compounds, how many were in the top 8 of the quarter) + precision, against a random top-8 list (2,000 draws). Current results are in EW_REPORT_CURRENT.md; do not reuse the unattributed first-build percentage claim.
 6. **No leakage:** statements filtered by `published_date`; quarters ≤ as-of; the model never reads `answer_key` features; training plots that cover ≥ 50% of a compound are excluded in a backtest variant.
 7. **Still to test on generated data:** FPMI and SAF (team ideas).
 
@@ -187,7 +187,7 @@ Operational:  A · K2 · K6 · K4 (guard) · share of cycle-list visits done    
 | "No building activity for X quarters" | "Distressed" about a real compound |
 | "Passed its first announced date by Y months" | "Completion 60%" or "finishing %" from images |
 | "Observed height 2023 ≈ 24 m (estimated)" | "8 floors built" as a fact |
-| "recall@8 on generated data, first build R7+R8: 92% vs satellites alone 62% vs random 37%" (always with the denominator, the baseline, the scope and "generated data") |
+| "Current generated-data diagnostic: quote method, split, n of m, capacity 4, random baseline and missing-class limit from EW_REPORT_CURRENT.md" |
 | "A compound-level digital twin of R7: quarterly sync from satellites, simulated finance until ACUD's data arrives" | "A 3D / real-time digital twin" | "The model predicts distress with 92% accuracy" |
 | "Priority level 1: visit first" | "Risk level" / "high-risk developer" |
 | "Eligible for review under contract terms for N months" | "Fined" / "owes X EGP" about a real compound |
@@ -382,7 +382,7 @@ All roles review each other; one person owns each deliverable. The docs name **r
 5. Track A rule: priority level = the worst of K2, K3, K6 → 4 levels, with legal references; K5 fine-eligible months; the S-curve plan gap (B5) explained in one picture.
 6. Live demo (Track A): map, cycle list, open a compound, reason sentence, inspection file, record a visit.
 7. Backtest: 1 of 8 and why. **The only place real names may appear**, and only next to real signals.
-8. Track B: `ml_dataset` (X, y) and the 3-class classifier; recall@N for distressed on generated data, R7 (first build R7+R8: 92% images + numbers vs 62% images alone vs 37% random); complaints classifier.
+8. Track B: `ml_dataset` (X, y) and the 3-class classifier; recall@N for distressed on generated data, R7 (current capacity-4 diagnostics: see EW_REPORT_CURRENT.md; missing-class limitation is mandatory); complaints classifier.
 8b. The twin: one what-if scenario live (screen 5), showing which compounds move up.
 9. Value in EGP (3 settings).
 10. Risks and responsible use.
@@ -476,7 +476,7 @@ Three settings in `configs/cost_assumptions.yaml`. Wording: "Under these assumpt
 | Topic | `SpaceEye.md` says | Decision here |
 | --- | --- | --- |
 | Name of the 1-4 level | "Risk level" (مستوى خطر) | **Priority level**; risk reads as a verdict on the developer |
-| Early-warning result | recall@8 92% / 62% / 37% | Quoted, always with "generated data", the denominator and the random baseline. Method, split and pre-registered condition: open item 1 |
+| Early-warning result | Unattributed first-build percentages retired | Current diagnostic methods, class supports and capacity-4 comparison are in EW_REPORT_CURRENT.md; original historical attribution remains unverified |
 | Height 2024-2026 | Our model, "estimate, not approved" | Not in the dashboard or the level; slide only |
 | Finishing | Sentinel-2 67% ❌; Qwen-VL on Wayback ⏳ | Experiment with a ≥ 75% condition; inspection-file flag only if it passes; Esri terms first |
 | Boundary sources | "Maps and real-estate sites, matched with images" | Allowed for location only, image-confirmed, method logged; never for numbers |
@@ -529,7 +529,7 @@ Three settings in `configs/cost_assumptions.yaml`. Wording: "Under these assumpt
 
 | # | Item | Where to get it | Fills |
 | --- | --- | --- | --- |
-| 1 | Early warning: which method (logistic / gradient boosting) and view (time / held-out developers / CV) gave 92%; the pass condition pre-registered in `EW_PROTOCOL.md`; **recall@8 of the product rule** (public + ACUD signals, method "(2) simple rule") | `app_data/EW_REPORT.md`, `EW_PROTOCOL.md` | Section 0 (success criterion, key result), section 3 item 5 |
-| 2 | Today's program day and which of D1-D6 are done | Team lead | Section 10 timeline |
-| 3 | Assumed monthly fine rate for K5 in EGP (until ACUD gives contract rates) | Team decision on D1, written in `configs/data.yaml` with `assumption: true` | Section 2 K5 |
-| 4 | How many of the 22 coded compounds are in R7, and how many of the 8 backtest cases; then N (`cycle_capacity`) and the re-run of the backtest and early-warning results on R7 | `Project/private/` code map | Sections 0, 2, 3, 9 |
+| 1 | Current protocol, method/view, metrics and capacity-4 rule comparison documented in EW_PROTOCOL_CURRENT.md and EW_REPORT_CURRENT.md. Original first-build 92% attribution is unverified and retired, not assigned to a model by guesswork. | Current reports / historical archive | Sections 0 and 3 |
+| 2 | Program day remains unconfirmed; calendar date is 28 October 2026. No team signatures or rehearsals are inferred. | Team lead | Section 10 timeline |
+| 3 | Implemented: illustrative monthly fine rate 1%, assumption=true; actual contract eligibility/rate unknown. | configs/data.yaml | Section 2 K5 |
+| 4 | Resolved: 12 R7 compounds, six public backtest cases, capacity 4; current real and synthetic checks exported. | Current coded register, BACKTEST_CURRENT.md, EW_REPORT_CURRENT.md | Sections 0, 2, 3, 9 |

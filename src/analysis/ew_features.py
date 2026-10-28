@@ -9,6 +9,7 @@ import pandas as pd
 
 from src.generator.defects import PHONE
 from src.pipeline.common import APP, PRIVATE, REAL, qindex, qlabel
+from src.pipeline.privacy import mask_text
 
 SIM = APP / "sim"
 CUTOFF_QUARTERS = [qlabel(i) for i in range(qindex("2023Q4"), qindex("2026Q2") + 1)]
@@ -54,7 +55,7 @@ def clean_fin(fin: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, int]:
     return mon, rep, fixed
 
 
-def clean_complaints(cmp_: pd.DataFrame, codes, start, end) -> tuple[pd.DataFrame, pd.DataFrame, int]:
+def clean_complaints(cmp_: pd.DataFrame, codes, start, end, names=()) -> tuple[pd.DataFrame, pd.DataFrame, int]:
     """Use observable keys/time bounds; mask phones in accepted and quarantined text. No answer-key repairs."""
     out = cmp_.copy()
     out["created_at"] = pd.to_datetime(out["created_at"], errors="coerce")
@@ -62,7 +63,7 @@ def clean_complaints(cmp_: pd.DataFrame, codes, start, end) -> tuple[pd.DataFram
     if "text_ar" in out:
         has_phone = out.text_ar.fillna("").str.contains(PHONE)
         masked = int(has_phone.sum())
-        out.loc[has_phone, "text_ar"] = out.loc[has_phone, "text_ar"].map(lambda t: PHONE.sub("[PHONE]", t))
+        out.loc[out.text_ar.notna(), "text_ar"] = out.loc[out.text_ar.notna(), "text_ar"].map(lambda value: mask_text(value, names))
     bad_code = ~out.code.isin(codes)
     bad_date = out.created_at.isna() | (out.created_at < pd.Timestamp(start)) | (out.created_at >= pd.Timestamp(end))
     reason = np.where(bad_code & bad_date, "unknown_code;invalid_date", np.where(bad_code, "unknown_code", "invalid_date"))

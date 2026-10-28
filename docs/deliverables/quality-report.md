@@ -3,7 +3,7 @@
 Task T-AH-12. Snapshot of saved data-only checks; rendering this report does not rerun them.
 
 Source: `app_data/data_completion/quality_checks.csv` (external configured input).
-Source SHA256: `7cb263aeabc0be794abd3a119e5495323bcf001492658134e4cc0aabfed874c6`.
+Source SHA256: `333f564c415c9d224e35d32cd92442bdb2405a93aff1ceb7f6ca331be3bf76f2`.
 
 Results: 1 FLAG, 10 PASS.
 
@@ -19,7 +19,7 @@ Results: 1 FLAG, 10 PASS.
 | data_or_city | Accuracy | FLAG | 1 quarters flagged: 2019Q2 | R4 | flag the quarter and review | flagged quarters may be a data event, not the city |
 | stuck_series | Accuracy | PASS | 0 stuck points | R3 | flag and review | a frozen series reads as 'no change' |
 | veg_pull_check | Accuracy | PASS | max diff 0.0000 on 24 rows | R3 | flag | vegetation drives the may-be-complete flag |
-| no_names | Privacy | PASS | 77 patterns, 123 files; files with a match: none | R1 | stop | names appear only in the backtest slide, never in data |
+| no_names | Privacy | PASS | 77 patterns, 341 files; files with a match: none | R1 | stop | names appear only in the backtest slide, never in data |
 
 ## Decisions and limits
 

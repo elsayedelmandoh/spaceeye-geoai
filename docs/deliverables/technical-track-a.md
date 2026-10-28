@@ -20,9 +20,9 @@ uv run --locked --offline python -m src.pipeline.source_catalog
 uv run --locked --offline python -m src.pipeline.quality_report
 ```
 
-If Make is installed, `make run` executes those four preparation steps. It needs the external caches/private inputs configured in `configs/data.yaml`. It does not download new satellite imagery or fit models. Teammates using the ready-data ZIP do not need these source inputs or commands.
+If Make is installed, `make data` executes those four preparation steps without fitting. `make current` runs `python -m src.pipeline.team_run`, including the current small model diagnostics. `make run` runs `python -m src.pipeline.team_run --full`, first rebuilding/fitting Track A. All need external caches/private inputs configured in `configs/data.yaml`; none downloads new satellite imagery. Teammates using the ready-data ZIP do not need these source inputs or commands.
 
-`uv run --locked --offline python -m src.pipeline.delivery` separately compares two base data-only builds and protects raw/model/historical-evaluation files. Its saved evidence covers that scoped build, not every later component artifact. `src.pipeline.run_all` and `src.pipeline.release` include fitting/evaluation; they are separate from `make run`.
+`uv run --locked --offline python -m src.pipeline.delivery` separately compares two base data-only builds and protects raw/model/historical-evaluation files. Its saved evidence covers that scoped build, not every later component artifact. `src.pipeline.full_repro` backs up current local outputs then compares two full Track A runs; [saved evidence](../data/FULL_TRACK_A_REPRODUCIBILITY.json) records equal manifests for 276 artifacts. `src.pipeline.release` remains the historical experiment workflow; use `team_run` for the current schema.
 
 ## Quarterly monitoring procedure
 

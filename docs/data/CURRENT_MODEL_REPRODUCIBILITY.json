@@ -1,0 +1,6 @@
+{
+  "status": "PASS",
+  "equal_files": 8,
+  "includes_saved_models": true,
+  "scope": "Repeated current fixed-parameter fit; same data, metadata, protocol and source"
+}

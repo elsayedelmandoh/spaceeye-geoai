@@ -1,10 +1,12 @@
 # R1/R2 data handoff
 
-Current release: 28 October 2026. Scope: 12 coded R7 compounds. Data preparation only; no dashboard, agent or new model evaluation is included.
+Current release: 28 October 2026. Scope: 12 coded R7 compounds. The current partial-task extension adds Arabic committee exports, full Track A reproducibility, backtest explanations, scenario contracts, stronger masking and current model diagnostics. See [closure status](PARTIAL_TASKS_CLOSURE.md) and [current evaluation](EW_REPORT_CURRENT.md). Three-class acceptance remains unmet because completed has no training examples. Dashboard and inspection agent remain separate.
 
 Delivery is merged into main at `b397f5e`,following the reviewed branch `feat/r1-r2-data-finalization`. Final evidence:47tests,touched-code lint and whitespace checks PASS;21table dictionaries;129equal artifacts across two data-only builds;protected inputs unchanged. See the completed delivery plan for integration decisions and commit history.
 
 ## Read first
+
+- [Current evaluation protocol](EW_PROTOCOL_CURRENT.md), [model card](../deliverables/method-card.md), [scenario contract](SCENARIO_CONTRACT_CURRENT.md), [full-run evidence](FULL_TRACK_A_REPRODUCIBILITY.json) and [technical decisions](../requirements/D1_DECISIONS_CURRENT.md). Older sections below describe the preserved base delivery; the linked extension supersedes their no-new-fitting statements.
 
 - [Small-task additions and remaining product work](SMALL_TASKS_STATUS.md), including technical operations, handover, quality, governance, responsible use and the proposed ACUD data request.
 

@@ -1,5 +1,7 @@
 # Small-task completion record
 
+Historical code-only snapshot. Later work explicitly authorized by the user is recorded in [PARTIAL_TASKS_CLOSURE.md](PARTIAL_TASKS_CLOSURE.md); it supersedes the remaining-work and unchanged-release statements below where applicable.
+
 28 October 2026. Scope: inexpensive additions built on existing outputs. No new fitting, source collection, imagery, agent, dashboard or fieldwork.
 
 | Board task | Addition | Status |

@@ -1,7 +1,5 @@
 # R2 current release report,28October2026
 
-Component-data extension:100labeled feed texts,separate296-text complaint benchmark,180inspection contexts,58synthetic visit exercises and648hypothetical financial-priority rows are now prepared without fitting models. Current source:src.pipeline.component_data;definitions:COMPONENT_DATA_PROTOCOL.md. Corrected earlier overbroad completion claims:these component inputs were added after the base R1/R2tables. Generated visits and priorities are not field evidence or validated forecasts.
-
 Synthetic - for training only
 
 Scope12R7compounds. Raw reconstruction:543financial rows/1349complaints. Prepared:540financial rows/1334complaints. Quarterly financial rows:180. Expanded dataset:180rows/40features.
@@ -25,7 +23,7 @@ Keys/targets never enter X. Expanded metadata declares exact40features and origi
 | time_test | 48 | {'ongoing': 43, 'distressed': 4, 'completed': 1} |
 | censored | 24 | {} |
 
-Censored targets are null. Distress takes precedence;completed requires new full-project handover in the next six months,not a partial phase. Already-completed cutoffs are flagged for exclusion. Zero completed training rows and one completed test row preclude a supported three-class classifier;none fitted. Old132-row/26-feature binary dataset and N=8scores are historical evidence,not validation of capacity4/new schema.
+Censored targets are null. Distress takes precedence;completed requires new full-project handover in the next six months,not a partial phase. Already-completed cutoffs are flagged for exclusion. Zero completed training rows and one completed test row preclude a supported three-class classifier. Current observed-class diagnostics are separate in EW_REPORT_CURRENT.md;this data-only writer does not fit them. Old132-row/26-feature binary dataset and N=8scores are historical evidence,not validation of capacity4/new schema.
 
 ## Simulation limits
 

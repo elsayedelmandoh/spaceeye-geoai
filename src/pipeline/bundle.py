@@ -18,7 +18,7 @@ from src.pipeline.common import APP, BASE_DIR, PRIVATE
 PROJECT = APP.parent
 REPO = BASE_DIR
 RELEASES = PROJECT / "releases"
-TAG = "SpaceEye_R7_READY_DATA_2026-10-28_v3"
+TAG = "SpaceEye_R7_READY_DATA_2026-10-28_v4"
 
 
 def sha(path):
@@ -80,6 +80,17 @@ def main():
                     doc = f"dictionaries/{source_group}__{name}.md"
                     copy(dictionary, doc)
                     dictionary_links.append(f"- [{table_name}]({Path(doc).name})")
+        for group, source in [("ml_current", APP / "ml_current/predictions.parquet")] + [(label, APP / "partial_task_exports" / label / "kpi_values.parquet") for label in ("S1", "S2", "S3")]:
+            relative = f"tables/current/{group}.parquet"
+            destination = copy(source, relative)
+            frame = pd.read_parquet(destination)
+            csv_relative = f"csv/current/{group}.csv"
+            (target / csv_relative).parent.mkdir(parents=True, exist_ok=True)
+            frame.to_csv(target / csv_relative, index=False, encoding="utf-8-sig")
+            connection.register("ready_frame", frame)
+            connection.execute(f'CREATE TABLE "current_{group}" AS SELECT * FROM ready_frame')
+            connection.unregister("ready_frame")
+            tables.append({"table": f"current_{group}", "file": relative, "csv": csv_relative, "rows": len(frame), "columns": len(frame.columns)})
         for source, relative, table_name in [
             (APP / "data_completion" / "cycle_list.csv", "tables/inspection/cycle_list.csv", "inspection_cycle_list"),
             (APP / "data_completion" / "inspection_capacity.csv", "tables/inspection/inspection_capacity.csv", "inspection_capacity"),
@@ -118,6 +129,12 @@ def main():
     copy(REPO / "docs/data/COMPONENT_DATA_PROTOCOL.md", "docs/COMPONENT_DATA_PROTOCOL.md")
     for name in ("DATA_SOURCES_AND_GENERATION.md", "SOURCE_CATALOG.csv", "SOURCE_INPUTS.csv", "GENERATION_PARAMETERS.json"):
         copy(REPO / "docs/data" / name, "docs/" + name)
+    for name in ("EW_PROTOCOL_CURRENT.md", "EW_REPORT_CURRENT.md", "CURRENT_MODEL_METADATA.json", "CURRENT_MODEL_METRICS.csv", "CURRENT_MODEL_REPRODUCIBILITY.json", "BACKTEST_CURRENT.md", "FULL_TRACK_A_REPRODUCIBILITY.json", "ANNUAL_CONTEXT_COVERAGE.csv", "DEFECT_AUDIT_CURRENT.json", "SCENARIO_CONTRACT_CURRENT.md"):
+        copy(REPO / "docs/data" / name, "docs/" + name)
+    for label in ("S1", "S2", "S3"):
+        copy(APP / "partial_task_exports" / label / "who_moved_and_why.csv", f"what_if/{label}/who_moved_and_why.csv")
+    for relative in ("backtest/cases_explained.csv", "backtest/summary.json", "defects_audit.csv", "annual_context.csv", "scenario_contract.json"):
+        copy(APP / "partial_task_exports" / relative, "current/" + relative)
 
     data_path = copy(PRIVATE / "ml_dataset_extended.parquet", "training/ml_dataset_extended.parquet")
     data = pd.read_parquet(data_path)
@@ -140,6 +157,7 @@ def main():
         "training_unique_keys": not data.duplicated(["code", "quarter"]).any(),
         "censored_targets_null": data.loc[data.label_censored, metadata["targets"]].isna().all().all(),
         "training_known_codes": set(data.code) == codes,
+        "unsupported_completed_predictions_null": pd.read_parquet(APP / "ml_current/predictions.parquet").p_completed.isna().all(),
     }
     complaints = pd.read_parquet(target / "tables" / "operations" / "complaints.parquet")
     checks["masked_complaints"] = not complaints.text_ar.dropna().map(lambda text: bool(PHONE.search(text))).any()
@@ -212,7 +230,7 @@ This bundle is standalone for reading, analysis and interface development. It do
 
 Raw inputs, quarantined/rejected observations, hidden answer keys, code-to-name mappings and models are excluded. Parquet is authoritative for types and null values; CSV is provided for convenient viewing. Original Arabic complaint text is data and remains unchanged.
 
-Every distributed file has a SHA-256 entry in `MANIFEST.csv`. Run `verify_package.py` after extraction to check transfer integrity. Version3adds the missing component inputs;original prepared source tables remain unchanged. See docs/COMPONENT_DATA_PROTOCOL.md and docs/component_validation.json for definitions,split counts and limits.
+Every distributed file has a SHA-256 entry in `MANIFEST.csv`. Run `verify_package.py` after extraction to check transfer integrity. Version4 adds Arabic committee reasons, full Track A reproducibility, current model diagnostics, explained real-case checks and S1/S2/S3 handoff. `current_ml_current` contains conditional observed-class probabilities; `p_completed` is null because training has no completed examples. See docs/EW_REPORT_CURRENT.md and docs/SCENARIO_CONTRACT_CURRENT.md before using current outputs. Earlier prepared v3 remains a separate historical version.
 """)
     write(target / "examples" / "read_ready_data.py", '''from pathlib import Path
 import json
