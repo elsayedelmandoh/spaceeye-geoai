@@ -1,5 +1,7 @@
 # spaceeye-geoai — AGENTS.md (compact, repo-specific)
 
+Current data-release entry point: `docs/data/HANDOFF.md`. Actual R1/R2 contracts and current reports are in `docs/data/`; the historical template/Oasis notes below do not override them. Data-only rebuilding must not fit models. The user authorized branch creation, fetching teammates' changes, explicit commits, push and merge for this delivery. Use the configured human Git identity without assistant attribution or co-author trailers.
+
 Repo: smart-city graduation project (`spaceeye-geoai`, synthetic `ACUD_Oasis` dataset). Not operational ACUD data. All outputs must say `Synthetic data — for training only`.
 
 ## Would an agent miss this?

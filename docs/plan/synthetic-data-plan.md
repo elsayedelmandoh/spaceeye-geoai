@@ -1,3 +1,5 @@
+> Historical plan retained for traceability. Current implemented R1/R2 release: [handoff](../data/HANDOFF.md), [delivery plan](../data/DELIVERY_PLAN.md), [R1 report](../data/R1_REPORT.md), [R2 report](../data/R2_REPORT.md). Older counts and statuses below do not override that release.
+
 # SpaceEye: Synthetic Data Plan (Track B generator)
 
 Version 1, 25 Oct 2026 · Owner: R2 (generator) · Reviewer: R1 (gates) · Builds on `project-plan.md` section 5 and `data-report.md` sections 5-8.

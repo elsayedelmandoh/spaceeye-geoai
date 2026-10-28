@@ -5,7 +5,7 @@
 - `docs/requirements/01-full-plan.md` — full plan to MUST follow it
 - `docs/project-definition/` — problem, goal, dataset, architecture, workflow
 - `docs/.internal/` — agent workflows, planning templates
-- `AGENTS.md` — agent operating rules (safety, planning, delegation, verification) — ponytail mode, style rules, environment setup
+- `CLAUDE.md`: agent instructions (commands, architecture, never-break rules, working rules)
 - Law 151/2020 — Egypt Personal Data Protection Law (governance card principle)
 - `README.md` — project structure, setup instructions, author info
 

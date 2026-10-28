@@ -1,237 +1,222 @@
 # 02-team-roles-and-tasks.md
 
-# SpaceEye-GeoAI: Team Roles and Task Board
+# SpaceEye: Team Roles and Task Board
 
-ACUD AI & Data Readiness Program · Graduation project (Days 6-12) · Team of 5
-Source: `01-specs.md` (section 14). Synthetic data only - for training only.
+ACUD AI & Data Readiness Program · Graduation project (D1-D6) · Team of 5
+Source of every task: [`01-specs.md`](01-specs.md) (section numbers in brackets, e.g. §2). Data and columns: [`03-dataset.md`](../project-definition/03-dataset.md). Repo layout: [`08-structure.md`](../project-definition/08-structure.md).
+
+> **Synthetic data - for training only** on every generated table, chart and slide. Codes only (`C..`, `D..`), never a compound or developer name.
 
 ---
 
 ## 1. How to use this file
 
-- Members are **M1 to M5**. Each maps to the role of the same number (M1 = R1, ..., M5 = R5).
-- Task ID format: `T-<member>-<nn>`, for example `T-M3-02`. IDs never change, even if a task is cut.
-- Tick the box when the task is **done and reviewed**: `- [x]`.
-- Each task shows: **ID · owner · day · deliverable · depends on · reviewer**.
-- Rule from the specs: all roles review each other's output; **one person owns each deliverable**.
-- Cut order if behind at Day 10: **Could** first, then **Should** from the bottom. Tier is marked on each task: `[Must]`, `[Should]`, `[Could]`.
-
-### 1.1 Cross-review pairs
-
-| Owner                 | Reviewed by | Why this pairing                                                |
-| --------------------- | ----------- | --------------------------------------------------------------- |
-| M1 (pipeline)         | M2          | M2 knows the planted defects the gates must catch               |
-| M2 (generator)        | M1          | M1 checks the data passes the gates and dictionaries match      |
-| M3 (GIS)              | M5          | M5 checks the map is readable and consistent with the dashboard |
-| M4 (ML)               | M1          | M1 checks no leakage and that features come from `kpi_values` |
-| M5 (dashboard, brief) | M4          | M4 checks every number in the brief against the backtest        |
+- Task ID format: `T-<member>-<nn>` (`AH` ahmed, `EL` elsayed, `VE` verina, `NA` nada, `SA` salma). IDs never change, even if a task is cut.
+- Each task: `- [ ] **ID** [tier] day · task · output · depends on · reviewer`.
+- Tick `- [x]` only when the task is **done and reviewed** (the reviewer ticks).
+- Tiers: `[Must]` never cut · `[Should]` cut from the bottom if behind at D4 · `[Could]` cut first. Cut order follows §13.
+- One owner per deliverable; every output is reviewed by another member (§10).
+- Work on a branch per task (`feat/T-AH-03-k6`), small commits, PR into `main`. Run `make lint` and `make test` before every PR.
+- Calendar (§10): D1 = day 6 · D2 = day 7 · D3 = day 8 · day 9 no project work · D4 = day 10 mid-term review + **code freeze** · D5 = day 11 submission · D6 = day 12 presentation.
 
 ---
 
-## 2. Roles in detail
+## 2. Who does what
 
-### M1 · Pipeline and data quality (R1)
+| Member                     | Owns end to end                                                                   | Roles from §10 it covers                                               | Main code                                                                        |
+| -------------------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| **ahmed abdelhamid** | **Track A: images → rule → cycle list** (real data)                       | R1 data pipeline + R3 GIS and satellites + R4 Track A rule and backtest | `src/pipeline/`, `configs/data.yaml`                                         |
+| **elsayed elmandoh** | **Track B: generated ACUD data → `ml_dataset` → classifier → what-if** | R2 data and generator + R4 Track B classifier and early warning         | `src/generator/`, `src/analysis/`                                            |
+| **verina fouad**     | AI component: inspection file agent + verification log + complaints classifier    | R4 agent part                                                           | `src/inference/`, `prompts/`                                                 |
+| **nada shady**       | Dashboard (5 screens, track switch) + cycle list download + `ops_visits` form   | R5 dashboard part                                                       | `app.py`, `src/dashboard/`                                                   |
+| **salma magdy**      | KPI cards, value in EGP, governance docs, memo, presentation, independent checks  | R5 presentation part + doc parts of R1/R2/R3                            | `docs/deliverables/`, `configs/cost_assumptions.yaml`, `configs/kpis.yaml` |
 
-**Mission:** make the pipeline run from raw files to KPIs with one command, and make every number traceable.
+### Hand-off contracts (so nobody waits)
 
-| Area               | Detail                                                                                                                                                             |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Owns               | DuckDB ELT (5 stages: ingest, gate, compute, store, log), quality gates, data trust score, `run_all.py` / `make run`                                           |
-| Inputs from others | Tables and dictionaries from M2; polygons from M3                                                                                                                  |
-| Outputs to others  | `kpi_values` and `run_log` for M4 and M5; gate results for the Data trust screen                                                                               |
-| Key rules          | Load raw as it arrived; fix in views, never in raw. Count rows before and after every join; use LEFT JOIN, then check. Replace, never duplicate, in `kpi_values` |
-| Gates to implement | Completeness, Validity, Uniqueness, Timeliness, Consistency, Accuracy (escrow unit, stuck NDBI), Clock (24 Apr 2026 phantom hour, 29 Oct 2026 repeated hour)       |
-| Done when          | A second run gives the same numbers; every failing gate has an owner and an action (fix / flag / block)                                                            |
+| From → to                     | File (in `app_data/`)                                                                                                                                       | Ready by |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| ahmed → elsayed, verina, nada | `real/kpi_values.parquet` (A, K2-K6, level, reason, cycle_rank, origin, run_id), `real/compounds.parquet`, `real/compound_boundaries.geojson`           | D2       |
+| ahmed → nada, salma           | `real/quality_checks_log.parquet`, `backtest/cases.csv`, `backtest/summary.json`                                                                        | D3       |
+| elsayed → nada, verina        | `sim/fin_monthly.parquet`, `sim/complaints.parquet`, `ml/predictions.parquet` (code, quarter, p_distressed, p_completed, p_ongoing), `ml/metrics.csv` | D3       |
+| elsayed → nada                | `scenarios/<S1..S3>/kpi_values.parquet` (same columns as the base)                                                                                          | D4       |
+| verina → nada                 | `files/<code>_<quarter>.html`, `ai_verification_log.csv`                                                                                                  | D4       |
 
-### M2 · Synthetic data and answer key (R2)
-
-**Mission:** build realistic data with a known answer, so the team can measure.
-
-| Area               | Detail                                                                                                                                                              |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Owns               | Generator code (fixed seed), 7 new tables, planted stories S1-S8, planted defects, answer key, data dictionaries                                                    |
-| Tables             | `developers`, `compounds`, `sentinel_passes`, `milestone_plan`, `escrow_flows`, `buyer_complaints`, `shock_scenarios`                                 |
-| Inputs from others | Polygon geometry from M3; milestone and cost assumptions agreed with M4 and M5                                                                                      |
-| Outputs to others  | Tables to M1; answer key to M4; complaint text to M4 for Gemini                                                                                                     |
-| Key rules          | Same seed = same data on every laptop. Every file labelled "synthetic - for training only". Planted phone numbers inside complaint text must be recorded in the key |
-| Done when          | All 8 stories exist in the data with an expected result; all defects are listed with row counts; dictionaries cover every column (type, unit, valid range, meaning) |
-
-### M3 · GIS and map (R3)
-
-**Mission:** put every compound on the map correctly and make the map answer the right question.
-
-| Area               | Detail                                                                                                                                                                                                                 |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Owns               | H7/H8 polygons (33 compounds: H7 = 20, H8 = 13), area in feddan, spatial joins, the risk map                                                                                                                           |
-| Inputs from others | Compound ids from M2; risk scores from M4                                                                                                                                                                              |
-| Outputs to others  | `compounds` geometry to M2 and M1; map layer to M5 for Screen 1                                                                                                                                                      |
-| Key rules          | EPSG:4326, point-in-polygon with `sjoin`; compare registry zone vs map zone and report differences. Map a **rate or score, not a raw count**. Title in English and Arabic, unit in the legend, freshness shown |
-| Also owns          | Built footprint ÷ allowed built area input for `P_actual` (with M2); the "satellite says built, utilities show none" check (S8) on the GIS side                                                                     |
-| Done when          | Zero compounds without a polygon; spatial-join row counts match before/after; map shows green/amber/red with last-pass freshness                                                                                       |
-
-### M4 · ML, analytics and GenAI (R4)
-
-**Mission:** answer "can the model beat a simple rule?" honestly, with no leakage.
-
-| Area               | Detail                                                                                                                                                                                                                             |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Owns               | Baseline rule, model (logistic regression or small gradient boosting), backtest, model card, monitoring plan, explainable alerts, EGP value estimate, Gemini complaint classification, AI verification log                         |
-| Inputs from others | `kpi_values` from M1; answer key and complaints from M2; map output from M3                                                                                                                                                      |
-| Outputs to others  | Risk score and reason sentence to M5; backtest numbers to M5 for the brief                                                                                                                                                         |
-| Key rules          | Time split: train Jan 2023 to Jun 2025, test Jul 2025 to Oct 2026; also hold out about 20% of compounds. No feature may use data after the prediction date. If the model does not beat the rule, **the rule is the product** |
-| GenAI rules        | Mask phones by regex **before** any AI tool; the regex check, not the AI, decides if a file is safe. Prompts hold column names and masked synthetic text only. Every number a model writes is verified in the log            |
-| Done when          | Precision, recall, lead time, false-alarm rate and calibration reported against the rule and the blanket round; every red/amber alert has a one-sentence reason whose numbers equal the data                                       |
-
-### M5 · Dashboard, KPIs, brief and presentation (R5)
-
-**Mission:** make the result usable by a committee and convincing to the panel.
-
-| Area               | Detail                                                                                                                                                                                                                                                              |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Owns               | KPI cards TP-01..06, KPI tree, Streamlit dashboard (4 screens), operations workflow (severity levels, tickets, handover), decision brief, one-page executive brief, final presentation, user guide                                                                  |
-| Inputs from others | KPI values from M1; map from M3; score, reasons and value range from M4                                                                                                                                                                                             |
-| Outputs to others  | Layout needs back to M1 and M3 (what the screens must show)                                                                                                                                                                                                         |
-| Key rules          | Apply the 5-step routine: scan status, check freshness, compare, drill down, decide. No percentage without its base, no truncated axis, correct comparison period, show spread, note coverage changes. Every KPI has an owner role, baseline, target and thresholds |
-| Done when          | Brief is bilingual (English/Arabic); every number on slides traces to a file; demo runs as a deterministic replay with a recorded backup                                                                                                                            |
+Until a contract file exists, consumers build on the first-build outputs (commit `a0f03fd`) with the same column names.
 
 ---
 
-## 3. Task board
+## 3. Shared tasks (whole team)
 
-Legend: `[ ]` open · `[x]` done. Days follow section 14.2 of the specs. **Day 9 has no project work** (shift simulation).
-
-### 3.1 M1 tasks (pipeline, gates, trust score)
-
-- [ ] **T-M1-01** · M1 · Day 6 · `[Must]` Set up repo structure (`raw/`, `sql/kpis/`, `pipeline.py`, `kpi_store.duckdb`, `logs/`, `config/`). Deliverable: empty repo that runs. Reviewer: M2
-- [ ] **T-M1-02** · M1 · Day 6 · `[Must]` Agree the table list and key columns with M2 (data dictionary format). Deliverable: signed-off column list. Depends on: T-M2-01. Reviewer: M2
-- [ ] **T-M1-03** · M1 · Day 7 · `[Must]` Stage 1 Ingest: load all raw CSV/Parquet into DuckDB unchanged, print row counts. Depends on: T-M2-03. Reviewer: M2
-- [ ] **T-M1-04** · M1 · Day 7 · `[Must]` Stage 2 Gates v1: validity, uniqueness, consistency, completeness, each with rule, threshold, owner, action. Reviewer: M2
-- [ ] **T-M1-05** · M1 · Day 7 · `[Must]` Clock gate: drop phantom rows in 24 Apr 2026 00:xx; keep the repeated 29 Oct 2026 23:xx hour with timezone-aware handling. Reviewer: M2
-- [ ] **T-M1-06** · M1 · Day 7 · `[Must]` Stage 3 Compute: first KPI SQL for TP-01 with `$start`, `$end`, optional `$zone`. Depends on: T-M5-02. Reviewer: M4
-- [ ] **T-M1-07** · M1 · Day 8 · `[Must]` Accuracy gates: escrow unit check (EGP vs thousand EGP) and stuck NDBI (same value for 6+ passes) as a view that turns stuck passes into missing. Reviewer: M2
-- [ ] **T-M1-08** · M1 · Day 8 · `[Must]` Stage 4 Store: `kpi_values` with `source`, `run_id`, `computed_at`; delete-then-insert so a rerun never duplicates. Reviewer: M4
-- [ ] **T-M1-09** · M1 · Day 8 · `[Must]` Stage 5 Log: `run_log` with run id, KPI, period, rows, gates failed, seconds. Reviewer: M4
-- [ ] **T-M1-10** · M1 · Day 8 · `[Must]` Compute TP-02, TP-03, TP-04, TP-06 as SQL, one file per card. Depends on: T-M5-02. Reviewer: M4
-- [ ] **T-M1-11** · M1 · Day 10 · `[Must]` Data trust score per output (share of gates passed, coverage, stale flags). Reviewer: M5
-- [ ] **T-M1-12** · M1 · Day 10 · `[Must]` Join row-count check: log rows before and after every join; fail loudly if LEFT JOIN changes the count. Reviewer: M3
-- [ ] **T-M1-13** · M1 · Day 10 · `[Must]` Reproducibility test: run twice, same rows and same numbers. Reviewer: M4
-- [ ] **T-M1-14** · M1 · Day 11 · `[Must]` `run_all.py` / `make run`: rebuild data, gates, KPIs, model, backtest and dashboard data in one command. Depends on: T-M2-10, T-M4-08. Reviewer: M5
-- [ ] **T-M1-15** · M1 · Day 11 · `[Must]` Technical documentation for the pipeline (stages, gates, how to rerun, how to add a gate). Reviewer: M2
-- [ ] **T-M1-16** · M1 · Day 11 · `[Should]` Scheduling note: how `run()` would be called by cron or a scheduler (concept only). Reviewer: M5
-
-### 3.2 M2 tasks (synthetic data, stories, answer key)
-
-- [ ] **T-M2-01** · M2 · Day 6 · `[Must]` Draft data dictionary skeleton for the 7 tables (column, type, unit, valid range, meaning). Reviewer: M1
-- [ ] **T-M2-02** · M2 · Day 6 · `[Must]` Write `config/` files: developers list (D01-D14), compound list (C01-C33), milestone schedule (editable assumption), 2026 calendar dates (Ramadan, Eid, DST), cost assumptions placeholder. Reviewer: M4
-- [ ] **T-M2-03** · M2 · Day 7 · `[Must]` Generator v1 with fixed seed: `developers`, `compounds`, `milestone_plan`. Reviewer: M1
-- [ ] **T-M2-04** · M2 · Day 7 · `[Must]` Generator: `sentinel_passes` (about 9,000-9,500 rows, `ndbi`, `ndvi`, `cloud_pct`, `quality_flag`) with weather and cloud patterns. Reviewer: M3
-- [ ] **T-M2-05** · M2 · Day 7 · `[Must]` Generator: `escrow_flows` (about 1,500 rows) with `coverage_ratio`. Reviewer: M1
-- [ ] **T-M2-06** · M2 · Day 8 · `[Must]` Plant stories S1-S8 and write the **answer key** (compound, story, expected result, expected lead time). Reviewer: M4
-- [ ] **T-M2-07** · M2 · Day 8 · `[Must]` Plant defects: clouds, dust-induced false NDBI, duplicate passes, one developer's escrow unit mismatch, repeated 23:xx hour on 29 Oct 2026, one unregistered compound id in complaints. Log each with row count. Reviewer: M1
-- [ ] **T-M2-08** · M2 · Day 8 · `[Must]` Generator: `buyer_complaints` (a few thousand; Arabic and Franco text, category, compound, source system) with hidden phone numbers in free text, recorded in the key. Reviewer: M4
-- [ ] **T-M2-09** · M2 · Day 8 · `[Should]` Generator: `shock_scenarios` (collection drop, material cost rise, delay 8-12 weeks). Reviewer: M4
-- [ ] **T-M2-10** · M2 · Day 10 · `[Must]` Make the generator callable from `run_all.py` with the seed in config; same seed gives identical files. Reviewer: M1
-- [ ] **T-M2-11** · M2 · Day 10 · `[Must]` Validation plots that prove each planted pattern (one plot per story). Reviewer: M5
-- [ ] **T-M2-12** · M2 · Day 10 · `[Must]` Final data dictionaries (EN + AR), every file labelled "synthetic - for training only". Reviewer: M1
-- [ ] **T-M2-13** · M2 · Day 11 · `[Must]` Story table: for each of S1-S8, expected vs observed result (fill in with M4's backtest). Depends on: T-M4-06. Reviewer: M4
-- [ ] **T-M2-14** · M2 · Day 11 · `[Must]` Knowledge-transfer pack: how the data was generated, limits (synthetic realism), how to regenerate. Reviewer: M5
-
-### 3.3 M3 tasks (GIS and map)
-
-- [ ] **T-M3-01** · M3 · Day 6 · `[Must]` Define the 33 compound polygons for H7 (20) and H8 (13) as GeoJSON with EPSG:4326. Deliverable: `compounds.geojson`. Reviewer: M5
-- [ ] **T-M3-02** · M3 · Day 6 · `[Must]` Agree compound ids (C01-C33) and area in feddan with M2. Reviewer: M2
-- [ ] **T-M3-03** · M3 · Day 7 · `[Must]` Spatial join: assign every compound to its district (H7/H8); compare registry vs map; report differences (target: 0). Reviewer: M1
-- [ ] **T-M3-04** · M3 · Day 7 · `[Must]` Allowed built area per compound, so `P_actual` = built footprint ÷ allowed built area can be computed. Depends on: T-M2-03. Reviewer: M4
-- [ ] **T-M3-05** · M3 · Day 8 · `[Must]` First map: polygons coloured by a test KPI (TP-01), English + Arabic title, unit in legend. Reviewer: M5
-- [ ] **T-M3-06** · M3 · Day 8 · `[Must]` Map utilities (electricity, water) per H-zone to the compound level for the S8 check (satellite says built, utilities show none). Reviewer: M4
-- [ ] **T-M3-07** · M3 · Day 10 · `[Must]` Risk map layer: green / amber / red by score, with freshness of last pass (days since last pass). Depends on: T-M4-05. Reviewer: M5
-- [ ] **T-M3-08** · M3 · Day 10 · `[Must]` Map shows **rate or score, not count**; add a second view by count only if it is labelled as a count. Reviewer: M5
-- [ ] **T-M3-09** · M3 · Day 10 · `[Should]` Compound drill-down geometry: zoom to one compound with its last-pass NDBI/NDVI. Reviewer: M5
-- [ ] **T-M3-10** · M3 · Day 11 · `[Must]` Export the map as PNG and as a data layer for the Streamlit app; row counts checked before and after joins. Reviewer: M1
-- [ ] **T-M3-11** · M3 · Day 11 · `[Should]` Fairness view by district (H7 vs H8) in the map data for the fairness check. Depends on: T-M4-10. Reviewer: M4
-- [ ] **T-M3-12** · M3 · Day 11 · `[Must]` GIS section of the technical documentation (CRS, joins, limits). Reviewer: M2
-
-### 3.4 M4 tasks (ML, analytics, GenAI)
-
-- [ ] **T-M4-01** · M4 · Day 6 · `[Must]` Write the label definition: stall or default in the next 8-12 weeks, taken from the answer key. Reviewer: M2
-- [ ] **T-M4-02** · M4 · Day 6 · `[Must]` Draft feature list (ΔP, velocity 90 d, escrow coverage, complaint rate, satellite completeness, developer size) and the no-leakage rule. Reviewer: M1
-- [ ] **T-M4-03** · M4 · Day 7 · `[Must]` Prepare questions on expected results for the doctor discussion (Day 7). Reviewer: M5
-- [ ] **T-M4-04** · M4 · Day 8 · `[Must]` Baseline rule: alert when ΔP exceeds amber/red **and** velocity is below its own history; exclude announced dust/heat days. Reviewer: M1
-- [ ] **T-M4-05** · M4 · Day 8 · `[Must]` Model v1 (logistic regression): fit on train period, produce score 0-100 per compound. Reviewer: M1
-- [ ] **T-M4-06** · M4 · Day 8 · `[Must]` First measured result: precision, recall, lead time, false-alarm rate vs the baseline rule (honest, with sample size). Reviewer: M2
-- [ ] **T-M4-07** · M4 · Day 10 · `[Must]` Backtest with time split (train Jan 2023 to Jun 2025; test Jul 2025 to Oct 2026) plus 20% compounds held out entirely. Reviewer: M1
-- [ ] **T-M4-08** · M4 · Day 10 · `[Must]` Calibration check and comparison with the blanket quarterly inspection round. Reviewer: M5
-- [ ] **T-M4-09** · M4 · Day 10 · `[Must]` Explainable alerts: top 2-3 contributing features (coefficient × value) into a fixed sentence template; test that every number in the sentence equals the data. Reviewer: M5
-- [ ] **T-M4-10** · M4 · Day 10 · `[Should]` Fairness check by developer size class and by district (H7/H8). Depends on: T-M4-07 (backtest predictions), T-M2-03 (developer size class), T-M3-03 (H7/H8 district assignment). Reviewer: M3
-- [ ] **T-M4-11** · M4 · Day 10 · `[Must]` EGP value estimate in `config/cost_assumptions.yaml`: low / base / high range, with missed-default cost included. Reviewer: M5
-- [ ] **T-M4-12** · M4 · Day 10 · `[Should]` Gemini complaint classification (delay, work stopped, payment, quality, other) vs a keyword baseline, scored on the answer key; phones masked first by regex. Depends on: T-M2-08. Reviewer: M2
-- [ ] **T-M4-13** · M4 · Day 10 · `[Must]` AI verification log: every number written by an AI assistant checked against the data. Reviewer: M1
-- [ ] **T-M4-14** · M4 · Day 10 · `[Should]` Liquidity-shock simulation: apply shock to a group of compounds, recompute ΔP and risk, count how many cross amber/red and how late. Depends on: T-M2-09. Reviewer: M5
-- [ ] **T-M4-15** · M4 · Day 11 · `[Must]` Model card (purpose, data, metrics, limits, fairness, "needs calibration on real imagery") and monitoring plan (drift, data completeness, re-training trigger). Reviewer: M5
-- [ ] **T-M4-16** · M4 · Day 11 · `[Must]` Verify the story table: for S1-S8, observed result recorded (S3 dust storm flagged as weather, not default). Reviewer: M2
-- [ ] **T-M4-17** · M4 · Day 11 · `[Could]` Per-compound lead-time estimate. Reviewer: M1
-
-### 3.5 M5 tasks (dashboard, KPIs, brief, presentation)
-
-- [ ] **T-M5-01** · M5 · Day 6 · `[Must]` Fill the use-case canvas (8 checks) and send the summary to the doctor before or at the start of Day 6. Reviewer: M4
-- [ ] **T-M5-02** · M5 · Day 6 · `[Must]` KPI cards TP-01..06 with all 10 fields + parent + 2 tags (purpose, formula, unit, source, frequency, owner role, baseline, target, thresholds, direction, theme). Reviewer: M1
-- [ ] **T-M5-03** · M5 · Day 6 · `[Must]` Draw the KPI tree (goal → TP-05 → TP-01..04, TP-06 under TP-02). Reviewer: M4
-- [ ] **T-M5-04** · M5 · Day 7 · `[Must]` Decide baselines and thresholds: agreed limits, or history (median = baseline, worst 20% amber, worst 5% red); check the baseline period (Ramadan trap). Depends on: T-M1-06. Reviewer: M1
-- [ ] **T-M5-05** · M5 · Day 7 · `[Should]` Map each KPI to an ISO 37120 / 37122 / ITU U4SSC theme (theme names only, no clause numbers). Reviewer: M3
-- [ ] **T-M5-06** · M5 · Day 8 · `[Must]` Define pairs and guard rails (velocity with completeness; escrow with progress; complaints with units delivered) and log which KPIs are gameable. Reviewer: M4
-- [ ] **T-M5-07** · M5 · Day 8 · `[Must]` Operations workflow: severity levels 1-4, ticket life cycle, one parent ticket per compound, weekly handover template. Reviewer: M1
-- [ ] **T-M5-08** · M5 · Day 8 · `[Must]` Dashboard wireframe for 4 screens (risk map, drill-down, data trust, simulation); every tile shows value, unit, period, comparison, target, status colour, freshness. Reviewer: M3
-- [ ] **T-M5-09** · M5 · Day 10 · `[Must]` Build Streamlit Screens 1-3 with real data (risk map, compound drill-down with one-sentence reason, data trust). Depends on: T-M3-07, T-M4-09, T-M1-11. Reviewer: M4
-- [ ] **T-M5-10** · M5 · Day 10 · `[Should]` Screen 4: simulation sliders and before/after comparison. Depends on: T-M4-14. Reviewer: M4
-- [ ] **T-M5-11** · M5 · Day 10 · `[Should]` Optional compliance index per compound (min-max, weights A equal vs B 40/35/25) and rank-change report. Reviewer: M4
-- [ ] **T-M5-12** · M5 · Day 10 · `[Must]` Mid-review (10 minutes): a measured result, early dashboard, risks. Reviewer: all
-- [ ] **T-M5-13** · M5 · Day 10 · `[Must]` First self-score against the best-guess rubric (section 15 of the specs). Reviewer: M1
-- [ ] **T-M5-14** · M5 · Day 11 · `[Must]` **One-page executive brief** (problem, result in numbers, EGP range with assumptions, recommendation, risks, next step), English + Arabic. Depends on: T-M4-08, T-M4-11. Reviewer: M4
-- [ ] **T-M5-15** · M5 · Day 11 · `[Must]` Bilingual decision brief (the one-pager is its front page). Reviewer: M4
-- [ ] **T-M5-16** · M5 · Day 11 · `[Must]` Risk and responsible-AI note (section 13) and user guide. Reviewer: M2
-- [ ] **T-M5-17** · M5 · Day 11 · `[Must]` Final presentation (12-15 min, 8 parts, section 16) with the demo replay and recorded video as backup. Reviewer: all
-- [ ] **T-M5-18** · M5 · Day 11 · `[Must]` Second self-score against the rubric; replace with the official rubric if received. Reviewer: M1
-
-### 3.6 Shared tasks (everyone)
-
-Owner is the person named; the others review.
-
-- [ ] **T-ALL-01** · M5 · Day 6 · `[Must]` Day 6 sign-off of the canvas; confirm roles M1-M5 and data dictionary format. Reviewers: all
-- [ ] **T-ALL-02** · M4 · Day 7 · `[Must]` Discuss expected results with the doctor on Day 7; record the answers. Reviewers: all
-- [ ] **T-ALL-03** · M1 · Day 11 · `[Must]` **Code freeze** and a clean run of the one command on a fresh machine. Reviewers: all
-- [ ] **T-ALL-04** · M5 · Day 11 · `[Must]` Full rehearsal with timing; every member answers at least one mock Q&A question (section 17). Reviewers: all
-- [ ] **T-ALL-05** · M2 · Day 11 · `[Must]` Definition-of-done check (section 18): one command, gates documented, 8 stories with expected and observed result, honest backtest, AI log verified, every file labelled "synthetic - for training only". Reviewers: all
-- [ ] **T-ALL-06** · M5 · Day 12 · `[Must]` Present to the idea evaluation panel; live one-command run with replay as fallback. Reviewers: all
+- [ ] **T-ALL-01** [Must] D1 · Sign the D1 decisions (§14): R7 only, light twin, two tracks, worst-of-signals rule incl. K6 and B triggers, K5 definition + assumed fine rate, 3-class label, thresholds frozen, boundary ≥ 80%, codes only, generated label text · signed list in `docs/requirements/05-project-compass.md` · reviewer: all
+- [ ] **T-ALL-02** [Must] D1 · Fill open items 2 and 4 (§16): today's program day; how many of the 22 coded compounds and of the 8 backtest cases are in R7 · updated §16 + §10 · owner: ahmed (item 4), salma (item 2)
+- [ ] **T-ALL-03** [Must] D4 · Mid-term review (10 min) rehearsed once · owner: salma
+- [ ] **T-ALL-04** [Must] D5 · Cross-review: each member reviews one other member's deliverables end to end (ahmed ↔ elsayed, verina ↔ nada, salma reviews all docs) · review notes in PRs
+- [ ] **T-ALL-05** [Must] D5 · Two timed rehearsals + backup video of the demo · owner: salma
 
 ---
 
-## 4. Critical path
+## 4. ahmed: Track A end to end (real data)
 
-If one of these slips, the whole project slips. Review them first each day.
+Goal: one command (`python -m src.pipeline.run_all`) builds the R7 tables, A, K2-K6, levels, reason sentences, cycle list, backtest and 10 gates, twice identically.
 
-1. `T-M2-03` to `T-M2-08` (tables, stories, answer key) block everything.
-2. `T-M1-04`, `T-M1-08`, `T-M1-10` (gates and `kpi_values`) block M4's model.
-3. `T-M4-06` (first measured result) sets what M5 can claim.
-4. `T-M1-14` (one command) must work before Day 11 freeze.
-5. `T-M5-14` (one-page brief) needs `T-M4-08` and `T-M4-11` first.
+### D1: scope and config
+
+- [ ] **T-AH-01** [Must] D1 · Confirm R7 boundaries (confidence ≥ 80%) and count R7 compounds (open item 4) · `compounds.district` checked, count in §16 · depends: - · reviewer: elsayed
+- [ ] **T-AH-02** [Must] D1 · Write config before any result: `cycle_capacity` ≈ a third of R7, K6 thresholds (12 / 24), K5 grace (12 months), R7 filter key, in `configs/data.yaml` with a dated comment · depends: T-AH-01 · reviewer: salma
+- [ ] **T-AH-03** [Must] D1 · Filter R8 out of every built table in `build_real` (audited R8 files stay untouched in `real_data/`) + test that no R8 code reaches `kpi_values` · depends: T-AH-02 · reviewer: elsayed
+
+### D2: indicators, levels, cycle list
+
+- [ ] **T-AH-04** [Must] D2 · K6 never-started clock in `kpis.py`: months since first published launch/promise with no 4-quarter activity run; level 1 if > 24, level 2 if 13-24 (§2) + tests · reviewer: elsayed
+- [ ] **T-AH-05** [Must] D2 · K5 fine-eligible months (real part): months past first deadline with no start + months past 12-month grace (K3 > 12); shown, never sets the level + test · reviewer: elsayed
+- [ ] **T-AH-06** [Must] D2 · Level rule = worst of K2, K3, K6 + "may be complete" cap at 3 + "not started" / "not assessable" (§2 table); update `test_level_is_the_worst_signal...` for K6 · reviewer: elsayed
+- [ ] **T-AH-07** [Must] D2 · Reason sentence: one template, English in logs, **Arabic** for the committee (`reason_ar` column), filled by code, codes only (§2) + test on the two examples · reviewer: verina
+- [ ] **T-AH-08** [Must] D2 · Cycle list export: top N with level 1-3, ordered K2 then K3 descending, CSV (Arabic reason, level as a word) for the as-of quarter · `app_data/real/cycle_list_<asof>.csv` · depends: T-AH-04..07 · reviewer: nada
+- [ ] **T-AH-09** [Must] D2 · `kpi_values` carries `origin`, `run_id`, `computed_at` for every new column (K5, K6, reason_ar); hand off to elsayed/verina/nada (contract §2) · reviewer: elsayed
+
+### D3: backtest, gates, reproducibility
+
+- [ ] **T-AH-10** [Must] D3 · Re-run the frozen-clock backtest on R7 only (backtest variant of A without overlapping plots); per case: what happened / why / what next + one competing explanation rejected with a number; counts only, no % · `backtest/cases.csv`, `summary.json` · reviewer: salma
+- [ ] **T-AH-11** [Must] D3 · 10 gates pass or flag with dimension, owner, decision (§8); `no_names` scans every output incl. new CSVs; `separation` covers new columns · `quality_checks_log.csv` (program template) · reviewer: elsayed
+- [ ] **T-AH-12** [Must] D3 · Quality report with an "impact on the indicator" column, from `quality_checks_log` · `docs/deliverables/quality-report.md` · reviewer: salma
+- [ ] **T-AH-13** [Must] D3 · Two runs identical: run `run_all` twice, compare `manifest.csv` sha; add a `make run` target · reviewer: elsayed
+- [ ] **T-AH-14** [Should] D3 · Fallback ready: if A fails on new quarters, K1 path documented and switchable in config (§13) · reviewer: elsayed
+
+### D3-D4: images for the compound file
+
+- [ ] **T-AH-15** [Should] D3 · Check Esri Wayback terms; then 2 Wayback images per R7 compound (before/after) with capture date + attribution · `app_data/images/<code>_{before,after}.jpg` + `images.csv` · reviewer: nada
+- [ ] **T-AH-16** [Should] D3 · Open Buildings height 2016-2023 + 2024 v4 estimate (±2 m) and vegetation series ready per compound for screen 2 (height is context, never in the level) · reviewer: nada
+- [ ] **T-AH-17** [Could] D4 · Finishing vision-model test (Qwen-VL on Wayback): pass condition ≥ 75% agreement on ~50 held-out compound-images labelled blind by salma (T-SA-12); log in `team_ideas.md`; **cut at D4 if not passed**; flag in the inspection file only · reviewer: salma
+- [ ] **T-AH-18** [Could] D4 · Roof slab uniformity test on Google heights 2016-2023 against a condition written before the test; cut at D4 if not passed · reviewer: elsayed
+
+### D4-D5: freeze and hand over
+
+- [ ] **T-AH-19** [Must] D4 · Code freeze for Track A; tag the commit; `run_all` is the one run command used in the presentation (deliverable 10) · reviewer: elsayed
+- [ ] **T-AH-20** [Must] D5 · Technical docs for Track A + monitoring plan (quarterly recompute, who runs `run_all`, what to check) · `docs/deliverables/technical-track-a.md` · reviewer: salma
+- [ ] **T-AH-21** [Must] D5 · Knowledge transfer pack, one page (deliverable 9) · `docs/deliverables/knowledge-transfer.md` · reviewer: salma
 
 ---
 
-## 5. Risks to the plan
+## 5. elsayed: Track B end to end (generated data)
 
-Each risk has one owner (with a supporting member where noted), an early sign, a fix to do now, and a fallback if the fix is not enough. If a fix moves a task to another member, the task ID stays the same, and the reviewer changes so nobody reviews their own work.
+Goal: generated ACUD data for R7 → one `ml_dataset` (compound × quarter) → 3-class classifier → probabilities in the compound file + early-warning comparison + what-if scenarios S1-S3. Track B reads Track A outputs and never redoes image work.
 
-| #  | Risk                                       | Early sign (check when)                                                                                        | Owner            | Fix now                                                                                                                                                                                                                   | Fallback                                                                  |
-| -- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| 1  | Everyone blocked by the generator          | No tables by midday Day 7 (T-M2-03)                                                                            | M2               | M1 and M3 build against the columns in the dictionary (T-M2-01) using 5 fake rows, so their code is ready when real tables land                                                                                           | Ship 10 compounds first, then scale to 33                                 |
-| 2  | `sentinel_passes` late                   | T-M2-04 not done by 15:00 on Day 7 (Day 8 work waits for it)                                                   | M2               | Generate fewer passes per compound first; keep the seed in config so scaling up is one change                                                                                                                             | Run gates and model on the smaller set; say so in the model card          |
-| 3  | Model does not beat the rule               | No gain in T-M4-06 (Day 8), confirmed in T-M4-07                                                               | M4               | Report it honestly; the rule is the product (specs 8.3). M5 writes the brief (T-M5-14) so it works for either outcome. Model results go in the model card (T-M4-15)                                                       | Present the rule, with the model as a tested alternative                  |
-| 4  | Too few defaulters in the test period      | Fewer than about 5 planted events after Jul 2025                                                               | M2 (support: M4) | M2 adds events in the test window of the answer key (T-M2-06) early on Day 8, before T-M4-06 runs; M4 reports results with the sample size                                                                                | State the limit on the slide; do not claim precision to the decimal       |
-| 5  | Data leakage                               | Recall or lead time looks too good; a feature uses data after the prediction date                              | M4 (support: M1) | M1 reviews the feature list at T-M4-05 (Day 8, before the first result) and again at T-M4-07; M4 adds a test that no feature date is after the prediction date                                                            | Drop the suspect feature and rerun the backtest                           |
-| 6  | Clock handling deletes real readings       | Row count drops in the repeated 23:xx hour on 29 Oct 2026                                                      | M1               | T-M1-05: timezone-aware duplicate handling, with a gate that keeps the repeated hour and drops the 24 Apr 2026 00:xx hour. T-M2-07 plants both cases so the gate has something to catch                                   | Flag instead of delete until the rule is proven                           |
-| 7  | Day 10 is overloaded (22 tasks)            | More than 60% of Day 10 Must tasks still open at midday                                                        | M5               | Move the six `[Should]` tasks (T-M3-09, T-M4-10, T-M4-12, T-M4-14, T-M5-10, T-M5-11) to Day 11 morning. Keep the order: T-M4-10 before T-M3-11 and T-M4-15 (the model card has a fairness part); T-M4-14 before T-M5-10 | Cut order: `[Could]` first (T-M4-17), then `[Should]` from the bottom |
-| 8  | M4 and M5 carry the most tasks (17 and 18) | A member carries more than 3 open tasks over from the previous day                                             | M5               | M3 (12 tasks) takes T-M5-05 (Day 7) and T-M5-11 (Day 11, after the move in risk 7). M2 takes the user-guide part of T-M5-16 once T-M2-14 is done. Reviewers change: T-M5-05 to M5, the user-guide part to M4              | Review `[Must]` tasks only; skip reviews of `[Should]` tasks          |
-| 9  | Gemini is slow or unavailable              | No answer by midday on the day T-M4-12 runs (Day 10, or Day 11 if moved by risk 7)                             | M4               | Score the keyword baseline first; cache every Gemini output as a file                                                                                                                                                     | Present the baseline plus the cached Gemini answers                       |
-| 10 | Official rubric not received               | Nothing by Day 10 (T-M5-13)                                                                                    | M5               | Self-score with the best-guess rubric twice (T-M5-13, T-M5-18); ask the doctor on Day 7 (T-ALL-02) when it will arrive                                                                                                    | Replace the rubric as soon as it arrives                                  |
-| 11 | Live demo fails                            | `run_all.py` fails at T-M1-13, in the fresh-machine run at the freeze (T-ALL-03), or in rehearsal (T-ALL-04) | M1 (support: M5) | M1 keeps a stub `run_all.py` from Day 8 that calls the stages built so far, so Day 11 only adds model and backtest; run it on a fresh machine at the freeze                                                             | Deterministic replay and the recorded video                               |
-| 12 | 2026 Eid and Ramadan dates move            | Official dates announced and different from the config                                                         | M2               | Keep the dates in config (T-M2-02), not in code                                                                                                                                                                           | Update config and rerun the one command                                   |
+### D1: protocol before any run
+
+- [ ] **T-EL-01** [Must] D1 · Fill open item 1 from the first build (`app_data/EW_REPORT.md`): which method and view gave 92%, and recall@8 of the simple rule · §0 and §3 updated · reviewer: ahmed
+- [ ] **T-EL-02** [Must] D1 · Write `EW_PROTOCOL.md` **before** the R7 run: label (3 classes, next 6 months), split (time; developer holdout only if ≥ 3 test developers), metrics (per-class recall, macro-F1, recall@N for `distressed` vs random top-N, 2,000 draws), pass condition · `app_data/EW_PROTOCOL.md` + wording copied to §0 · reviewer: salma
+- [ ] **T-EL-03** [Must] D1 · Assumed monthly fine rate for K5 in EGP (open item 3) in `configs/data.yaml` with `assumption: true` · reviewer: ahmed
+
+### D2: generator on R7
+
+- [ ] **T-EL-04** [Must] D2 · Regenerate on R7 only from ahmed's `kpi_values` (stories from real signals, reports equal real announced %, electricity meters only) (§5) · `sim/fin_monthly.parquet`, `sim/complaints.parquet`, private `answer_key` · depends: T-AH-09 · reviewer: ahmed
+- [ ] **T-EL-05** [Must] D2 · 6 planted defects caught by the gates + hard and calibration realism checks pass · `realism_checks.csv`, `defects_log.csv` · reviewer: ahmed
+- [ ] **T-EL-06** [Must] D2 · 3-class label in `answer_key`: `distressed` / `completed` (handover reached) / `ongoing` in the next 6 months, with censoring flag; update `src/generator/answer.py` + dictionary + test · reviewer: verina
+- [ ] **T-EL-07** [Must] D2 · Data dictionaries for every generated table (column, type, unit, origin 🟠) · `dictionaries/*.md` · reviewer: salma
+
+### D3: ml_dataset and classifier
+
+- [ ] **T-EL-08** [Must] D3 · Build `ml_dataset` (1 row = compound × quarter, columns from `03-dataset.md` §8.4): X = Track A outputs + K3, K5, K6 + B1-B5; y = 3-class label; no feature reads `answer_key`; statements filtered by `published_date` · `app_data/ml/ml_dataset.parquet` + leakage test (corrupt data after the cutoff, features unchanged) · depends: T-EL-04, T-EL-06 · reviewer: ahmed
+- [ ] **T-EL-09** [Must] D3 · B1-B5 triggers (§2) + K5 in EGP (eligible months × assumed rate × land value, 🟠) + rule with ACUD data (any of B1/B2/B3/B5 → level ≥ 2; B1 and K2 ≥ 2 → level 1; B4 context only) · reviewer: ahmed
+- [ ] **T-EL-10** [Must] D3 · Logistic regression baseline (never cut): per-class recall, macro-F1, recall@N for `distressed` vs random, counts as n of m · `ml/metrics.csv`, `ml/predictions.parquet` · reviewer: verina
+- [ ] **T-EL-11** [Should] D3 · Gradient boosting vs logistic, same split and metrics; if a model scores perfectly, add noise (`03-dataset.md` §7.6) · reviewer: verina
+- [ ] **T-EL-12** [Must] D3 · Early-warning comparison on R7: images alone vs images + ACUD data vs random, plus the rule itself; check on the 8 real `eval_outcomes` (check set only) · `app_data/EW_REPORT.md` · reviewer: ahmed
+
+### D4: digital twin what-if
+
+- [ ] **T-EL-13** [Must] D4 · Scenario runner: change one input from the as-of quarter onward, re-run generator + rule, never overwrite the base run · `src/generator/scenarios.py` + determinism test · reviewer: ahmed
+- [ ] **T-EL-14** [Must] D4 · S1 dollar shock (USD/EGP +30%), S2 collections drop (−25% for 6 months), S3 capacity N ± 2 (re-rank only) · `scenarios/S1..S3/` + "who moved up and why" table · reviewer: nada
+- [ ] **T-EL-15** [Could] D4 · S4 material cost +40%, S5 grace 12 → 6 months · reviewer: nada
+- [ ] **T-EL-16** [Could] D4 · FPMI and SAF tests on generated data, conditions written before the run, logged in `team_ideas.md` · reviewer: ahmed
+- [ ] **T-EL-17** [Must] D4 · Code freeze for Track B; one command builds Track B after `run_all` · reviewer: ahmed
+
+### D5
+
+- [ ] **T-EL-18** [Must] D5 · Method card for the Track B classifier (data, label, split, metrics, limits: generated data, ~150 rows, learns the generator) (deliverable 5) · `docs/deliverables/method-card.md` · reviewer: salma
+- [ ] **T-EL-19** [Must] D5 · ACUD data request list by impact (§12, deliverable 12) · `docs/deliverables/data-request.md` · reviewer: salma
+
+---
+
+## 6. verina: AI component
+
+Goal: inspection files for 5 compounds where every number matches the source, plus a complaints classifier demo. Reads `kpi_values` only (same numbers as the dashboard).
+
+- [ ] **T-VE-01** [Must] D1 · Confirm `GEMINI_MODEL` and the call budget; prompts in `prompts/system/` and `prompts/templates/` · reviewer: elsayed
+- [ ] **T-VE-02** [Must] D2 · Agent tools as plain Python: `get_facts` (register + record_id + link), `get_kpis` (A, K2-K6, level, series), `get_images` (two Wayback images + capture date), `get_rules` (Decree 2184 articles) (§6 A) · `src/inference/tools.py` + tests on first-build data · reviewer: ahmed
+- [ ] **T-VE-03** [Must] D3 · Inspection file template filled by code (what happened · why + rejected explanation · what it means · what we do: action, owner, date, escalation trigger); works without the LLM · reviewer: salma
+- [ ] **T-VE-04** [Should] D3 · Gemini writes one paragraph from attached facts only + 3 questions for the visit · reviewer: elsayed
+- [ ] **T-VE-05** [Must] D3 · Verifier: every number, date and code matched against the source JSON; causal words ("because", "بسبب") flagged for manual review; verdicts logged · `ai_verification_log.csv` (correct / wrong number / unsupported claim / missing context) + test · reviewer: elsayed
+- [ ] **T-VE-06** [Must] D4 · Arabic HTML/PDF output with footer "Drafted by AI, reviewed by [name]" + model + time; 5 stored files for the presentation (deliverable 11) · `app_data/files/` · depends: T-AH-15 · reviewer: salma
+- [ ] **T-VE-07** [Should] D3 · Complaints masking: regex on numbers and names **before** any model (Law 151/2020); `assert_zero_phones` passes + test · reviewer: elsayed
+- [ ] **T-VE-08** [Should] D4 · Complaints classifier: 5 classes (delay, stoppage, payment, quality, other) vs keyword baseline; extra test on `complaints_30.csv`; state that texts we wrote do not prove real accuracy · reviewer: elsayed
+- [ ] **T-VE-09** [Must] D5 · Risks and responsible-AI note (Law 151/2020, who sees what, fairness limits, misuse) with elsayed (deliverable 6) · `docs/deliverables/responsible-ai.md` · reviewer: salma
+
+---
+
+## 7. nada: dashboard
+
+Goal: Streamlit, 5 screens, track switch on every screen, passes the ten-second test on screen 1. Everything reads stored files, no live computation (§9).
+
+- [ ] **T-NA-01** [Must] D1 · App skeleton: `app.py` runs `streamlit run app.py`, track switch (Track A default / Track B), orange banner "Synthetic - for training only" fixed in Track B, 🟠 on generated numbers, map hidden in Track B · reviewer: verina
+- [ ] **T-NA-02** [Must] D2 · Screen 1 priority map: R7 boundaries coloured by level (level written as a word, grey = not assessable), cycle list with Arabic reason, CSV download; Track B list only · depends: T-AH-08 · reviewer: ahmed
+- [ ] **T-NA-03** [Must] D3 · Screen 2 compound file: DW and A curves, height (to 2024), announced markers, first announced date, vegetation, two Wayback images, K2-K6, lineage line (origin, run_id), inspection file button; Track B: 3-class probabilities + K5 in EGP (🟠) · depends: T-AH-16, T-EL-10 · reviewer: ahmed
+- [ ] **T-NA-04** [Must] D3 · `ops_visits` form: code, date, result (progressing / stalled / complete / not done), note; saved to `app_data/ops_visits.csv` · reviewer: verina
+- [ ] **T-NA-05** [Must] D3 · Screen 3 would it have warned: Track A frozen-clock table (1 of 8 and why); Track B per-class recall, macro-F1, recall@N vs random, B1-B5 per compound · depends: T-AH-10, T-EL-12 · reviewer: elsayed
+- [ ] **T-NA-06** [Must] D3 · Screen 4 data trust: gates, coverage, not assessable, 1,009/1,026 facts, colour key 🟢🔵🟠 · depends: T-AH-11 · reviewer: ahmed
+- [ ] **T-NA-07** [Must] D4 · Screen 5 what if (twin): pick S1-S3, show which compounds change level and why; generated (🟠, banner, no map) · depends: T-EL-14 · reviewer: elsayed
+- [ ] **T-NA-08** [Must] D4 · Display rules check (§9): ≤ 4 main tiles, each with value + unit + denominator + "as of" + origin; the 5 forbidden mistakes; ten-second test on screen 1 with someone outside the team · reviewer: salma
+- [ ] **T-NA-09** [Should] D4 · `no_names` gate also scans dashboard exports; Arabic RTL renders correctly · reviewer: ahmed
+- [ ] **T-NA-10** [Must] D5 · User guide (how the committee uses screens 1, 2 and the visit form) · `docs/deliverables/user-guide.md` · reviewer: salma
+
+---
+
+## 8. salma: KPIs, value, governance, presentation
+
+Goal: every number in the docs and slides has a source or an origin mark and matches `kpi_values`; the story is honest (backtest failed, shown with the reason).
+
+- [ ] **T-SA-01** [Must] D1 · Compass signed (use-case canvas, 8 checks); ask the instructor rubric + presentation length · `docs/requirements/05-project-compass.md` · reviewer: ahmed
+- [ ] **T-SA-02** [Must] D2 · KPI cards (10 fields + 2 tags, A K2 K3 K4 K5 K6) + KPI tree + levels table (deliverable 1), schema of `kpi_reference.csv` · `configs/kpis.yaml` + `docs/deliverables/kpi-cards.md` · reviewer: ahmed
+- [ ] **T-SA-03** [Must] D3 · Value in EGP, 3 settings, no double counting (§12 formula) · `configs/cost_assumptions.yaml` + "Under these assumptions, from X to Y million EGP per year" · reviewer: elsayed
+- [ ] **T-SA-04** [Must] D3 · Governance cards for the real and generated tables (owner, origin, refresh, who sees what) · `docs/deliverables/governance-cards.md` · reviewer: elsayed
+- [ ] **T-SA-05** [Must] D4 · Decision memo, one page Arabic + one page English, same facts and order (deliverable 8) · `docs/deliverables/decision-memo.md` · reviewer: verina
+- [ ] **T-SA-06** [Must] D4 · Slides 1-11 (§12): backtest slide is the only place real names may appear; slide 8 always quotes the denominator, the baseline, the scope and "generated data" · `docs/deliverables/01-presentation.md` + deck · reviewer: all
+- [ ] **T-SA-07** [Must] D4 · Wording audit of every doc, slide and screen against §3 allowed/forbidden table ("priority level" not "risk level", no "distressed" on a real compound, no completion %) · checklist in PR · reviewer: verina
+- [ ] **T-SA-08** [Must] D4 · Number audit: every number on slides and memo traced to `kpi_values`, `EW_REPORT.md` or `ai_verification_log` · reviewer: ahmed
+- [ ] **T-SA-09** [Must] D5 · Expected questions sheet (§12) with one-line answers · reviewer: elsayed
+- [ ] **T-SA-10** [Must] D5 · Final submission checklist: 13 deliverables (§11) ready, "done when" list (§14) ticked · reviewer: all
+- [ ] **T-SA-11** [Should] D2 · Update `docs/requirements/04-timeline.md` with today's program day and this board's D-days · reviewer: ahmed
+- [ ] **T-SA-12** [Could] D3 · Blind labeller for the finishing test (T-AH-17): label ~50 held-out compound-images without seeing the model output · reviewer: ahmed
+
+---
+
+## 9. Deliverables map (§11)
+
+| #  | Deliverable                                                                 | Owner                                          | Tasks                              |
+| -- | --------------------------------------------------------------------------- | ---------------------------------------------- | ---------------------------------- |
+| 1  | KPI cards + tree + levels table                                             | salma                                          | T-SA-02                            |
+| 2  | Pipeline with gates + `quality_checks_log.csv` + quality report           | ahmed                                          | T-AH-11, T-AH-12                   |
+| 3  | Track A rule (K2-K6), backtest, Track B `ml_dataset` + 3-class classifier | ahmed (A), elsayed (B)                         | T-AH-04..10, T-EL-08..12           |
+| 4  | Dashboard (track switch) + cycle list + `ops_visits`                      | nada                                           | T-NA-01..08                        |
+| 5  | Method card + monitoring plan                                               | elsayed (method card), ahmed (monitoring plan) | T-EL-18, T-AH-20                   |
+| 6  | Risks and responsible-AI note + `ai_verification_log`                     | verina                                         | T-VE-05, T-VE-09                   |
+| 7  | Technical docs, user guide, governance cards, data dictionaries             | ahmed, nada, salma, elsayed                    | T-AH-20, T-NA-10, T-SA-04, T-EL-07 |
+| 8  | Decision memo (Arabic / English)                                            | salma                                          | T-SA-05                            |
+| 9  | Knowledge transfer pack                                                     | ahmed                                          | T-AH-21                            |
+| 10 | One run command for the presentation                                        | ahmed                                          | T-AH-13, T-AH-19                   |
+| 11 | Inspection files for 5 compounds                                            | verina                                         | T-VE-06                            |
+| 12 | Data request list to ACUD                                                   | elsayed                                        | T-EL-19                            |
+| 13 | Final presentation                                                          | salma                                          | T-SA-06, T-ALL-05                  |
+
+---
+
+## 10. If behind at D4 (cut order from §13)
+
+1. T-AH-17, T-AH-18 (finishing and roof tests; cut at D4 anyway)
+2. T-EL-16 (FPMI / SAF), T-EL-15 (S4 / S5)
+3. T-EL-11 (gradient boosting; keep logistic)
+4. T-VE-07, T-VE-08 (complaints)
+5. T-VE-04 (LLM paragraph; the template stays)
+6. T-AH-15 (Wayback images)
+7. T-NA-05 becomes a slide
+
+**Never cut:** Track A rule and cycle list (T-AH-01..13), Track B logistic baseline (T-EL-08..10). If the what-if screen is not ready, say "observatory", not "digital twin" (§13).

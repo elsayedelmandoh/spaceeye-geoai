@@ -1,3 +1,5 @@
+> Historical plan retained for traceability. Current implemented R1/R2 release: [handoff](../data/HANDOFF.md), [delivery plan](../data/DELIVERY_PLAN.md), [R1 report](../data/R1_REPORT.md), [R2 report](../data/R2_REPORT.md). Older counts and statuses below do not override that release.
+
 # SpaceEye: Final Project Plan (Inspection Priority Observatory, R7/R8)
 
 English translation of the Arabic master plan (`PROJECT_PLAN.md`), 25 Oct 2026.
