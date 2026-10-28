@@ -28,6 +28,9 @@
 
 ## Validation and communication
 
+- Maintain docs/requirements/02-team-roles-and-tasks.md after each verified implementation. The team lead defines the main checkbox as implemented/ready for review; keep the separate human review checkbox pending until actual acceptance.
+- Keep evidence links and docs/REMAINING_TEAM_TASKS.md in sync. Do not auto-sign reviews, mark partial tasks complete, or restore superseded scope from an older pasted task board.
+
 - Relevant tests: uv run --locked --offline pytest -q. Lint touched code with ruff;check diffs before commit.
 - Data-only build: python -m src.pipeline.complete_data. Two-build delivery: python -m src.pipeline.delivery.
 - Component preparation: python -m src.pipeline.component_data. None of these component tasks requires new model fitting.

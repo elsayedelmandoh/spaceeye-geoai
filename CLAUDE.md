@@ -2,6 +2,17 @@
 
 # CLAUDE.md
 
+## Required task-board updates
+
+The team lead explicitly requests visible implementation marks before human review. Use `docs/requirements/02-team-roles-and-tasks.md` as the single task board; do not create a duplicate or restore the pasted file's superseded three-class scope.
+
+- Read the board and `docs/REMAINING_TEAM_TASKS.md` before starting work.
+- After implementing and verifying an original task, mark its main checkbox `[x]`, add a concrete evidence link, and leave its separate `Review accepted` checkbox unchecked for the human reviewer.
+- Main `[x]` means implemented/ready for review, not reviewed/approved. Never invent a reviewer's name, date or approval.
+- Keep partial/not-started tasks `[ ]` and update their remaining work. Keep failed/excluded experiments visibly labelled; do not mark a failed feature as delivered.
+- Preserve task IDs/owners, current approved binary scope and existing teammate work. Update the board and remaining-task handoff in the same branch/PR as future implementation changes.
+- Before reporting completion or pushing, check that the marks, evidence and remaining list agree. Do not rerun training for a documentation-only status update.
+
 Mandatory Git workflow: all work and commits use a feature branch,never main. No direct push to main;publish through a pull request. The approved current prepared bundle in releases/ready-data can be shared;raw inputs,name mappings,hidden answer keys and models remain excluded. Team instructions:releases/ready-data/README.md. Component inputs/protocol:docs/data/COMPONENT_DATA_PROTOCOL.md. Retired docs/plan drafts must not be restored.
 
 ## Current R1/R2 release
