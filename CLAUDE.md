@@ -6,11 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 SpaceEye: R7 Digital Twin and Inspection Priority Observatory (New Administrative Capital, graduation project). It answers one question: **which R7 compounds should the inspection committee visit first this cycle, and why.** The system recommends; the committee decides.
 
-**The plan lives in `docs/requirements/01-specs.md` and `docs/project-definition/03-dataset.md`.** These two files are the only live plan docs and win over everything else, including `docs/project-definition/08-structure.md` (old design) and anything in `docs/.internal/archive/`.
+**The plan lives in `docs/requirements/01-specs.md` and `docs/project-definition/03-dataset.md`.** These two files are the only live plan docs and win over everything else, including anything in `docs/.internal/archive/`. Task board (owners, `T-..` IDs, hand-off files): `docs/requirements/02-team-roles-and-tasks.md`. Repo layout, current and planned: `docs/project-definition/08-structure.md`.
 
 ## Commands
 
-Use `uv`, not pip.
+Use `uv`, not pip. Dev tools (pytest, ruff, nbstripout) are a `[dependency-groups]` group, so plain `uv sync` installs them.
 
 ```bash
 make install                      # uv sync + nbstripout hook
@@ -58,6 +58,15 @@ Two tracks, one idea:
 ## Code conventions
 
 - Each module starts with a docstring of the form `propose: / input: / output:`. Lowercase comments and docstrings.
-- Thresholds, paths and source file names come from `configs/data.yaml` via `CFG` / `src()`, never hardcoded. `.env` (from `.env.example`) holds `MASK_SALT` and `GEMINI_API_KEY` / `GEMINI_MODEL`, loaded by `src/config/config.py` `settings`.
+- Thresholds, paths and source file names come from `configs/data.yaml` via `CFG` / `src()`, never hardcoded. `.env` (from `.env.example`, gitignored) holds `MASK_SALT` (change it for production) and `GEMINI_API_KEY` / `GEMINI_MODEL`, loaded by `src/config/config.py` `settings`.
 - Test names are full sentences describing the behaviour (`test_k2_counts_only_after_a_four_quarter_run_of_activity`).
-- Planning and lessons files: `docs/.internal/agent-workflow/02-todo.md`, `03-lessons.md`.
+
+## Working rules
+
+- Ponytail mode, full: YAGNI → reuse this codebase → stdlib → native feature → installed dependency → one line → minimum working code. Mark deliberate simplifications with `# ponytail: ...`.
+- Safety: never delete without confirmation; show impact before acting; secrets only in `.env`; keep the `src/` module structure.
+- Planning: 3+ steps → `docs/.internal/agent-workflow/02-todo.md` with `- [ ]`; verify before starting; mark in progress / completed; add a review; capture lessons in `docs/.internal/agent-workflow/03-lessons.md`; stop and re-plan on failure.
+- Delegation: codebase search and external docs can go to subagents; use a deeper architecture/debug pass only after 2+ failed fixes; never redo delegated work by hand.
+- Verification: never call work done without evidence (relevant tests run, logs checked, before/after diffed). `make test` must exit 0.
+- File discipline: no unnecessary files; don't modify outside the task's scope; prefer deleting over adding.
+- Communication: terse, lowercase, no em dash, no filler. Code, commits and PRs are written normally.

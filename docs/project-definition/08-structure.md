@@ -5,7 +5,7 @@ Current layout plus the files planned in [`02-team-roles-and-tasks.md`](../requi
 ```text
 spaceeye-geoai/
 ├── README.md                          # overview + how to run
-├── CLAUDE.md, AGENTS.md               # agent instructions
+├── CLAUDE.md                          # agent instructions
 ├── pyproject.toml, uv.lock            # uv project (dev group: pytest, ruff, nbstripout; extra `pulls`: earthengine-api)
 ├── Makefile                           # install | lint | format | test | clean · [planned T-AH-13] run
 ├── .env.example                       # MASK_SALT, GEMINI_API_KEY, GEMINI_MODEL (never commit .env)
