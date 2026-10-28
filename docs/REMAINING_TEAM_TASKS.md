@@ -2,7 +2,7 @@
 
 Updated on 28 October 2026 for approved binary scope and delivery v5. AH-16, EL-01, EL-10, EL-11 and EL-17 are no longer open implementation tasks; see [scope decision](data/BINARY_SCOPE_DECISION.md). Based on the original **02-team-roles-and-tasks.md** supplied by the team lead. Original task IDs, owners and priority tiers are preserved.
 
-This is an implementation snapshot, not an assessment of individual effort. Work on other branches or outside this repository requires evidence before being credited. Original checkboxes require the named reviewer; this document does not sign on anyone's behalf.
+This is an implementation snapshot, not an assessment of individual effort. Work on other branches or outside this repository requires evidence before being credited. The main task-board checkbox now means implemented/ready for review, as requested by the team lead. Separate Review accepted checkboxes require actual human acceptance; no reviewer is signed on anyone's behalf.
 
 ## 1. Start here
 
@@ -112,7 +112,7 @@ This is a failed experiment, rather than missing application implementation. It 
 
 ## 10. Existing outputs: review and reuse
 
-These 36 IDs have implementation/output evidence. Retain named review requirements; do not rebuild solely because original checkboxes remain unticked.
+These 36 IDs have implementation/output evidence. These main task-board checkboxes are marked complete for implementation and have separate pending human-review checkboxes. Retain actual review requirements; do not rebuild already supplied outputs.
 
 | Owner | IDs | Existing output |
 | --- | --- | --- |
