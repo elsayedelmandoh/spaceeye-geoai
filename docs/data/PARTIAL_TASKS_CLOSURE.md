@@ -11,7 +11,7 @@ Scope authorized on 28 October 2026: AH-07/08/09/10/13/16, EL-01/02/05/10/11/12/
 - [x] Re-evaluate real-case backtest with the saved overlap-excluded activity model; add numeric alternative checks.
 - [x] Export S1/S2/S3 with change explanations; audit planted defects and annual context coverage.
 - [x] Verify two full Track A runs and refresh prepared data/components; the current bundle is version 4.
-- [ ] Update current handoff/spec open items and task-level evidence, preserve teammates' changes and publish on a feature branch.
+- [x] Update current handoff/spec open items and task-level evidence; preserve teammates' changes; publish through feat/complete-partial-tasks.
 
 ## Preconditions and limits
 
@@ -44,3 +44,5 @@ The original first-build 92% attribution must be verified from an archived artif
 Current time-test recall@4 counts: public rule 3/4, combined rule 3/4, logistic satellite 1/4, logistic combined 2/4, boosting satellite 4/4, boosting combined 1/4. These are repeated synthetic quarterly labels, not four independent real events. Missing completed probability remains null. No performance-driven noise or threshold changes were made.
 
 The previous v3 ZIP and historical binary data/evaluation are preserved. Current prepared exports add fields/diagnostics; raw/source/private data and model checkpoints are not published. Changes remain on a feature branch under the configured human identity.
+
+Current prepared delivery: `SpaceEye_R7_READY_DATA_2026-10-28_v4.zip`, 23 ready tables, 292 files. [ZIP validation](READY_V4_VALIDATION.json) records CRC, every manifest hash, common what-if schema, priority labels and missing-class probability checks. The producing implementation is pinned in package PROVENANCE.json.
