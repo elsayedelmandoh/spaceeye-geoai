@@ -41,8 +41,8 @@ These are task counts, not effort percentages. Legacy D-day labels remain planni
 | Member                     | Owns end to end                                                                   | Roles from §10 it covers                                               | Main code                                                                        |
 | -------------------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
 | **ahmed abdelhamid** | **Track A: images → rule → cycle list** (real data)                       | R1 data pipeline + R3 GIS and satellites + R4 Track A rule and backtest | `src/pipeline/`, `configs/data.yaml`                                         |
-| **elsayed elmandoh** | **Track B: generated ACUD data → `ml_dataset` → classifier → what-if** | R2 data and generator + R4 Track B classifier and early warning         | `src/generator/`, `src/analysis/`                                            |
-| **verina fouad**     | AI component: inspection file agent + verification log + complaints classifier    | R4 agent part                                                           | `src/inference/`, `prompts/`                                                 |
+| **elsayed elmandoh** | **AI component: inspection file agent + verification log + complaints classifier** | R4 agent part | `src/inference/`, `prompts/` |
+| **verina fouad**     | **Track B: generated ACUD data → `ml_dataset` → classifier → what-if** | R2 data and generator + R4 Track B classifier and early warning | `src/generator/`, `src/analysis/` |
 | **nada shady**       | Dashboard (5 screens, track switch) + cycle list download + `ops_visits` form   | R5 dashboard part                                                       | `app.py`, `src/dashboard/`                                                   |
 | **salma magdy**      | KPI cards, value in EGP, governance docs, memo, presentation, independent checks  | R5 presentation part + doc parts of R1/R2/R3                            | `docs/deliverables/`, `configs/cost_assumptions.yaml`, `configs/kpis.yaml` |
 
@@ -311,3 +311,4 @@ Goal: every number in the docs and slides has a source or an origin mark and mat
 ## Approved binary-scope closure, 28 October 2026
 
 AH-16, EL-01, EL-10, EL-11 and EL-17 are implemented under BINARY_SCOPE_DECISION.md: contextual height with no fixed error guarantee, retired historical percentage claim, and reproducible binary distress models/workflow. Producing implementation tag: r7-binary-distress-2026-10-28. Main task marks indicate implementation; separate review checkboxes retain the human acceptance requirement. No colleague acceptance is signed automatically. Completion prediction is not an outstanding task.
+### D4: digital twin what-if — reassigned to elsayed (already T-EL-13/14/17; confirmed)
