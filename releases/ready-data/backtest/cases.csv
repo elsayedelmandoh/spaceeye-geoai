@@ -1,0 +1,7 @@
+case,code,first_deadline,after_start,after_start_months_before,first_alert_quarter,driver,point_in_time,level_at_freeze,literal,started_by_cutoff,start_quarter,alt_deadline,alt_after_start,alt_point_in_time
+E1,C14,2024-12-31,False,,,,False,4,False,True,2021Q2,2024-12-31,False,False
+E4,C12,2022-12-31,False,,,,False,4,True,True,2020Q2,2021-12-31,False,False
+E5,C21,2023-12-31,True,39.0,2020Q3,K2,False,4,True,True,2019Q2,2023-12-31,True,False
+E6,C10,2023-12-31,False,,,,False,4,False,True,2021Q2,2023-12-31,False,False
+E7,C19,2023-12-31,False,,,,False,4,False,True,2020Q2,2022-12-31,False,False
+E8,C02,2023-03-31,False,,,,False,4,False,True,2021Q2,2023-06-30,False,False

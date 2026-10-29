@@ -67,6 +67,7 @@ def backtest_report():
              "| Case / code | Assessable pre-cutoff quarters | After-start alert quarters | Numeric alternative check |", "| --- | ---: | ---: | --- |"]
     lines += [f"| {r.case} / {r.code} | {r.assessable_quarters_before_cutoff} | {r.after_start_alert_quarters} | {r.numeric_check} |" for r in details.itertuples()]
     lines += ["", "The full CSV contains what happened, the rule explanation, the competing explanation and next action. Warning detection is not causal proof. No percentages or retuned thresholds are used."]
+    lines += ["", "Published [cases.csv](../releases/ready-data/backtest/cases.csv), [saved summary.json](../releases/ready-data/backtest/summary.json), and [prepared-input replay instructions](../releases/ready-data/backtest/README.md). Run `python -m src.pipeline.rerun_backtest` from a checkout without the external source drive. This replays saved prepared inputs; it does not refit activity or repeat raw-source clock checks."]
     (BASE_DIR / "data/BACKTEST_CURRENT.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
