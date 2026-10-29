@@ -2,7 +2,13 @@
 
 import pandas as pd
 
-from src.pipeline import backtest_check, codify, complete_data, partial_exports, quality_report
+from src.pipeline import (
+    backtest_check,
+    codify,
+    complete_data,
+    partial_exports,
+    quality_report,
+)
 from src.pipeline.common import CFG, qindex
 
 
@@ -46,7 +52,6 @@ def test_saved_quality_checks_include_run_metadata():
 
 
 def test_quality_report_uses_the_first_saved_run_id(tmp_path):
-    source = tmp_path / "quality_checks.csv"
     target = tmp_path / "quality-report.md"
     rows = _quality_rows()
 
