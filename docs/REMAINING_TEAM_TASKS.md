@@ -61,7 +61,7 @@ Reuse [protocol](../data/EW_PROTOCOL_CURRENT.md), [method card](deliverables/met
 
 | ID / tier | Status / existing work | Remaining action and acceptance |
 | --- | --- | --- |
-| T-VE-01 / Must | Build/configuration: project-specific model/budget approval not established. | Confirm permitted Gemini model and call budget; add project prompts under prompts/system and prompts/templates. Keep credentials out of Git. |
+| T-VE-01 / Must | Project prompts, configuration, approval guard and tests are implemented. The model was stated by the owner; the call-budget values are proposed. | The owner must confirm the proposed budget and change approval from pending to approved before any calls are allowed. Keep credentials out of Git. |
 | T-VE-02 / Must | Partial: 180 cutoff-controlled inspection contexts ready. | Implement/test get_facts, get_kpis, get_images, get_rules in src/inference/tools.py. Include evidence IDs/links and explicit missing-image status until AH-15 is ready. |
 | T-VE-03 / Must | Partial: facts, KPIs and context inputs ready. | Build the deterministic report: what happened; why/rejected explanation; meaning; action, owner, due date and escalation trigger. It must work without an LLM. |
 | T-VE-04 / Should | Build: project-specific Gemini paragraph workflow not complete. | Generate one paragraph from attached facts plus three visit questions. Flag unsupported/causal claims for review. |
