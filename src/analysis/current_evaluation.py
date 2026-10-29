@@ -16,12 +16,24 @@ from sklearn.preprocessing import StandardScaler
 from src.pipeline.common import APP, BASE_DIR, CFG, PRIVATE
 
 CLASSES = ["distressed", "not_distressed"]
-OUT = APP / "ml_current"
-PROTOCOL = BASE_DIR / "data/EW_PROTOCOL_CURRENT.md"
+VARIANT = CFG.get("candidates", {}).get("variant", "v1")  # v1 = frozen results; any other name writes to its own files
+STEM = "CURRENT" if VARIANT == "v1" else VARIANT.upper()
+OUT = APP / ("ml_current" if VARIANT == "v1" else f"ml_{VARIANT}")
+PROTOCOL = BASE_DIR / ("data/EW_PROTOCOL_CURRENT.md" if VARIANT == "v1" else f"data/EW_PROTOCOL_{STEM}.md")
 
 
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def checked_protocol_hash():
+    """hash of the protocol file; a non-v1 variant must match the hash recorded when the protocol was frozen."""
+    current = sha(PROTOCOL)
+    if VARIANT != "v1":
+        recorded = PROTOCOL.with_suffix(".sha256").read_text(encoding="utf-8").split()[0]
+        if recorded != current:
+            raise ValueError(f"{PROTOCOL.name} changed after its hash was recorded; freeze a new protocol version")
+    return current
 
 
 def masks(frame):
@@ -114,8 +126,13 @@ def developer_diagnostic(frame, train_mask, test_mask, public, features, metrics
     return {**result, "status": "FITTED", "train_classes": train.y_outcome_6m.value_counts().to_dict(), "test_classes": test.y_outcome_6m.value_counts().to_dict()}
 
 
+def without_height(columns: list[str]) -> list[str]:
+    """candidate ablation: drop the stale static height feature (off by default, see configs/data.yaml candidates)."""
+    return [c for c in columns if c != "height_mean_m"]
+
+
 def run():
-    protocol_hash = sha(PROTOCOL)  # Existing frozen protocol must exist before fitting.
+    protocol_hash = checked_protocol_hash()  # Existing frozen protocol must exist before fitting.
     path = PRIVATE / "ml_dataset_extended.parquet"
     frame = pd.read_parquet(path)
     meta = json.loads((PRIVATE / "ml_dataset_extended_metadata.json").read_text(encoding="utf-8"))
@@ -135,6 +152,8 @@ def run():
     public = [c for c in features if meta["column_origins"][c] == "derived_public_observation"]
     if not public or "K5_egp" in public:
         raise ValueError("Invalid public feature set")
+    if CFG.get("candidates", {}).get("no_height_ablation", False):
+        features, public = without_height(features), without_height(public)
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "models").mkdir(exist_ok=True)
     predictions, metrics, confusions = [], [], {}
@@ -199,19 +218,19 @@ def run():
     (OUT / "metadata.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
     pd.DataFrame({"draw": range(2000), "recall_at_4": random_values}).to_csv(OUT / "random_draws.csv", index=False)
     docs = BASE_DIR / "data"
-    (docs / "CURRENT_MODEL_METADATA.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
-    pd.DataFrame(metrics).to_csv(docs / "CURRENT_MODEL_METRICS.csv", index=False)
+    (docs / f"{STEM}_MODEL_METADATA.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
+    pd.DataFrame(metrics).to_csv(docs / f"{STEM}_MODEL_METRICS.csv", index=False)
     ranking = pd.DataFrame(metrics).query("metric == 'distressed_recall_at_4' and view == 'time_test'")
-    lines = ["# Current early-warning evaluation", "", "Synthetic - for training only. See [frozen protocol](EW_PROTOCOL_CURRENT.md).", "",
+    lines = ["# Current early-warning evaluation", "", f"Synthetic - for training only. See [frozen protocol]({PROTOCOL.name}).", "",
              f"Training: {len(train)} rows. Time test: {len(test)} rows. Capacity: 4. Target: distressed / not_distressed.", "",
              "**Binary implementation acceptance: PASS.** Both classes are represented; the two probabilities sum to one. Completion prediction is outside the approved scope.", "",
              "| Method | Distressed cases selected | Recall@4 |", "| --- | --- | --- |"]
     lines += [f"| {r.method} | {r.numerator:g} of {r.denominator:g} | {r.value:.3f} |" for r in ranking.itertuples()]
     lines += ["", f"Random: 2,000 draws, mean {random_summary['mean']:.3f}, 95% interval [{random_summary['low']:.3f}, {random_summary['high']:.3f}].",
-              "", "Class support, per-class recall and macro-F1: [metrics](CURRENT_MODEL_METRICS.csv). Exact split, feature sets and confusion counts: [metadata](CURRENT_MODEL_METADATA.json).",
+              "", f"Class support, per-class recall and macro-F1: [metrics]({STEM}_MODEL_METRICS.csv). Exact split, feature sets and confusion counts: [metadata]({STEM}_MODEL_METADATA.json).",
               "", f"Secondary developer holdout: {developer_holdout['status']}; see metadata and the metrics view column.",
               "", "This is the current binary scope; historical N=8 and v4 three-class-scope results remain separate. Scores do not establish real-world predictive accuracy or fairness."]
-    (docs / "EW_REPORT_CURRENT.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (docs / f"EW_REPORT_{STEM}.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"Binary evaluation PASS; train={len(train)}, test={len(test)}, developer_holdout={developer_holdout['status']}")
     return result
 

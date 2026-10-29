@@ -32,7 +32,7 @@ Track A modules are under src/pipeline; synthetic reconstruction/forward cases u
 
 Use codes only in exported data; the no_names gate logs paths/counts, not matching names. Keep public, derived and generated origins separate. Retain Synthetic - for training only on generated outputs. Never publish raw data, private mappings/truth, credentials or checkpoints. Publish only the approved prepared ZIP.
 
-Use publication/availability cutoffs; targets/hidden truth are never X. Fit preprocessing on training data only. Keep seeds/computation date fixed and missing observations unknown. Do not change thresholds, data or noise after looking at a score. No unsupported height/finishing/roads product enters the observed data.
+Use publication/availability cutoffs; targets/hidden truth are never X. Fit preprocessing on training data only. Keep seeds/computation date fixed and missing observations unknown. Track A rule thresholds (levels, K thresholds, capacity) do not change after looking at a score. Track B features, hyperparameters, data and noise may change only under a new protocol written and hashed before fitting (protocol_sha256_before_fit); earlier results stay labelled v1 and no result is presented as untouched holdout performance. No unsupported height/finishing/roads product enters the observed data.
 
 K5 is screening exposure with assumed monetary inputs, not an assessed contractual fine. Generated visits are not fieldwork. Future what-if context is explicitly frozen, not observed or validated forecasts. Not_distressed does not imply completion or financial health. The rule, not fitted probabilities, selects the operational cycle list.
 

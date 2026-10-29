@@ -99,10 +99,10 @@ Goal: one command (`python -m src.pipeline.run_all`) builds the R7 tables, A, K2
 - [x] **T-AH-06** [Must] D2 · Level rule = worst of K2, K3, K6 + "may be complete" cap at 3 + "not started" / "not assessable" (§2 table); update `test_level_is_the_worst_signal...` for K6 · reviewer: elsayed **Done; review accepted.**
   - Evidence: [implementation/output](../../src/pipeline/kpis.py). Tests: tests/test_pipeline.py::test_level_is_the_worst_signal_and_may_be_complete_caps_at_3, tests/test_pipeline.py::test_not_assessable_kpi_row_has_no_level_and_keeps_lineage; tests/test_spec_data.py::test_k6_priority_and_promise_publication_fallback_have_no_future_leakage.
   - [x] Review accepted (logs/review-02.md, 2026-10-29; findings fixed in c837b52, 6c74934, 7e359c4 and 53db98a; review recorded in ea4cf4d; new "start unknown" label added for unknown K6; real-data run pending).
-- [x] **T-AH-07** [Must] D2 · Reason sentence: one template, English in logs, **Arabic** for the committee (`reason_ar` column), filled by code, codes only (§2) + test on the two examples · reviewer: verina **Done; review accepted.**
+- [x] **T-AH-07** [Must] D2 · Reason sentence: one template, English in logs, **Arabic** for the committee (`reason_ar` column), filled by code, codes only (§2) + test on the two examples · reviewer: elsayed **Done; review accepted.**
   - Evidence: [implementation/output](../../src/pipeline/kpis.py). Tests: tests/test_pipeline.py::test_reason_matches_spec_examples; tests/test_partial_tasks.py::test_arabic_reason_keeps_unknown_deadline_and_missing_start_distinct.
   - [x] Review accepted (logs/review-02.md, 2026-10-29; findings fixed in c837b52, 6c74934, 7e359c4 and 53db98a; review recorded in ea4cf4d; Arabic wording still needs a native-speaker review before committee use).
-- [x] **T-AH-08** [Must] D2 · Cycle list export: top N with level 1-3, ordered by level, then K2, then K3 descending, then code (spec section 2), CSV (Arabic reason, level as a word) for the as-of quarter · `app_data/real/cycle_list_<asof>.csv` · depends: T-AH-04..07 · reviewer: nada **Done; review accepted.**
+- [x] **T-AH-08** [Must] D2 · Cycle list export: top N with level 1-3, ordered by level, then K2, then K3 descending, then code (spec section 2), CSV (Arabic reason, level as a word) for the as-of quarter · `app_data/real/cycle_list_<asof>.csv` · depends: T-AH-04..07 · reviewer: elsayed **Done; review accepted.**
   - Evidence: [implementation/output](../../src/pipeline/kpis.py). Tests: tests/test_pipeline.py::test_rank_cycle_takes_top_capacity_levels_1_to_3_in_spec_order; tests/test_spec_data.py::test_capacity_scenarios_only_select_eligible_rows.
   - [x] Review accepted (logs/review-02.md, 2026-10-29; findings fixed in c837b52, 6c74934, 7e359c4 and 53db98a; review recorded in ea4cf4d; run_all owns the real cycle-list CSV; real-data run pending).
 - [x] **T-AH-09** [Must] D2 · `kpi_values` carries `origin`, `run_id`, `computed_at` for every new column (K5, K6, reason_ar); hand off to elsayed/verina/nada (contract §2) · reviewer: elsayed **Done; review accepted.**
@@ -111,14 +111,14 @@ Goal: one command (`python -m src.pipeline.run_all`) builds the R7 tables, A, K2
 
 ### D3: backtest, gates, reproducibility
 
-- [x] **T-AH-10** [Must] D3 · Re-run the frozen-clock backtest on R7 only (backtest variant of A without overlapping plots); per case: what happened / why / what next + one competing explanation rejected with a number; counts only, no % · `backtest/cases.csv`, `summary.json` · reviewer: salma **Implemented; review pending.**
+- [x] **T-AH-10** [Must] D3 · Re-run the frozen-clock backtest on R7 only (backtest variant of A without overlapping plots); per case: what happened / why / what next + one competing explanation rejected with a number; counts only, no % · `backtest/cases.csv`, `summary.json` · reviewer: elsayed **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/BACKTEST_CURRENT.md).
   - Files: [cases.csv](../../releases/ready-data/backtest/cases.csv), [saved summary.json](../../releases/ready-data/backtest/summary.json), [prepared-input replay](../../releases/ready-data/backtest/README.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-AH-11** [Must] D3 · 10 gates pass or flag with dimension, owner, decision (§8); `no_names` scans every output incl. new CSVs; `separation` covers new columns · `quality_checks_log.csv` (program template) · reviewer: elsayed **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/R1_REPORT.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-AH-12** [Must] D3 · Quality report with an "impact on the indicator" column, from `quality_checks_log` · `docs/deliverables/quality-report.md` · reviewer: salma **Implemented; review pending.**
+- [x] **T-AH-12** [Must] D3 · Quality report with an "impact on the indicator" column, from `quality_checks_log` · `docs/deliverables/quality-report.md` · reviewer: elsayed **Implemented; review pending.**
   - Evidence: [implementation/output](../deliverables/quality-report.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-AH-13** [Must] D3 · Two runs identical: run `run_all` twice, compare `manifest.csv` sha; add a `make run` target · reviewer: elsayed **Implemented; review pending.**
@@ -128,11 +128,11 @@ Goal: one command (`python -m src.pipeline.run_all`) builds the R7 tables, A, K2
 
 ### D3-D4: images for the compound file
 
-- [ ] **T-AH-15** [Should] D3 · Check Esri Wayback terms; then 2 Wayback images per R7 compound (before/after) with capture date + attribution · `app_data/images/<code>_{before,after}.jpg` + `images.csv` · reviewer: nada
-- [x] **T-AH-16** [Should] D3 · Open Buildings height 2016-2023 + 2024 v4 estimate (context only; no fixed error guarantee) and vegetation series ready per compound for screen 2 (height is context, never in the level) · reviewer: nada **Implemented; review pending.**
+- [ ] **T-AH-15** [Should] D3 · Check Esri Wayback terms; then 2 Wayback images per R7 compound (before/after) with capture date + attribution · `app_data/images/<code>_{before,after}.jpg` + `images.csv` · reviewer: elsayed
+- [x] **T-AH-16** [Should] D3 · Open Buildings height 2016-2023 + 2024 v4 estimate (context only; no fixed error guarantee) and vegetation series ready per compound for screen 2 (height is context, never in the level) · reviewer: elsayed **Implemented; review pending.**
   - Evidence: [implementation/output](../deliverables/annual-context.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [ ] **T-AH-17** [Could] D4 · Finishing vision-model test (Qwen-VL on Wayback): pass condition ≥ 75% agreement on ~50 held-out compound-images labelled blind by salma (T-SA-12); log in `team_ideas.md`; **cut at D4 if not passed**; flag in the inspection file only · reviewer: salma **Failed experiment; feature excluded.** See [recorded outcome](../REMAINING_TEAM_TASKS.md).
+- [ ] **T-AH-17** [Could] D4 · Finishing vision-model test (Qwen-VL on Wayback): pass condition ≥ 75% agreement on ~50 held-out compound-images labelled blind by salma (T-SA-12); log in `team_ideas.md`; **cut at D4 if not passed**; flag in the inspection file only · reviewer: elsayed **Failed experiment; feature excluded.** See [recorded outcome](../REMAINING_TEAM_TASKS.md).
 - [ ] **T-AH-18** [Could] D4 · Roof slab uniformity test on Google heights 2016-2023 against a condition written before the test; cut at D4 if not passed · reviewer: elsayed
 
 ### D4-D5: freeze and hand over
