@@ -151,55 +151,55 @@ Goal: generated ACUD data for R7 → one `ml_dataset` (compound × quarter) → 
 
 ### D1: protocol before any run
 
-- [x] **T-EL-01** [Must] D1 ? Resolved implementation: retire the unattributed historical percentage claim; current method/view/denominator recorded in EW_REPORT_CURRENT.md ? approved scope: BINARY_SCOPE_DECISION.md ? reviewer: ahmed **Implemented; review pending.**
+- [x] **T-VE-01** [Must] D1 ? Resolved implementation: retire the unattributed historical percentage claim; current method/view/denominator recorded in EW_REPORT_CURRENT.md ? approved scope: BINARY_SCOPE_DECISION.md ? reviewer: ahmed **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/BINARY_SCOPE_DECISION.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-EL-02** [Must] D1 · Write `EW_PROTOCOL.md` **before** the R7 run: label (2 classes, next 6 months), split (time; developer holdout only if ≥ 3 test developers), metrics (per-class recall, macro-F1, recall@N for `distressed` vs random top-N, 2,000 draws), pass condition · `app_data/EW_PROTOCOL.md` + wording copied to §0 · reviewer: salma **Implemented; review pending.**
+- [x] **T-VE-02** [Must] D1 · Write `EW_PROTOCOL.md` **before** the R7 run: label (2 classes, next 6 months), split (time; developer holdout only if ≥ 3 test developers), metrics (per-class recall, macro-F1, recall@N for `distressed` vs random top-N, 2,000 draws), pass condition · `app_data/EW_PROTOCOL.md` + wording copied to §0 · reviewer: salma **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/EW_PROTOCOL_CURRENT.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-EL-03** [Must] D1 · Assumed monthly fine rate for K5 in EGP (open item 3) in `configs/data.yaml` with `assumption: true` · reviewer: ahmed **Implemented; review pending.**
+- [x] **T-VE-03** [Must] D1 · Assumed monthly fine rate for K5 in EGP (open item 3) in `configs/data.yaml` with `assumption: true` · reviewer: ahmed **Implemented; review pending.**
   - Evidence: [implementation/output](../../configs/data.yaml).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 
 ### D2: generator on R7
 
-- [x] **T-EL-04** [Must] D2 · Regenerate on R7 only from ahmed's `kpi_values` (stories from real signals, reports equal real announced %, electricity meters only) (§5) · `sim/fin_monthly.parquet`, `sim/complaints.parquet`, private `answer_key` · depends: T-AH-09 · reviewer: ahmed **Implemented; review pending.**
+- [x] **T-VE-04** [Must] D2 · Regenerate on R7 only from ahmed's `kpi_values` (stories from real signals, reports equal real announced %, electricity meters only) (§5) · `sim/fin_monthly.parquet`, `sim/complaints.parquet`, private `answer_key` · depends: T-AH-09 · reviewer: ahmed **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/R2_REPORT.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-EL-05** [Must] D2 · 6 planted defects caught by the gates + hard and calibration realism checks pass · `realism_checks.csv`, `defects_log.csv` · reviewer: ahmed **Implemented; review pending.**
+- [x] **T-VE-05** [Must] D2 · 6 planted defects caught by the gates + hard and calibration realism checks pass · `realism_checks.csv`, `defects_log.csv` · reviewer: ahmed **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/DEFECT_AUDIT_CURRENT.json).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-EL-06** [Must] D2 ? Binary next-six-month distressed/not_distressed labels with censoring; boolean source label and equivalent categorical extended export; dictionary and regression checks ? src/pipeline/complete_data.py ? reviewer: verina **Implemented; review pending.**
+- [x] **T-VE-06** [Must] D2 ? Binary next-six-month distressed/not_distressed labels with censoring; boolean source label and equivalent categorical extended export; dictionary and regression checks ? src/pipeline/complete_data.py ? reviewer: verina **Implemented; review pending.**
   - Evidence: [implementation/output](../../src/pipeline/complete_data.py).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-EL-07** [Must] D2 · Data dictionaries for every generated table (column, type, unit, origin 🟠) · `dictionaries/*.md` · reviewer: salma **Implemented; review pending.**
+- [x] **T-VE-07** [Must] D2 · Data dictionaries for every generated table (column, type, unit, origin 🟠) · `dictionaries/*.md` · reviewer: salma **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/dictionaries/README.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 
 ### D3: ml_dataset and classifier
 
-- [x] **T-EL-08** [Must] D3 · Build `ml_dataset` (1 row = compound × quarter, columns from the current DATASET_CONTRACT.md): X = Track A outputs + K3, K5, K6 + B1-B5; y = binary label; no feature reads `answer_key`; statements filtered by `published_date` · `app_data/ml/ml_dataset.parquet` + leakage test (corrupt data after the cutoff, features unchanged) · depends: T-EL-04, T-EL-06 · reviewer: ahmed **Implemented; review pending.**
+- [x] **T-VE-08** [Must] D3 · Build `ml_dataset` (1 row = compound × quarter, columns from the current DATASET_CONTRACT.md): X = Track A outputs + K3, K5, K6 + B1-B5; y = binary label; no feature reads `answer_key`; statements filtered by `published_date` · `app_data/ml/ml_dataset.parquet` + leakage test (corrupt data after the cutoff, features unchanged) · depends: T-VE-04, T-VE-06 · reviewer: ahmed **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/DATASET_CONTRACT.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-EL-09** [Must] D3 · B1-B5 triggers (§2) + K5 in EGP (eligible months × assumed rate × land value, 🟠) + rule with ACUD data (any of B1/B2/B3/B5 → level ≥ 2; B1 and K2 ≥ 2 → level 1; B4 context only) · reviewer: ahmed **Implemented; review pending.**
+- [x] **T-VE-09** [Must] D3 · B1-B5 triggers (§2) + K5 in EGP (eligible months × assumed rate × land value, 🟠) + rule with ACUD data (any of B1/B2/B3/B5 → level ≥ 2; B1 and K2 ≥ 2 → level 1; B4 context only) · reviewer: ahmed **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/IMPLEMENTED_DATA_SPEC.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-EL-10** [Must] D3 · Logistic regression baseline (never cut): per-class recall, macro-F1, recall@N for `distressed` vs random, counts as n of m · `ml/metrics.csv`, `ml/predictions.parquet` · reviewer: verina **Implemented; review pending.**
+- [x] **T-VE-10** [Must] D3 · Logistic regression baseline (never cut): per-class recall, macro-F1, recall@N for `distressed` vs random, counts as n of m · `ml/metrics.csv`, `ml/predictions.parquet` · reviewer: verina **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/CURRENT_MODEL_METRICS.csv).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-EL-11** [Should] D3 · Gradient boosting vs logistic, same split and metrics; if a model scores perfectly, document limitations; do not tune data/noise after viewing the test (current binary protocol) · reviewer: verina **Implemented; review pending.**
+- [x] **T-VE-11** [Should] D3 · Gradient boosting vs logistic, same split and metrics; if a model scores perfectly, document limitations; do not tune data/noise after viewing the test (current binary protocol) · reviewer: verina **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/CURRENT_MODEL_METRICS.csv).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-EL-12** [Must] D3 · Early-warning comparison on R7: images alone vs images + ACUD data vs random, plus the rule itself; check on the 8 real `eval_outcomes` (check set only) · `app_data/EW_REPORT.md` · reviewer: ahmed **Implemented; review pending.**
+- [x] **T-VE-12** [Must] D3 · Early-warning comparison on R7: images alone vs images + ACUD data vs random, plus the rule itself; check on the 8 real `eval_outcomes` (check set only) · `app_data/EW_REPORT.md` · reviewer: ahmed **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/EW_REPORT_CURRENT.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 
 ### D5
 
-- [x] **T-EL-18** [Must] D5 · Method card for the Track B classifier (data, label, split, metrics, limits: generated data, ~150 rows, learns the generator) (deliverable 5) · `docs/deliverables/method-card.md` · reviewer: salma **Implemented; review pending.**
+- [x] **T-VE-18** [Must] D5 · Method card for the Track B classifier (data, label, split, metrics, limits: generated data, ~150 rows, learns the generator) (deliverable 5) · `docs/deliverables/method-card.md` · reviewer: salma **Implemented; review pending.**
   - Evidence: [implementation/output](../deliverables/method-card.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-EL-19** [Must] D5 · ACUD data request list by impact (§12, deliverable 12) · `docs/deliverables/data-request.md` · reviewer: salma **Implemented; review pending.**
+- [x] **T-VE-19** [Must] D5 · ACUD data request list by impact (§12, deliverable 12) · `docs/deliverables/data-request.md` · reviewer: salma **Implemented; review pending.**
   - Evidence: [implementation/output](../deliverables/data-request.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 
@@ -207,33 +207,33 @@ Goal: generated ACUD data for R7 → one `ml_dataset` (compound × quarter) → 
 
 ## 6. elsayed: AI component + D4 digital twin what-if
 
-Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-EL-13/14/17 / S1-S3). Reads `kpi_values`; never overwrites base run.
+Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-VE-13/14/17 / S1-S3). Reads `kpi_values`; never overwrites base run.
 
-- [ ] **T-VE-01** [Must] D1 · Confirm `GEMINI_MODEL` and the call budget; prompts in `prompts/system/` and `prompts/templates/` · reviewer: elsayed
-- [ ] **T-VE-02** [Must] D2 · Agent tools as plain Python: `get_facts` (register + record_id + link), `get_kpis` (A, K2-K6, level, series), `get_images` (two Wayback images + capture date), `get_rules` (Decree 2184 articles) (§6 A) · `src/inference/tools.py` + tests on first-build data · reviewer: ahmed **Partial; see [remaining work](../REMAINING_TEAM_TASKS.md).**
-- [ ] **T-VE-03** [Must] D3 · Inspection file template filled by code (what happened · why + rejected explanation · what it means · what we do: action, owner, date, escalation trigger); works without the LLM · reviewer: salma **Partial; see [remaining work](../REMAINING_TEAM_TASKS.md).**
-- [ ] **T-VE-04** [Should] D3 · Gemini writes one paragraph from attached facts only + 3 questions for the visit · reviewer: elsayed
-- [ ] **T-VE-05** [Must] D3 · Verifier: every number, date and code matched against the source JSON; causal words ("because", "بسبب") flagged for manual review; verdicts logged · `ai_verification_log.csv` (correct / wrong number / unsupported claim / missing context) + test · reviewer: elsayed
-- [ ] **T-VE-06** [Must] D4 · Arabic HTML/PDF output with footer "Drafted by AI, reviewed by [name]" + model + time; 5 stored files for the presentation (deliverable 11) · `app_data/files/` · depends: T-AH-15 · reviewer: salma
-- [x] **T-VE-07** [Should] D3 · Complaints masking: regex on numbers and names **before** any model (Law 151/2020); `assert_zero_phones` passes + test · reviewer: elsayed **Implemented; review pending.**
+- [ ] **T-EL-01** [Must] D1 · Confirm `GEMINI_MODEL` and the call budget; prompts in `prompts/system/` and `prompts/templates/` · reviewer: elsayed
+- [ ] **T-EL-02** [Must] D2 · Agent tools as plain Python: `get_facts` (register + record_id + link), `get_kpis` (A, K2-K6, level, series), `get_images` (two Wayback images + capture date), `get_rules` (Decree 2184 articles) (§6 A) · `src/inference/tools.py` + tests on first-build data · reviewer: ahmed **Partial; see [remaining work](../REMAINING_TEAM_TASKS.md).**
+- [ ] **T-EL-03** [Must] D3 · Inspection file template filled by code (what happened · why + rejected explanation · what it means · what we do: action, owner, date, escalation trigger); works without the LLM · reviewer: salma **Partial; see [remaining work](../REMAINING_TEAM_TASKS.md).**
+- [ ] **T-EL-04** [Should] D3 · Gemini writes one paragraph from attached facts only + 3 questions for the visit · reviewer: elsayed
+- [ ] **T-EL-05** [Must] D3 · Verifier: every number, date and code matched against the source JSON; causal words ("because", "بسبب") flagged for manual review; verdicts logged · `ai_verification_log.csv` (correct / wrong number / unsupported claim / missing context) + test · reviewer: elsayed
+- [ ] **T-EL-06** [Must] D4 · Arabic HTML/PDF output with footer "Drafted by AI, reviewed by [name]" + model + time; 5 stored files for the presentation (deliverable 11) · `app_data/files/` · depends: T-AH-15 · reviewer: salma
+- [x] **T-EL-07** [Should] D3 · Complaints masking: regex on numbers and names **before** any model (Law 151/2020); `assert_zero_phones` passes + test · reviewer: elsayed **Implemented; review pending.**
   - Evidence: [implementation/output](../../src/pipeline/privacy.py).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [ ] **T-VE-08** [Should] D4 · Complaints classifier: 5 classes (delay, stoppage, payment, quality, other) vs keyword baseline; extra test on `complaints_30.csv`; state that texts we wrote do not prove real accuracy · reviewer: elsayed **Partial; see [remaining work](../REMAINING_TEAM_TASKS.md).**
-- [x] **T-VE-09** [Must] D5 · Risks and responsible-AI note (Law 151/2020, who sees what, fairness limits, misuse) with elsayed (deliverable 6) · `docs/deliverables/responsible-ai.md` · reviewer: salma **Implemented; review pending.**
+- [ ] **T-EL-08** [Should] D4 · Complaints classifier: 5 classes (delay, stoppage, payment, quality, other) vs keyword baseline; extra test on `complaints_30.csv`; state that texts we wrote do not prove real accuracy · reviewer: elsayed **Partial; see [remaining work](../REMAINING_TEAM_TASKS.md).**
+- [x] **T-EL-09** [Must] D5 · Risks and responsible-AI note (Law 151/2020, who sees what, fairness limits, misuse) with elsayed (deliverable 6) · `docs/deliverables/responsible-ai.md` · reviewer: salma **Implemented; review pending.**
   - Evidence: [implementation/output](../deliverables/responsible-ai.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 
 ### D4: digital twin what-if
 
-- [x] **T-EL-13** [Must] D4 · Scenario runner: change one input from the as-of quarter onward, re-run generator + rule, never overwrite the base run · `src/generator/scenarios.py` + determinism test · reviewer: ahmed **Implemented; review pending.**
+- [x] **T-VE-13** [Must] D4 · Scenario runner: change one input from the as-of quarter onward, re-run generator + rule, never overwrite the base run · `src/generator/scenarios.py` + determinism test · reviewer: ahmed **Implemented; review pending.**
   - Evidence: [implementation/output](../../src/generator/scenarios.py).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-EL-14** [Must] D4 · S1 dollar shock (USD/EGP +30%), S2 collections drop (−25% for 6 months), S3 capacity N ± 2 (re-rank only) · `scenarios/S1..S3/` + "who moved up and why" table · reviewer: nada **Implemented; review pending.**
+- [x] **T-VE-14** [Must] D4 · S1 dollar shock (USD/EGP +30%), S2 collections drop (−25% for 6 months), S3 capacity N ± 2 (re-rank only) · `scenarios/S1..S3/` + "who moved up and why" table · reviewer: nada **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/SCENARIO_CONTRACT_CURRENT.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [ ] **T-EL-15** [Could] D4 · S4 material cost +40%, S5 grace 12 → 6 months · reviewer: nada
-- [ ] **T-EL-16** [Could] D4 · FPMI and SAF tests on generated data, conditions written before the run, logged in `team_ideas.md` · reviewer: ahmed
-- [x] **T-EL-17** [Must] D4 · Code freeze for Track B; one command builds Track B after `run_all` · reviewer: ahmed **Implemented; review pending.**
+- [ ] **T-VE-15** [Could] D4 · S4 material cost +40%, S5 grace 12 → 6 months · reviewer: nada
+- [ ] **T-VE-16** [Could] D4 · FPMI and SAF tests on generated data, conditions written before the run, logged in `team_ideas.md` · reviewer: ahmed
+- [x] **T-VE-17** [Must] D4 · Code freeze for Track B; one command builds Track B after `run_all` · reviewer: ahmed **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/BINARY_SCOPE_DECISION.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 
@@ -245,11 +245,11 @@ Goal: Streamlit, 5 screens, track switch on every screen, passes the ten-second 
 
 - [ ] **T-NA-01** [Must] D1 · App skeleton: `app.py` runs `streamlit run app.py`, track switch (Track A default / Track B), orange banner "Synthetic - for training only" fixed in Track B, 🟠 on generated numbers, map hidden in Track B · reviewer: verina
 - [ ] **T-NA-02** [Must] D2 · Screen 1 priority map: R7 boundaries coloured by level (level written as a word, grey = not assessable), cycle list with Arabic reason, CSV download; Track B list only · depends: T-AH-08 · reviewer: ahmed
-- [ ] **T-NA-03** [Must] D3 · Screen 2 compound file: DW and A curves, height (to 2024), announced markers, first announced date, vegetation, two Wayback images, K2-K6, lineage line (origin, run_id), inspection file button; Track B: binary probabilities + K5 in EGP (🟠) · depends: T-AH-16, T-EL-10 · reviewer: ahmed
+- [ ] **T-NA-03** [Must] D3 · Screen 2 compound file: DW and A curves, height (to 2024), announced markers, first announced date, vegetation, two Wayback images, K2-K6, lineage line (origin, run_id), inspection file button; Track B: binary probabilities + K5 in EGP (🟠) · depends: T-AH-16, T-VE-10 · reviewer: ahmed
 - [ ] **T-NA-04** [Must] D3 · `ops_visits` form: code, date, result (progressing / stalled / complete / not done), note; saved to `app_data/ops_visits.csv` · reviewer: verina
-- [ ] **T-NA-05** [Must] D3 · Screen 3 would it have warned: Track A frozen-clock table (1 of 6 and why); Track B per-class recall, macro-F1, recall@N vs random, B1-B5 per compound · depends: T-AH-10, T-EL-12 · reviewer: elsayed
+- [ ] **T-NA-05** [Must] D3 · Screen 3 would it have warned: Track A frozen-clock table (1 of 6 and why); Track B per-class recall, macro-F1, recall@N vs random, B1-B5 per compound · depends: T-AH-10, T-VE-12 · reviewer: elsayed
 - [ ] **T-NA-06** [Must] D3 · Screen 4 data trust: gates, coverage, not assessable, 1,009/1,026 facts, colour key 🟢🔵🟠 · depends: T-AH-11 · reviewer: ahmed
-- [ ] **T-NA-07** [Must] D4 · Screen 5 what if (twin): pick S1-S3, show which compounds change level and why; generated (🟠, banner, no map) · depends: T-EL-14 · reviewer: elsayed
+- [ ] **T-NA-07** [Must] D4 · Screen 5 what if (twin): pick S1-S3, show which compounds change level and why; generated (🟠, banner, no map) · depends: T-VE-14 · reviewer: elsayed
 - [ ] **T-NA-08** [Must] D4 · Display rules check (§9): ≤ 4 main tiles, each with value + unit + denominator + "as of" + origin; the 5 forbidden mistakes; ten-second test on screen 1 with someone outside the team · reviewer: salma
 - [ ] **T-NA-09** [Should] D4 · `no_names` gate also scans dashboard exports; Arabic RTL renders correctly · reviewer: ahmed
 - [ ] **T-NA-10** [Must] D5 · User guide (how the committee uses screens 1, 2 and the visit form) · `docs/deliverables/user-guide.md` · reviewer: salma
@@ -283,16 +283,16 @@ Goal: every number in the docs and slides has a source or an origin mark and mat
 | -- | --------------------------------------------------------------------------- | ---------------------------------------------- | ---------------------------------- |
 | 1  | KPI cards + tree + levels table                                             | salma                                          | T-SA-02                            |
 | 2  | Pipeline with gates + `quality_checks_log.csv` + quality report           | ahmed                                          | T-AH-11, T-AH-12                   |
-| 3  | Track A rule (K2-K6), backtest, Track B `ml_dataset` + binary classifier | ahmed (A), elsayed (B)                         | T-AH-04..10, T-EL-08..12           |
+| 3  | Track A rule (K2-K6), backtest, Track B `ml_dataset` + binary classifier | ahmed (A), elsayed (B)                         | T-AH-04..10, T-VE-08..12           |
 | 4  | Dashboard (track switch) + cycle list + `ops_visits`                      | nada                                           | T-NA-01..08                        |
-| 5  | Method card + monitoring plan                                               | elsayed (method card), ahmed (monitoring plan) | T-EL-18, T-AH-20                   |
-| 6  | Risks and responsible-AI note + `ai_verification_log`                     | verina                                         | T-VE-05, T-VE-09                   |
-| 7  | Technical docs, user guide, governance cards, data dictionaries             | ahmed, nada, salma, elsayed                    | T-AH-20, T-NA-10, T-SA-04, T-EL-07 |
+| 5  | Method card + monitoring plan                                               | elsayed (method card), ahmed (monitoring plan) | T-VE-18, T-AH-20                   |
+| 6  | Risks and responsible-AI note + `ai_verification_log`                     | verina                                         | T-EL-05, T-EL-09                   |
+| 7  | Technical docs, user guide, governance cards, data dictionaries             | ahmed, nada, salma, elsayed                    | T-AH-20, T-NA-10, T-SA-04, T-VE-07 |
 | 8  | Decision memo (Arabic / English)                                            | salma                                          | T-SA-05                            |
 | 9  | Knowledge transfer pack                                                     | ahmed                                          | T-AH-21                            |
 | 10 | One run command for the presentation                                        | ahmed                                          | T-AH-13, T-AH-19                   |
-| 11 | Inspection files for 5 compounds                                            | verina                                         | T-VE-06                            |
-| 12 | Data request list to ACUD                                                   | elsayed                                        | T-EL-19                            |
+| 11 | Inspection files for 5 compounds                                            | verina                                         | T-EL-06                            |
+| 12 | Data request list to ACUD                                                   | elsayed                                        | T-VE-19                            |
 | 13 | Final presentation                                                          | salma                                          | T-SA-06, T-ALL-05                  |
 
 ---
@@ -300,14 +300,14 @@ Goal: every number in the docs and slides has a source or an origin mark and mat
 ## 10. If behind at D4 (cut order from §13)
 
 1. T-AH-17, T-AH-18 (finishing and roof tests; cut at D4 anyway)
-2. T-EL-16 (FPMI / SAF), T-EL-15 (S4 / S5)
-3. T-EL-11 (gradient boosting; keep logistic)
-4. T-VE-07, T-VE-08 (complaints)
-5. T-VE-04 (LLM paragraph; the template stays)
+2. T-VE-16 (FPMI / SAF), T-VE-15 (S4 / S5)
+3. T-VE-11 (gradient boosting; keep logistic)
+4. T-EL-07, T-EL-08 (complaints)
+5. T-EL-04 (LLM paragraph; the template stays)
 6. T-AH-15 (Wayback images)
 7. T-NA-05 becomes a slide
 
-**Never cut:** Track A rule and cycle list (T-AH-01..13), Track B logistic baseline (T-EL-08..10). If the what-if screen is not ready, say "observatory", not "digital twin" (§13).
+**Never cut:** Track A rule and cycle list (T-AH-01..13), Track B logistic baseline (T-VE-08..10). If the what-if screen is not ready, say "observatory", not "digital twin" (§13).
 
 ## Approved binary-scope closure, 28 October 2026
 
