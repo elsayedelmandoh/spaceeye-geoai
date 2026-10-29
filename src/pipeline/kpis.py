@@ -354,7 +354,7 @@ def reason(r: dict) -> str:
     if pd.notna(r.get("K6")):
         p.append(f"no confirmed observed start for {r['K6']} months since the first known launch/promise")
     p.append(f"observation complete ({r['n_images']} images in the quarter)")
-    head = f"Level {r['level']}" if pd.notna(r["level"]) else "Not started"
+    head = f"Level {r['level']}" if pd.notna(r["level"]) else "Start unknown" if pd.isna(r.get("K6")) else "Not started"
     return f"{head}: " + "; ".join(p) + "."
 
 
@@ -385,7 +385,7 @@ def reason_ar(r: dict) -> str:
         parts.append(f"لم تتأكد بداية مرصودة منذ {int(r['K6'])} شهر من أول إعلان إطلاق أو وعد متاح")
     parts.append(f"عدد الصور خلال الربع {r['n_images']}")
     level = r.get("level")
-    head = f"المستوى {int(level)}: " if pd.notna(level) else "بداية غير مؤكدة: "
+    head = f"المستوى {int(level)}: " if pd.notna(level) else "بداية غير معروفة: " if pd.isna(r.get("K6")) else "بداية غير مؤكدة: "
     return head + "؛ ".join(parts) + "."
 
 

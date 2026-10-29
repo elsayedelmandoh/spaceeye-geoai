@@ -174,6 +174,6 @@ Fixes applied by the coder lane and verified by the orchestrator (65 -> 75 passe
 | 15 owner of `cycle_list_<asof>.csv` | DONE: `run_all` owns the real path; `complete_data` writes only its own `data_completion/cycle_list.csv` |
 | 16 T-AH-08 board wording | DONE |
 
-Small remaining note: for "start unknown" rows the Arabic reason head still reads "بداية غير مؤكدة", while `level_word_ar` reads "بداية غير معروفة".
+The "start unknown" Arabic and English reason heads now match the level word ("بداية غير معروفة" / "Start unknown"); "not started" rows keep "بداية غير مؤكدة" / "Not started". Remaining caveat: the Arabic wording still needs a native-speaker review before committee use.
 
 Reviewer identity, date and PR remain blank; no D2 "Review accepted" box is ticked.
