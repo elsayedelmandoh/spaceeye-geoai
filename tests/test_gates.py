@@ -3,6 +3,7 @@
 import pandas as pd
 
 from src.pipeline import gates
+from src.pipeline.common import CFG, qindex
 
 
 def test_g_completeness_pass_all_k4_true():
