@@ -219,6 +219,7 @@ docs/.internal/
 .omo/
 .remember/
 .codegraph/
+graphify-out/
 
 # Retired plans superseded by the current requirements and data contracts.
 docs/plan/
