@@ -457,8 +457,8 @@ def generate_deterministic_report(
         </div>
 
         <div class="footer">
-            <div>مسوّدة تقرير حتمية معتمدة، روجعت بواسطة: {reviewer_name}</div>
-            <div>نظام SpaceEye-GeoAI · تاريخ الأساس: {cutoff_date} · تم التوليد: {datetime.now().strftime('%Y-%m-%d %H:%M')}</div>
+            <div>مسوّدة أُعدت بالذكاء الاصطناعي، روجعت بواسطة: {reviewer_name} — الموديل: gemini-1.5-flash</div>
+            <div>نظام SpaceEye-GeoAI · تاريخ الأساس: {cutoff_date} · وقت الإنشاء: {datetime.now().strftime('%Y-%m-%d %H:%M')}</div>
         </div>
     </div>
 </body>
