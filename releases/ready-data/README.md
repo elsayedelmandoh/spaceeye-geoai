@@ -1,5 +1,7 @@
 # Ready data: start here
 
+For a complete reviewer handoff, use [REVIEW_SETUP](../../docs/REVIEW_SETUP.md) and the [saved audit files](review/README.md). `python -m src.pipeline.setup_review` installs verified prepared data using portable paths. Exact raw/cache rebuild requirements and archive transfer commands are documented; the v5 ZIP itself is unchanged.
+
 **[Download v5](SpaceEye_R7_READY_DATA_2026-10-28_v5.zip?raw=1)** and [read the data guide](DATA_GUIDE.md).
 
 For T-AH-10, open the separate [backtest files and replay instructions](backtest/README.md): `cases.csv`, `summary.json` and the prepared inputs needed to reproduce case counts without the external source drive. The v5 ZIP is unchanged.

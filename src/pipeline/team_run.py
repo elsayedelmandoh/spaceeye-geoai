@@ -11,9 +11,14 @@ def main():
     args = parser.parse_args()
     require_data_root()
     if args.full:
+        from src.pipeline.source_cache import check_inputs
+        check_inputs()
         from src.pipeline.run_all import main as track_a
         if track_a() != 0:
             raise RuntimeError("Track A quality STOP")
+        from src.generator.simulate import main as simulate
+        if simulate() != 0:
+            raise RuntimeError("Synthetic generation quality STOP")
     from src.pipeline.complete_data import main as prepare
     prepare()
     from src.pipeline.component_data import main as components

@@ -1,5 +1,7 @@
 # 02-team-roles-and-tasks.md
 
+Reviewer reproduction: [portable setup and source-cache instructions](../REVIEW_SETUP.md), [executed portability validation](../../data/PORTABLE_REVIEW_VALIDATION.json), [saved review artifacts](../../releases/ready-data/review/README.md). Setup does not grant review acceptance.
+
 > Current technical decisions and unresolved approvals: [D1_DECISIONS_CURRENT](D1_DECISIONS_CURRENT.md). Implementation evidence: [partial-task closure](../../data/PARTIAL_TASKS_CLOSURE.md). Main checkboxes show verified implementation; separate review checkboxes remain pending for the human reviewer.
 
 # SpaceEye: Team Roles and Task Board

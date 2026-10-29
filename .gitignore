@@ -221,6 +221,12 @@ docs/.internal/
 .codegraph/
 graphify-out/
 
+# Local portable workspaces, source caches and generated private audit data.
+.spaceeye/
+app_data/
+real_data/
+private/
+
 # Retired plans superseded by the current requirements and data contracts.
 docs/plan/
 

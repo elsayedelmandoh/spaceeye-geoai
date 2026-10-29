@@ -1,0 +1,35 @@
+{
+  "status": "PASS",
+  "execution_platform": "Windows; paths also designed for POSIX/WSL but those OSes were not executed in this check",
+  "isolated_checkout": true,
+  "launched_from_different_working_directory": true,
+  "relative_data_root_override": true,
+  "v5_unchanged": true,
+  "prepared_setup": "PASS; extracted verifier confirms 293 manifest entries",
+  "prepared_binary_refit": "PASS; primary predictions and metrics equal saved reference",
+  "full_command": "python -m src.pipeline.team_run --full",
+  "full_command_exit_code": 0,
+  "full_source_inputs": 84,
+  "full_source_input_bytes": 5635983,
+  "fresh_source_rebuild": "PASS; no pre-existing simulation, hidden answer keys or weights copied",
+  "data_audit_checks": 61,
+  "frozen_clock_checks": {
+    "2021Q4": true,
+    "2023Q2": true,
+    "2024Q4": true,
+    "2025Q3": true
+  },
+  "backtest_counts": {
+    "after_start": 1,
+    "point_in_time": 0,
+    "literal": 2,
+    "cases": 6
+  },
+  "full_binary_refit": "PASS; primary predictions and metrics equal saved reference",
+  "retained_flag": "2019Q2",
+  "human_review_acceptances_changed": false,
+  "verified_on": "2026-10-29",
+  "tests_passed": 89,
+  "source_archive_bytes": 2222938,
+  "source_archive_sha256": "da87c0e5e92e2ff8923311ffc71259511aef6d55d50787543fdc59851c98f8e3"
+}

@@ -35,6 +35,19 @@ def scope_checks(tables, scope_districts, names):
     return checks
 
 
+def training_contract_checks(frame, metadata):
+    """Validate either declared training schema without depending on a historical experiment."""
+    targets = metadata["targets"] if "targets" in metadata else [metadata["target"]]
+    censor = metadata["censor_column"]
+    expected = set(metadata["keys"] + metadata["features"] + targets + [censor] + metadata.get("excluded_from_X", []))
+    return {
+        "ml_explicit_features": set(frame) == expected,
+        "ml_feature_label_separation": not set(metadata["features"]).intersection(set(metadata["keys"] + targets + [censor])),
+        "ml_unknown_future_is_null": bool(frame.loc[frame[censor], targets].isna().all().all()),
+        "ml_known_target_present": bool(frame.loc[~frame[censor], targets].notna().all().all()),
+    }
+
+
 def audit(require_current_evaluation=True):
     tables = {p.stem: pd.read_parquet(p) for p in (APP / "real").glob("*.parquet")}
     codes = set(tables["compounds"].code)
@@ -76,17 +89,18 @@ def audit(require_current_evaluation=True):
     clean_fin = pd.read_parquet(APP / "sim_clean" / "fin_monthly.parquet")
     expected_keys = {(code, str(month)) for code in codes for month in pd.period_range(CFG["generator"]["start"], CFG["generator"]["end"], freq="M")}
     checks["prepared_exact_monthly_keys"] = set(map(tuple, clean_fin[["code", "month"]].values)) == expected_keys and not clean_fin.duplicated(["code", "month"]).any()
-    prov = json.loads((APP / "ew" / "run_provenance.json").read_text(encoding="utf-8"))
-    evaluation_current = prov["sha256"] == ew.input_hashes()
+    evaluation_current = False
     if require_current_evaluation:
+        # The legacy release command explicitly requests its historical experiment.
+        prov = json.loads((APP / "ew" / "run_provenance.json").read_text(encoding="utf-8"))
+        evaluation_current = prov["sha256"] == ew.input_hashes()
         checks["ew_current_inputs_and_code"] = evaluation_current
-    for name, digest in prov["training_output_sha256"].items():
-        checks["training_output_" + name] = hashlib.sha256((PRIVATE.parent / name).read_bytes()).hexdigest() == digest
-    ml = pd.read_parquet(PRIVATE / "ml_dataset.parquet")
-    meta = json.loads((PRIVATE / "ml_dataset_metadata.json").read_text(encoding="utf-8"))
-    checks["ml_explicit_features"] = set(ml) == set(meta["keys"] + meta["features"] + [meta["target"], meta["censor_column"]])
-    checks["ml_unknown_future_is_null"] = bool(ml.loc[ml[ew.CENSOR], ew.TARGET].isna().all())
-    checks["ml_known_target_present"] = bool(ml.loc[~ml[ew.CENSOR], ew.TARGET].notna().all())
+        for name, digest in prov["training_output_sha256"].items():
+            checks["training_output_" + name] = hashlib.sha256((PRIVATE.parent / name).read_bytes()).hexdigest() == digest
+    stem = "ml_dataset" if require_current_evaluation else "ml_dataset_extended"
+    ml = pd.read_parquet(PRIVATE / f"{stem}.parquet")
+    meta = json.loads((PRIVATE / f"{stem}_metadata.json").read_text(encoding="utf-8"))
+    checks.update(training_contract_checks(ml, meta))
     checks["ml_known_codes"] = set(ml.code) == codes
     paths = pd.read_parquet(APP / "scenarios" / "paths.parquet")
     checks["scenario_progress_bounds"] = bool(paths.simulated_progress_pct.between(0, 100).all())
@@ -127,7 +141,7 @@ def audit(require_current_evaluation=True):
         "release": "R7-data-spec-completion-2026-10-28" if completion else "R7-data-final-2026-10-28", "synthetic_label": CFG["generator"]["label"],
         "status": "PASS", "checks": {k: bool(v) for k, v in checks.items()},
         "validation_scope": "data and current evaluation" if require_current_evaluation else "data only; no model fitting or new evaluation",
-        "evaluation_status": "CURRENT" if evaluation_current else "HISTORICAL: N=8 binary evaluation does not validate new capacity/schema/K6 policy",
+        "evaluation_status": ("CURRENT" if evaluation_current else "HISTORICAL: N=8 binary evaluation does not validate new capacity/schema/K6 policy") if require_current_evaluation else "NOT_RUN: data-only audit; current binary fitting/results are a separate step",
         "data_completion": completion,
         "counts": {name: len(t) for name, t in tables.items()}, "prepared_simulation": prepared,
         "training_split": meta["split_counts"], "scenario_rows": len(paths), "manifests_verified": manifests,
