@@ -194,7 +194,7 @@ Goal: generated ACUD data for R7 → one `ml_dataset` (compound × quarter) → 
   - Evidence: [implementation/output](../../data/EW_REPORT_CURRENT.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 
-### D4
+### D5: freeze and hand over (deliverables 5, 9, 10, 12 — method card, knowledge transfer, presentation, data request)
 
 - [x] **T-EL-18** [Must] D5 · Method card for the Track B classifier (data, label, split, metrics, limits: generated data, ~150 rows, learns the generator) (deliverable 5) · `docs/deliverables/method-card.md` · reviewer: salma **Implemented; review pending.**
   - Evidence: [implementation/output](../deliverables/method-card.md).
