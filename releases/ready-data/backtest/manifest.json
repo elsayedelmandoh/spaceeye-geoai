@@ -1,0 +1,36 @@
+{
+  "purpose": "Replay the real-case rule evaluation from saved prepared backtest inputs; no activity fitting or raw-source clock test is performed.",
+  "scope": "12 coded R7 compounds; 372 quarter rows; 6 public evaluation cases",
+  "source_implementation_tag": "r7-binary-distress-2026-10-28",
+  "backtest_config": {
+    "min_cases": 5,
+    "months_before": 6,
+    "levels": [
+      1,
+      2
+    ],
+    "first_quarter": "2019Q1"
+  },
+  "levels_config": {
+    "k2_l1": 4,
+    "k2_l2": 2,
+    "k3_l1": 24,
+    "k3_l2": 13,
+    "combo_k2": 2,
+    "combo_k3": 12,
+    "k6_l1": 24,
+    "k6_l2": 13
+  },
+  "asof": "2026Q3",
+  "source_sha256": {
+    "kpi_values_backtest.parquet": "7b9a5b7db96b597104477dcc44e3e2ab31922e0dad70d2ad344dba342a783ebb",
+    "eval_outcomes.parquet": "47c90a9a6292420c8322a0e95a807cba6eec0565247a005c032a93f6e3878041"
+  },
+  "files": {
+    "kpi_inputs.csv": "6a23ab34b13aee5ac1c0c833351eca5a397d14c57ec58e855bd657b1de973b03",
+    "events.csv": "c8b058ff1efcc379751e2eac3f689b82fad885dc00c010fe09467fe94b0cbe66",
+    "cases.csv": "226a69a978228b4ffc5056846d8f808176f6aa882ace363d5c4f1b144747c959",
+    "summary.json": "f5848cf00b2e9a1a13e795a3d02b68d5f36a862ae08d075ed95574ee229d20ff"
+  },
+  "input_note": "Only columns required by backtest_check.run are distributed. Evaluation events are the already-public coded Track A cases, not private synthetic labels."
+}

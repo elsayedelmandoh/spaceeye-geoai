@@ -1,0 +1,38 @@
+{
+ "criterion": ">= 5 of 6 cases at level 1-2 at least 6 months before the first date",
+ "n_cases": 6,
+ "primary_reading": "after_start",
+ "after_start_reading": {
+  "n": 1,
+  "met": false
+ },
+ "point_in_time_reading": {
+  "n": 0,
+  "met": false
+ },
+ "literal_reading": {
+  "n": 2,
+  "met": false
+ },
+ "alt_dates": {
+  "after_start": 1,
+  "point_in_time": 0
+ },
+ "cases_already_started_at_cutoff": 6,
+ "others": {
+  "n": 6,
+  "flagged_1_2_at_asof": 2,
+  "ever_flagged_1_2": 4
+ },
+ "activity_variant": {
+  "mode": "q2hold",
+  "plots_left_out": 8,
+  "threshold": 0.4145840829226582
+ },
+ "frozen_clock_check": {
+  "2021Q4": true,
+  "2023Q2": true,
+  "2024Q4": true,
+  "2025Q3": true
+ }
+}

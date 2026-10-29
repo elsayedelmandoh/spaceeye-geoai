@@ -111,6 +111,7 @@ Goal: one command (`python -m src.pipeline.run_all`) builds the R7 tables, A, K2
 
 - [x] **T-AH-10** [Must] D3 · Re-run the frozen-clock backtest on R7 only (backtest variant of A without overlapping plots); per case: what happened / why / what next + one competing explanation rejected with a number; counts only, no % · `backtest/cases.csv`, `summary.json` · reviewer: salma **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/BACKTEST_CURRENT.md).
+  - Files: [cases.csv](../../releases/ready-data/backtest/cases.csv), [saved summary.json](../../releases/ready-data/backtest/summary.json), [prepared-input replay](../../releases/ready-data/backtest/README.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-AH-11** [Must] D3 · 10 gates pass or flag with dimension, owner, decision (§8); `no_names` scans every output incl. new CSVs; `separation` covers new columns · `quality_checks_log.csv` (program template) · reviewer: elsayed **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/R1_REPORT.md).

@@ -2,6 +2,8 @@
 
 **[Download v5](SpaceEye_R7_READY_DATA_2026-10-28_v5.zip?raw=1)** and [read the data guide](DATA_GUIDE.md).
 
+For T-AH-10, open the separate [backtest files and replay instructions](backtest/README.md): `cases.csv`, `summary.json` and the prepared inputs needed to reproduce case counts without the external source drive. The v5 ZIP is unchanged.
+
 Current scope: 12 coded R7 compounds, capacity 4, 180 training rows and 40 features. Version 5 adopts the team lead's binary prediction scope: distressed / not_distressed in the next six months. Completion prediction is removed; source handover facts remain context.
 
 1. Extract the complete ZIP.
