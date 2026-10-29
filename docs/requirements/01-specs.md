@@ -26,7 +26,7 @@ This file defines the current product requirements. Implemented data/schema and 
 | **Digital twin (light, compound level)** | The twin of R7 = for each compound: **observed state** (Track A, synced quarterly from satellites and statements) + **simulated hidden state** (generator: sales → cash → spending → progress → handover, Track B) + **what-if scenarios** (change an input, see which compounds move up in priority; section 9 screen 5). Not a 3D / building-level / live twin (section 1). |
 | **Track A: images** | Everything read from images (Dynamic World, Sentinel-2, Open Buildings, Wayback) → per compound-quarter: activity score A, K2, K4, vegetation, height (to 2024), finishing flag (if its test passes). With K3, K5, K6 from statements it drives the **priority level** (worst of the signals, no weights, section 2), the **map** and the **cycle list**. All real data. |
 | **Track B: numbers** | One tabular dataset `ml_dataset` (1 row = compound × quarter): **features X** = Track A outputs + K3, K5, K6 + ACUD-data inputs (B1-B5, generated today) → **label y** = outcome in the next 6 months: `distressed` / `not_distressed`. A **classification model** (logistic vs gradient boosting) learns y. It consumes Track A's outputs, so image work is never duplicated. Generated data → "Synthetic - for training only"; its probabilities show next to the rule in the compound file, never on the map. |
-| **Success criterion** | Fixed on 26 Oct 2026, before any computation: with the clock frozen, the satellite rule puts **≥ 5 of the 8** real delay cases in level 1-2 at least **6 months** before the delay became public. Plus: two runs give identical numbers; 100% of AI-written numbers match the log. **Track B (generated):** the pass condition written in `EW_PROTOCOL.md` before the early-warning run (recall@8 threshold, above random); its exact wording goes here (open item 1, section 16). |
+| **Success criterion** | Fixed on 26 Oct 2026, before any computation: with the clock frozen, the satellite rule puts **≥ 5 of the 8** real delay cases in level 1-2 at least **6 months** before the delay became public (set when 8 cases were in scope; the R7 check set has six public cases). Plus: two runs give identical numbers; 100% of AI-written numbers match the log. **Track B (generated):** the pass condition written in `EW_PROTOCOL.md` before the early-warning run (recall@8 threshold, above random); its exact wording goes here (open item 1, section 16). |
 | **What we do not promise** | No "distress prediction" for a real compound, no "completion %" or "finishing %" from images. |
 | **Closing message** | "This is what public data alone can do. Give us your data, and the demo parts become real operation." |
 
@@ -56,7 +56,7 @@ This file defines the current product requirements. Implemented data/schema and 
 | Google Dynamic World quarterly, 2016Q1 → 2026Q3 | "Is it building?" from above, up to 2026 |
 | Activity score A (DW trend + DW class shares + Sentinel-2 indices) | Passed 5 tests; the base indicator (section 4) |
 | Sentinel-2 vegetation share (NDVI) | "May be complete" sign (95% on the test sample) |
-| Google Open Buildings heights 2016-2023 (+ 2024 v4 estimate context only, no fixed error guarantee) | Context in the compound file, not part of the level |
+| Google Open Buildings heights 2016-2023 (+ 2024 v4 estimate context only, no fixed error guarantee); also a Track B feature `height_mean_m` (last whole-year value up to 2024, stale for 2025-26, missing for 2 of 12 compounds, imputed) | Context in the compound file, not part of the level |
 | Published statements and events (promises, announced %, handover) | Second signal (K3) + backtest ground truth |
 | Decree 2184/2022 and Building Law 119/2008 | Legal thresholds for levels and cover |
 | Esri Wayback before/after images, 2 per compound | Display, judged by eye. Also the input of the finishing experiment (section 4), which stays out of the level |
@@ -86,13 +86,13 @@ This file defines the current product requirements. Implemented data/schema and 
 | A full 3D / building-level / live digital twin | Our 2024-2026 heights failed their test, no BIM models, quarterly data only, no real ACUD data, ~6 days left |
 | A separate schedule-tracking product | One idea: schedule tracking lives inside the rule as B5 |
 | A fine amount in EGP on a real compound | No published fine rate; the rate is in each allocation contract (data request). EGP only on generated data |
-| Readings every 5 days | Noise above signal (monthly already failed); quarterly only |
+| Readings every 5 days | Noise above signal (monthly already failed); quarterly only. A separate optional feature analysis on 5-day or monthly scenes (not model input) needs source, plot-to-code mapping, labels and provenance in the repo first, and a causal (trailing) filter only |
 
 ---
 
 ## 2. Indicators and levels (Track A rule; the same signals are Track B features)
 
-**Method rules:** every comparison is year over year (Dynamic World is seasonal). We say "observed built probability", never "area". All thresholds live in `configs/data.yaml` and are not changed after seeing results.
+**Method rules:** every comparison is year over year (Dynamic World is seasonal). We say "observed built probability", never "area". All thresholds live in `configs/data.yaml`; the Track A rule thresholds (levels, K thresholds) stay frozen after seeing results. Track B model changes follow the protocol rule in section 14.
 
 | # | Indicator | Definition | Origin |
 | --- | --- | --- | --- |
@@ -182,7 +182,7 @@ Operational:  A · K2 · K6 · K4 (guard) · share of cycle-list visits done    
 2. **Activity score A** replaced the old DW-only change rule after 5 pre-registered tests: +3 to +5 balanced-accuracy points over K1, half the false alarms, seasonal spread ≤ 10 points.
 3. **Ground truth `eval_outcomes`:** six real cases with a published outcome (handover, postponement, no handover after the promise).
 4. **Backtest (frozen clock):** apply the levels with data published before each quarter only. A frozen-clock check recomputes from data cut at the quarter and compares. Result: **1 of 6** warned ≥ 6 months early (target 5). Per case: what happened / why / what next, and a competing explanation rejected with a number. Small sample: counts, no percentages.
-5. **Track B classifier.** One compound-quarter row, 40 declared features, binary distressed/not_distressed target over the next six months, chronological split and training-only preprocessing. Logistic and histogram boosting are compared on satellite/combined inputs at capacity 4, with per-class recall, two-class macro-F1 and random ranking. Current primary test has 48 rows; repeated synthetic quarters are not independent real events. Fixed-seed chronological developer holdout is reported separately. The cycle list continues to use the rule. Completion is not a class or probability. Current evidence: EW_PROTOCOL_CURRENT.md, EW_REPORT_CURRENT.md and CURRENT_MODEL_METADATA.json.
+5. **Track B classifier.** One compound-quarter row, 40 declared features, binary distressed/not_distressed target over the next six months, chronological split and training-only preprocessing. Logistic and histogram boosting are compared on satellite/combined inputs at capacity 4, with per-class recall, two-class macro-F1 and random ranking. Current primary test has 48 rows; repeated synthetic quarters are not independent real events. Metric: class_recall (all rows, denominator 4 at time_test) and distressed_recall_at_4 (ranking top 4) are different; satellite-only (18) and combined (40) reported side-by-side; n=4 means ±0.25 per row; no unsupported accuracy claim. Fixed-seed chronological developer holdout is reported separately. The cycle list continues to use the rule. Completion is not a class or probability. Current evidence: EW_PROTOCOL_CURRENT.md, EW_REPORT_CURRENT.md and CURRENT_MODEL_METADATA.json.
 6. **No leakage:** statements filtered by `published_date`; quarters ≤ as-of; the model never reads `answer_key` features; training plots that cover ≥ 50% of a compound are excluded in a backtest variant.
 7. **Still to test on generated data:** FPMI and SAF (team ideas).
 
@@ -202,7 +202,7 @@ Operational:  A · K2 · K6 · K4 (guard) · share of cycle-list visits done    
 
 ## 4. Tests already decided
 
-**Rule:** every idea is tried on real data first and must pass a condition written before the test. No threshold changes after seeing the result. Ideas are logged in `Project/team_ideas.md`.
+**Rule:** every idea is tried on real data first and must pass a condition written before the test. The Track A rule thresholds do not change after seeing the result; a Track B model change needs a new protocol written and hashed before fitting (section 14). Ideas are logged in `Project/team_ideas.md`.
 
 | Idea | Result |
 | --- | --- |
@@ -218,6 +218,8 @@ Operational:  A · K2 · K6 · K4 (guard) · share of cycle-list visits done    
 | Finishing from Wayback (0.3 m) with a vision model (Qwen-VL on the server): facades, windows, planting, paving, pools | ⏳ Testing (R3). Pass condition, written before the run: ≥ 75% agreement on ~50 held-out compound-images, labelled blind to the model by a member other than R3. If it passes: a flag in the inspection file only, never in the level. Check the Esri terms before any use. **Cut at D4 (code freeze) if it has not passed** |
 | Sentinel-1 radar | ❌ Detects building in only 63%; dropped |
 | Roof slab uniformity (mean ÷ max building height; low = open frame with columns, near 1 = roof slab cast) and structural volume | 🆕 Candidate (from the TerraPulse draft). Test on Google heights 2016-2023 (yearly) against a condition written before the test; owner R3; logged in `team_ideas.md`; cut at D4 if not passed. Context in the compound file only, never in the level |
+| Acceleration of the activity score: year-over-year second difference (A(t)-A(t-4))-(A(t-4)-A(t-8)); helper `a_acceleration`, not wired | 🆕 Candidate, optional. Causal (past quarters only), origin 🔵 (labels stay 🟠). Pass condition written before any run, e.g. macro-F1 gain of at least [X] points on a pre-registered evaluation, owner [name], logged in `team_ideas.md`, cut at D4 if not passed, never in the level. Already present: K2 reacts to a one-quarter stall (K2 = 1 gives level 3) and Track B has 6-month changes `d_A`, `d_K2`; acceleration is a refinement |
+| Causal trailing rolling median for monthly or quarterly series | 🆕 Candidate, optional. Uses past values only; a centered median leaks future values and is not allowed. Pass condition [X] before any run, cut at D4 |
 
 **Building height (7+ attempts):**
 
@@ -231,6 +233,8 @@ Operational:  A · K2 · K6 · K4 (guard) · share of cycle-list visits done    
 | v8: Google-like model. Input: 32 Sentinel-2 images per year (Apr-Sep). Output: where buildings are and their height at 4 m. Trained on Google maps 2016-2021, tuned on 2022, tested on 2023. 12 models (pretrained NASA and Allen AI models + models from scratch) and a small model that combines them (+17%). Each year comes from that year's own images, not a forecast | 2023 (known answer): ~1.8 m mean error at district level ✅ · **2024-2026: ❌ not approved.** Independent test on 50 new areas, a reviewer judged images blind to the model: 69-74% agreement, target 80%. Main error: it calls finishing work "new building" |
 
 Checked independently with GEDI / ICESat-2 laser, high-resolution images, and "stable buildings must stay stable".
+
+**Heights in the model:** `height_mean_m` is one of the 18 satellite-only and 40 combined Track B features (data/CURRENT_MODEL_METADATA.json). It is the last available whole-year value up to 2024, carried forward, so it is stale for the 2025-26 test quarters and absent for 2 of 12 compounds (data/ANNUAL_CONTEXT_COVERAGE.csv). It never enters the priority level. A no-height ablation switch exists (`candidates.no_height_ablation`, off by default); using it is a new v2 protocol.
 
 **Adopted now:** available OBT observations through 2023 and the approved v4 estimate for 2024, as context without a fixed error guarantee. No later experimental height or finishing product is published. Missing annual values stay null; use the annual coverage report.
 
@@ -407,7 +411,8 @@ Planned T-SA-03 output: three project-specific settings in `configs/cost_assumpt
 | Are the numbers real? | The list is real data with sources; the financial part is generated and labelled. |
 | Are you calling a developer distressed? | No. "No building activity since X" and "passed its first date by Y". The committee decides. |
 | Why trust satellites? | DW matches Open Buildings (r ≈ 0.96 on recomputed values); A passed 5 pre-registered tests. |
-| Why did the backtest fail? | The 8 late cases kept building; delay was in finishing, which satellites cannot see. That is why we need your data. |
+| Why did the backtest fail? | The late cases kept building; delay was in finishing, which satellites cannot see. That is why we need your data. |
+| Only 96 training rows? Is this AI? | Binary scope on generated data: 96 training and 48 test rows, 7 and 4 distressed, plus 1 of 6 real public cases. Scores are diagnostics with denominators, not accuracy claims; more independent events need ACUD's real data. |
 | Why no completion %? | Images see roofs, not plaster and ceramics; supervisor reports do. |
 
 ---
@@ -424,7 +429,9 @@ Planned T-SA-03 output: three project-specific settings in `configs/cost_assumpt
 | Little ground truth | Present by case, no accuracy claim |
 | Wayback terms | Display with attribution and capture date; the finishing experiment runs only after the terms are checked, and never feeds the level |
 | Mixing generated with real | Track switch, Track A by default; separation gate (generated columns only enter Track B, each marked 🟠); map hidden in Track B; orange banner |
-| Classifier learns generator assumptions | Preserve fixed chronology/parameters and report current diagnostics honestly. The real cases are a separate public-rule check, not matched real financial training data. Independent field validation remains necessary; do not change noise/data after inspecting the test. |
+| Classifier learns generator assumptions | Preserve fixed chronology/parameters and report current diagnostics honestly. The real cases are a separate public-rule check, not matched real financial training data. Independent field validation remains necessary; a change of noise/data/features after inspecting the test needs a new hashed protocol and keeps the v1 results visible. |
+| Few distressed rows make the ranking noisy (4 in the test: one row moves recall@4 by 0.25), and the finance features move boosting and logistic in opposite directions | Report satellite-only and combined side by side with denominators and call differences of one row noise; a change of the primary variant is a new hashed protocol with v1 kept |
+| Stale static height feature in Track B | Documented in section 4; no-height ablation switch available; never in the level |
 | K5 in EGP read as a real fine | EGP only in Track B with 🟠 and "assumed rate"; real side shows eligible months only |
 | Unlabelled generated data presented as real (e.g. the TerraPulse notebook: NDBI, built area and heights are formulas + random noise) | Never used as data; every number needs a source or an origin mark |
 | A name leaks | `no_names` gate stops the run |
@@ -445,7 +452,7 @@ Planned T-SA-03 output: three project-specific settings in `configs/cost_assumpt
 - One idea, two tracks: Track A (images → rule → cycle list, real) and Track B (numbers: `ml_dataset` X, y → classifier). Track B reads Track A's outputs; image work is never duplicated.
 - Data lives outside the repo (`Project/app_data`, `Project/private`); private files are never committed.
 - Every new idea is tested first and logged in `team_ideas.md`.
-- No threshold changes after seeing a result; no needless complexity.
+- The Track A rule thresholds (levels, K1-K6 thresholds, capacity) stay frozen after seeing a result. Track B features, hyperparameters, data and generator noise may change only under a **new protocol written and hashed before fitting** (`protocol_sha256_before_fit`); the earlier results stay in the report labelled v1, both versions are shown side by side, and no result is presented as untouched holdout performance. No needless complexity.
 - No number that failed its test is used; every estimate is labelled "estimate".
 - Broker / real-estate sites: allowed for a compound's **location only**, when images confirm it and the method is logged per compound. Never a source for any number (dates, %, units, prices).
 - Work on branches, with clear commits.
