@@ -115,7 +115,7 @@ Goal: one command (`python -m src.pipeline.run_all`) builds the R7 tables, A, K2
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-AH-11** [Must] D3 · 10 gates pass or flag with dimension, owner, decision (§8); `no_names` scans every output incl. new CSVs; `separation` covers new columns · `quality_checks_log.csv` (program template) · reviewer: elsayed **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/R1_REPORT.md).
-  - [x] Review accepted (logs/review-03.md, 2026-10-29; findings fixed in ad2f2f4 (H1 final scan + AGENTS); review recorded in ad2f2f4; caveat: H4/H2/H3/M1-M11 and v2 result pending per review-03; F: unverified).
+  - [x] Review accepted (logs/review-03.md, 2026-10-29; findings fixed in b3e3ed8, 2a77ba4, 3f16253, 28077a2; review recorded; caveat: H3 partial, H5 open, M1 open, v2 unbuild, F: unverified)
 - [x] **T-AH-12** [Must] D3 · Quality report with an "impact on the indicator" column, from `quality_checks_log` · `docs/deliverables/quality-report.md` · reviewer: elsayed **Implemented; review pending.**
   - Evidence: [implementation/output](../deliverables/quality-report.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
