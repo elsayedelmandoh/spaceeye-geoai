@@ -37,6 +37,19 @@ def backtest_report():
     kpi = pd.read_parquet(APP / "backtest/kpi_values_backtest.parquet")
     events = pd.read_parquet(REAL / "eval_outcomes.parquet")
     cases, summary = backtest_check.run(kpi, events)
+    # H4: merge frozen-clock result from the run's saved summary (not a fresh re-run)
+    saved_path = APP / "backtest" / "summary.json"
+    frozen_check = {}
+    activity_variant = None
+    if saved_path.exists():
+        try:
+            saved = json.loads(saved_path.read_text(encoding="utf-8"))
+            frozen_check = saved.get("frozen_clock_check", {})
+            activity_variant = saved.get("activity_variant")
+        except (OSError, ValueError, KeyError):
+            pass
+    summary["frozen_clock_check"] = frozen_check
+    summary["activity_variant"] = activity_variant
     rows = []
     for e in events.itertuples():
         freeze = pd.Timestamp(e.first_deadline) - pd.DateOffset(months=CFG["backtest"]["months_before"])
