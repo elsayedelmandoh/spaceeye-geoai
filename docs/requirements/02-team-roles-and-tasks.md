@@ -79,7 +79,7 @@ Goal: one command (`python -m src.pipeline.run_all`) builds the R7 tables, A, K2
 - [x] **T-AH-01** [Must] D1 · Confirm R7 boundaries (a boundary with a reviewed confidence label from the location audit; no numeric threshold is applied) and count R7 compounds (open item 4) · `compounds.district` checked, count in §16 · depends: - · reviewer: elsayed **Done; review accepted.**
   - Evidence: [implementation/output](../../data/DATASET_CONTRACT.md).
   - [x] Review accepted (logs/review-01.md, 2026-10-29; findings fixed in f63a712 and c23a860, review recorded in 4822040).
-- [x] **T-AH-02** [Must] D1 · Write config before any result: `cycle_capacity` ≈ a third of R7, K6 thresholds (`k6_l2: 13`, `k6_l1: 24`: level 2 from 13 months, level 1 above 24), K5 grace (`fines.grace_months: 12`), R7 filter key (`scope_districts`), in `configs/data.yaml` with a dated comment · depends: T-AH-01 · reviewer: salma **Done; review accepted.**
+- [x] **T-AH-02** [Must] D1 · Write config before any result: `cycle_capacity` ≈ a third of R7, K6 thresholds (`k6_l2: 13`, `k6_l1: 24`: level 2 from 13 months, level 1 above 24), K5 grace (`fines.grace_months: 12`), R7 filter key (`scope_districts`), in `configs/data.yaml` with a dated comment · depends: T-AH-01 · reviewer: elsayed **Done; review accepted.**
   - Evidence: [implementation/output](../../data/DATASET_CONTRACT.md).
   - [x] Review accepted (logs/review-01.md, 2026-10-29; findings fixed in f63a712 and c23a860, review recorded in 4822040; the before-any-result claim rests on the setter's own statement of 2026-10-29, not on git).
 - [x] **T-AH-03** [Must] D1 · Filter R8 out of every built table in `build_real` (audited R8 files stay untouched in `real_data/`) + test that no R8 code reaches `kpi_values` · depends: T-AH-02 · reviewer: elsayed **Done; review accepted.**
@@ -193,20 +193,6 @@ Goal: generated ACUD data for R7 → one `ml_dataset` (compound × quarter) → 
   - Evidence: [implementation/output](../../data/EW_REPORT_CURRENT.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 
-### D4: digital twin what-if
-
-- [x] **T-EL-13** [Must] D4 · Scenario runner: change one input from the as-of quarter onward, re-run generator + rule, never overwrite the base run · `src/generator/scenarios.py` + determinism test · reviewer: ahmed **Implemented; review pending.**
-  - Evidence: [implementation/output](../../src/generator/scenarios.py).
-  - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-EL-14** [Must] D4 · S1 dollar shock (USD/EGP +30%), S2 collections drop (−25% for 6 months), S3 capacity N ± 2 (re-rank only) · `scenarios/S1..S3/` + "who moved up and why" table · reviewer: nada **Implemented; review pending.**
-  - Evidence: [implementation/output](../../data/SCENARIO_CONTRACT_CURRENT.md).
-  - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [ ] **T-EL-15** [Could] D4 · S4 material cost +40%, S5 grace 12 → 6 months · reviewer: nada
-- [ ] **T-EL-16** [Could] D4 · FPMI and SAF tests on generated data, conditions written before the run, logged in `team_ideas.md` · reviewer: ahmed
-- [x] **T-EL-17** [Must] D4 · Code freeze for Track B; one command builds Track B after `run_all` · reviewer: ahmed **Implemented; review pending.**
-  - Evidence: [implementation/output](../../data/BINARY_SCOPE_DECISION.md).
-  - [ ] Review accepted (record reviewer, date and PR after actual review).
-
 ### D5
 
 - [x] **T-EL-18** [Must] D5 · Method card for the Track B classifier (data, label, split, metrics, limits: generated data, ~150 rows, learns the generator) (deliverable 5) · `docs/deliverables/method-card.md` · reviewer: salma **Implemented; review pending.**
@@ -234,6 +220,20 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-E
 - [ ] **T-VE-08** [Should] D4 · Complaints classifier: 5 classes (delay, stoppage, payment, quality, other) vs keyword baseline; extra test on `complaints_30.csv`; state that texts we wrote do not prove real accuracy · reviewer: elsayed **Partial; see [remaining work](../REMAINING_TEAM_TASKS.md).**
 - [x] **T-VE-09** [Must] D5 · Risks and responsible-AI note (Law 151/2020, who sees what, fairness limits, misuse) with elsayed (deliverable 6) · `docs/deliverables/responsible-ai.md` · reviewer: salma **Implemented; review pending.**
   - Evidence: [implementation/output](../deliverables/responsible-ai.md).
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
+
+### D4: digital twin what-if
+
+- [x] **T-EL-13** [Must] D4 · Scenario runner: change one input from the as-of quarter onward, re-run generator + rule, never overwrite the base run · `src/generator/scenarios.py` + determinism test · reviewer: ahmed **Implemented; review pending.**
+  - Evidence: [implementation/output](../../src/generator/scenarios.py).
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
+- [x] **T-EL-14** [Must] D4 · S1 dollar shock (USD/EGP +30%), S2 collections drop (−25% for 6 months), S3 capacity N ± 2 (re-rank only) · `scenarios/S1..S3/` + "who moved up and why" table · reviewer: nada **Implemented; review pending.**
+  - Evidence: [implementation/output](../../data/SCENARIO_CONTRACT_CURRENT.md).
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
+- [ ] **T-EL-15** [Could] D4 · S4 material cost +40%, S5 grace 12 → 6 months · reviewer: nada
+- [ ] **T-EL-16** [Could] D4 · FPMI and SAF tests on generated data, conditions written before the run, logged in `team_ideas.md` · reviewer: ahmed
+- [x] **T-EL-17** [Must] D4 · Code freeze for Track B; one command builds Track B after `run_all` · reviewer: ahmed **Implemented; review pending.**
+  - Evidence: [implementation/output](../../data/BINARY_SCOPE_DECISION.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 
 ---
@@ -311,5 +311,4 @@ Goal: every number in the docs and slides has a source or an origin mark and mat
 ## Approved binary-scope closure, 28 October 2026
 
 AH-16, EL-01, EL-10, EL-11 and EL-17 are implemented under BINARY_SCOPE_DECISION.md: contextual height with no fixed error guarantee, retired historical percentage claim, and reproducible binary distress models/workflow. Producing implementation tag: r7-binary-distress-2026-10-28. Main task marks indicate implementation; separate review checkboxes retain the human acceptance requirement. No colleague acceptance is signed automatically. Completion prediction is not an outstanding task.
-### D4: digital twin what-if — reassigned to elsayed (already T-EL-13/14/17; confirmed)
-- [x] T-EL-13/14/17 [Must] D4 · Digital twin what-if (scenario runner, S1-S3, freeze) · reviewer: elsayed · Evidence: src/generator/scenarios.py + scenarios/
+

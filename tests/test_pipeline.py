@@ -61,10 +61,20 @@ def test_reason_matches_spec_examples():
     ordered = kpis.reason_ar({**row, "level": 2, "may_be_complete": True, "K6": 25})
     assert ordered.index("قد يكون مكتملًا") < ordered.index("لم تتأكد بداية مرصودة")
 
-    not_started = kpis.reason_ar({**row, "started": False, "K2": pd.NA, "level": pd.NA})
+    not_started = kpis.reason_ar({**row, "started": False, "K2": pd.NA, "level": pd.NA, "K6": 5})
     assert not_started.startswith("بداية غير مؤكدة: ")
     not_assessable = kpis.reason_ar({**row, "K4": False})
     assert not_assessable.startswith("غير قابل للتقييم: ")
+
+
+def test_reason_head_separates_start_unknown_from_not_started():
+    row = {"K4": True, "started": False, "K2": float("nan"), "activity_prob": 0.05, "handover": False,
+           "first_end": None, "K3": 0, "may_be_complete": False, "K6": pd.NA, "n_images": 8, "level": pd.NA}
+    assert kpis.reason(row).startswith("Start unknown: ")
+    assert kpis.reason_ar(row).startswith("بداية غير معروفة: ")
+    known = {**row, "K6": 5}
+    assert kpis.reason(known).startswith("Not started: ")
+    assert kpis.reason_ar(known).startswith("بداية غير مؤكدة: ")
 
 
 def test_month_arithmetic_and_k5_k6_boundaries_are_pinned():
