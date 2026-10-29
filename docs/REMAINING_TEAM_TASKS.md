@@ -1,5 +1,7 @@
 # SpaceEye: remaining team tasks
 
+T-AH-10 handoff update (29 October 2026): [original case outputs, prepared inputs and replay command](../releases/ready-data/backtest/README.md) are published separately from the unchanged v5 ZIP. Case-count replay needs no external source drive; full activity refitting and raw-source clock checks still require the source caches. Review status is unchanged.
+
 Updated on 28 October 2026 for approved binary scope and delivery v5. AH-16, EL-01, EL-10, EL-11 and EL-17 are no longer open implementation tasks; see [scope decision](../data/BINARY_SCOPE_DECISION.md). Based on the original **02-team-roles-and-tasks.md** supplied by the team lead. Original task IDs, owners and priority tiers are preserved.
 
 This is an implementation snapshot, not an assessment of individual effort. Work on other branches or outside this repository requires evidence before being credited. The main task-board checkbox now means implemented/ready for review, as requested by the team lead. Separate Review accepted checkboxes require actual human acceptance; no reviewer is signed on anyone's behalf.
