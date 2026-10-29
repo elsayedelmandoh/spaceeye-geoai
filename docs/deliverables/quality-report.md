@@ -4,6 +4,7 @@ Task T-AH-12. Snapshot of saved data-only checks; rendering this report does not
 
 Source: `app_data/data_completion/quality_checks.csv` (external configured input).
 Source SHA256: `e4a8b411e76aa624f724bb4a1aaeeb70370e37734e9f62edd9bde0c405fdb1b0`.
+Source: `data_completion/quality_checks.csv` (ten-gate run of complete_data). The Track A run keeps its own record in `real/quality_checks_log.parquet` with the same run id.
 
 Results: 1 FLAG, 10 PASS.
 

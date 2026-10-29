@@ -165,3 +165,27 @@ def test_frozen_clock_check_rejects_an_empty_comparison_and_cuts_at_summer_year(
 
     assert result["2023Q2"] is False
     assert captured["years"] == [2022]
+
+
+def test_quality_report_identifies_source_and_run_id(monkeypatch, tmp_path):
+    app = tmp_path / "app_data"
+    repo = tmp_path / "repo"
+    source = app / "data_completion" / "quality_checks.csv"
+    source.parent.mkdir(parents=True)
+    source.write_text(
+        "gate,dimension,status,value,owner,on_failure,impact,run_id,computed_at\n"
+        "data_or_city,Accuracy,PASS,all checks passed,R4,flag the quarter and review,coverage,R1-test-run,2026-10-26\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(quality_report, "APP", app)
+    monkeypatch.setattr(quality_report, "BASE_DIR", repo)
+
+    quality_report.main()
+
+    report = (repo / "docs" / "deliverables" / "quality-report.md").read_text(encoding="utf-8")
+    assert (
+        "Source: `data_completion/quality_checks.csv` (ten-gate run of complete_data). "
+        "The Track A run keeps its own record in `real/quality_checks_log.parquet` "
+        "with the same run id."
+    ) in report
+    assert "Run id: `R1-test-run`" in report

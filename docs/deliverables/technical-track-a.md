@@ -20,6 +20,8 @@ uv run --locked --offline python -m src.pipeline.source_catalog
 uv run --locked --offline python -m src.pipeline.quality_report
 ```
 
+The quality report is built from `app_data/data_completion/quality_checks.csv`, the ten-gate run of `src.pipeline.complete_data`; `app_data/real/quality_checks_log.parquet` remains the Track A run's own record and hand-off contract file, with the same run id linking the two records.
+
 On WSL, mount F: at `/mnt/f` first (`sudo mkdir -p /mnt/f && sudo mount -t drvfs F: /mnt/f`).
 
 If Make is installed, `make data` executes those four preparation steps without fitting. `make current` runs `python -m src.pipeline.team_run`, including the current small model diagnostics. `make run` runs `python -m src.pipeline.team_run --full`, first rebuilding/fitting Track A. All need external caches/private inputs configured in `configs/data.yaml`; none downloads new satellite imagery. Teammates using the ready-data ZIP do not need these source inputs or commands.
