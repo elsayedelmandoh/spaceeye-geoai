@@ -207,7 +207,7 @@ Goal: generated ACUD data for R7 → one `ml_dataset` (compound × quarter) → 
 
 ## 6. elsayed: AI component + D4 digital twin what-if
 
-Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-VE-13/14/17 / S1-S3). Reads `kpi_values`; never overwrites base run.
+Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-EL-10/11/12/13/14 / S1-S3). Reads `kpi_values`; never overwrites base run.
 
 - [ ] **T-EL-01** [Must] D1 · Confirm `GEMINI_MODEL` and the call budget; prompts in `prompts/system/` and `prompts/templates/` · reviewer: elsayed
 - [ ] **T-EL-02** [Must] D2 · Agent tools as plain Python: `get_facts` (register + record_id + link), `get_kpis` (A, K2-K6, level, series), `get_images` (two Wayback images + capture date), `get_rules` (Decree 2184 articles) (§6 A) · `src/inference/tools.py` + tests on first-build data · reviewer: ahmed **Partial; see [remaining work](../REMAINING_TEAM_TASKS.md).**
@@ -225,15 +225,15 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-V
 
 ### D4: digital twin what-if
 
-- [x] **T-VE-13** [Must] D4 · Scenario runner: change one input from the as-of quarter onward, re-run generator + rule, never overwrite the base run · `src/generator/scenarios.py` + determinism test · reviewer: ahmed **Implemented; review pending.**
+- [x] **T-EL-10** [Must] D4 · Scenario runner: change one input from the as-of quarter onward, re-run generator + rule, never overwrite the base run · `src/generator/scenarios.py` + determinism test · reviewer: ahmed **Implemented; review pending.**
   - Evidence: [implementation/output](../../src/generator/scenarios.py).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-VE-14** [Must] D4 · S1 dollar shock (USD/EGP +30%), S2 collections drop (−25% for 6 months), S3 capacity N ± 2 (re-rank only) · `scenarios/S1..S3/` + "who moved up and why" table · reviewer: nada **Implemented; review pending.**
+- [x] **T-EL-11** [Must] D4 · S1 dollar shock (USD/EGP +30%), S2 collections drop (−25% for 6 months), S3 capacity N ± 2 (re-rank only) · `scenarios/S1..S3/` + "who moved up and why" table · reviewer: nada **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/SCENARIO_CONTRACT_CURRENT.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [ ] **T-VE-15** [Could] D4 · S4 material cost +40%, S5 grace 12 → 6 months · reviewer: nada
-- [ ] **T-VE-16** [Could] D4 · FPMI and SAF tests on generated data, conditions written before the run, logged in `team_ideas.md` · reviewer: ahmed
-- [x] **T-VE-17** [Must] D4 · Code freeze for Track B; one command builds Track B after `run_all` · reviewer: ahmed **Implemented; review pending.**
+- [ ] **T-EL-12** [Could] D4 · S4 material cost +40%, S5 grace 12 → 6 months · reviewer: nada
+- [ ] **T-EL-13** [Could] D4 · FPMI and SAF tests on generated data, conditions written before the run, logged in `team_ideas.md` · reviewer: ahmed
+- [x] **T-EL-14** [Must] D4 · Code freeze for Track B; one command builds Track B after `run_all` · reviewer: ahmed **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/BINARY_SCOPE_DECISION.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 
@@ -285,7 +285,7 @@ Goal: every number in the docs and slides has a source or an origin mark and mat
 | 2  | Pipeline with gates + `quality_checks_log.csv` + quality report           | ahmed                                          | T-AH-11, T-AH-12                   |
 | 3  | Track A rule (K2-K6), backtest, Track B `ml_dataset` + binary classifier | ahmed (A), elsayed (B)                         | T-AH-04..10, T-VE-08..12           |
 | 4  | Dashboard (track switch) + cycle list + `ops_visits`                      | nada                                           | T-NA-01..08                        |
-| 5  | Method card + monitoring plan                                               | elsayed (method card), ahmed (monitoring plan) | T-VE-13, T-AH-20                   |
+| 5  | Method card + monitoring plan                                               | elsayed (method card), ahmed (monitoring plan) | T-EL-18, T-AH-20                   |
 | 6  | Risks and responsible-AI note + `ai_verification_log`                     | verina                                         | T-EL-05, T-EL-09                   |
 | 7  | Technical docs, user guide, governance cards, data dictionaries             | ahmed, nada, salma, elsayed                    | T-AH-20, T-NA-10, T-SA-04, T-VE-07 |
 | 8  | Decision memo (Arabic / English)                                            | salma                                          | T-SA-05                            |
