@@ -1,11 +1,11 @@
 # 02-team-roles-and-tasks.md
 
-> Current technical decisions and unresolved approvals: [D1_DECISIONS_CURRENT](D1_DECISIONS_CURRENT.md). Implementation evidence: [partial-task closure](../data/PARTIAL_TASKS_CLOSURE.md). Main checkboxes show verified implementation; separate review checkboxes remain pending for the human reviewer.
+> Current technical decisions and unresolved approvals: [D1_DECISIONS_CURRENT](D1_DECISIONS_CURRENT.md). Implementation evidence: [partial-task closure](../../data/PARTIAL_TASKS_CLOSURE.md). Main checkboxes show verified implementation; separate review checkboxes remain pending for the human reviewer.
 
 # SpaceEye: Team Roles and Task Board
 
 ACUD AI & Data Readiness Program · Graduation project (D1-D6) · Team of 5
-Source of every task: [`01-specs.md`](01-specs.md) (section numbers in brackets, e.g. §2). Data and columns: [current dataset contract](../data/DATASET_CONTRACT.md). Repo layout: [`08-structure.md`](../project-definition/08-structure.md).
+Source of every task: [`01-specs.md`](01-specs.md) (section numbers in brackets, e.g. §2). Data and columns: [current dataset contract](../../data/DATASET_CONTRACT.md). Repo layout: [`08-structure.md`](../project-definition/08-structure.md).
 
 > **Synthetic data - for training only** on every generated table, chart and slide. Codes only (`C..`, `D..`), never a compound or developer name.
 
@@ -76,14 +76,14 @@ Goal: one command (`python -m src.pipeline.run_all`) builds the R7 tables, A, K2
 
 ### D1: scope and config
 
-- [x] **T-AH-01** [Must] D1 · Confirm R7 boundaries (confidence ≥ 80%) and count R7 compounds (open item 4) · `compounds.district` checked, count in §16 · depends: - · reviewer: elsayed **Implemented; review pending.**
-  - Evidence: [implementation/output](../data/DATASET_CONTRACT.md).
+- [x] **T-AH-01** [Must] D1 · Confirm R7 boundaries (a boundary with a reviewed confidence label from the location audit; no numeric threshold is applied) and count R7 compounds (open item 4) · `compounds.district` checked, count in §16 · depends: - · reviewer: elsayed **Implemented; review pending.**
+  - Evidence: [implementation/output](../../data/DATASET_CONTRACT.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-AH-02** [Must] D1 · Write config before any result: `cycle_capacity` ≈ a third of R7, K6 thresholds (12 / 24), K5 grace (12 months), R7 filter key, in `configs/data.yaml` with a dated comment · depends: T-AH-01 · reviewer: salma **Implemented; review pending.**
-  - Evidence: [implementation/output](../data/DATASET_CONTRACT.md).
+- [x] **T-AH-02** [Must] D1 · Write config before any result: `cycle_capacity` ≈ a third of R7, K6 thresholds (`k6_l2: 13`, `k6_l1: 24`: level 2 from 13 months, level 1 above 24), K5 grace (`fines.grace_months: 12`), R7 filter key (`scope_districts`), in `configs/data.yaml` with a dated comment · depends: T-AH-01 · reviewer: salma **Implemented; review pending.**
+  - Evidence: [implementation/output](../../data/DATASET_CONTRACT.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-AH-03** [Must] D1 · Filter R8 out of every built table in `build_real` (audited R8 files stay untouched in `real_data/`) + test that no R8 code reaches `kpi_values` · depends: T-AH-02 · reviewer: elsayed **Implemented; review pending.**
-  - Evidence: [implementation/output](../data/DATASET_CONTRACT.md).
+  - Evidence: [implementation/output](../../data/DATASET_CONTRACT.md). Filter: `in_scope` in `src/pipeline/codify.py`; scope audit: `scope_checks` in `src/pipeline/release.py`. Tests in `tests/test_scope.py`: `test_in_scope_drops_r8_rows`, `test_scope_checks_pass_when_kpi_values_hold_only_known_codes`, `test_scope_checks_fail_when_kpi_values_hold_an_r8_code`, `test_scope_checks_fail_when_compounds_hold_an_r8_district` (fabricated tables; no workspace data). The filter runs in `codify`, not `build_real`.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 
 ### D2: indicators, levels, cycle list
@@ -110,16 +110,16 @@ Goal: one command (`python -m src.pipeline.run_all`) builds the R7 tables, A, K2
 ### D3: backtest, gates, reproducibility
 
 - [x] **T-AH-10** [Must] D3 · Re-run the frozen-clock backtest on R7 only (backtest variant of A without overlapping plots); per case: what happened / why / what next + one competing explanation rejected with a number; counts only, no % · `backtest/cases.csv`, `summary.json` · reviewer: salma **Implemented; review pending.**
-  - Evidence: [implementation/output](../data/BACKTEST_CURRENT.md).
+  - Evidence: [implementation/output](../../data/BACKTEST_CURRENT.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-AH-11** [Must] D3 · 10 gates pass or flag with dimension, owner, decision (§8); `no_names` scans every output incl. new CSVs; `separation` covers new columns · `quality_checks_log.csv` (program template) · reviewer: elsayed **Implemented; review pending.**
-  - Evidence: [implementation/output](../data/R1_REPORT.md).
+  - Evidence: [implementation/output](../../data/R1_REPORT.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-AH-12** [Must] D3 · Quality report with an "impact on the indicator" column, from `quality_checks_log` · `docs/deliverables/quality-report.md` · reviewer: salma **Implemented; review pending.**
   - Evidence: [implementation/output](../deliverables/quality-report.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-AH-13** [Must] D3 · Two runs identical: run `run_all` twice, compare `manifest.csv` sha; add a `make run` target · reviewer: elsayed **Implemented; review pending.**
-  - Evidence: [implementation/output](../data/FULL_TRACK_A_REPRODUCIBILITY.json).
+  - Evidence: [implementation/output](../../data/FULL_TRACK_A_REPRODUCIBILITY.json).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [ ] **T-AH-14** [Should] D3 · Fallback ready: if A fails on new quarters, K1 path documented and switchable in config (§13) · reviewer: elsayed **Partial; see [remaining work](../REMAINING_TEAM_TASKS.md).**
 
@@ -151,10 +151,10 @@ Goal: generated ACUD data for R7 → one `ml_dataset` (compound × quarter) → 
 ### D1: protocol before any run
 
 - [x] **T-EL-01** [Must] D1 ? Resolved implementation: retire the unattributed historical percentage claim; current method/view/denominator recorded in EW_REPORT_CURRENT.md ? approved scope: BINARY_SCOPE_DECISION.md ? reviewer: ahmed **Implemented; review pending.**
-  - Evidence: [implementation/output](../data/BINARY_SCOPE_DECISION.md).
+  - Evidence: [implementation/output](../../data/BINARY_SCOPE_DECISION.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-EL-02** [Must] D1 · Write `EW_PROTOCOL.md` **before** the R7 run: label (2 classes, next 6 months), split (time; developer holdout only if ≥ 3 test developers), metrics (per-class recall, macro-F1, recall@N for `distressed` vs random top-N, 2,000 draws), pass condition · `app_data/EW_PROTOCOL.md` + wording copied to §0 · reviewer: salma **Implemented; review pending.**
-  - Evidence: [implementation/output](../data/EW_PROTOCOL_CURRENT.md).
+  - Evidence: [implementation/output](../../data/EW_PROTOCOL_CURRENT.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-EL-03** [Must] D1 · Assumed monthly fine rate for K5 in EGP (open item 3) in `configs/data.yaml` with `assumption: true` · reviewer: ahmed **Implemented; review pending.**
   - Evidence: [implementation/output](../../configs/data.yaml).
@@ -163,34 +163,34 @@ Goal: generated ACUD data for R7 → one `ml_dataset` (compound × quarter) → 
 ### D2: generator on R7
 
 - [x] **T-EL-04** [Must] D2 · Regenerate on R7 only from ahmed's `kpi_values` (stories from real signals, reports equal real announced %, electricity meters only) (§5) · `sim/fin_monthly.parquet`, `sim/complaints.parquet`, private `answer_key` · depends: T-AH-09 · reviewer: ahmed **Implemented; review pending.**
-  - Evidence: [implementation/output](../data/R2_REPORT.md).
+  - Evidence: [implementation/output](../../data/R2_REPORT.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-EL-05** [Must] D2 · 6 planted defects caught by the gates + hard and calibration realism checks pass · `realism_checks.csv`, `defects_log.csv` · reviewer: ahmed **Implemented; review pending.**
-  - Evidence: [implementation/output](../data/DEFECT_AUDIT_CURRENT.json).
+  - Evidence: [implementation/output](../../data/DEFECT_AUDIT_CURRENT.json).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-EL-06** [Must] D2 ? Binary next-six-month distressed/not_distressed labels with censoring; boolean source label and equivalent categorical extended export; dictionary and regression checks ? src/pipeline/complete_data.py ? reviewer: verina **Implemented; review pending.**
   - Evidence: [implementation/output](../../src/pipeline/complete_data.py).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-EL-07** [Must] D2 · Data dictionaries for every generated table (column, type, unit, origin 🟠) · `dictionaries/*.md` · reviewer: salma **Implemented; review pending.**
-  - Evidence: [implementation/output](../data/dictionaries/README.md).
+  - Evidence: [implementation/output](../../data/dictionaries/README.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 
 ### D3: ml_dataset and classifier
 
 - [x] **T-EL-08** [Must] D3 · Build `ml_dataset` (1 row = compound × quarter, columns from the current DATASET_CONTRACT.md): X = Track A outputs + K3, K5, K6 + B1-B5; y = binary label; no feature reads `answer_key`; statements filtered by `published_date` · `app_data/ml/ml_dataset.parquet` + leakage test (corrupt data after the cutoff, features unchanged) · depends: T-EL-04, T-EL-06 · reviewer: ahmed **Implemented; review pending.**
-  - Evidence: [implementation/output](../data/DATASET_CONTRACT.md).
+  - Evidence: [implementation/output](../../data/DATASET_CONTRACT.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-EL-09** [Must] D3 · B1-B5 triggers (§2) + K5 in EGP (eligible months × assumed rate × land value, 🟠) + rule with ACUD data (any of B1/B2/B3/B5 → level ≥ 2; B1 and K2 ≥ 2 → level 1; B4 context only) · reviewer: ahmed **Implemented; review pending.**
-  - Evidence: [implementation/output](../data/IMPLEMENTED_DATA_SPEC.md).
+  - Evidence: [implementation/output](../../data/IMPLEMENTED_DATA_SPEC.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-EL-10** [Must] D3 · Logistic regression baseline (never cut): per-class recall, macro-F1, recall@N for `distressed` vs random, counts as n of m · `ml/metrics.csv`, `ml/predictions.parquet` · reviewer: verina **Implemented; review pending.**
-  - Evidence: [implementation/output](../data/CURRENT_MODEL_METRICS.csv).
+  - Evidence: [implementation/output](../../data/CURRENT_MODEL_METRICS.csv).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-EL-11** [Should] D3 · Gradient boosting vs logistic, same split and metrics; if a model scores perfectly, document limitations; do not tune data/noise after viewing the test (current binary protocol) · reviewer: verina **Implemented; review pending.**
-  - Evidence: [implementation/output](../data/CURRENT_MODEL_METRICS.csv).
+  - Evidence: [implementation/output](../../data/CURRENT_MODEL_METRICS.csv).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-EL-12** [Must] D3 · Early-warning comparison on R7: images alone vs images + ACUD data vs random, plus the rule itself; check on the 8 real `eval_outcomes` (check set only) · `app_data/EW_REPORT.md` · reviewer: ahmed **Implemented; review pending.**
-  - Evidence: [implementation/output](../data/EW_REPORT_CURRENT.md).
+  - Evidence: [implementation/output](../../data/EW_REPORT_CURRENT.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 
 ### D4: digital twin what-if
@@ -199,12 +199,12 @@ Goal: generated ACUD data for R7 → one `ml_dataset` (compound × quarter) → 
   - Evidence: [implementation/output](../../src/generator/scenarios.py).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-EL-14** [Must] D4 · S1 dollar shock (USD/EGP +30%), S2 collections drop (−25% for 6 months), S3 capacity N ± 2 (re-rank only) · `scenarios/S1..S3/` + "who moved up and why" table · reviewer: nada **Implemented; review pending.**
-  - Evidence: [implementation/output](../data/SCENARIO_CONTRACT_CURRENT.md).
+  - Evidence: [implementation/output](../../data/SCENARIO_CONTRACT_CURRENT.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [ ] **T-EL-15** [Could] D4 · S4 material cost +40%, S5 grace 12 → 6 months · reviewer: nada
 - [ ] **T-EL-16** [Could] D4 · FPMI and SAF tests on generated data, conditions written before the run, logged in `team_ideas.md` · reviewer: ahmed
 - [x] **T-EL-17** [Must] D4 · Code freeze for Track B; one command builds Track B after `run_all` · reviewer: ahmed **Implemented; review pending.**
-  - Evidence: [implementation/output](../data/BINARY_SCOPE_DECISION.md).
+  - Evidence: [implementation/output](../../data/BINARY_SCOPE_DECISION.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 
 ### D5

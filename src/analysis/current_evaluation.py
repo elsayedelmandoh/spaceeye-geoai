@@ -17,7 +17,7 @@ from src.pipeline.common import APP, BASE_DIR, CFG, PRIVATE
 
 CLASSES = ["distressed", "not_distressed"]
 OUT = APP / "ml_current"
-PROTOCOL = BASE_DIR / "docs/data/EW_PROTOCOL_CURRENT.md"
+PROTOCOL = BASE_DIR / "data/EW_PROTOCOL_CURRENT.md"
 
 
 def sha(path):
@@ -198,7 +198,7 @@ def run():
     pd.DataFrame(metrics).to_csv(OUT / "metrics.csv", index=False)
     (OUT / "metadata.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
     pd.DataFrame({"draw": range(2000), "recall_at_4": random_values}).to_csv(OUT / "random_draws.csv", index=False)
-    docs = BASE_DIR / "docs/data"
+    docs = BASE_DIR / "data"
     (docs / "CURRENT_MODEL_METADATA.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
     pd.DataFrame(metrics).to_csv(docs / "CURRENT_MODEL_METRICS.csv", index=False)
     ranking = pd.DataFrame(metrics).query("metric == 'distressed_recall_at_4' and view == 'time_test'")

@@ -385,7 +385,7 @@
       ]
     },
     "warnings": {
-      "grace_months": 12,
+      "complaint_grace_months": 12,
       "stall_months": 3,
       "repeat_months": 6,
       "review_months": [

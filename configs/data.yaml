@@ -60,6 +60,7 @@ activity:
   max_seasonal_spread: 10.0         # points between the highest and lowest quarter-of-year active share on stable plots
   overlap_exclude: 0.5              # backtest variant drops training plots covering this share of any compound
 
+# whether these were fixed before the first score is not provable from git; owner must confirm
 levels:
   k2_l1: 4
   k2_l2: 2                 # 2-3 -> level 2, 1 -> level 3
@@ -67,8 +68,10 @@ levels:
   k3_l2: 13                # 13-24 -> level 2, 1-12 -> level 3
   combo_k2: 2
   combo_k3: 12
+# recorded 2026-10-28 in commit ca24988
   k6_l1: 24
   k6_l2: 13
+# recorded 2026-10-26 in commit 215980b
 cycle_capacity: 4          # 12 R7 compounds / 3, fixed before rebuilding
 inspection_capacity_fraction: 0.3333333333333333
 
@@ -227,7 +230,7 @@ generator:
     n_texts: 100
     viral_multiplier: [3.0, 6.0]
   warnings:
-    grace_months: 12
+    complaint_grace_months: 12
     stall_months: 3
     repeat_months: 6
     review_months: [1, 4, 7, 10]   # reviews run in the month after each quarter end

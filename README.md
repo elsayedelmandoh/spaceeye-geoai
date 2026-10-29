@@ -16,13 +16,13 @@ SpaceEye supports deciding which coded R7 compounds the inspection committee sho
 | Evaluation | 96 primary training rows, 48 time-test rows, fixed parameters and a separate chronological developer holdout |
 | Heights | Available OBT observations through 2023 and approved 2024 estimate; contextual, without a fixed error guarantee |
 
-Use [the current report](docs/data/EW_REPORT_CURRENT.md) for method-specific counts and random comparison. Synthetic repeated-quarter results do not establish real-world accuracy. Published statements, derived indicators and generated assumptions have separate origins. Generated outputs retain **Synthetic - for training only**. No real compound or developer name is published.
+Use [the current report](data/EW_REPORT_CURRENT.md) for method-specific counts and random comparison. Synthetic repeated-quarter results do not establish real-world accuracy. Published statements, derived indicators and generated assumptions have separate origins. Generated outputs retain **Synthetic - for training only**. No real compound or developer name is published.
 
 ## Indicators and decisions
 
 A is the derived building-activity score. K2 counts inactivity after the legacy start state; K3 measures elapsed months after the first available announced deadline; K4 records assessability. K6 measures time from a known launch/promise reference without confirmed observed start and remains unknown when evidence is insufficient. K5 is screening exposure, not verified contractual fine eligibility.
 
-The rule uses the worst applicable K2/K3/K6 signal, assessability and the may-be-complete cap. Selection uses eligible levels 1-3, then level, descending K2/K3 and code. Project thresholds live in configs/data.yaml. Illustrative monetary fines and financial/priority what-if outputs are generated assumptions, not actual assessments or forecasts. See the [implemented specification](docs/data/IMPLEMENTED_DATA_SPEC.md).
+The rule uses the worst applicable K2/K3/K6 signal, assessability and the may-be-complete cap. Selection uses eligible levels 1-3, then level, descending K2/K3 and code. Project thresholds live in configs/data.yaml. Illustrative monetary fines and financial/priority what-if outputs are generated assumptions, not actual assessments or forecasts. See the [implemented specification](data/IMPLEMENTED_DATA_SPEC.md).
 
 ## Use the ready data
 
@@ -45,9 +45,9 @@ The historical early_warning/release modules remain for saved experiment audits 
 
 ## Documentation and collaboration
 
-- [Current handoff](docs/data/HANDOFF.md), [dataset contract](docs/data/DATASET_CONTRACT.md), [sources and generation](docs/data/DATA_SOURCES_AND_GENERATION.md).
+- [Current handoff](data/HANDOFF.md), [dataset contract](data/DATASET_CONTRACT.md), [sources and generation](data/DATA_SOURCES_AND_GENERATION.md).
 - [Product requirements](docs/requirements/01-specs.md), [actual repository structure](docs/project-definition/08-structure.md).
-- [Approved binary scope](docs/data/BINARY_SCOPE_DECISION.md), [model card](docs/deliverables/method-card.md), [package validation](docs/data/READY_V5_VALIDATION.json).
+- [Approved binary scope](data/BINARY_SCOPE_DECISION.md), [model card](docs/deliverables/method-card.md), [package validation](data/READY_V5_VALIDATION.json).
 
 Work only on feature branches/PRs, preserve teammates' work and use the configured human Git identity. A checked main task means implemented/ready for review; its separate review checkbox requires actual human acceptance. Keep evidence and the remaining-task handoff synchronized. Current unresolved work is not represented by empty placeholder deliverables.
 

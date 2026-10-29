@@ -23,6 +23,6 @@ The extended ML data has 180 rows and 40 features. The approved classifier is bi
 
 ## Continue development
 
-Work on a feature branch and PR; never commit directly to main. Use the configured human Git identity. See [technical operations](technical-track-a.md), [data handoff](../data/HANDOFF.md), [sources and generation](../data/DATA_SOURCES_AND_GENERATION.md) and [current task closure](../data/PARTIAL_TASKS_CLOSURE.md). For source rebuilding, configure local paths and run `uv sync --locked`; the prepared bundle alone cannot reproduce private/source ingestion.
+Work on a feature branch and PR; never commit directly to main. Use the configured human Git identity. See [technical operations](technical-track-a.md), [data handoff](../../data/HANDOFF.md), [sources and generation](../../data/DATA_SOURCES_AND_GENERATION.md) and [current task closure](../../data/PARTIAL_TASKS_CLOSURE.md). For source rebuilding, configure local paths and run `uv sync --locked`; the prepared bundle alone cannot reproduce private/source ingestion.
 
 Route data/rule questions to Track A, generator/model questions to Track B, agent questions to the AI owner and interface questions to the dashboard owner. Named reviewer acceptance, final presentation and live deployment are not recorded by this handover.

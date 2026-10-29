@@ -125,12 +125,12 @@ def main():
         copy(path, "inspection/" + path.relative_to(components).as_posix())
     copy(components / "inspection_index.csv", "inspection/index.csv")
     copy(components / "metadata.json", "docs/component_validation.json")
-    copy(REPO / "docs/data/COMPONENT_DATA_PROTOCOL.md", "docs/COMPONENT_DATA_PROTOCOL.md")
+    copy(REPO / "data/COMPONENT_DATA_PROTOCOL.md", "docs/COMPONENT_DATA_PROTOCOL.md")
     for name in ("DATA_SOURCES_AND_GENERATION.md", "SOURCE_CATALOG.csv", "SOURCE_INPUTS.csv", "GENERATION_PARAMETERS.json"):
-        copy(REPO / "docs/data" / name, "docs/" + name)
+        copy(REPO / "data" / name, "docs/" + name)
     for name in ("EW_PROTOCOL_CURRENT.md", "EW_REPORT_CURRENT.md", "CURRENT_MODEL_METADATA.json", "CURRENT_MODEL_METRICS.csv", "CURRENT_MODEL_REPRODUCIBILITY.json", "BACKTEST_CURRENT.md", "FULL_TRACK_A_REPRODUCIBILITY.json", "ANNUAL_CONTEXT_COVERAGE.csv", "DEFECT_AUDIT_CURRENT.json", "SCENARIO_CONTRACT_CURRENT.md"):
-        copy(REPO / "docs/data" / name, "docs/" + name)
-    copy(REPO / "docs/data/BINARY_SCOPE_DECISION.md", "docs/BINARY_SCOPE_DECISION.md")
+        copy(REPO / "data" / name, "docs/" + name)
+    copy(REPO / "data/BINARY_SCOPE_DECISION.md", "docs/BINARY_SCOPE_DECISION.md")
     holdout = APP / "ml_current/developer_holdout_predictions.parquet"
     if holdout.exists():
         copy(holdout, "current/developer_holdout_predictions.parquet")

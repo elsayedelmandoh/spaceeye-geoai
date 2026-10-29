@@ -25,18 +25,26 @@ def verify_manifest(path, base):
     return len(rows)
 
 
+def scope_checks(tables, scope_districts, names):
+    """Scope audit: compounds stay in the configured districts and no listed table carries an unknown code."""
+    codes = set(tables["compounds"].code)
+    checks = {"configured_district_scope": set(tables["compounds"].district) <= set(scope_districts)}
+    for name in names:
+        if "code" in tables[name]:
+            checks[name + "_known_codes"] = set(tables[name].code) <= codes
+    return checks
+
+
 def audit(require_current_evaluation=True):
     tables = {p.stem: pd.read_parquet(p) for p in (APP / "real").glob("*.parquet")}
     codes = set(tables["compounds"].code)
-    checks = {}
-    checks["configured_district_scope"] = set(tables["compounds"].district) <= set(CFG["scope_districts"])
+    key_tables = ("compounds", "sat_quarterly", "sat_yearly", "kpi_values", "statements", "eval_outcomes", "drivers_monthly", "rules")
+    checks = scope_checks(tables, CFG["scope_districts"], key_tables)
     for name, key in (("compounds", ["code"]), ("sat_quarterly", ["code", "quarter"]),
                       ("sat_yearly", ["code", "year"]), ("kpi_values", ["code", "quarter"]),
                       ("statements", ["statement_id"]), ("eval_outcomes", ["case"]),
                       ("drivers_monthly", ["month"]), ("rules", ["rule_id"])):
         checks[name + "_unique_keys"] = not tables[name].duplicated(key).any()
-        if "code" in tables[name]:
-            checks[name + "_known_codes"] = set(tables[name].code) <= codes
     q = gates.run_gates({name: tables[name] for name in gates.ORIGINS}, tables["kpi_values"])
     con = duckdb.connect(str(APP / "spaceeye.duckdb"), read_only=True)
     try:

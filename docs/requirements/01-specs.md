@@ -1,14 +1,14 @@
 # 01-specs.md
 
-> Current approved scope, 28 October 2026: binary distressed/not_distressed prediction only; completion prediction is removed. AH-16 accepts contextual heights without a fixed +/-2m guarantee. The unattributed historical percentage claim is retired, not an open task. See [scope decision](../data/BINARY_SCOPE_DECISION.md) and [current evaluation](../data/EW_REPORT_CURRENT.md).
+> Current approved scope, 28 October 2026: binary distressed/not_distressed prediction only; completion prediction is removed. AH-16 accepts contextual heights without a fixed +/-2m guarantee. The unattributed historical percentage claim is retired, not an open task. See [scope decision](../../data/BINARY_SCOPE_DECISION.md) and [current evaluation](../../data/EW_REPORT_CURRENT.md).
 
 # SpaceEye: R7 Digital Twin and Inspection Priority Observatory (New Administrative Capital)
 
-Last updated: 28 Oct 2026 · Team of 5 · Data and column details: [current dataset contract](../data/DATASET_CONTRACT.md)
+Last updated: 28 Oct 2026 · Team of 5 · Data and column details: [current dataset contract](../../data/DATASET_CONTRACT.md)
 
 > **Synthetic data - for training only** applies to every generated table, chart and slide. Real public data is used as published, with its source.
 
-This file defines the current product requirements. Implemented data/schema and validation evidence are maintained in docs/data; the task board distinguishes delivered work from planned features.
+This file defines the current product requirements. Implemented data/schema and validation evidence are maintained in data; the task board distinguishes delivered work from planned features.
 
 
 ---
@@ -51,7 +51,7 @@ This file defines the current product requirements. Implemented data/schema and 
 
 | Item | Why |
 | --- | --- |
-| Coded compounds in R7 (boundary confidence ≥ 80%) | The unit management knows; smaller scope |
+| Coded compounds in R7 (boundary with a reviewed confidence label from the location audit; no numeric threshold is applied) | The unit management knows; smaller scope |
 | Light compound-level digital twin of R7 + what-if screen | Observed state + simulated hidden state + scenarios |
 | Google Dynamic World quarterly, 2016Q1 → 2026Q3 | "Is it building?" from above, up to 2026 |
 | Activity score A (DW trend + DW class shares + Sentinel-2 indices) | Passed 5 tests; the base indicator (section 4) |
@@ -100,7 +100,7 @@ This file defines the current product requirements. Implemented data/schema and 
 | **A** | **Activity score** | Gradient-boosting probability that the compound is building this quarter, from DW trend, persistence, DW class shares and Sentinel-2 window means. Trained on plot windows ending 2019Q1-2023Q4, labels from Open Buildings | 🔵 |
 | K2 | Quarters with no activity | Consecutive latest quarters where A is below its threshold, **counted only after construction started** (4 consecutive active quarters, or a published launch/delivery event). Before that: "not started" | 🔵 |
 | K3 | Handover clock | Months since the **first** announced handover date with no handover announcement. Later promises **never reset** it. Only statements published before the as-of date count | 🟢 |
-| K4 | Assessability | ≥ 6 Dynamic World images in the quarter + boundary confidence ≥ 80%; otherwise "not assessable" | 🟢 |
+| K4 | Assessability | ≥ 6 Dynamic World images in the quarter + a boundary with a reviewed confidence label from the location audit (no numeric threshold); otherwise "not assessable" | 🟢 |
 | **K5** | **Fine exposure** (غرامات) | Two parts. **(1) Months in a fine-eligible state** (real): months past the first deadline with construction never started, plus months past the 12-month grace (K3 > 12). **(2) Fine amount in EGP** (Track B, generated only): eligible months × assumed monthly rate × land value; the rate is 🟡 `assumption: true` until ACUD gives the contract rate | 🔵 / 🟠 |
 | **K6** | **Never-started clock** (مش بيبني أصلاً) | Months since the first published launch or promise with **no construction start** (no 4-quarter run of activity). The land allocation date would be better (data request) | 🔵 |
 
@@ -143,7 +143,7 @@ Arabic example: "مفيش نشاط بقاله 3 أرباع، والميعاد ا
 | Owner (role) | Spatial data analyst | Spatial data analyst | Developer follow-up officer | Data engineer | Developer follow-up officer | Spatial data analyst |
 | Baseline | K1 (DW change alone) | 0 | First announced date | - | 0 | First launch / promise date |
 | Target | Set by owner | 0-1 | ≤ 0 | 100% | 0 | 0 (started) |
-| Thresholds | Model threshold (out-of-fold) | 2 / 4 | 12 / 24 | ≥ 6 images | Context, no level | 12 / 24 |
+| Thresholds | Model threshold (out-of-fold) | 2 / 4 | 12 / 24 | ≥ 6 images | Context, no level | 13-24 / > 24 |
 | Leading/lagging | Leading | Leading | Lagging | Guard | Lagging | Leading |
 | International axis | Urban planning | Urban planning | Housing | Governance/data | Governance/data | Urban planning |
 
@@ -447,13 +447,13 @@ Planned T-SA-03 output: three project-specific settings in `configs/cost_assumpt
 
 **Done when:** the success criterion is shown honestly (it failed: shown with the reason) · one command builds everything, twice identically · every gate has dimension, owner and decision · every number has a source or origin mark · every LLM number is in `ai_verification_log` · the 13 deliverables are ready and rehearsed twice.
 
-**Decisions to sign on D1:** R7 only · light compound-level digital twin with what-if · two tracks (A images, B numbers) · worst-of-signals rule incl. K6 and B triggers · K5 definition and the assumed fine rate · Track B label (2 classes, next 6 months) · activity score A as the base indicator · thresholds and levels table (frozen) · boundary acceptance (confidence ≥ 80%) · codes only, no names · generated label "Synthetic - for training only / مولّد - للتدريب والعرض فقط" · questions for the instructor (rubric, presentation length).
+**Decisions to sign on D1:** R7 only · light compound-level digital twin with what-if · two tracks (A images, B numbers) · worst-of-signals rule incl. K6 and B triggers · K5 definition and the assumed fine rate · Track B label (2 classes, next 6 months) · activity score A as the base indicator · thresholds and levels table (frozen) · boundary acceptance (a boundary with a reviewed confidence label from the location audit; no numeric threshold is applied) · codes only, no names · generated label "Synthetic - for training only / مولّد - للتدريب والعرض فقط" · questions for the instructor (rubric, presentation length).
 
 ---
 
 ## 15. Current approved decisions
 
-Use [the current decision register](D1_DECISIONS_CURRENT.md) and [binary scope decision](../data/BINARY_SCOPE_DECISION.md). Superseded design comparisons remain in Git history/local backups, not the active product plan. Current implementation marks do not imply human reviewer acceptance.
+Use [the current decision register](D1_DECISIONS_CURRENT.md) and [binary scope decision](../../data/BINARY_SCOPE_DECISION.md). Superseded design comparisons remain in Git history/local backups, not the active product plan. Current implementation marks do not imply human reviewer acceptance.
 
 ## 16. Open items (facts still needed)
 

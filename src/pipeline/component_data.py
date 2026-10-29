@@ -283,7 +283,7 @@ def main():
         raise RuntimeError("Component name gate: " + scan["value"])
     write_json(OUT / "metadata.json", {"status": "PASS", "synthetic_label": LABEL, "checks": {k: bool(v) for k, v in checks.items()},
                "counts": {"complaints_training": len(text_data), "complaints_benchmark": len(benchmark), "inspection_contexts": len(contexts), "synthetic_visits": len(visits), "hypothetical_priorities": len(priority)},
-               "complaint_split_counts": splits, "definition": "docs/data/COMPONENT_DATA_PROTOCOL.md",
+               "complaint_split_counts": splits, "definition": "data/COMPONENT_DATA_PROTOCOL.md",
                "input_sha256": input_hashes,
                "priority_rule": "Frozen cutoff public/B1/B2/B3context plus projected B5gap>20;completion cap and capacity4. Not a forecast of future public observations or validated accuracy.",
                "visits": "Synthetic exercise records,not real fieldwork and not independent validation or ML features.",
@@ -316,7 +316,7 @@ def main():
         doc += "\n".join(f"| {c} | {frame[c].dtype} | {meanings[c]} |" for c in frame)
         (OUT / "dictionaries").mkdir(exist_ok=True)
         (OUT / "dictionaries" / f"{name}.md").write_text(doc + "\n", encoding="utf-8")
-        published = BASE_DIR / "docs/data/dictionaries" / f"component_data__{name}.md"
+        published = BASE_DIR / "data/dictionaries" / f"component_data__{name}.md"
         published.parent.mkdir(parents=True, exist_ok=True)
         published.write_text(doc + "\n", encoding="utf-8")
     pd.DataFrame([{"file": p.relative_to(OUT).as_posix(), "sha256": run_all.sha(p)} for p in sorted(OUT.rglob("*")) if p.is_file() and p.name != "manifest.csv"]).to_csv(OUT / "manifest.csv", index=False)

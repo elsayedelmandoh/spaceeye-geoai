@@ -2,7 +2,7 @@
 
 # 07 | project compass
 
-> Current technical decisions and unresolved approvals: [D1_DECISIONS_CURRENT](D1_DECISIONS_CURRENT.md). Implementation evidence: [partial-task closure](../data/PARTIAL_TASKS_CLOSURE.md). Original checkboxes require the named reviewer and are not auto-signed.
+> Current technical decisions and unresolved approvals: [D1_DECISIONS_CURRENT](D1_DECISIONS_CURRENT.md). Implementation evidence: [partial-task closure](../../data/PARTIAL_TASKS_CLOSURE.md). Original checkboxes require the named reviewer and are not auto-signed.
 
 graduation project · days 6-12 · for learners and instructors
 

@@ -1,6 +1,6 @@
 # Data governance cards
 
-Task T-SA-04. Roles below are proposed operational responsibilities. No institutional approval or named-member sign-off is asserted. The source/generation register is [documented here](../data/DATA_SOURCES_AND_GENERATION.md).
+Task T-SA-04. Roles below are proposed operational responsibilities. No institutional approval or named-member sign-off is asserted. The source/generation register is [documented here](../../data/DATA_SOURCES_AND_GENERATION.md).
 
 | Data group | Accountable role | Origin | Refresh | Permitted working access | Sharing and limits |
 | --- | --- | --- | --- | --- | --- |

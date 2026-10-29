@@ -2,9 +2,9 @@
 
 ## Current references
 
-Read docs/data/HANDOFF.md, docs/requirements/02-team-roles-and-tasks.md and docs/REMAINING_TEAM_TASKS.md first. The current prepared release is v5 only; current source contracts live in docs/data. Do not restore retired plans, empty scaffold documents, utility-demo configs or earlier ZIP versions.
+Read data/HANDOFF.md, docs/requirements/02-team-roles-and-tasks.md and docs/REMAINING_TEAM_TASKS.md first. The current prepared release is v5 only; current source contracts live in data. Do not restore retired plans, empty scaffold documents, utility-demo configs or earlier ZIP versions.
 
-Scope: 12 R7 compounds, six real check cases, inspection capacity 4. The classifier predicts distressed/not_distressed; completion prediction is removed. Height is approved context through 2024, without a fixed error guarantee. See docs/data/BINARY_SCOPE_DECISION.md. Dashboard and inspection-agent functionality remain unfinished.
+Scope: 12 R7 compounds, six real check cases, inspection capacity 4. The classifier predicts distressed/not_distressed; completion prediction is removed. Height is approved context through 2024, without a fixed error guarantee. See data/BINARY_SCOPE_DECISION.md. Dashboard and inspection-agent functionality remain unfinished.
 
 ## Required task-board updates
 

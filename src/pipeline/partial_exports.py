@@ -58,7 +58,7 @@ def backtest_report():
              "| Case / code | Assessable pre-cutoff quarters | After-start alert quarters | Numeric alternative check |", "| --- | ---: | ---: | --- |"]
     lines += [f"| {r.case} / {r.code} | {r.assessable_quarters_before_cutoff} | {r.after_start_alert_quarters} | {r.numeric_check} |" for r in details.itertuples()]
     lines += ["", "The full CSV contains what happened, the rule explanation, the competing explanation and next action. Warning detection is not causal proof. No percentages or retuned thresholds are used."]
-    (BASE_DIR / "docs/data/BACKTEST_CURRENT.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (BASE_DIR / "data/BACKTEST_CURRENT.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def scenario_exports():
@@ -140,8 +140,8 @@ def main():
     annual = pd.read_parquet(REAL / "sat_yearly.parquet")
     save(annual, OUT / "annual_context.csv")
     coverage = annual.groupby("year").agg(compounds=("code", "count"), vegetation_nonnull=("veg_share", "count"), heights_nonnull=("height_mean_m", "count")).reset_index()
-    save(coverage, BASE_DIR / "docs/data/ANNUAL_CONTEXT_COVERAGE.csv")
-    (BASE_DIR / "docs/data/DEFECT_AUDIT_CURRENT.json").write_text(json.dumps(audit, indent=2), encoding="utf-8")
+    save(coverage, BASE_DIR / "data/ANNUAL_CONTEXT_COVERAGE.csv")
+    (BASE_DIR / "data/DEFECT_AUDIT_CURRENT.json").write_text(json.dumps(audit, indent=2), encoding="utf-8")
     (OUT / "scenario_contract.json").write_text(json.dumps({"scenarios": scenario_info, "synthetic_label": LABEL,
         "schema_note": "S1/S2 KPI exports use the last simulated month per quarter. Public A/K2/K3/K4/K5/K6 and other context are frozen at frozen_context_quarter, not future observations or forecasts; only hypothetical level/rank change through projected B5. Monthly change explanations remain separate. S3 keeps the source quarter and levels; scenario_id distinguishes capacity 2/6. No new satellite observations, fine exposures or delivery events are predicted."}, indent=2), encoding="utf-8")
     print("Current backtest explanations, S1/S2/S3 exports, six-defect private audit and annual context exported")

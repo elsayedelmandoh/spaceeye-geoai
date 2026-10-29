@@ -1,6 +1,6 @@
 """propose: close R1/R2 with current reports, dictionaries and two-build evidence.
 input: cached observations, current config, saved historical simulation.
-output: tracked docs/data, local reports, delivery reproducibility evidence.
+output: tracked data, local reports, delivery reproducibility evidence.
 No activity/classifier fitting, live source pulls or private-data publication.
 """
 

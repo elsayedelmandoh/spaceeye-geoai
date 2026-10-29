@@ -10,7 +10,7 @@ from src.pipeline.component_data import write_json
 
 
 def main():
-    out = BASE_DIR / "docs/data"
+    out = BASE_DIR / "data"
     reference = SRC / "26_data_audit/reference"
     patterns = gates._patterns(gates.forbidden_names())
     registry = pd.read_csv(reference / "records_register.csv").fillna("")
