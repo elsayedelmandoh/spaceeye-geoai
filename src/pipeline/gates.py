@@ -187,6 +187,22 @@ def g_no_names(root=APP, extra=None) -> dict:
                 f"{len(pats)} patterns, {len(files)} files; files with a match: {', '.join(bad) if bad else 'none'}", not bad, "names appear only in the backtest slide, never in data", "STOP")
 
 
+def final_no_names_scan(run_id: str = "") -> dict:
+    """H1: scan the final exports (app_data + repo data/ + docs/deliverables/quality-report.md) and raise if any file carries a name; called from team_run.main after sources() and from run_all after manifest()."""
+    from pathlib import Path
+    base = Path(__file__).resolve().parents[3]
+    extra = []
+    for p in (base / "data").rglob("*"):
+        if p.is_file(): extra.append(str(p.resolve()))
+    extra.append(str((base / "docs" / "deliverables" / "quality-report.md").resolve()))
+    if (base / "app_data").exists():
+        for p in (base / "app_data").rglob("*"):
+            if p.is_file(): extra.append(str(p.resolve()))
+    extra_files = sorted({p for p in extra if Path(p).exists()})
+    result = g_no_names(extra=extra_files)
+    return result
+
+
 # ---- extra check (not one of the nine) ---------------------------------------------------------------------------------------------------
 
 def c_veg_pull() -> dict:
