@@ -34,8 +34,7 @@ def capacity_paths(kpi, n):
     """S3 is a stored re-ranking only. Never changes levels, cash or progress."""
     rows = []
     for quarter, group in kpi.groupby("quarter"):
-        order = group[group.level.notna() & group.level.le(3)].assign(k2=lambda d: d.K2.fillna(0)).sort_values(
-            ["level", "k2", "K3", "code"], ascending=[True, False, False, True])
+        order = kpis.eligible_order(group)
         for scenario, cap in (("capacity_minus_2", max(1, n - 2)), ("baseline", n), ("capacity_plus_2", min(kpi.code.nunique(), n + 2))):
             ranks = {c: i + 1 for i, c in enumerate(order.code)}
             for r in group.itertuples():
