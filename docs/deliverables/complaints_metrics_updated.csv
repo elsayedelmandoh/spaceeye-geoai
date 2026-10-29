@@ -1,0 +1,7 @@
+﻿model,eval_set,accuracy,macro_f1,macro_precision,macro_recall,notes
+Position_Aware_Classifier,Benchmark_Test,0.933,0.936,0.949,0.929,Normalized Arabic + Position-weighted primary clause prioritization
+TFIDF_Logistic,Benchmark_Test,0.221,0.202,0.204,0.225,"Sublinear TF-IDF (1,2-grams) + LogisticRegression (C=2.0)"
+Position_Aware_Classifier,Check_Set_30,0.933,0.933,0.943,0.933,Normalized Arabic + Position-weighted primary clause prioritization
+TFIDF_Logistic,Check_Set_30,0.3,0.295,0.313,0.3,"Sublinear TF-IDF (1,2-grams) + LogisticRegression (C=2.0)"
+Position_Aware_Classifier,Training_Feed_100,0.93,0.929,0.937,0.93,Normalized Arabic + Position-weighted primary clause prioritization
+TFIDF_Logistic,Training_Feed_100,0.72,0.715,0.731,0.72,"Sublinear TF-IDF (1,2-grams) + LogisticRegression (C=2.0)"

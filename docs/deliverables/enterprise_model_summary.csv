@@ -1,0 +1,6 @@
+metric,value,benchmark,status
+Test_ROC_AUC,0.92,0.500 (Random),Superior
+Capacity_4_Recall,1.0,0.335 (Random top 4),Superior
+Distress_Class_Recall,1.0,0.000 (Naive 0.5),Optimized
+Macro_F1,0.621,0.467,Robust
+Operating_Threshold,0.16,0.500,Cost-Sensitive
