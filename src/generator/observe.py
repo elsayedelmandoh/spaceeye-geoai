@@ -113,7 +113,7 @@ def acud(sig: Signals, st: Setup, tr: Truth, eco: Economy, rep: Reports, rng: np
     seen = (t_all >= max(st.plan_start, first_rep) + W["stall_months"]) & (cert < 90) & ~handed
     stalled3 = seen & (gain(W["stall_months"]) < 0.5)           # no reported progress for a review cycle
     stalled6 = seen & (gain(2 * W["stall_months"]) < 1.0)       # six months in a row
-    grace = next((t for t in range(N) if sig.k3[t] > W["grace_months"]), None)
+    grace = next((t for t in range(N) if sig.k3[t] > W["complaint_grace_months"]), None)
     last_warn, cur = None, "on_plan"
     for t in range(N):
         review = MONTHS[t].month in W["review_months"]

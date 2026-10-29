@@ -22,7 +22,7 @@ def _csv(path) -> pd.DataFrame:
 
 
 def _boundary_features() -> list[dict]:
-    """20 boundaries from the location audit + 2 added; a compound enters only with a boundary (confidence >= 80%)."""
+    """20 boundaries from the location audit + 2 added; a compound enters only with a boundary (any reviewed confidence label from the location audit; no numeric threshold is applied)."""
     feats = json.loads(src("boundaries").read_text(encoding="utf-8"))["features"]
     added = json.loads(src("boundaries_added").read_text(encoding="utf-8"))["features"]
     for f in added:  # added file has one confidence field; medium-high is read as medium
@@ -180,10 +180,14 @@ def _reference() -> None:
                                    "cover_cancelled_at_progress_pct_Art4"]], "decree_2184.csv")
 
 
+def in_scope(cm: pd.DataFrame) -> pd.DataFrame:
+    return cm[cm.district.isin(CFG["scope_districts"])]  # the code map keeps all compounds; only the scope is copied on
+
+
 def run() -> pd.DataFrame:
     RAW.mkdir(parents=True, exist_ok=True)
     cm = code_map()
-    cm = cm[cm.district.isin(CFG["scope_districts"])]  # the code map keeps all compounds; only the scope is copied on
+    cm = in_scope(cm)
     _facts(cm)
     _geo(cm)
     _satellite(cm)

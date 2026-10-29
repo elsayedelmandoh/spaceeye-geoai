@@ -63,7 +63,7 @@ def developers(sigs: list[stories.Signals]) -> dict[str, dict]:
 
 def trouble_month(sig: stories.Signals) -> int | None:
     """first month this compound is in visible trouble: grace period over (K3 > 12) or a stall starts."""
-    c = [m for m in (next((t for t in range(N) if sig.k3[t] > GEN["warnings"]["grace_months"]), None), sig.onset) if m is not None]
+    c = [m for m in (next((t for t in range(N) if sig.k3[t] > GEN["warnings"]["complaint_grace_months"]), None), sig.onset) if m is not None]
     return min(c) if c else None
 
 
