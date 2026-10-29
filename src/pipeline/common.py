@@ -4,6 +4,8 @@ input: configs/data.yaml.
 output: cfg dict, path helpers, quarter index helpers (0 = 2016Q1).
 """
 
+import os
+import re
 from pathlib import Path
 
 import pandas as pd
@@ -17,10 +19,24 @@ def load_cfg(path: Path | None = None) -> dict:
         return yaml.safe_load(f)
 
 
+def native_path(path: str) -> Path:
+    """a Windows drive path such as F:/x is read as /mnt/f/x on Linux and WSL (the drive must be mounted there)."""
+    drive = re.match(r"^([A-Za-z]):[/\\](.*)$", path)
+    if drive and os.name != "nt":
+        return Path("/mnt") / drive.group(1).lower() / drive.group(2).replace("\\", "/")
+    return Path(path)
+
+
+def require_data_root() -> None:
+    """stop early with a clear message when the external data drive is not reachable."""
+    if not APP.exists():
+        raise SystemExit(f"data root not found: {APP}\nset paths in configs/data.yaml; on WSL mount the drive first, e.g. sudo mkdir -p /mnt/f && sudo mount -t drvfs F: /mnt/f")
+
+
 CFG = load_cfg()
-SRC = Path(CFG["paths"]["real_data"])
-APP = Path(CFG["paths"]["app_data"])
-PRIVATE = Path(CFG["paths"]["private"])
+SRC = native_path(CFG["paths"]["real_data"])
+APP = native_path(CFG["paths"]["app_data"])
+PRIVATE = native_path(CFG["paths"]["private"])
 RAW, REAL, MODEL = APP / "raw", APP / "real", APP / "model"
 
 
