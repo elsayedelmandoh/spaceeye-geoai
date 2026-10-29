@@ -1,10 +1,20 @@
 """unit tests for the real-data pipeline: small pure functions only (no earth engine, no app_data)."""
 
+import os
+
 import pandas as pd
 
 from src.pipeline import complete_data, gates, kpis
 from src.pipeline.build_real import first_promise
-from src.pipeline.common import CFG, months_between, qend, qindex, qlabel, summer_year
+from src.pipeline.common import (
+    CFG,
+    months_between,
+    native_path,
+    qend,
+    qindex,
+    qlabel,
+    summer_year,
+)
 
 
 def test_quarter_helpers_round_trip():
@@ -314,3 +324,11 @@ def test_name_gate_distinguishes_generic_identifiers_from_standalone_names():
     pats = gates._patterns({"alpha"})
     assert gates._hits("alpha_id, alpha_value, source_alpha", pats) == 0
     assert gates._hits("compound alpha", pats) == 1
+
+
+def test_windows_drive_paths_map_to_mnt_on_linux():
+    if os.name == "nt":
+        return
+    assert str(native_path("F:/ACUD AI Data Lab/Project/app_data")) == "/mnt/f/ACUD AI Data Lab/Project/app_data"
+    assert str(native_path("F:\\x\\y")) == "/mnt/f/x/y"
+    assert str(native_path("relative/dir")) == "relative/dir"

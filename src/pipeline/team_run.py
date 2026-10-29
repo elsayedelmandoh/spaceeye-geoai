@@ -2,11 +2,14 @@
 
 import argparse
 
+from src.pipeline.common import require_data_root
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--full", action="store_true", help="Also run the full Track A activity pipeline")
     args = parser.parse_args()
+    require_data_root()
     if args.full:
         from src.pipeline.run_all import main as track_a
         if track_a() != 0:
