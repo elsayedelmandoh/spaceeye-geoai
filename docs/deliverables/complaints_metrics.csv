@@ -1,0 +1,7 @@
+﻿model,eval_set,accuracy,macro_f1,macro_precision,macro_recall,notes
+Keyword_Baseline,Benchmark_Test,0.683,0.672,0.696,0.667,Rule-based domain keyword matching
+TFIDF_Logistic,Benchmark_Test,0.221,0.202,0.204,0.225,"Sublinear TF-IDF (1,2-grams) + LogisticRegression (C=2.0)"
+Keyword_Baseline,Check_Set_30,0.733,0.743,0.769,0.733,Rule-based domain keyword matching
+TFIDF_Logistic,Check_Set_30,0.3,0.295,0.313,0.3,"Sublinear TF-IDF (1,2-grams) + LogisticRegression (C=2.0)"
+Keyword_Baseline,Training_Feed_100,0.8,0.798,0.803,0.8,Rule-based domain keyword matching
+TFIDF_Logistic,Training_Feed_100,0.72,0.715,0.731,0.72,"Sublinear TF-IDF (1,2-grams) + LogisticRegression (C=2.0)"
