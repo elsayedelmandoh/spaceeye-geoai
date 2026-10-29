@@ -194,12 +194,12 @@ Goal: generated ACUD data for R7 → one `ml_dataset` (compound × quarter) → 
   - Evidence: [implementation/output](../../data/EW_REPORT_CURRENT.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 
-### D5
+### D4
 
-- [x] **T-VE-20** [Must] D5 · Method card for the Track B classifier (data, label, split, metrics, limits: generated data, ~150 rows, learns the generator) (deliverable 5) · `docs/deliverables/method-card.md` · reviewer: salma **Implemented; review pending.**
+- [x] **T-EL-18** [Must] D5 · Method card for the Track B classifier (data, label, split, metrics, limits: generated data, ~150 rows, learns the generator) (deliverable 5) · `docs/deliverables/method-card.md` · reviewer: salma **Implemented; review pending.**
   - Evidence: [implementation/output](../deliverables/method-card.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-VE-21** [Must] D5 · ACUD data request list by impact (§12, deliverable 12) · `docs/deliverables/data-request.md` · reviewer: salma **Implemented; review pending.**
+- [x] **T-EL-19** [Must] D5 · ACUD data request list by impact (§12, deliverable 12) · `docs/deliverables/data-request.md` · reviewer: salma **Implemented; review pending.**
   - Evidence: [implementation/output](../deliverables/data-request.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 
@@ -285,14 +285,14 @@ Goal: every number in the docs and slides has a source or an origin mark and mat
 | 2  | Pipeline with gates + `quality_checks_log.csv` + quality report           | ahmed                                          | T-AH-11, T-AH-12                   |
 | 3  | Track A rule (K2-K6), backtest, Track B `ml_dataset` + binary classifier | ahmed (A), elsayed (B)                         | T-AH-04..10, T-VE-08..12           |
 | 4  | Dashboard (track switch) + cycle list + `ops_visits`                      | nada                                           | T-NA-01..08                        |
-| 5  | Method card + monitoring plan                                               | elsayed (method card), ahmed (monitoring plan) | T-VE-20, T-AH-20                   |
+| 5  | Method card + monitoring plan                                               | elsayed (method card), ahmed (monitoring plan) | T-EL-18, T-AH-20                   |
 | 6  | Risks and responsible-AI note + `ai_verification_log`                     | verina                                         | T-EL-05, T-EL-09                   |
 | 7  | Technical docs, user guide, governance cards, data dictionaries             | ahmed, nada, salma, elsayed                    | T-AH-20, T-NA-10, T-SA-04, T-VE-07 |
 | 8  | Decision memo (Arabic / English)                                            | salma                                          | T-SA-05                            |
 | 9  | Knowledge transfer pack                                                     | ahmed                                          | T-AH-21                            |
 | 10 | One run command for the presentation                                        | ahmed                                          | T-AH-13, T-AH-19                   |
 | 11 | Inspection files for 5 compounds                                            | verina                                         | T-EL-06                            |
-| 12 | Data request list to ACUD                                                   | elsayed                                        | T-VE-21                            |
+| 12 | Data request list to ACUD                                                   | elsayed                                        | T-EL-19                            |
 | 13 | Final presentation                                                          | salma                                          | T-SA-06, T-ALL-05                  |
 
 ---
