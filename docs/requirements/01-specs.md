@@ -98,7 +98,7 @@ This file defines the current product requirements. Implemented data/schema and 
 | --- | --- | --- | --- |
 | K1 | 12-month DW change | Mean `built_prob_mean` of the last 4 quarters minus the 4 before; growth if > **0.02**. Kept as an input to A and as the baseline A must beat | 🔵 |
 | **A** | **Activity score** | Gradient-boosting probability that the compound is building this quarter, from DW trend, persistence, DW class shares and Sentinel-2 window means. Trained on plot windows ending 2019Q1-2023Q4, labels from Open Buildings | 🔵 |
-| K2 | Quarters with no activity | Consecutive latest quarters where A is below its threshold, **counted only after construction started** (4 consecutive active quarters, or a published launch/delivery event). Before that: "not started" | 🔵 |
+| K2 | Quarters with no activity | Consecutive latest quarters where A is below its threshold, **counted only after construction started** (4 consecutive active quarters, or a published launch/delivery event). Before that: no construction start (see the distinct "not started" and "start unknown" labels below) | 🔵 |
 | K3 | Handover clock | Months since the **first** announced handover date with no handover announcement. Later promises **never reset** it. Only statements published before the as-of date count | 🟢 |
 | K4 | Assessability | ≥ 6 Dynamic World images in the quarter + a boundary with a reviewed confidence label from the location audit (no numeric threshold); otherwise "not assessable" | 🟢 |
 | **K5** | **Fine exposure** (غرامات) | Two parts. **(1) Months in a fine-eligible state** (real): months past the first deadline with construction never started, plus months past the 12-month grace (K3 > 12). **(2) Fine amount in EGP** (Track B, generated only): eligible months × assumed monthly rate × land value; the rate is 🟡 `assumption: true` until ACUD gives the contract rate | 🔵 / 🟠 |
@@ -115,7 +115,12 @@ The term is **priority level** (Arabic: مستوى أولوية التفتيش),
 | 3 🟡 Document review | K2 = 1, or K3 = 1-12 | Request the supervisor report | Within the grace period |
 | 4 🟢 Routine | Otherwise (started) | Next cycle | - |
 | Not started | No construction start, K6 ≤ 12 and no K3 date passed | Watch | - |
+| Start unknown | no construction start and K6 unknown (no known launch/promise or gaps in observation) | Watch, collect evidence | - |
 | ⚪ Not assessable | K4 failed | Fix location/images first | - |
+
+**Month arithmetic and gaps (kept decisions).**
+- **KEPT — month arithmetic:** K3 and K6 use the nearest month (days / 30.44), while K5 uses calendar months. This is kept because changing it after results exist would shift levels. For example, deadline 2023-06-01 and as-of 2024-06-30 give K3 = 13 but K5 post-grace months = 0.
+- **KEPT — strict K6 history:** K6 requires every quarter from the launch/promise reference to the as-of quarter to be assessable. One non-assessable quarter therefore makes K6 unknown for later quarters; unknown stays unknown and never raises a level.
 
 K5 does not set the level on its own (its eligible months already come from K3 and K6); it is shown in the compound file and is a Track B feature.
 

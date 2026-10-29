@@ -12,6 +12,7 @@ from src.analysis.current_evaluation import (
     top_flags,
 )
 from src.pipeline.kpis import reason_ar
+from src.pipeline.partial_exports import scenario_level_labels
 from src.pipeline.privacy import assert_safe_texts, mask_text
 
 
@@ -22,6 +23,21 @@ def test_arabic_reason_keeps_unknown_deadline_and_missing_start_distinct():
     assert "25" in text and "لا يوجد موعد" in text and "غير مؤكدة" in text
     row["K4"] = False
     assert "غير قابل للتقييم" in reason_ar(row)
+
+
+def test_scenario_labels_preserve_public_unknown_start_state():
+    frame = pd.DataFrame({
+        "level": pd.array([pd.NA, pd.NA, 1], dtype="Int64"),
+        "level_label": ["start unknown", "not assessable", "1"],
+        "level_word": ["start unknown", "not assessable", "first"],
+        "level_word_ar": ["بداية غير معروفة", "غير قابل للتقييم", "الأولى"],
+    })
+
+    out = scenario_level_labels(frame)
+
+    assert out.level_label.tolist() == ["start unknown", "not assessable", "1"]
+    assert out.level_word.tolist() == ["start unknown", "not assessable", "first"]
+    assert out.level_word_ar.tolist() == ["بداية غير معروفة", "غير قابل للتقييم", "الأولى"]
 
 
 def test_pre_model_masking_handles_unicode_phones_and_supplied_names():

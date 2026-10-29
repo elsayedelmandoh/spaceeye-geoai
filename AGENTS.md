@@ -28,8 +28,8 @@
 
 ## Validation and communication
 
-- Maintain docs/requirements/02-team-roles-and-tasks.md after each verified implementation. The team lead defines the main checkbox as implemented/ready for review; keep the separate human review checkbox pending until actual acceptance.
-- Keep evidence links and docs/REMAINING_TEAM_TASKS.md in sync. Do not auto-sign reviews, mark partial tasks complete, or restore superseded scope from an older pasted task board.
+- Maintain docs/requirements/02-team-roles-and-tasks.md after each verified implementation. The main checkbox [x] means implemented/ready for review (label "Implemented; review pending"). Tick the separate Review accepted checkbox only after an independent review recorded in logs/review-NN.md (or the PR), set the label to "Done; review accepted", and write the box as `- [x] Review accepted (logs/review-NN.md, YYYY-MM-DD; findings fixed in <commits>; review recorded in <commit>; <caveat, if any>).`. Keep the task's other information; the board names no agent, model or lane.
+- Keep evidence links and docs/REMAINING_TEAM_TASKS.md in sync. Do not sign a review without a recorded review log, mark partial tasks complete, or restore superseded scope from an older pasted task board.
 
 - Relevant tests: uv run --locked --offline pytest -q. Lint touched code with ruff;check diffs before commit.
 - Data-only build: python -m src.pipeline.complete_data. Two-build delivery: python -m src.pipeline.delivery.

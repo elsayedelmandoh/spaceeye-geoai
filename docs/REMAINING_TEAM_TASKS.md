@@ -76,7 +76,7 @@ Current app.py prints settings; it is not the requested Streamlit dashboard. Exi
 | ID / tier | Remaining output | Dependency / acceptance |
 | --- | --- | --- |
 | T-NA-01 / Must | Streamlit entrypoint, Track A/B switch, fixed synthetic banner and generated-value marks. | Runnable app, Track A default; no map in Track B. |
-| T-NA-02 / Must | Priority map, cycle list, Arabic reasons and CSV download; Track B list only. | AH-08 data ready. Coded boundaries, priority words, distinct unassessable state. |
+| T-NA-02 / Must | Priority map, cycle list, Arabic reasons and CSV download; Track B list only. | AH-08 data ready. Coded boundaries, priority words, distinct start-unknown and unassessable states. |
 | T-NA-03 / Must | Compound screen: series, publication markers, annual context, imagery, KPIs, lineage, inspection report access. | Most inputs ready; imagery/report depend on AH-15/VE-06. Display p_distressed and p_not_distressed; no completion probability is required. |
 | T-NA-04 / Must | Real ops_visits form and persistence: code/date/result/note. | Empty template and synthetic exercises exist. Store actual entries separately from synthetic examples. |
 | T-NA-05 / Must | Would-it-have-warned screen. | Use current six-case check and capacity-4 metrics/limits; do not present historical eight-case/N=8 figures as current. |

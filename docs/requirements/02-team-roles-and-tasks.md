@@ -76,35 +76,35 @@ Goal: one command (`python -m src.pipeline.run_all`) builds the R7 tables, A, K2
 
 ### D1: scope and config
 
-- [x] **T-AH-01** [Must] D1 · Confirm R7 boundaries (a boundary with a reviewed confidence label from the location audit; no numeric threshold is applied) and count R7 compounds (open item 4) · `compounds.district` checked, count in §16 · depends: - · reviewer: elsayed **Implemented; review pending.**
+- [x] **T-AH-01** [Must] D1 · Confirm R7 boundaries (a boundary with a reviewed confidence label from the location audit; no numeric threshold is applied) and count R7 compounds (open item 4) · `compounds.district` checked, count in §16 · depends: - · reviewer: elsayed **Done; review accepted.**
   - Evidence: [implementation/output](../../data/DATASET_CONTRACT.md).
-  - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-AH-02** [Must] D1 · Write config before any result: `cycle_capacity` ≈ a third of R7, K6 thresholds (`k6_l2: 13`, `k6_l1: 24`: level 2 from 13 months, level 1 above 24), K5 grace (`fines.grace_months: 12`), R7 filter key (`scope_districts`), in `configs/data.yaml` with a dated comment · depends: T-AH-01 · reviewer: salma **Implemented; review pending.**
+  - [x] Review accepted (logs/review-01.md, 2026-10-29; findings fixed in f63a712 and c23a860, review recorded in 4822040).
+- [x] **T-AH-02** [Must] D1 · Write config before any result: `cycle_capacity` ≈ a third of R7, K6 thresholds (`k6_l2: 13`, `k6_l1: 24`: level 2 from 13 months, level 1 above 24), K5 grace (`fines.grace_months: 12`), R7 filter key (`scope_districts`), in `configs/data.yaml` with a dated comment · depends: T-AH-01 · reviewer: salma **Done; review accepted.**
   - Evidence: [implementation/output](../../data/DATASET_CONTRACT.md).
-  - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-AH-03** [Must] D1 · Filter R8 out of every built table in `build_real` (audited R8 files stay untouched in `real_data/`) + test that no R8 code reaches `kpi_values` · depends: T-AH-02 · reviewer: elsayed **Implemented; review pending.**
+  - [x] Review accepted (logs/review-01.md, 2026-10-29; findings fixed in f63a712 and c23a860, review recorded in 4822040; the before-any-result claim rests on the setter's own statement of 2026-10-29, not on git).
+- [x] **T-AH-03** [Must] D1 · Filter R8 out of every built table in `build_real` (audited R8 files stay untouched in `real_data/`) + test that no R8 code reaches `kpi_values` · depends: T-AH-02 · reviewer: elsayed **Done; review accepted.**
   - Evidence: [implementation/output](../../data/DATASET_CONTRACT.md). Filter: `in_scope` in `src/pipeline/codify.py`; scope audit: `scope_checks` in `src/pipeline/release.py`. Tests in `tests/test_scope.py`: `test_in_scope_drops_r8_rows`, `test_scope_checks_pass_when_kpi_values_hold_only_known_codes`, `test_scope_checks_fail_when_kpi_values_hold_an_r8_code`, `test_scope_checks_fail_when_compounds_hold_an_r8_district` (fabricated tables; no workspace data). The filter runs in `codify`, not `build_real`.
-  - [ ] Review accepted (record reviewer, date and PR after actual review).
+  - [x] Review accepted (logs/review-01.md, 2026-10-29; findings fixed in f63a712 and c23a860, review recorded in 4822040).
 
 ### D2: indicators, levels, cycle list
 
 - [x] **T-AH-04** [Must] D2 · K6 never-started clock in `kpis.py`: months since first published launch/promise with no 4-quarter activity run; level 1 if > 24, level 2 if 13-24 (§2) + tests · reviewer: elsayed **Implemented; review pending.**
-  - Evidence: [implementation/output](../../src/pipeline/kpis.py).
+  - Evidence: [implementation/output](../../src/pipeline/kpis.py). Tests: tests/test_pipeline.py::test_launch_does_not_confirm_observed_construction_and_k6_waits_for_publication, tests/test_pipeline.py::test_k6_does_not_treat_missing_or_unassessable_history_as_no_start, tests/test_pipeline.py::test_start_evidence_ignores_future_publications_and_future_event_dates, tests/test_pipeline.py::test_month_arithmetic_and_k5_k6_boundaries_are_pinned; tests/test_spec_data.py::test_k6_priority_and_promise_publication_fallback_have_no_future_leakage.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-AH-05** [Must] D2 · K5 fine-eligible months (real part): months past first deadline with no start + months past 12-month grace (K3 > 12); shown, never sets the level + test · reviewer: elsayed **Implemented; review pending.**
-  - Evidence: [implementation/output](../../src/pipeline/kpis.py).
+  - Evidence: [implementation/output](../../src/pipeline/kpis.py). Tests: tests/test_spec_data.py::test_fine_union_retains_exposure_and_does_not_double_count_grace, tests/test_spec_data.py::test_missing_contract_deadline_or_no_start_evidence_is_not_zero_fine; tests/test_pipeline.py::test_month_arithmetic_and_k5_k6_boundaries_are_pinned.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-AH-06** [Must] D2 · Level rule = worst of K2, K3, K6 + "may be complete" cap at 3 + "not started" / "not assessable" (§2 table); update `test_level_is_the_worst_signal...` for K6 · reviewer: elsayed **Implemented; review pending.**
-  - Evidence: [implementation/output](../../src/pipeline/kpis.py).
+  - Evidence: [implementation/output](../../src/pipeline/kpis.py). Tests: tests/test_pipeline.py::test_level_is_the_worst_signal_and_may_be_complete_caps_at_3, tests/test_pipeline.py::test_not_assessable_kpi_row_has_no_level_and_keeps_lineage; tests/test_spec_data.py::test_k6_priority_and_promise_publication_fallback_have_no_future_leakage.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-AH-07** [Must] D2 · Reason sentence: one template, English in logs, **Arabic** for the committee (`reason_ar` column), filled by code, codes only (§2) + test on the two examples · reviewer: verina **Implemented; review pending.**
-  - Evidence: [implementation/output](../../src/pipeline/kpis.py).
+  - Evidence: [implementation/output](../../src/pipeline/kpis.py). Tests: tests/test_pipeline.py::test_reason_matches_spec_examples; tests/test_partial_tasks.py::test_arabic_reason_keeps_unknown_deadline_and_missing_start_distinct.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-AH-08** [Must] D2 · Cycle list export: top N with level 1-3, ordered K2 then K3 descending, CSV (Arabic reason, level as a word) for the as-of quarter · `app_data/real/cycle_list_<asof>.csv` · depends: T-AH-04..07 · reviewer: nada **Implemented; review pending.**
-  - Evidence: [implementation/output](../../src/pipeline/kpis.py).
+- [x] **T-AH-08** [Must] D2 · Cycle list export: top N with level 1-3, ordered by level, then K2, then K3 descending, then code (spec section 2), CSV (Arabic reason, level as a word) for the as-of quarter · `app_data/real/cycle_list_<asof>.csv` · depends: T-AH-04..07 · reviewer: nada **Implemented; review pending.**
+  - Evidence: [implementation/output](../../src/pipeline/kpis.py). Tests: tests/test_pipeline.py::test_rank_cycle_takes_top_capacity_levels_1_to_3_in_spec_order; tests/test_spec_data.py::test_capacity_scenarios_only_select_eligible_rows.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-AH-09** [Must] D2 · `kpi_values` carries `origin`, `run_id`, `computed_at` for every new column (K5, K6, reason_ar); hand off to elsayed/verina/nada (contract §2) · reviewer: elsayed **Implemented; review pending.**
-  - Evidence: [implementation/output](../../src/pipeline/kpis.py).
+  - Evidence: [implementation/output](../../src/pipeline/kpis.py). Tests: tests/test_pipeline.py::test_not_assessable_kpi_row_has_no_level_and_keeps_lineage.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 
 ### D3: backtest, gates, reproducibility

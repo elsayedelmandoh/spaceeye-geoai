@@ -24,6 +24,15 @@ def save(frame, path):
     frame.to_csv(path, index=False, encoding="utf-8-sig")
 
 
+def scenario_level_labels(frame: pd.DataFrame) -> pd.DataFrame:
+    """Apply hypothetical levels while preserving the public label when no level exists."""
+    return frame.assign(
+        level_word=frame.level.map({1: "first", 2: "second", 3: "third", 4: "fourth"}).fillna(frame.level_word),
+        level_word_ar=frame.level.map({1: "الأولى", 2: "الثانية", 3: "الثالثة", 4: "الرابعة"}).fillna(frame.level_word_ar),
+        level_label=frame.level.map(lambda value: str(int(value)) if pd.notna(value) else pd.NA).fillna(frame.level_label),
+    )
+
+
 def backtest_report():
     kpi = pd.read_parquet(APP / "backtest/kpi_values_backtest.parquet")
     events = pd.read_parquet(REAL / "eval_outcomes.parquet")
@@ -85,9 +94,7 @@ def scenario_exports():
         frame["frozen_context_quarter"] = source_quarter
         frame["source_run_id"] = frame.run_id
         frame["run_id"] = "SC-" + original + "-" + hashlib.sha256((APP / "scenarios/paths.parquet").read_bytes()).hexdigest()[:10]
-        frame["level_word"] = frame.level.map({1: "first", 2: "second", 3: "third", 4: "fourth"}).fillna("not assessable")
-        frame["level_word_ar"] = frame.level.map({1: "الأولى", 2: "الثانية", 3: "الثالثة", 4: "الرابعة"}).fillna("غير قابل للتقييم")
-        frame["level_label"] = frame.level.map(lambda value: str(int(value)) if pd.notna(value) else "not assessable")
+        frame = scenario_level_labels(frame)
         frame["reason_ar"] = "حالة افتراضية بسياق رصد ثابت؛ يلزم تحقق ميداني مستقل."
         (OUT / label).mkdir(exist_ok=True)
         # Last simulated month in each quarter; all public context is explicitly frozen.

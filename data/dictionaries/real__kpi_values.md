@@ -4,9 +4,9 @@ Actual schema;372rows. Public/derived table; register origins remain explicit.
 
 | Column | Type | Unit/range | Origin | Meaning/method |
 | --- | --- | --- | --- | --- |
-| code | str | registered compound codes plus a planted unknown code | derived | Coded compound identifier; accepted prepared tables use registered R7 codes. Planted unknown codes occur only in raw/quarantined test inputs. |
-| quarter | str | see meaning | derived | Quarter of cutoff; flows cover its three months and stocks use its last month. |
-| qi | int64 | see meaning | derived | qi; see current dataset contract and producing source module. |
+| code | str | registered compound codes plus a planted unknown code | key | Coded compound identifier; accepted prepared tables use registered R7 codes. Planted unknown codes occur only in raw/quarantined test inputs. |
+| quarter | str | see meaning | key | Quarter of cutoff; flows cover its three months and stocks use its last month. |
+| qi | int64 | see meaning | key | qi; see current dataset contract and producing source module. |
 | activity_prob | float64 | see meaning | derived | activity prob; see current dataset contract and producing source module. |
 | active | boolean | see meaning | derived | active; see current dataset contract and producing source module. |
 | started | bool | see meaning | derived | started; see current dataset contract and producing source module. |
@@ -31,11 +31,11 @@ Actual schema;372rows. Public/derived table; register origins remain explicit.
 | K5_months | Int64 | see meaning | derived | Union of screening months: no observed start after deadline and post12-month grace; overlap counted once; unknown remains null. Not contractual eligibility. |
 | K5_basis | str | see meaning | derived | Research-policy proxy; actual contract eligibility remains unverified. |
 | level | Int64 | see meaning | derived | level; see current dataset contract and producing source module. |
-| level_label | str | see meaning | derived | level label; see current dataset contract and producing source module. |
+| level_label | str | see meaning | derived | Priority label: 1-4, not started, start unknown, or not assessable. |
 | reason | str | see meaning | derived | reason; see current dataset contract and producing source module. |
 | reason_ar | str | see meaning | derived | Committee-facing Arabic rule explanation, generated from the same cutoff evidence as reason. |
-| level_word | str | see meaning | derived | Ordinal priority word; not an independent risk probability. |
-| level_word_ar | str | see meaning | derived | Arabic ordinal priority word for committee export. |
+| level_word | str | see meaning | derived | Ordinal priority word, or not started, start unknown, or not assessable; not an independent risk probability. |
+| level_word_ar | str | see meaning | derived | Arabic ordinal priority word or state: الأولى/الثانية/الثالثة/الرابعة, بداية غير مؤكدة, بداية غير معروفة, or غير قابل للتقييم. |
 | k3_first_deadline | datetime64[us] | see meaning | derived | k3 first deadline; see current dataset contract and producing source module. |
 | cycle_rank | Int64 | see meaning | derived | cycle rank; see current dataset contract and producing source module. |
 | origin | str | see meaning | derived | Declared provenance category; not a guarantee of operational validity. |

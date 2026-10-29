@@ -33,6 +33,11 @@ def qindex(label: str) -> int:
     return (int(label[:4]) - 2016) * 4 + int(label[5]) - 1
 
 
+def qindex_of(ts: pd.Timestamp) -> int:
+    """Timestamp -> quarters since 2016Q1."""
+    return (ts.year - 2016) * 4 + (ts.month - 1) // 3
+
+
 def qlabel(qi: int) -> str:
     return f"{2016 + qi // 4}Q{qi % 4 + 1}"
 
@@ -42,9 +47,18 @@ def qend(qi: int) -> pd.Timestamp:
     return pd.Timestamp(2016 + qi // 4, 3 * (qi % 4) + 3, 1) + pd.offsets.MonthEnd(0)
 
 
+def summer_year(qi: int) -> int:
+    """year of the latest Jun-Sep summer already over at the end of quarter qi."""
+    return 2016 + qi // 4 if qi % 4 >= 2 else 2015 + qi // 4
+
+
 N_Q = qindex(CFG["last_quarter"]) + 1
 
 
 def months_between(a: pd.Timestamp, b: pd.Timestamp) -> int:
-    """whole months from a to b (negative if b is earlier), 30.44-day months."""
+    """Nearest month (days / 30.44), not completed months.
+
+    KEPT: K3 and K6 use this nearest-month arithmetic, while K5 uses calendar months.
+    Changing it after results exist would shift levels.
+    """
     return round((b - a).days / 30.44)
