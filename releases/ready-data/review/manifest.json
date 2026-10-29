@@ -1,0 +1,24 @@
+{
+  "scope": "Saved review evidence, not newly executed quality checks or newly fitted model results.",
+  "source_implementation_tag": "r7-binary-distress-2026-10-28",
+  "files": {
+    "real/quality_checks_log.parquet": "98044da735e92038922c1bde7a9d07f4d4bfb2e87a2d212f15fd2cd7c47046dc",
+    "real/run_log.parquet": "41dacc4f23f50ecb07a2f2c35e831664a2b2008ac04edb4c6170037641669cc4",
+    "data_completion/audit.json": "9f6fefc77a5d69f2dfc4f7593cd1d9e51df6adff3d6cb464dbf615cbd87ce0e2",
+    "sim_clean/quality_report.json": "fbad37c99202f02855578ea4073ce871dce433d75e107e65369352358e61c65b",
+    "model/activity_meta.json": "3e08d42c6274101d5f400c6767e43b0dd34d72832efb30885a348252471d2765",
+    "model/activity_meta_backtest.json": "0c917e620b89446749ca6cebc1dd4a4904dc92ad558f6174a16c4e8bbdb63b0a",
+    "ml_current/random_draws.csv": "2c70cc8761d6bcccdffa4fd1be4bf75a6ddc743e048f4f733eac2b4c771e4ca6"
+  },
+  "excluded": "Raw sources, personal/name maps, hidden synthetic answer keys, quarantine text and model weights.",
+  "original_source_sha256": {
+    "real/quality_checks_log.parquet": "98044da735e92038922c1bde7a9d07f4d4bfb2e87a2d212f15fd2cd7c47046dc",
+    "real/run_log.parquet": "41dacc4f23f50ecb07a2f2c35e831664a2b2008ac04edb4c6170037641669cc4",
+    "data_completion/audit.json": "b238a43b0af1e678b5753b46c741eb9deddb5b3ff97d7bf4338a35b093b8a9e8",
+    "sim_clean/quality_report.json": "5028a17b181c4924e5362f3f65cdb872242114301c3243e308f3ed5d6e74c813",
+    "model/activity_meta.json": "6dee563731efc196ae19c04dc518ca71eee44e30df859a2d11c7db35c8741f01",
+    "model/activity_meta_backtest.json": "92d4a220b01b8f29c715fbb6d18d213ba459b35cbd38f061ad49aef36bd2dea7",
+    "ml_current/random_draws.csv": "ff2fd1811c7cbf82599b77c5dcb1842883a2d6b64ee00712f4194040d08bfe0f"
+  },
+  "text_serialization": "Text snapshots use LF newlines for portable checkouts; original source hashes are recorded separately. Values are unchanged."
+}

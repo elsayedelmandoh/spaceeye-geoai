@@ -1,0 +1,134 @@
+{
+ "mode": "q2hold",
+ "threshold": 0.4145840829226582,
+ "features": [
+  "K1",
+  "slope8",
+  "slope12",
+  "persist",
+  "tslc",
+  "d_NDVI",
+  "d_NDBI",
+  "d_BSI",
+  "d_B2",
+  "d_B3",
+  "d_B4",
+  "d_B8",
+  "d_B11",
+  "d_B12",
+  "d_bare",
+  "d_trees",
+  "d_grass",
+  "d_crops",
+  "d_shrub_and_scrub",
+  "d_water"
+ ],
+ "seed": 2026,
+ "n_train": 768,
+ "n_plots": 199,
+ "n_growth": 332,
+ "n_excluded_plots": 8,
+ "windows": "ending in Q2 only 2019-2023, A held for the 4 quarters it covers; label = OBT label of the plot-year whose 30 June is in the window",
+ "oof_sens_spec_ba": [
+  89.8,
+  87.4,
+  88.6
+ ],
+ "k1_ba_same_rows": 78.0,
+ "train_fit_ba": 94.1,
+ "validation": {
+  "mode": "q2hold",
+  "T1": {
+   "n_train": 332,
+   "n_test": 95,
+   "test_plots": 56,
+   "K1_sens_spec_ba": [
+    84.4,
+    80.0,
+    82.2
+   ],
+   "A_sens_spec_ba": [
+    84.4,
+    86.0,
+    85.2
+   ],
+   "gain_ba": 3.0,
+   "pass": true
+  },
+  "T2": {
+   "n_train": 478,
+   "n_test": 290,
+   "test_plots": 175,
+   "K1_sens_spec_ba": [
+    77.2,
+    84.1,
+    80.7
+   ],
+   "A_sens_spec_ba": [
+    89.0,
+    81.4,
+    85.2
+   ],
+   "gain_ba": 4.5,
+   "pass": true
+  },
+  "T3": {
+   "n_plots": 22,
+   "n_windows": 176,
+   "K1_active_pct": 20.5,
+   "A_active_pct": 7.4,
+   "pass": true
+  },
+  "seasonal": {
+   "stable_plots_2024_2025": {
+    "A": {
+     "by_quarter": {
+      "Q1": 2.3,
+      "Q2": 9.1,
+      "Q3": 9.1,
+      "Q4": 9.1
+     },
+     "spread_pp": 6.8
+    },
+    "K1": {
+     "by_quarter": {
+      "Q1": 20.5,
+      "Q2": 20.5,
+      "Q3": 18.2,
+      "Q4": 22.7
+     },
+     "spread_pp": 4.5
+    }
+   },
+   "pass": true,
+   "stable_plots_2026": {
+    "A": {
+     "by_quarter": {
+      "Q1": 13.6,
+      "Q2": 4.5,
+      "Q3": 4.5
+     },
+     "spread_pp": 9.1
+    }
+   },
+   "all_labelled_plots_2024_2025": {
+    "A": {
+     "by_quarter": {
+      "Q1": 44.0,
+      "Q2": 37.3,
+      "Q3": 37.3,
+      "Q4": 37.3
+     },
+     "spread_pp": 6.7
+    }
+   }
+  },
+  "all_pass": true
+ },
+ "audit_reference_before_corrections": {
+  "T1_gain": 3.0,
+  "T2_gain": 5.1,
+  "windows": "ending 30 June only"
+ },
+ "fingerprint": 345.362371
+}

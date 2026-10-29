@@ -1,14 +1,16 @@
 # Current SpaceEye data handoff
 
+For a new device, use [REVIEW_SETUP](../docs/REVIEW_SETUP.md) and `python -m src.pipeline.setup_review`. The [seven saved review artifacts](../releases/ready-data/review/README.md) supplement the unchanged v5 ZIP. Complete source/cache requirements are now listed in [REBUILD_INPUTS.csv](REBUILD_INPUTS.csv): 84 files, including the 13 inputs missed by the historical 71-file inventory. Paths are checkout-relative or relocated with `SPACEEYE_DATA_ROOT`.
+
 Current prepared release: **v5**, 28 October 2026. Scope: 12 R7 codes, six public check cases, capacity 4. Binary distressed/not_distressed prediction is implemented; completion prediction is removed. See [approved scope](BINARY_SCOPE_DECISION.md).
 
 ## Read first
 
-- [Download and use v5](../../releases/ready-data/README.md); [package validation](READY_V5_VALIDATION.json).
+- [Download and use v5](../releases/ready-data/README.md); [package validation](READY_V5_VALIDATION.json).
 - [Implemented specification](IMPLEMENTED_DATA_SPEC.md), [dataset contract](DATASET_CONTRACT.md), [sources/generation](DATA_SOURCES_AND_GENERATION.md).
-- [Task implementation/review board](../requirements/02-team-roles-and-tasks.md), [remaining work](../REMAINING_TEAM_TASKS.md), [current closure](PARTIAL_TASKS_CLOSURE.md).
-- [Current model report](EW_REPORT_CURRENT.md), [protocol](EW_PROTOCOL_CURRENT.md), [model card](../deliverables/method-card.md).
-- [Scenario contract](SCENARIO_CONTRACT_CURRENT.md), [component inputs](COMPONENT_DATA_PROTOCOL.md), [technical operations](../deliverables/technical-track-a.md).
+- [Task implementation/review board](../docs/requirements/02-team-roles-and-tasks.md), [remaining work](../docs/REMAINING_TEAM_TASKS.md), [current closure](PARTIAL_TASKS_CLOSURE.md).
+- [Current model report](EW_REPORT_CURRENT.md), [protocol](EW_PROTOCOL_CURRENT.md), [model card](../docs/deliverables/method-card.md).
+- [Scenario contract](SCENARIO_CONTRACT_CURRENT.md), [component inputs](COMPONENT_DATA_PROTOCOL.md), [technical operations](../docs/deliverables/technical-track-a.md).
 
 ## What is delivered
 
