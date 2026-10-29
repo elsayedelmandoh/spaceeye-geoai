@@ -116,11 +116,12 @@ Goal: one command (`python -m src.pipeline.run_all`) builds the R7 tables, A, K2
 - [x] **T-AH-11** [Must] D3 · 10 gates pass or flag with dimension, owner, decision (§8); `no_names` scans every output incl. new CSVs; `separation` covers new columns · `quality_checks_log.csv` (program template) · reviewer: elsayed **Done; review accepted.**
   - Evidence: [implementation/output](../../data/R1_REPORT.md).
   - [x] Review accepted (logs/review-03.md, 2026-10-29; findings fixed in b3e3ed8, 77fed1b and 236e051; review recorded in 7de6b7f; the gates are not yet run on the real data (T-AH-22); .tsv files are not scanned; what a STOP leaves on disk is an open owner decision).
-- [x] **T-AH-12** [Must] D3 · Quality report with an "impact on the indicator" column, from `quality_checks_log` · `docs/deliverables/quality-report.md` · reviewer: elsayed **Implemented; review pending.**
+- [x] **T-AH-12** [Must] D3 · Quality report with an "impact on the indicator" column, from the saved ten-gate checks (`data_completion/quality_checks.csv`; the Track A record stays `real/quality_checks_log.parquet`, same run id) · `docs/deliverables/quality-report.md` · reviewer: elsayed **Done; review accepted.**
   - Evidence: [implementation/output](../deliverables/quality-report.md).
-  - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-AH-13** [Must] D3 · Two runs identical: run `run_all` twice, compare `manifest.csv` sha; add a `make run` target · reviewer: elsayed **Implemented; review pending.**
+  - [x] Review accepted (logs/review-03.md, 2026-10-29; findings fixed in 236e051 and bfba593; review recorded in 7de6b7f; decision recorded 2026-10-29: the report is built from `data_completion/quality_checks.csv`, the Track A run keeps `real/quality_checks_log.parquet`, and both carry the same run id; the committed report is regenerated only in T-AH-22).
+- [x] **T-AH-13** [Must] D3 · Two runs identical: run `run_all` twice, compare `manifest.csv` sha; add a `make run` target · depends: T-AH-22 (a fresh two-run pass on the real data) · reviewer: elsayed **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/FULL_TRACK_A_REPRODUCIBILITY.json).
+  - Open before acceptance: a fresh two-run PASS on the current commit must be run on ahmed's F: machine (step 1 of T-AH-22: `team_run --full`, then `full_repro`), because the committed result predates the path change and records no hash or revision. `full_repro` now stores the manifest hash, run id, git revision and `computed_on`, so the new result can be tied to a commit. Until it exists, "two runs identical" must not be relied on in the slides or the memo, and this Review accepted box stays unticked.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [ ] **T-AH-14** [Should] D3 · Fallback ready: if A fails on new quarters, K1 path documented and switchable in config (§13) · reviewer: elsayed **Partial; see [remaining work](../REMAINING_TEAM_TASKS.md).**
 
