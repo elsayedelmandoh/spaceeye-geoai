@@ -28,7 +28,7 @@
 
 ## Validation and communication
 
-- Maintain docs/requirements/02-team-roles-and-tasks.md after each verified implementation. The team lead defines the main checkbox as implemented/ready for review; tick the separate Review accepted checkbox only after an independent review recorded in logs/review-NN.md (or the PR), then set the label to "Done; review accepted". The board names no agent, model or lane.
+- Maintain docs/requirements/02-team-roles-and-tasks.md after each verified implementation. The team lead defines the main checkbox as implemented/ready for review; tick the separate Review accepted checkbox only after an independent review recorded in logs/review-NN.md (or the PR), then set the label to "Done; review accepted". Record the log, date, related commits and caveats on the task and keep its other information; the board names no agent, model or lane.
 - Keep evidence links and docs/REMAINING_TEAM_TASKS.md in sync. Do not sign a review without a recorded review log, mark partial tasks complete, or restore superseded scope from an older pasted task board.
 
 - Relevant tests: uv run --locked --offline pytest -q. Lint touched code with ruff;check diffs before commit.
