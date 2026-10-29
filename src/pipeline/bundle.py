@@ -13,7 +13,7 @@ import pandas as pd
 
 from src.generator.defects import PHONE
 from src.pipeline import gates
-from src.pipeline.common import APP, BASE_DIR, PRIVATE
+from src.pipeline.common import APP, BASE_DIR, PRIVATE, artifact_path
 
 PROJECT = APP.parent
 REPO = BASE_DIR
@@ -51,7 +51,7 @@ def main():
         shutil.copyfile(source, destination)
         if sha(source) != sha(destination):
             raise RuntimeError(f"Copy mismatch: {relative}")
-        copied.append({"file": relative, "source": source.relative_to(PROJECT.parent).as_posix(), "sha256": sha(source)})
+        copied.append({"file": relative, "source": artifact_path(source), "sha256": sha(source)})
         return destination
 
     real_names = ["compounds", "sat_quarterly", "sat_yearly", "statements", "eval_outcomes", "drivers_monthly", "rules", "kpi_values"]
@@ -75,7 +75,7 @@ def main():
                 connection.execute(f'CREATE TABLE "{table_name}" AS SELECT * FROM ready_frame')
                 connection.unregister("ready_frame")
                 tables.append({"table": table_name, "file": relative, "csv": csv_relative, "rows": len(frame), "columns": len(frame.columns)})
-                dictionary = REPO / "docs" / "data" / "dictionaries" / f"{source_group}__{name}.md"
+                dictionary = REPO / "data" / "dictionaries" / f"{source_group}__{name}.md"
                 if dictionary.exists():
                     doc = f"dictionaries/{source_group}__{name}.md"
                     copy(dictionary, doc)
@@ -110,7 +110,7 @@ def main():
     copy(APP / "scenarios" / "assumptions.json", "docs/financial_path_assumptions.json")
     copy(REPO / "configs" / "synthetic_sources.json", "docs/synthetic_sources.json")
     for source_group, name in [("data_completion", "inspection_capacity"), ("scenarios", "summary")]:
-        source = REPO / "docs" / "data" / "dictionaries" / f"{source_group}__{name}.md"
+        source = REPO / "data" / "dictionaries" / f"{source_group}__{name}.md"
         copy(source, f"dictionaries/{source.name}")
         dictionary_links.append(f"- [{source_group}/{name}]({source.name})")
     write(target / "dictionaries" / "README.md", "# Included table dictionaries\n\nThese describe the included final tables only. No rejected or raw table is distributed.\n\n" + "\n".join(dictionary_links))

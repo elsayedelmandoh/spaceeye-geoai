@@ -5,6 +5,7 @@ output: ee session, compound geometries by code, retry wrapper.
 """
 
 import json
+import os
 import time
 import warnings
 
@@ -13,11 +14,14 @@ import ee
 from src.pipeline.common import RAW
 
 warnings.filterwarnings("ignore")
-PROJECT = "helpful-cipher-512617-g9"
 
 
 def init() -> None:
-    ee.Initialize(project=PROJECT)
+    project = os.environ.get("SPACEEYE_EE_PROJECT")
+    if not project:
+        raise RuntimeError("Set SPACEEYE_EE_PROJECT to your Earth Engine-enabled Google Cloud project, "
+                           "then authenticate with earthengine authenticate. Cached review needs no Earth Engine account.")
+    ee.Initialize(project=project)
 
 
 def geometries() -> dict[str, dict]:

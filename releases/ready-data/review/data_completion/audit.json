@@ -1,0 +1,115 @@
+{
+  "status": "PASS",
+  "scope": "data only; no model training",
+  "checks": {
+    "extended_unique_keys": true,
+    "quarterly_fin_unique_keys": true,
+    "quarterly_fin_full_grid": true,
+    "censored_targets_null": true,
+    "uncensored_targets_known": true,
+    "fine_union_no_double_count": true,
+    "fine_amount_formula": true,
+    "generated_allocation_precedes_anchor": true,
+    "retrospective_allocation_excluded_from_X": true,
+    "relief_not_available_before_publication": true,
+    "land_value_matches_available_installments": true,
+    "cycle_within_capacity": true,
+    "capacity_selection_consistent": true,
+    "feature_label_separation": true,
+    "no_name_gate": true
+  },
+  "compounds": 12,
+  "capacity": 4,
+  "quarterly_fin_rows": 180,
+  "expanded_rows": 180,
+  "features": 40,
+  "split_counts": {
+    "train": {
+      "rows": 96,
+      "classes": {
+        "not_distressed": 89,
+        "distressed": 7
+      },
+      "already_completed": 0
+    },
+    "embargo": {
+      "rows": 12,
+      "classes": {
+        "not_distressed": 10,
+        "distressed": 2
+      },
+      "already_completed": 0
+    },
+    "time_test": {
+      "rows": 48,
+      "classes": {
+        "not_distressed": 44,
+        "distressed": 4
+      },
+      "already_completed": 0
+    },
+    "censored": {
+      "rows": 24,
+      "classes": {},
+      "already_completed": 1
+    }
+  },
+  "fine_assumptions": {
+    "assumption": true,
+    "fine_rate_month": 0.01,
+    "land_price_egp_m2": [
+      2500,
+      12000
+    ],
+    "grace_months": 12,
+    "overlap": "union",
+    "allocation_lead_months": [
+      6,
+      18
+    ],
+    "earliest_allocation": "2016-01-01",
+    "old_contract_price_egp_m2": [
+      2500,
+      5000
+    ],
+    "recent_contract_price_egp_m2": [
+      5000,
+      12000
+    ],
+    "relief_published": "2024-11-18",
+    "relief_discount_scenario": 0.5,
+    "relief_installments_months": 12
+  },
+  "input_and_code_sha256": {
+    "app_data/real/compounds.parquet": "922ad815602a14a9a2f723d58f86b8cd8a05bc5d91e4025310696e29ac5b0a48",
+    "app_data/real/sat_quarterly.parquet": "bc549f999affe1965422ee8853ec332743d793c9f80f1e048b47a7815ef12bfe",
+    "app_data/real/sat_yearly.parquet": "313a4ac9fbfeb7a413d8361548cb9c164fd6376abce84e3e015d0850981549e0",
+    "app_data/real/statements.parquet": "750c73acf28f1e3188bd77d5a33bcf252fa316b240183fe994b211bc12f58837",
+    "app_data/real/eval_outcomes.parquet": "47c90a9a6292420c8322a0e95a807cba6eec0565247a005c032a93f6e3878041",
+    "app_data/real/drivers_monthly.parquet": "143dbdae0f905d5d4e964d9fa28faf1745094688487305f76abbc7812e39b1e4",
+    "app_data/real/rules.parquet": "1a41a7d20bb4dd939415eece033eaf8b6482dfbe5aab31bc16b70431e7a91348",
+    "app_data/real/kpi_values.parquet": "c6c4e8869f339a72483ca310ead0ca99886e8f4090523a6617a0d9d584343b89",
+    "app_data/sim/fin_monthly.parquet": "081b0d37258236256e62a15b55ac93e3bf67fa2dd53140148d329d3832d853ff",
+    "app_data/sim/complaints.parquet": "f2046e2a22f962b3f49a092341e9e7d4df04007f1ed879ba40ea638561dd67a7",
+    "private/answer_key.parquet": "ce7f4cb858a5f273e9410b69dcbc5c0c97ffefcccd78df261f23a3b490a7cfb0",
+    "configs/data.yaml": "5b9c17a9a2492ee41c5900a22b0fe222591cf1225eac2d03c2ef5af8ded39007",
+    "configs/synthetic_sources.json": "4703875e68d69742b62f3e6fb9e478fa81aa59cabadfcc0894a78b6c30fad64f",
+    "src/pipeline/complete_data.py": "5b3f15a9012c6569eeedeea8c8fa43af41adb095c9d77052537aa2df3e502284",
+    "src/pipeline/kpis.py": "94431dd93f4abdd41408e5840ea724b630c86b461d50d157fde97928af362501",
+    "src/analysis/ew_features.py": "67d984be6df757fe99b18a3c96b5941d30184c1d998f51483e153abfc84e31ac"
+  },
+  "generated_missing_inputs": [
+    "Synthetic allocation dates and vintage-based contract price assumptions; allocation dates excluded from X/public K6.",
+    "Assumed fine rate and optional relief/scheduling scenarios, not actual decisions."
+  ],
+  "not_available": [
+    "Actual contract fine rate/eligibility and assessed fines; synthetic stand-ins supplied.",
+    "Actual allocation dates; synthetic register supplied, public K6 keeps published launch/promise fallback.",
+    "Finishing feature and later heights; failed tests, not invented.",
+    "Independent real complete/distress check labels for every compound/cutoff; source cases do not support them."
+  ],
+  "not_run": [
+    "New classifiers, model comparison, dashboard, agent, forms and slides; user requested data only."
+  ],
+  "legacy_evaluation": "Historical binary results at N=8 are archived evidence, not current validation of capacity 4 or the extended dataset."
+}

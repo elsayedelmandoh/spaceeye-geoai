@@ -1,5 +1,7 @@
 # SpaceEye: remaining team tasks
 
+Portable review handoff (29 October 2026): [device setup, prepared model refitting and complete source-cache transfer](REVIEW_SETUP.md) are available, with seven saved audit artifacts. Task/review acceptance marks are preserved; this setup change does not complete any pending dashboard, agent or fieldwork task.
+
 T-AH-10 handoff update (29 October 2026): [original case outputs, prepared inputs and replay command](../releases/ready-data/backtest/README.md) are published separately from the unchanged v5 ZIP. Case-count replay needs no external source drive; full activity refitting and raw-source clock checks still require the source caches. Review status is unchanged.
 
 Updated on 28 October 2026 for approved binary scope and delivery v5. AH-16, EL-01, EL-10, EL-11 and EL-17 are no longer open implementation tasks; see [scope decision](../data/BINARY_SCOPE_DECISION.md). Based on the original **02-team-roles-and-tasks.md** supplied by the team lead. Original task IDs, owners and priority tiers are preserved.

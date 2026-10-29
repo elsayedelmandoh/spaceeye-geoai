@@ -27,17 +27,41 @@ def native_path(path: str) -> Path:
     return Path(path)
 
 
+def resolve_path(path: str, base: Path = BASE_DIR) -> Path:
+    """Resolve a configured path against the checkout, independently of cwd."""
+    result = native_path(path)
+    return result.resolve() if result.is_absolute() else (base / result).resolve()
+
+
+def data_paths(cfg: dict, root: str | None = None) -> dict[str, Path]:
+    root = root if root is not None else os.environ.get("SPACEEYE_DATA_ROOT")
+    if root:
+        base = resolve_path(root)
+        return {key: base / folder for key, folder in
+                (("real_data", "real_data"), ("app_data", "app_data"), ("private", "private"))}
+    return {key: resolve_path(value) for key, value in cfg["paths"].items()}
+
+
 def require_data_root() -> None:
-    """stop early with a clear message when the external data drive is not reachable."""
+    """Explain how to initialize a fresh checkout without a machine-specific drive."""
     if not APP.exists():
-        raise SystemExit(f"data root not found: {APP}\nset paths in configs/data.yaml; on WSL mount the drive first, e.g. sudo mkdir -p /mnt/f && sudo mount -t drvfs F: /mnt/f")
+        raise SystemExit(f"Data directory not found: {APP}\nRun python -m src.pipeline.setup_review for prepared data. "
+                         "For source rebuilds, read docs/REVIEW_SETUP.md. "
+                         "Set SPACEEYE_DATA_ROOT to relocate data; no particular drive is required.")
 
 
 CFG = load_cfg()
-SRC = native_path(CFG["paths"]["real_data"])
-APP = native_path(CFG["paths"]["app_data"])
-PRIVATE = native_path(CFG["paths"]["private"])
+_PATHS = data_paths(CFG)
+SRC, APP, PRIVATE = (_PATHS[key] for key in ("real_data", "app_data", "private"))
 RAW, REAL, MODEL = APP / "raw", APP / "real", APP / "model"
+
+
+def artifact_path(path: Path) -> str:
+    """Stable provenance labels even when the checkout and data use different roots."""
+    for root, label in ((APP, "app_data"), (PRIVATE, "private"), (SRC, "real_data"), (BASE_DIR, "")):
+        if path.is_relative_to(root):
+            return "/".join(filter(None, (label, path.relative_to(root).as_posix())))
+    raise ValueError(f"Artifact is outside configured data and repository roots: {path}")
 
 
 def src(key: str) -> Path:

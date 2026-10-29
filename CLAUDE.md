@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+New-device/reviewer setup: docs/REVIEW_SETUP.md. Run `python -m src.pipeline.setup_review` for verified prepared inputs. Paths are checkout-relative; SPACEEYE_DATA_ROOT moves the shared root. src.pipeline.source_cache verifies/transfers the 84 frozen inputs in data/REBUILD_INPUTS.csv; no personal drive or Google Cloud project is assumed.
+
 ## Current references
 
 Read data/HANDOFF.md, docs/requirements/02-team-roles-and-tasks.md and docs/REMAINING_TEAM_TASKS.md first. The current prepared release is v5 only; current source contracts live in data. Do not restore retired plans, empty scaffold documents, utility-demo configs or earlier ZIP versions.
