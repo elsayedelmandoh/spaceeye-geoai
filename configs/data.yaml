@@ -60,7 +60,7 @@ activity:
   max_seasonal_spread: 10.0         # points between the highest and lowest quarter-of-year active share on stable plots
   overlap_exclude: 0.5              # backtest variant drops training plots covering this share of any compound
 
-# whether these were fixed before the first score is not provable from git; owner must confirm
+# stated by the person who set these values (2026-10-29): fixed before any score was seen; git cannot independently prove it
 levels:
   k2_l1: 4
   k2_l2: 2                 # 2-3 -> level 2, 1 -> level 3
