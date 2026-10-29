@@ -524,3 +524,8 @@ def test_prepared_release_tables_drive_the_inspection_tools(tmp_path):
     assert required_kpi_fields.issubset(kpis)
     assert isinstance(kpis["series"], list)
     assert not any("name" in key.lower() for key in _all_keys(payload))
+
+
+def test_get_kpis_returns_the_compound_code_for_the_inspection_file():
+    frame = pd.DataFrame({"code": ["C01"], "quarter": ["2026Q3"], "qi": [43], "K4": [True], "level": [2], "origin": ["derived"], "run_id": ["R1"]})
+    assert get_kpis("C01", "2026Q3", tables={"kpi_values": frame})["code"] == "C01"

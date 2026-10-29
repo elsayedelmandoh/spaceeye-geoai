@@ -194,6 +194,7 @@ def get_kpis(
         raise LookupError(f"No KPI row for code '{code}' and quarter '{quarter}'")
     current = rows.iloc[0]
     result = _kpi_record(current)
+    result["code"] = code
     earlier = _previous_rows(frame, code, quarter).tail(history)
     result["series"] = [_kpi_record(row) for _, row in earlier.iterrows()]
     result["origin"] = _json_value(current.get("origin"))
