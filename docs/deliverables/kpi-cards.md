@@ -1,0 +1,194 @@
+# KPI cards
+
+Task T-SA-02. Roles below are proposed operational responsibilities. No institutional approval or named-member sign-off is asserted. Numeric definitions match [`configs/kpis.yaml`](../../configs/kpis.yaml); thresholds are sourced from `configs/data.yaml`. Specification: [01-specs.md](../requirements/01-specs.md).
+
+**Scope:** R7 only, 12 coded compounds, reporting quarter 2026Q3. Codes only, no names.
+
+**Origin key:** 🟢 real · 🔵 derived · 🟠 generated (Track B only, "Synthetic - for training only").
+
+**Tags:** TODO. The specification asks for 10 fields + 2 tags per `kpi_reference.csv`, which is not in the repository. The two tags are pending reviewer confirmation.
+
+## Card A: Activity score
+
+| Field              | Value                         |
+| ------------------ | ----------------------------- |
+| Purpose            | Is it building?               |
+| Unit               | Probability 0-1               |
+| Source             | Dynamic World + Sentinel-2    |
+| Frequency          | Quarterly                     |
+| Owner (role)       | Spatial data analyst          |
+| Baseline           | K1 (DW change alone)          |
+| Target             | Set by owner                  |
+| Thresholds         | Model threshold (out-of-fold) |
+| Leading/lagging    | Leading                       |
+| International axis | Urban planning                |
+| Origin             | 🔵 derived                    |
+| Tags               | TODO                          |
+
+A is the probability that the compound is building this quarter. It does not measure completion or finishing.
+
+## Card K2: Quarters with no activity
+
+| Field              | Value                                                             |
+| ------------------ | ----------------------------------------------------------------- |
+| Purpose            | For how long has it not been?                                     |
+| Unit               | Quarters                                                          |
+| Source             | A                                                                 |
+| Frequency          | Quarterly                                                         |
+| Owner (role)       | Spatial data analyst                                              |
+| Baseline           | 0                                                                 |
+| Target             | 0-1 (copied from the specification; meaning pending confirmation) |
+| Thresholds         | 2 / 4                                                             |
+| Leading/lagging    | Leading                                                           |
+| International axis | Urban planning                                                    |
+| Origin             | 🔵 derived                                                        |
+| Tags               | TODO                                                              |
+
+K2 counts consecutive latest quarters with A below its threshold, **only after construction started**. K2 ≥ 4 gives level 1, K2 = 2-3 gives level 2, K2 = 1 gives level 3. Unknown never raises a level.
+
+## Card K3: Handover clock
+
+| Field              | Value                               |
+| ------------------ | ----------------------------------- |
+| Purpose            | Has it passed its first commitment? |
+| Unit               | Months                              |
+| Source             | Statements + Decree 2184            |
+| Frequency          | Per statement / quarter             |
+| Owner (role)       | Developer follow-up officer         |
+| Baseline           | First announced date                |
+| Target             | <= 0                                |
+| Thresholds         | 12 / 24                             |
+| Leading/lagging    | Lagging                             |
+| International axis | Housing                             |
+| Origin             | 🟢 real                             |
+| Tags               | TODO                                |
+
+K3 is measured from the **first** announced handover date. Later promises never reset it. It uses the nearest month (days / 30.44). K3 > 24 gives level 1, K3 = 13-24 gives level 2, K3 = 1-12 gives level 3. The developer announced the date; it is not an independent measurement.
+
+## Card K4: Assessability
+
+| Field              | Value                    |
+| ------------------ | ------------------------ |
+| Purpose            | Can we trust the signal? |
+| Unit               | Yes/No                   |
+| Source             | DW + boundaries          |
+| Frequency          | Quarterly                |
+| Owner (role)       | Data engineer            |
+| Baseline           | -                        |
+| Target             | 100%                     |
+| Thresholds         | >= 6 images              |
+| Leading/lagging    | Guard                    |
+| International axis | Governance/data          |
+| Origin             | 🟢 real                  |
+| Tags               | TODO                     |
+
+K4 needs at least 6 Dynamic World images in the quarter plus a boundary with a reviewed confidence label. No numeric confidence threshold is defined. If K4 fails, the result is **Not assessable** and no level is assigned.
+
+## Card K5: Fine exposure (policy screening months)
+
+| Field              | Value                                    |
+| ------------------ | ---------------------------------------- |
+| Purpose            | How long has it been fine-eligible?      |
+| Unit               | Months (real); EGP (generated only)      |
+| Source             | K3, K6 + contract fine rate (assumed)    |
+| Frequency          | Quarterly                                |
+| Owner (role)       | Developer follow-up officer              |
+| Baseline           | 0                                        |
+| Target             | 0                                        |
+| Thresholds         | Context, no level                        |
+| Leading/lagging    | Lagging                                  |
+| International axis | Governance/data                          |
+| Origin             | 🔵 derived (months) / 🟠 generated (EGP) |
+| Tags               | TODO                                     |
+
+K5 is illustrative policy screening, **not an assessed legal fine**. It never sets a priority level. K5 uses calendar months. Illustrative assumptions (from `configs/data.yaml`, `assumption: true`): monthly rate 1% of assumed land value, land price EGP 2,500-12,000 per m², allocation lag 6-18 months. EGP amounts exist only on generated data (Track B) and are not actual fines or verified losses.
+
+## Card K6: Never-started clock
+
+| Field              | Value                          |
+| ------------------ | ------------------------------ |
+| Purpose            | Is land held without building? |
+| Unit               | Months                         |
+| Source             | A + statements                 |
+| Frequency          | Quarterly                      |
+| Owner (role)       | Spatial data analyst           |
+| Baseline           | First launch / promise date    |
+| Target             | 0 (started)                    |
+| Thresholds         | 13-24 / > 24                   |
+| Leading/lagging    | Leading                        |
+| International axis | Urban planning                 |
+| Origin             | 🔵 derived                     |
+| Tags               | TODO                           |
+
+K6 counts months without a **confirmed observed start**, measured from the first published launch or promise. It is not proof that no construction took place. If any quarter since the launch/promise is not assessable, K6 is unknown, and unknown never raises a level. K6 > 24 gives level 1, K6 = 13-24 gives level 2.
+
+## KPI tree
+
+| Level       | Indicators                                                       | Owner (role)                       |
+| ----------- | ---------------------------------------------------------------- | ---------------------------------- |
+| Strategic   | Reliable handover in R7                                          | Buildings & Facilities pillar lead |
+| Tactical    | Share of compounds in level 1-2, K3 overruns, K5 eligible months | Head of the inspection committee   |
+| Operational | A, K2, K6, K4 (guard), share of cycle-list visits done           | Observatory team                   |
+
+## Priority levels
+
+The priority level is the **worst** applicable level among K2, K3 and K6, with no weights. K2 counts only after construction started. The term is "priority level" (whom to visit first), never "risk level".
+
+| Level                | Condition                                                 | Action                                            |
+| -------------------- | --------------------------------------------------------- | ------------------------------------------------- |
+| 1 Inspect now        | K2 >= 4, or K3 > 24, or (K2 >= 2 and K3 > 12), or K6 > 24 | Visit within two weeks and inform the pillar lead |
+| 2 Inspect this cycle | K2 = 2-3, or K3 = 13-24, or K6 = 13-24                    | Within the cycle's visits                         |
+| 3 Document review    | K2 = 1, or K3 = 1-12                                      | Request the supervisor report                     |
+| 4 Routine            | Otherwise, when construction has started                  | Next cycle                                        |
+
+## Follow-up states (no priority level)
+
+These are lifecycle states, not priority levels.
+
+| State          | Condition                                                                   | Action                     |
+| -------------- | --------------------------------------------------------------------------- | -------------------------- |
+| Not started    | No construction start, K6 known and <= 12 months, no K3 deadline has passed | Watch                      |
+| Start unknown  | No construction start and K6 unknown                                        | Watch and collect evidence |
+| Not assessable | K4 failed                                                                   | Fix location/images first  |
+
+Unknown values never raise a level.
+
+## "May be complete" cap
+
+If a handover is announced, or vegetation share is >= 0.10, the level is capped at 3 and the flag **May be complete - confirm on site** is added. This is a flag for on-site confirmation, not proof of completion and not a completion prediction.
+
+## Cycle selection
+
+Capacity is 4 compounds. Only levels 1-3 are eligible. Order: level ascending, then K2 descending, then K3 descending, then code ascending.
+
+## Track B (generated, diagnostic only)
+
+Track B uses generated data only and is labelled "Synthetic - for training only". Signals B1-B5 come from generated ACUD-style tables.
+
+- B1 together with K2 >= 2 gives level 1.
+- Any of B1, B2, B3, B5 gives at least level 2.
+- B4 is context only.
+
+Generated signals are never used to label a real Track A compound as distressed. The Track B model is binary (distressed / not_distressed in the next six months) and does not predict completion. Operational cycle selection uses the rule.
+
+## Evidence requirements
+
+Every number carries an origin mark. Developer statements are real but not independent measurements, so we write "the developer announced". Reason sentences use codes only.
+
+## Backtest
+
+Six R7 public cases, source: [BACKTEST_CURRENT.md](../../data/BACKTEST_CURRENT.md).
+
+- After-start reading: **1 of 6**.
+- Point-in-time reading: **0 of 6**.
+- The original criterion (5 cases, fixed before computation) was not reduced and was **not achieved**.
+
+For the numeric alternative check, all six cases had 14-22 assessable quarters before the frozen cutoff, which rejects "too few images" as the explanation. This does not rule out coverage effects within those quarters. Warning detection is not causal proof. Counts only, no percentages.
+
+## Limitations
+
+- Satellites show whether building is happening, not interior finishing, so no completion % or finishing % is given.
+- K3 relies on developer statements.
+- K5 is illustrative and never a fine.
+- Track B results are on generated data and do not show real-world accuracy.
+- Two tags per card are pending (`kpi_reference.csv` is not in the repository).
