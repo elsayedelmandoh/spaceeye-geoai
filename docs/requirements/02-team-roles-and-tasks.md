@@ -109,13 +109,13 @@ Goal: one command (`python -m src.pipeline.run_all`) builds the R7 tables, A, K2
 
 ### D3: backtest, gates, reproducibility
 
-- [x] **T-AH-10** [Must] D3 · Re-run the frozen-clock backtest on R7 only (backtest variant of A without overlapping plots); per case: what happened / why / what next + one competing explanation rejected with a number; counts only, no % · `backtest/cases.csv`, `summary.json` · reviewer: elsayed **Implemented; review pending.**
+- [x] **T-AH-10** [Must] D3 · Re-run the frozen-clock backtest on R7 only (backtest variant of A without overlapping plots); per case: what happened / why / what next + one competing explanation rejected with a number; counts only, no % · `backtest/cases.csv`, `summary.json` · reviewer: elsayed **Done; review accepted.**
   - Evidence: [implementation/output](../../data/BACKTEST_CURRENT.md).
   - Files: [cases.csv](../../releases/ready-data/backtest/cases.csv), [saved summary.json](../../releases/ready-data/backtest/summary.json), [prepared-input replay](../../releases/ready-data/backtest/README.md).
-  - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-AH-11** [Must] D3 · 10 gates pass or flag with dimension, owner, decision (§8); `no_names` scans every output incl. new CSVs; `separation` covers new columns · `quality_checks_log.csv` (program template) · reviewer: elsayed **Implemented; review pending.**
+  - [x] Review accepted (logs/review-03.md, 2026-10-29; findings fixed in 2a77ba4, 3f16253 and 236e051; review recorded in 7de6b7f; the frozen-clock line appears in data/BACKTEST_CURRENT.md only after the real-data regeneration in T-AH-22; the per-case explanations remain one shared template pending the owner's decision).
+- [x] **T-AH-11** [Must] D3 · 10 gates pass or flag with dimension, owner, decision (§8); `no_names` scans every output incl. new CSVs; `separation` covers new columns · `quality_checks_log.csv` (program template) · reviewer: elsayed **Done; review accepted.**
   - Evidence: [implementation/output](../../data/R1_REPORT.md).
-  - [x] Review accepted (logs/review-03.md, 2026-10-29; findings fixed in b3e3ed8, 2a77ba4, 3f16253, 28077a2; review recorded; caveat: H3 partial, H5 open, M1 open, v2 unbuild, F: unverified)
+  - [x] Review accepted (logs/review-03.md, 2026-10-29; findings fixed in b3e3ed8, 77fed1b and 236e051; review recorded in 7de6b7f; the gates are not yet run on the real data (T-AH-22); .tsv files are not scanned; what a STOP leaves on disk is an open owner decision).
 - [x] **T-AH-12** [Must] D3 · Quality report with an "impact on the indicator" column, from `quality_checks_log` · `docs/deliverables/quality-report.md` · reviewer: elsayed **Implemented; review pending.**
   - Evidence: [implementation/output](../deliverables/quality-report.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
@@ -127,21 +127,21 @@ Goal: one command (`python -m src.pipeline.run_all`) builds the R7 tables, A, K2
 ### D3-D4: images for the compound file
 
 - [ ] **T-AH-15** [Should] D3 · Check Esri Wayback terms; then 2 Wayback images per R7 compound (before/after) with capture date + attribution · `app_data/images/<code>_{before,after}.jpg` + `images.csv` · reviewer: elsayed
-- [x] **T-AH-16** [Should] D3 · Open Buildings height 2016-2023 + 2024 v4 estimate (context only; no fixed error guarantee) and vegetation series ready per compound for screen 2 (height is context, never in the level) · reviewer: elsayed **Implemented; review pending.**
+- [x] **T-AH-16** [Should] D3 · Open Buildings height 2016-2023 + 2024 v4 estimate (context only; no fixed error guarantee) and vegetation series ready per compound for screen 2 (height is context, never in the level) · reviewer: elsayed **Done; review accepted.**
   - Evidence: [implementation/output](../deliverables/annual-context.md).
-  - [ ] Review accepted (record reviewer, date and PR after actual review).
+  - [x] Review accepted (logs/review-03.md, 2026-10-29; findings fixed in 236e051; review recorded in 7de6b7f; coverage figures come from data/ANNUAL_CONTEXT_COVERAGE.csv, not regenerated here).
 - [ ] **T-AH-17** [Could] D4 · Finishing vision-model test (Qwen-VL on Wayback): pass condition ≥ 75% agreement on ~50 held-out compound-images labelled blind by salma (T-SA-12); log in `team_ideas.md`; **cut at D4 if not passed**; flag in the inspection file only · reviewer: elsayed **Failed experiment; feature excluded.** See [recorded outcome](../REMAINING_TEAM_TASKS.md).
 - [ ] **T-AH-18** [Could] D4 · Roof slab uniformity test on Google heights 2016-2023 against a condition written before the test; cut at D4 if not passed · reviewer: elsayed
 
 ### D4-D5: freeze and hand over
 
 - [ ] **T-AH-19** [Must] D4 · Code freeze for Track A; tag the commit; `run_all` is the one run command used in the presentation (deliverable 10) · reviewer: elsayed **Partial; see [remaining work](../REMAINING_TEAM_TASKS.md).**
-- [x] **T-AH-20** [Must] D5 · Technical docs for Track A + monitoring plan (quarterly recompute, who runs `run_all`, what to check) · `docs/deliverables/technical-track-a.md` · reviewer: salma **Implemented; review pending.**
+- [x] **T-AH-20** [Must] D5 · Technical docs for Track A + monitoring plan (quarterly recompute, who runs `run_all`, what to check) · `docs/deliverables/technical-track-a.md` · reviewer: salma **Done; review accepted.**
   - Evidence: [implementation/output](../deliverables/technical-track-a.md).
-  - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-AH-21** [Must] D5 · Knowledge transfer pack, one page (deliverable 9) · `docs/deliverables/knowledge-transfer.md` · reviewer: salma **Implemented; review pending.**
+  - [x] Review accepted (logs/review-03.md, 2026-10-29; findings fixed in 9fc8763 and f9be3f9; review recorded in 7de6b7f; the quarterly procedure has not been run end to end on the real data).
+- [x] **T-AH-21** [Must] D5 · Knowledge transfer pack, one page (deliverable 9) · `docs/deliverables/knowledge-transfer.md` · reviewer: salma **Done; review accepted.**
   - Evidence: [implementation/output](../deliverables/knowledge-transfer.md).
-  - [ ] Review accepted (record reviewer, date and PR after actual review).
+  - [x] Review accepted (logs/review-03.md, 2026-10-29; findings fixed in f9be3f9; review recorded in 7de6b7f; the run command was not executed here because the real data is not available).
 
 ### D4: real-data run on the F: drive (only ahmed has the data, about 5 GB, so it cannot be run elsewhere)
 
