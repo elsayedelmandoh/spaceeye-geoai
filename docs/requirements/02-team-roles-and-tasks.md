@@ -143,6 +143,10 @@ Goal: one command (`python -m src.pipeline.run_all`) builds the R7 tables, A, K2
   - Evidence: [implementation/output](../deliverables/knowledge-transfer.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 
+### D4: real-data run on the F: drive (only ahmed has the data, about 5 GB, so it cannot be run elsewhere)
+
+- [ ] **T-AH-22** [Must] D4 · On ahmed's machine with the F: data (WSL: `sudo mkdir -p /mnt/f && sudo mount -t drvfs F: /mnt/f`), on the latest `feat/ml`: (1) `uv run --locked --offline python -m src.pipeline.team_run --full`, then `uv run --locked --offline python -m src.pipeline.full_repro`; (2) regenerate and commit `data/BACKTEST_CURRENT.md` (with the frozen-clock result), `docs/deliverables/quality-report.md`, `data/FULL_TRACK_A_REPRODUCIBILITY.json` (manifest hash, run id, git revision), `data/R1_REPORT.md`, the current model metrics and EW reports; (3) confirm the separation and no_names gates on the real `kpi_values`; (4) run the v2 Stage 1 evaluation of `data/EW_PROTOCOL_V2.md` (check `sha256sum -c EW_PROTOCOL_V2.sha256` first; set `candidates.variant: v2` and `candidates.no_height_ablation: true`; v1 results stay labelled v1); (5) send the numbers, not the data, to the team · `data/*`, `docs/deliverables/quality-report.md`, `data/V2_MODEL_*`, `data/EW_REPORT_V2.md` · depends: coder fixes for review-03 committed, v2 protocol commit 8a16575 · reviewer: elsayed
+
 ---
 
 ## 5. verina: Track B end to end (generated data)
