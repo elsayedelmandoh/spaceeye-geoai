@@ -1,0 +1,21 @@
+# AI Component Configuration & Budget Control (T-VE-01)
+# Production configuration for Gemini model selection, cost budgeting, and guardrails.
+
+ai:
+  gemini_model: "gemini-1.5-flash"
+  call_budget_per_run: 15          # Max successful calls per batch run (5 priority compounds * 3 retries max)
+  token_budget_per_call: 800       # Low token budget to enforce one paragraph + 3 questions
+  temperature: 0.15                # Low temperature for deterministic, factual outputs
+  top_p: 0.95
+  output_format: "tag_delimited"   # Tag-delimited format ([الملخص التنفيذي], [أسئلة المعاينة الميدانية])
+
+guardrails:
+  enforce_code_only: true          # Use anonymous codes C.. / D..; strictly no developer names
+  max_summary_paragraphs: 1        # Exactly one summary paragraph
+  required_questions_count: 3      # Exactly three on-site visit questions
+  forbidden_words:
+    - "distressed"
+    - "متعثر"
+    - "نسبة الإنجاز"
+    - "risk level"
+    - "مستوى الخطر"
