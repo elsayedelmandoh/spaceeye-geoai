@@ -51,13 +51,13 @@ def _approved_config() -> dict:
     }
 
 
-def test_default_config_is_pending_and_calls_are_blocked(tmp_path: Path) -> None:
+def test_pending_config_is_blocked(tmp_path: Path) -> None:
     config = load_ai_config(
         config_path=DEFAULT_CONFIG_PATH,
         env_path=tmp_path / "missing.env",
     )
+    config["gemini"]["approval"] = "pending"
 
-    assert config["gemini"]["approval"] == "pending"
     with pytest.raises(RuntimeError, match="approved"):
         require_approved(config)
 
@@ -66,8 +66,13 @@ def test_default_config_is_pending_and_calls_are_blocked(tmp_path: Path) -> None
     "missing_field",
     ["model", "max_calls_total", "max_calls_per_file", "max_output_tokens"],
 )
-def test_approved_config_with_missing_field_is_rejected(missing_field: str) -> None:
-    config = _approved_config()
+def test_approved_config_with_missing_field_is_rejected(
+    tmp_path: Path, missing_field: str
+) -> None:
+    config = load_ai_config(
+        config_path=DEFAULT_CONFIG_PATH,
+        env_path=tmp_path / "missing.env",
+    )
     del config["gemini"][missing_field]
 
     with pytest.raises(RuntimeError, match=missing_field):
@@ -76,6 +81,24 @@ def test_approved_config_with_missing_field_is_rejected(missing_field: str) -> N
 
 def test_fully_set_approved_config_is_accepted() -> None:
     require_approved(_approved_config())
+
+
+def test_shipped_config_is_approved_with_exact_budget(tmp_path: Path) -> None:
+    config = load_ai_config(
+        config_path=DEFAULT_CONFIG_PATH,
+        env_path=tmp_path / "missing.env",
+    )
+    require_approved(config)
+
+    expected = {
+        "model": "gemini-3.1-flash-lite",
+        "max_calls_total": 30,
+        "max_calls_per_file": 3,
+        "max_output_tokens": 1024,
+        "temperature": 0,
+        "approval": "approved",
+    }
+    assert {key: config["gemini"][key] for key in expected} == expected
 
 
 def test_call_budget_raises_after_total_limit() -> None:
@@ -177,6 +200,9 @@ def test_generation_scaffold_blocks_pending_approval(
 ) -> None:
     from src.inference import generate
 
+    config = _approved_config()
+    config["gemini"]["approval"] = "pending"
+    monkeypatch.setattr(generate, "load_ai_config", lambda: config)
     monkeypatch.setenv("GEMINI_MODEL", "fabricated-environment-model")
 
     with pytest.raises(RuntimeError, match="approved"):

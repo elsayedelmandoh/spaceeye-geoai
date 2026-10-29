@@ -61,7 +61,7 @@ Reuse [protocol](../data/EW_PROTOCOL_CURRENT.md), [method card](deliverables/met
 
 | ID / tier | Status / existing work | Remaining action and acceptance |
 | --- | --- | --- |
-| T-VE-01 / Must | Project prompts, configuration, approval guard and tests are implemented. The model was stated by the owner; the call-budget values are proposed. | The owner must confirm the proposed budget and change approval from pending to approved before any calls are allowed. Keep credentials out of Git. |
+| T-EL-01 / Must | Configuration, prompts, approval guard and tests are done. The model and call budget were confirmed and approved by the project owner on 2026-10-29. | The API key must be present in the git-ignored `.env` on the machine that runs generation; this cannot be checked from the repository. Keep credentials out of Git. |
 | T-EL-02 / Must | Implemented in src/inference/tools.py (get_facts, get_kpis, get_images, get_rules) with tests, including one on the real-schema tables of the prepared v5 release. | Images stay an explicit missing status until T-AH-15; full F: data run pending. |
 | T-VE-03 / Must | Partial: facts, KPIs and context inputs ready. | Build the deterministic report: what happened; why/rejected explanation; meaning; action, owner, due date and escalation trigger. It must work without an LLM. |
 | T-VE-04 / Should | Build: project-specific Gemini paragraph workflow not complete. | Generate one paragraph from attached facts plus three visit questions. Flag unsupported/causal claims for review. |
