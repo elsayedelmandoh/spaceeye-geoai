@@ -14,4 +14,4 @@ Defined before generating outputs,28October2026. Data preparation only: no model
 
 Known codes,unique keys,masked texts,no cross-split body/duplicate groups,cutoff filtering,no hidden truth in contexts,valid capacity ranks,baseline comparisons,explicit generated origins,manifest/ZIP integrity,and preservation of existing base tables. Supporting documents and helpers are English;Arabic complaint text remains data.
 
-The obsolete docs/plan files are removed from tracking and ignored after a local backup,per user instruction. The current product design and docs/data contracts remain authoritative. Updated ready-data bundle will replace the older published archive through the existing feature-branch pull request.
+The obsolete docs/plan files are removed from tracking and ignored after a local backup,per user instruction. The current product design and data contracts remain authoritative. Updated ready-data bundle will replace the older published archive through the existing feature-branch pull request.

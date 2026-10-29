@@ -9,9 +9,9 @@
 ## Current scope and references
 
 - SpaceEye monitors12coded R7compounds. R8is out of scope. Inspection capacity is4.
-- Product design: docs/requirements/01-specs.md. The team retired docs/project-definition/03-dataset.md; use current docs/data contracts rather than restoring it.
-- Actual implemented data: docs/data/HANDOFF.md,IMPLEMENTED_DATA_SPEC.md,DATASET_CONTRACT.md and current reports/dictionaries.
-- Component inputs: docs/data/COMPONENT_DATA_PROTOCOL.md. Retired docs/plan drafts must not be restored.
+- Product design: docs/requirements/01-specs.md. The team retired docs/project-definition/03-dataset.md; use current data contracts rather than restoring it.
+- Actual implemented data: data/HANDOFF.md,IMPLEMENTED_DATA_SPEC.md,DATASET_CONTRACT.md and current reports/dictionaries.
+- Component inputs: data/COMPONENT_DATA_PROTOCOL.md. Retired docs/plan drafts must not be restored.
 - Keep repository instructions current;Git history and external local backups retain superseded material.
 
 ## Data and implementation
@@ -35,7 +35,7 @@
 - Data-only build: python -m src.pipeline.complete_data. Two-build delivery: python -m src.pipeline.delivery.
 - Component preparation: python -m src.pipeline.component_data. None of these component tasks requires new model fitting.
 - Full src.pipeline.run_all and src.pipeline.release include existing fitting/evaluation;do not rerun them for documentation-only edits.
-- Current end-to-end entry: python -m src.pipeline.team_run --full. Current evaluation protocol/results: docs/data/EW_PROTOCOL_CURRENT.md and EW_REPORT_CURRENT.md. Current target is binary distressed/not_distressed; completion prediction is removed by the team lead. See docs/data/BINARY_SCOPE_DECISION.md.
-- Record multi-step plans/review and lessons in docs/.internal/plan;publish current team-facing status in docs/data.
+- Current end-to-end entry: python -m src.pipeline.team_run --full. Current evaluation protocol/results: data/EW_PROTOCOL_CURRENT.md and EW_REPORT_CURRENT.md. Current target is binary distressed/not_distressed; completion prediction is removed by the team lead. See data/BINARY_SCOPE_DECISION.md.
+- Record multi-step plans/review and lessons in docs/.internal/plan;publish current team-facing status in data.
 - Supporting documentation,code and helpers are English. Original Arabic complaint text remains data.
 - Keep scope focused. Delegate a read-only review when useful;do not duplicate its work. Do not claim completion without execution evidence.

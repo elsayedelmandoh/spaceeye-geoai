@@ -37,7 +37,7 @@ def main():
     result = {"mode": "two full src.pipeline.run_all runs, including activity fitting", "equal_manifests": same,
               "artifacts": len(manifests[0]), "protected_simulation_and_historical_binary_evaluation_unchanged": protected_equal,
               "status": "PASS" if same and protected_equal else "FAIL"}
-    (BASE_DIR / "docs/data/FULL_TRACK_A_REPRODUCIBILITY.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
+    (BASE_DIR / "data/FULL_TRACK_A_REPRODUCIBILITY.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
     if not same or not protected_equal:
         raise RuntimeError("Full-run reproducibility or protected-history check failed")
     print("Full Track A reproducibility PASS", flush=True)

@@ -14,6 +14,6 @@ The package includes 23 ready tables, boundaries, the separate training export, 
 
 Training ends 2024Q4; 2025Q1 is embargoed; time test is 2025Q2 through 2026Q1. Exclude censored/already-handed-over cutoffs from supervised work and use exactly the declared feature list. Not_distressed does not imply completion or guaranteed health.
 
-[Scope decision](../../docs/data/BINARY_SCOPE_DECISION.md), [current report](../../docs/data/EW_REPORT_CURRENT.md), [remaining tasks](../../docs/REMAINING_TEAM_TASKS.md).
+[Scope decision](../../data/BINARY_SCOPE_DECISION.md), [current report](../../data/EW_REPORT_CURRENT.md), [remaining tasks](../../docs/REMAINING_TEAM_TASKS.md).
 
 [ZIP SHA256](SpaceEye_R7_READY_DATA_2026-10-28_v5.zip.sha256.txt). Raw data, quarantines, private names/truth, credentials and model checkpoints are excluded. Earlier versioned ZIPs are historical snapshots; do not mix their targets/prediction schemas with v5.

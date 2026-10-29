@@ -1,6 +1,6 @@
 # Annual vegetation and height handoff
 
-Task AH-16 implementation complete under the team lead's revised acceptance on 28 October 2026. Ready per compound/year in `sat_yearly`; the same coded table is exported as `partial_task_exports/annual_context.csv`. [Coverage by year](../data/ANNUAL_CONTEXT_COVERAGE.csv) records non-null values explicitly.
+Task AH-16 implementation complete under the team lead's revised acceptance on 28 October 2026. Ready per compound/year in `sat_yearly`; the same coded table is exported as `partial_task_exports/annual_context.csv`. [Coverage by year](../../data/ANNUAL_CONTEXT_COVERAGE.csv) records non-null values explicitly.
 
 Vegetation is available for all 12 compounds for 2019–2026, with source/derived origin. Earlier missing years remain null. Approved heights are Google Open Buildings Temporal 2016–2023 and the v4 estimate for 2024. Later height rows stay null. A feature carrying the last known older height into a later quarter is not a new height measurement.
 

@@ -1,15 +1,15 @@
 # SpaceEye: remaining team tasks
 
-Updated on 28 October 2026 for approved binary scope and delivery v5. AH-16, EL-01, EL-10, EL-11 and EL-17 are no longer open implementation tasks; see [scope decision](data/BINARY_SCOPE_DECISION.md). Based on the original **02-team-roles-and-tasks.md** supplied by the team lead. Original task IDs, owners and priority tiers are preserved.
+Updated on 28 October 2026 for approved binary scope and delivery v5. AH-16, EL-01, EL-10, EL-11 and EL-17 are no longer open implementation tasks; see [scope decision](../data/BINARY_SCOPE_DECISION.md). Based on the original **02-team-roles-and-tasks.md** supplied by the team lead. Original task IDs, owners and priority tiers are preserved.
 
 This is an implementation snapshot, not an assessment of individual effort. Work on other branches or outside this repository requires evidence before being credited. The main task-board checkbox now means implemented/ready for review, as requested by the team lead. Separate Review accepted checkboxes require actual human acceptance; no reviewer is signed on anyone's behalf.
 
 ## 1. Start here
 
 - [Ready-data download and English guide](https://github.com/elsayedelmandoh/spaceeye-geoai/blob/feat/binary-distress-scope/releases/ready-data/README.md).
-- [Implementation evidence and limitations](https://github.com/elsayedelmandoh/spaceeye-geoai/blob/feat/binary-distress-scope/docs/data/PARTIAL_TASKS_CLOSURE.md).
-- [Current model report](https://github.com/elsayedelmandoh/spaceeye-geoai/blob/feat/binary-distress-scope/docs/data/EW_REPORT_CURRENT.md).
-- [Original board](requirements/02-team-roles-and-tasks.md), [current data contract](data/DATASET_CONTRACT.md), [technical decisions](requirements/D1_DECISIONS_CURRENT.md).
+- [Implementation evidence and limitations](https://github.com/elsayedelmandoh/spaceeye-geoai/blob/feat/binary-distress-scope/data/PARTIAL_TASKS_CLOSURE.md).
+- [Current model report](https://github.com/elsayedelmandoh/spaceeye-geoai/blob/feat/binary-distress-scope/data/EW_REPORT_CURRENT.md).
+- [Original board](requirements/02-team-roles-and-tasks.md), [current data contract](../data/DATASET_CONTRACT.md), [technical decisions](requirements/D1_DECISIONS_CURRENT.md).
 
 Use **SpaceEye_R7_READY_DATA_2026-10-28_v5.zip**: 23 ready tables, with binary model outputs. It includes prepared observations, generated operations, 180-row/40-feature training data, complaint corpora, inspection contexts, synthetic visit exercises, current model diagnostics and S1/S2/S3 outputs. Raw sources, private name mappings, hidden truth and model checkpoints are excluded.
 
@@ -44,7 +44,7 @@ The list below covers **39 IDs with an unresolved implementation, evidence, deci
 | T-AH-18 / Could | Optional: matching completed roof-uniformity evidence was not established. | Locate existing evidence first. If retained, register acceptance before testing Google-height roof/slab uniformity; otherwise record deferral/cut. |
 | T-AH-19 / Must | Partial: full command and reproducibility evidence exist. | Agree/tag the accepted presentation revision and document its command. Two full runs already matched; do not repeat fitting for documentation-only changes. |
 
-Reuse [technical operations](deliverables/technical-track-a.md), [annual context](deliverables/annual-context.md), [backtest](data/BACKTEST_CURRENT.md), [full-run evidence](data/FULL_TRACK_A_REPRODUCIBILITY.json).
+Reuse [technical operations](deliverables/technical-track-a.md), [annual context](deliverables/annual-context.md), [backtest](../data/BACKTEST_CURRENT.md), [full-run evidence](../data/FULL_TRACK_A_REPRODUCIBILITY.json).
 
 ## 5. Elsayed: Track B
 
@@ -53,7 +53,7 @@ Reuse [technical operations](deliverables/technical-track-a.md), [annual context
 | T-EL-15 / Could | Optional: S1/S2/S3 ready; extra cases incomplete. | If retained, implement S4 material cost +40% and S5 grace 12 to 6 months with separate outputs/assumptions. Fine-relief examples are not these tests. |
 | T-EL-16 / Could | Optional: matching FPMI/SAF deliverables were not established. | Locate prior results first. If missing and retained, write conditions before testing and log in team_ideas.md; otherwise defer. |
 
-Reuse [protocol](data/EW_PROTOCOL_CURRENT.md), [method card](deliverables/method-card.md), [metrics](data/CURRENT_MODEL_METRICS.csv), [fit reproducibility](data/CURRENT_MODEL_REPRODUCIBILITY.json), [S1/S2/S3 contract](data/SCENARIO_CONTRACT_CURRENT.md).
+Reuse [protocol](../data/EW_PROTOCOL_CURRENT.md), [method card](deliverables/method-card.md), [metrics](../data/CURRENT_MODEL_METRICS.csv), [fit reproducibility](../data/CURRENT_MODEL_REPRODUCIBILITY.json), [S1/S2/S3 contract](../data/SCENARIO_CONTRACT_CURRENT.md).
 
 ## 6. Verina: inspection AI and complaints
 
@@ -67,7 +67,7 @@ Reuse [protocol](data/EW_PROTOCOL_CURRENT.md), [method card](deliverables/method
 | T-VE-06 / Must | Build: final stored inspection reports not ready. | Produce five Arabic HTML/PDF files with actual model/time and truthful review footer. Never invent reviewer sign-off. Integrate permitted imagery when ready. |
 | T-VE-08 / Should | Partial: 100 labelled feed texts and separate 296-text benchmark ready with splits. | Train/evaluate five classes against keyword baseline; locate/prepare separate complaints_30.csv check set and document origin. Preserve template-family splits; never merge the two corpora for evaluation. |
 
-Reuse [component protocol](data/COMPONENT_DATA_PROTOCOL.md), [responsible use](deliverables/responsible-ai.md), and src/pipeline/privacy.py. Masking is implemented; general real-text review remains necessary. Synthetic complaint accuracy is not evidence of real-world accuracy.
+Reuse [component protocol](../data/COMPONENT_DATA_PROTOCOL.md), [responsible use](deliverables/responsible-ai.md), and src/pipeline/privacy.py. Masking is implemented; general real-text review remains necessary. Synthetic complaint accuracy is not evidence of real-world accuracy.
 
 ## 7. Nada: dashboard and user guide
 

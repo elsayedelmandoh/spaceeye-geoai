@@ -12,7 +12,7 @@
 | src/analysis/early_warning.py, ew_eval.py, ew_report.py | Historical experiment/audit helpers; not the current CLI |
 | src/pipeline/release.py | Historical workflow plus shared audit; current workflow uses team_run |
 | tests | Regression/behavior checks for existing pipeline components |
-| docs/data | Current data contracts, source records, model/quality reports and scoped evidence |
+| data | Current data contracts, source records, model/quality reports and scoped evidence |
 | docs/requirements | Current specification, task/review board, program reference and timeline |
 | docs/deliverables | Actual written deliverables plus their index; unfinished outputs are tasks |
 | docs/REMAINING_TEAM_TASKS.md | Original-ID handoff for work still unresolved |

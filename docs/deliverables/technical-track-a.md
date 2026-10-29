@@ -8,7 +8,7 @@ Configured public-source caches feed compound boundaries/register, published sta
 
 Separate observed start requires four assessable active quarters or published delivery. Legacy start remains for K2 comparability. K6 uses the first known launch/promise publication, with thresholds 13–24 and above 24 months; insufficient evidence stays null. K5 is a union of screening months, not a legal finding. Priorities use the worst applicable signal, the completion cap and data assessability. Capacity 4 selects eligible levels 1–3 by level, descending K2, descending K3, then code. Height is context only: OBT 2016–2023 and approved v4 estimate for 2024; later annual heights remain unknown.
 
-Generated finance, complaints, fine assumptions and forward scenarios stay separate from public observations. The financial-priority scenarios are hypothetical. Read the [implemented specification](../data/IMPLEMENTED_DATA_SPEC.md) and [dataset contract](../data/DATASET_CONTRACT.md) for field definitions and limits.
+Generated finance, complaints, fine assumptions and forward scenarios stay separate from public observations. The financial-priority scenarios are hypothetical. Read the [implemented specification](../../data/IMPLEMENTED_DATA_SPEC.md) and [dataset contract](../../data/DATASET_CONTRACT.md) for field definitions and limits.
 
 ## Run with existing configured inputs
 
@@ -22,7 +22,7 @@ uv run --locked --offline python -m src.pipeline.quality_report
 
 If Make is installed, `make data` executes those four preparation steps without fitting. `make current` runs `python -m src.pipeline.team_run`, including the current small model diagnostics. `make run` runs `python -m src.pipeline.team_run --full`, first rebuilding/fitting Track A. All need external caches/private inputs configured in `configs/data.yaml`; none downloads new satellite imagery. Teammates using the ready-data ZIP do not need these source inputs or commands.
 
-`uv run --locked --offline python -m src.pipeline.delivery` separately compares two base data-only builds and protects raw/model/historical-evaluation files. Its saved evidence covers that scoped build, not every later component artifact. `src.pipeline.full_repro` backs up current local outputs then compares two full Track A runs; [saved evidence](../data/FULL_TRACK_A_REPRODUCIBILITY.json) records equal manifests for 276 artifacts. `src.pipeline.release` remains the historical experiment workflow; use `team_run` for the current schema.
+`uv run --locked --offline python -m src.pipeline.delivery` separately compares two base data-only builds and protects raw/model/historical-evaluation files. Its saved evidence covers that scoped build, not every later component artifact. `src.pipeline.full_repro` backs up current local outputs then compares two full Track A runs; [saved evidence](../../data/FULL_TRACK_A_REPRODUCIBILITY.json) records equal manifests for 276 artifacts. `src.pipeline.release` remains the historical experiment workflow; use `team_run` for the current schema.
 
 ## Quarterly monitoring procedure
 
