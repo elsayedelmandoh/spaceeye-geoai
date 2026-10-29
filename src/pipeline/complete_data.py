@@ -30,6 +30,11 @@ def write_table(frame, path):
     pq.write_table(table, path)
 
 
+def quality_checks_with_metadata(checks: pd.DataFrame, run_id: str) -> pd.DataFrame:
+    """Attach the fixed run lineage to the saved data-only quality checks."""
+    return checks.assign(run_id=run_id, computed_at=CFG["computed_on"])
+
+
 def write_completion_cycle_list(kpi):
     """Write the completion bundle's cycle list without touching the real output path."""
     OUT.mkdir(parents=True, exist_ok=True)
@@ -187,7 +192,8 @@ def build(refresh_inputs=True):
     if CFG["cycle_capacity"] != max(1, math.ceil(n * CFG["inspection_capacity_fraction"])):
         raise ValueError("Inspection capacity must equal one third of the configured scope, rounded up")
     sat = kpis.add_k2(tables["sat_quarterly"], tables["statements"])
-    kpi = kpis.kpi_values(sat, tables["compounds"], tables["statements"], tables["sat_yearly"], run_all.make_run_id())
+    run_id = run_all.make_run_id()
+    kpi = kpis.kpi_values(sat, tables["compounds"], tables["statements"], tables["sat_yearly"], run_id)
     tables["sat_quarterly"] = sat
     run_all.write_real({"sat_quarterly": sat, "kpi_values": kpi})
     # Replace only derived tables. No activity model or historical simulator is fitted.
@@ -236,6 +242,7 @@ def build(refresh_inputs=True):
     q.loc[q.gate.eq("no_names"), ["status", "value"]] = [private_names["status"], private_names["value"]]
     if q.status.eq("STOP").any():
         raise RuntimeError("Data quality STOP: " + ", ".join(q.loc[q.status.eq("STOP"), "gate"]))
+    q = quality_checks_with_metadata(q, run_id)
     q.to_csv(OUT / "quality_checks.csv", index=False)
     pd.DataFrame(columns=["code", "visit_date", "result", "note"]).to_csv(OUT / "ops_visits_template.csv", index=False)
     checks = {"extended_unique_keys": not dataset.duplicated(["code", "quarter"]).any(), "quarterly_fin_unique_keys": not quarterly.duplicated(["code", "quarter"]).any(),

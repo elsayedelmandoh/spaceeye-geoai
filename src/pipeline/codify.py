@@ -114,6 +114,14 @@ def _geo(cm: pd.DataFrame) -> None:
     (RAW / "boundaries.geojson").write_text(json.dumps({"type": "FeatureCollection", "features": feats}, indent=1), encoding="utf-8")
 
 
+def height_rows(h: pd.DataFrame) -> pd.DataFrame:
+    """Keep only approved height years and rows marked as published."""
+    keep = h.year <= CFG["heights_max_year"]
+    if "published" in h:
+        keep &= h.published.astype(bool)
+    return h.loc[keep]
+
+
 def _satellite(cm: pd.DataFrame) -> None:
     pid2code = cm.set_index("project_id").code
     dw = pd.read_csv(src("dw_polygons"))
@@ -148,7 +156,7 @@ def _satellite(cm: pd.DataFrame) -> None:
     h = pd.read_csv(src("heights"))
     h["code"] = h.compound_id.map(pid2code)
     h = h[h.code.notna()]
-    h = h[h.published] if "published" in h else h[h.year <= CFG["heights_max_year"]]
+    h = height_rows(h)
     cols = ["code", "year", "source", "n_built_cells", "height_mean_m", "height_p90_m", "share_built_ge20m"]
     h["source"] = np.where(h.source.str.startswith("OBT"), "OBT", "model")
     _w(h[cols].sort_values(["code", "year"]), "heights.csv")

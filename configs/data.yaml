@@ -39,6 +39,7 @@ heights_max_year: 2024
 
 # fixed quality-gate thresholds (same values as the pre-existing checks)
 quality:
+  frozen_check_quarters: ["2021Q4", "2023Q2", "2024Q4", "2025Q3"]   # kept out of the backtest block, which the published replay compares
   data_or_city_share: 0.30
   veg_pull_max_diff: 0.02
 
