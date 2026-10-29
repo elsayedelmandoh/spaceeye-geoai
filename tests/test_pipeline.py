@@ -2,9 +2,9 @@
 
 import pandas as pd
 
-from src.pipeline import gates, kpis
+from src.pipeline import complete_data, gates, kpis
 from src.pipeline.build_real import first_promise
-from src.pipeline.common import CFG, months_between, qend, qindex, qlabel
+from src.pipeline.common import CFG, months_between, qend, qindex, qlabel, summer_year
 
 
 def test_quarter_helpers_round_trip():
@@ -12,6 +12,13 @@ def test_quarter_helpers_round_trip():
     assert qlabel(qindex("2024Q2")) == "2024Q2"
     assert qend(qindex("2024Q2")) == pd.Timestamp("2024-06-30")
     assert months_between(pd.Timestamp("2024-06-30"), pd.Timestamp("2025-06-30")) == 12
+
+
+def test_summer_year_matches_existing_quarter_arithmetic():
+    assert summer_year(qindex("2016Q1")) == 2015
+    assert summer_year(qindex("2016Q2")) == 2015
+    assert summer_year(qindex("2016Q3")) == 2016
+    assert summer_year(qindex("2017Q2")) == 2016
 
 
 def test_level_is_the_worst_signal_and_may_be_complete_caps_at_3():
@@ -45,16 +52,39 @@ def test_reason_matches_spec_examples():
     )
 
     text = kpis.reason_ar({**row, "K2": 3, "K3": 8})
+    assert text.startswith("المستوى 1: ")
+    assert " (درجة النشاط 0.12)" in text
     assert "لم يرصد نشاط بناء منذ 3 ربع" in text
     assert "تجاوز أول موعد تسليم معلن" in text
     assert "بمقدار 8 شهر" in text
 
+    ordered = kpis.reason_ar({**row, "level": 2, "may_be_complete": True, "K6": 25})
+    assert ordered.index("قد يكون مكتملًا") < ordered.index("لم تتأكد بداية مرصودة")
+
+    not_started = kpis.reason_ar({**row, "started": False, "K2": pd.NA, "level": pd.NA})
+    assert not_started.startswith("بداية غير مؤكدة: ")
+    not_assessable = kpis.reason_ar({**row, "K4": False})
+    assert not_assessable.startswith("غير قابل للتقييم: ")
+
 
 def test_month_arithmetic_and_k5_k6_boundaries_are_pinned():
     assert months_between(pd.Timestamp("2023-06-10"), pd.Timestamp("2024-06-30")) == 13
-    # K3 would be 13 for these same dates (rounded days / 30.44), while K5 uses calendar months; owner decision pending.
+    # KEPT decision: K3/K6 use rounded days / 30.44, while K5 uses calendar months.
     assert kpis.fine_months(pd.Timestamp("2023-06-01"), pd.Timestamp("2024-06-30"), None, True)["K5_post_grace_months"] == 0
     assert kpis.level_of(0, 0, False, True, 24) == 2
+
+
+def test_complete_data_cycle_list_writer_keeps_the_real_path_for_run_all(monkeypatch, tmp_path):
+    output = tmp_path / "data_completion"
+    real = tmp_path / "real"
+    monkeypatch.setattr(complete_data, "OUT", output)
+    monkeypatch.setattr(complete_data, "REAL", real)
+    monkeypatch.setattr(complete_data.kpis, "cycle_list", lambda kpi, quarter: pd.DataFrame({"code": ["C01"]}))
+
+    complete_data.write_completion_cycle_list(pd.DataFrame())
+
+    assert (output / "cycle_list.csv").exists()
+    assert not real.exists()
 
 
 def test_rank_cycle_takes_top_capacity_levels_1_to_3_in_spec_order():
@@ -138,6 +168,69 @@ def test_not_assessable_kpi_row_has_no_level_and_keeps_lineage():
     assert row.origin == "derived"
     assert row.run_id == "test-run"
     assert row.computed_at == CFG["computed_on"]
+
+
+def _fabricated_kpi_inputs():
+    qi = qindex("2019Q1")
+    sat = pd.DataFrame({"code": "C01", "qi": [qi], "activity_prob": [0.1],
+                        "active": pd.array([False], dtype="boolean"), "K4": [True], "n_images": [10]})
+    compounds = pd.DataFrame({"code": ["C01"], "handover_first_published": [pd.NaT]})
+    yearly = pd.DataFrame(columns=["code", "year", "veg_share"])
+    statement_columns = ["code", "kind", "subtype", "detail", "period_start", "period_end", "published_date"]
+    return qi, sat, compounds, yearly, statement_columns
+
+
+def test_every_kpi_values_column_has_a_declared_origin():
+    qi, sat, compounds, yearly, statement_columns = _fabricated_kpi_inputs()
+    unknown = kpis.kpi_values(sat, compounds, pd.DataFrame(columns=statement_columns), yearly,
+                              run_id="test-run", upto=qi)
+    statements = pd.DataFrame([
+        ["C01", "event", "launch", "launch", "2019-01-01", None, "2019-01-15"],
+        ["C01", "promise", "delivery_promise", "project_delivery", None, "2020-12-31", "2019-02-01"],
+    ], columns=statement_columns)
+    started = kpis.kpi_values(sat, compounds, statements, yearly, run_id="test-run", upto=qi)
+
+    assert started.started.iloc[0]
+    assert started.start_reference_source.iloc[0] == "launch"
+    assert started.launch_date_asof.notna().all()
+    assert started.K5_months.notna().all()
+    for out in (unknown, started):
+        assert set(out.columns) == set(kpis.KPI_ORIGINS)
+
+
+def test_separation_gate_rejects_an_undeclared_kpi_values_column():
+    qi, sat, compounds, yearly, statement_columns = _fabricated_kpi_inputs()
+    out = kpis.kpi_values(sat, compounds, pd.DataFrame(columns=statement_columns), yearly,
+                          run_id="test-run", upto=qi)
+
+    assert gates.g_separation({}, out)["status"] == "PASS"
+    failed = gates.g_separation({}, out.assign(zzz=1))
+    assert failed["status"] == "STOP"
+    assert failed["value"] == "1 columns without origin, 0 generated tables"
+
+
+def test_start_unknown_label_is_distinct_from_known_not_started():
+    qi = qindex("2019Q1")
+    sat = pd.DataFrame({"code": "C01", "qi": [qi], "activity_prob": [0.1],
+                        "active": pd.array([False], dtype="boolean"), "K4": [True], "n_images": [10]})
+    compounds = pd.DataFrame({"code": ["C01"], "handover_first_published": [pd.NaT]})
+    yearly = pd.DataFrame(columns=["code", "year", "veg_share"])
+    statement_columns = ["code", "kind", "subtype", "detail", "period_start", "period_end", "published_date"]
+
+    unknown = kpis.kpi_values(sat, compounds, pd.DataFrame(columns=statement_columns), yearly,
+                              run_id="test-run", upto=qi).iloc[0]
+    assert pd.isna(unknown.K6) and pd.isna(unknown.level)
+    assert unknown.level_label == "start unknown"
+    assert unknown.level_word == "start unknown"
+    assert unknown.level_word_ar == "بداية غير معروفة"
+
+    promise = pd.DataFrame([["C01", "promise", "delivery_promise", "other", None, None, "2019-01-15"]],
+                           columns=statement_columns)
+    known = kpis.kpi_values(sat, compounds, promise, yearly, run_id="test-run", upto=qi).iloc[0]
+    assert known.K6 == 2 and pd.isna(known.level)
+    assert known.level_label == "not started"
+    assert known.level_word == "not started"
+    assert known.level_word_ar == "بداية غير مؤكدة"
 
 
 def test_launch_does_not_confirm_observed_construction_and_k6_waits_for_publication():

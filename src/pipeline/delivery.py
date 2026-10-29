@@ -15,6 +15,7 @@ from src.generator import dictionaries
 from src.pipeline import complete_data, run_all
 from src.pipeline.build_real import ORIGINS
 from src.pipeline.common import APP, BASE_DIR, CFG, PRIVATE, REAL
+from src.pipeline.kpis import KPI_ORIGINS
 from src.pipeline.release import audit
 
 DOCS = BASE_DIR / "docs" / "data"
@@ -24,8 +25,9 @@ LABEL = CFG["generator"]["label"]
 MEANINGS = {
     "code": "Coded compound identifier; accepted prepared tables use registered R7 codes. Planted unknown codes occur only in raw/quarantined test inputs.",
     "reason_ar": "Committee-facing Arabic rule explanation, generated from the same cutoff evidence as reason.",
-    "level_word": "Ordinal priority word; not an independent risk probability.",
-    "level_word_ar": "Arabic ordinal priority word for committee export.",
+    "level_label": "Priority label: 1-4, not started, start unknown, or not assessable.",
+    "level_word": "Ordinal priority word, or not started, start unknown, or not assessable; not an independent risk probability.",
+    "level_word_ar": "Arabic ordinal priority word or state: الأولى/الثانية/الثالثة/الرابعة, بداية غير مؤكدة, بداية غير معروفة, or غير قابل للتقييم.",
     "quarter": "Quarter of cutoff; flows cover its three months and stocks use its last month.",
     "months_present": "Number of observed financial months contributing to this quarter; required3.",
     "K5_months": "Union of screening months: no observed start after deadline and post12-month grace; overlap counted once; unknown remains null. Not contractual eligibility.",
@@ -138,7 +140,9 @@ def write_dictionaries():
             # strict name checks; use equally precise intervention terminology.
             meaning = re.sub(r"\bscenario\b", "intervention", meaning)
             unit = "EGP" if col.endswith("_egp") or col.startswith("K5_egp") else "EGP/m2" if col.endswith("egp_m2") else "percent" if col.endswith("_pct") else "calendar date" if "date" in col or col.endswith("published") else old[2] if old else "see meaning"
-            origin = ORIGINS.get(path.stem, {}).get(col, "derived" if group == "real" else old[4] if old else "generated/derived from generated")
+            fallback_origin = "derived" if group == "real" else old[4] if old else "generated/derived from generated"
+            declared = KPI_ORIGINS if group == "real" and path.stem == "kpi_values" else ORIGINS.get(path.stem, {})
+            origin = declared.get(col, fallback_origin)
             intro += f"| {col} | {frame[col].dtype} | {unit.replace('|', '/')} | {origin.replace('|', '/')} | {meaning.replace('|', '/')} |\n"
         write(target, intro)
         links.append(f"- [{group}/{path.stem}]({target.name})")

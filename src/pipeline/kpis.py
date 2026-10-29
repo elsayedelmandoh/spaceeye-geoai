@@ -5,14 +5,17 @@ input: sat_quarterly (with activity_prob/active), compounds, statements, sat_yea
 
 fixed definitions (written before any backtest):
   started  at quarter q: A showed 4 consecutive active quarters ending at or before q (start = first quarter of the first such run), or a launch / delivery event was
-           published by the end of q (start = quarter of the event period, else of the publication). before that the state is "not started", not level 1.
+           published by the end of q (start = quarter of the event period, else of the publication). before that the legacy start state is false, not level 1.
   K2  consecutive latest quarters with A inactive, counted only from the quarter construction started (stops at an active or a missing quarter); empty before the start.
   K3  months since the end of the FIRST published delivery promise; 0 if a handover was announced or no date has passed. independent of `started`.
   K5 is cumulative policy-screening exposure (fine-eligible months), not a contractual/legal fine assessment; it never sets the level.
+  month arithmetic is KEPT: K3 and K6 use the nearest month (days / 30.44), while K5 uses calendar months; changing it after results exist would shift levels.
   K6 is months since the first known launch without confirmed observed start; null when launch/history is unknown or observation has gaps.
+  strict K6 history is KEPT: every quarter from the launch/promise reference to the as-of quarter must be assessable; one gap makes K6 unknown later, and unknown K6 never raises a level.
   K6 now enters priority under the user-approved imported-spec extension (28 Oct); prior evaluation is historical.
   may be complete = handover announced, or vegetation share >= veg_complete (latest year finished by the quarter end). caps the level at 3.
   level = worst of K2 (after the start), K3 and the combined rule; not started with K3 = 0 has no level.
+  level labels distinguish "not started" (K6 is known and at most 12 months) from "start unknown" (no construction start and K6 is unknown); neither has a priority level.
   observed_started is separate descriptive evidence: four assessable active quarters or a published delivery event, excluding marketing launch.
 """
 
@@ -30,6 +33,7 @@ from src.pipeline.common import (
     qindex,
     qindex_of,
     qlabel,
+    summer_year,
 )
 
 L, ST = CFG["levels"], CFG["start"]
@@ -41,6 +45,57 @@ START_EVIDENCE_COLUMNS = (
 )
 LEVEL_WORD = {1: "first", 2: "second", 3: "third", 4: "fourth"}
 LEVEL_WORD_AR = {1: "الأولى", 2: "الثانية", 3: "الثالثة", 4: "الرابعة"}
+KPI_ORIGINS: dict[str, str] = {
+    "code": "key",
+    "quarter": "key",
+    "qi": "key",
+    "activity_prob": "derived",
+    "active": "derived",
+    "started": "derived",
+    "start_quarter": "derived",
+    "K2": "derived",
+    "K3": "derived",
+    "K4": "derived",
+    "may_be_complete": "derived",
+    "observed_started": "derived",
+    "observed_start_quarter": "derived",
+    "observed_start_source": "derived",
+    "start_observation_sufficient": "derived",
+    "launch_date_asof": "derived",
+    "launch_first_published": "derived",
+    "K6": "derived",
+    "start_reference_date_asof": "derived",
+    "start_reference_published": "derived",
+    "start_reference_source": "derived",
+    "K5_no_start_months": "derived",
+    "K5_post_grace_months": "derived",
+    "K5_overlap_months": "derived",
+    "K5_months": "derived",
+    "K5_basis": "derived",
+    "level": "derived",
+    "level_label": "derived",
+    "reason": "derived",
+    "reason_ar": "derived",
+    "level_word": "derived",
+    "level_word_ar": "derived",
+    "k3_first_deadline": "derived",
+    "cycle_rank": "derived",
+    "origin": "derived",
+    "run_id": "derived",
+    "computed_at": "derived",
+}
+
+
+def level_labels(k4: bool, level: int | None, k6=None) -> tuple[str, str, str]:
+    """Priority label and words, including the distinct unknown-start state."""
+    if not k4:
+        return "not assessable", "not assessable", "غير قابل للتقييم"
+    if pd.notna(level):
+        level = int(level)
+        return str(level), LEVEL_WORD[level], LEVEL_WORD_AR[level]
+    if pd.isna(k6):
+        return "start unknown", "start unknown", "بداية غير معروفة"
+    return "not started", "not started", "بداية غير مؤكدة"
 
 
 @dataclass(frozen=True)
@@ -213,6 +268,7 @@ def add_start_evidence(sat: pd.DataFrame, stm: pd.DataFrame) -> pd.DataFrame:
 
     A positive start needs consecutive, assessable active quarters or an already-published delivery event.
     Without positive evidence, K6 needs uninterrupted known observations from launch through the cutoff.
+    This strict rule is KEPT: one non-assessable quarter makes K6 unknown for later quarters, and unknown never raises a level.
     K6 means time without a confirmed observed start, not proof that no construction took place.
     """
     delivery, launches, promises = _start_sources(stm)
@@ -226,13 +282,13 @@ def add_start_evidence(sat: pd.DataFrame, stm: pd.DataFrame) -> pd.DataFrame:
 
 def veg_latest(yearly: pd.DataFrame, code: str, qi: int) -> float:
     """vegetation share of the latest summer (Jun-Sep) already over at the end of quarter qi."""
-    y = 2016 + qi // 4 if qi % 4 >= 2 else 2015 + qi // 4
+    y = summer_year(qi)
     v = yearly[(yearly.code == code) & (yearly.year <= y) & yearly.veg_share.notna()].sort_values("year")
     return float(v.veg_share.iloc[-1]) if len(v) else np.nan
 
 
 def level_of(k2: float, k3: int, complete: bool, started: bool = True, k6=None) -> int | None:
-    """worst of K2 (only after construction started), K3 and the combined rule. None = "not started" (and no K3 date has passed either)."""
+    """worst of K2 (only after construction started), K3 and the combined rule. None means no level: "not started" when K6 is known, "start unknown" when K6 is unknown."""
     k2 = 0 if (pd.isna(k2) or not started) else k2
     k6 = 0 if pd.isna(k6) else k6
     if k2 >= L["k2_l1"] or k3 > L["k3_l1"] or (k2 >= L["combo_k2"] and k3 > L["combo_k3"]) or k6 > L["k6_l1"]:
@@ -254,6 +310,7 @@ def fine_months(first_end, asof, observed_start_quarter, sufficient, handover_pu
     Post-deadline/no-observed-start and post-grace months overlap; count once.
     Accrual stops at the first published handover. Previous exposure is retained.
     This is a research policy proxy, not evidence that a contract fine is due.
+    K5 keeps calendar-month arithmetic while K3 and K6 use nearest months; the difference is intentional.
     """
     if first_end is None or pd.isna(first_end):
         return {"K5_no_start_months": pd.NA, "K5_post_grace_months": pd.NA, "K5_overlap_months": pd.NA, "K5_months": pd.NA}
@@ -302,16 +359,18 @@ def reason(r: dict) -> str:
 
 
 def reason_ar(r: dict) -> str:
-    """Committee-facing Arabic data, using the same evidence as the English reason."""
+    """Committee-facing Arabic data, using the same evidence and template order as the English reason."""
     if not r["K4"]:
         return f"غير قابل للتقييم: عدد الصور {r['n_images']} خلال الربع؛ الحد الأدنى {CFG['n_images_min']}."
     parts = []
+    activity_prob = r.get("activity_prob")
+    score = f" (درجة النشاط {activity_prob:.2f})" if pd.notna(activity_prob) else ""
     if not r["started"]:
-        parts.append("بداية التنفيذ غير مؤكدة وفق قاعدة البداية المستخدمة")
+        parts.append("بداية التنفيذ غير مؤكدة وفق قاعدة البداية المستخدمة" + score)
     elif pd.notna(r["K2"]) and r["K2"] >= 1:
-        parts.append(f"لم يرصد نشاط بناء منذ {int(r['K2'])} ربع")
+        parts.append(f"لم يرصد نشاط بناء منذ {int(r['K2'])} ربع" + score)
     else:
-        parts.append("رصد نشاط بناء")
+        parts.append("رصد نشاط بناء" + score)
     if r["handover"]:
         parts.append("يوجد إعلان تسليم منشور")
     elif r["first_end"] is None:
@@ -320,12 +379,14 @@ def reason_ar(r: dict) -> str:
         parts.append(f"تجاوز أول موعد تسليم معلن ({r['first_end']:%Y-%m-%d}) بمقدار {r['K3']} شهر")
     else:
         parts.append(f"أول موعد تسليم معلن ({r['first_end']:%Y-%m-%d}) لم يحن بعد")
-    if pd.notna(r.get("K6")):
-        parts.append(f"لم تتأكد بداية مرصودة منذ {int(r['K6'])} شهر من أول إعلان إطلاق أو وعد متاح")
     if r["may_be_complete"]:
         parts.append("قد يكون مكتملًا وفق إعلان التسليم أو الغطاء النباتي؛ يلزم تحقق ميداني")
+    if pd.notna(r.get("K6")):
+        parts.append(f"لم تتأكد بداية مرصودة منذ {int(r['K6'])} شهر من أول إعلان إطلاق أو وعد متاح")
     parts.append(f"عدد الصور خلال الربع {r['n_images']}")
-    return "؛ ".join(parts) + "."
+    level = r.get("level")
+    head = f"المستوى {int(level)}: " if pd.notna(level) else "بداية غير مؤكدة: "
+    return head + "؛ ".join(parts) + "."
 
 
 def kpi_values(sat: pd.DataFrame, comp: pd.DataFrame, stm: pd.DataFrame, yearly: pd.DataFrame, run_id: str, upto: int = N_Q - 1) -> pd.DataFrame:
@@ -350,11 +411,12 @@ def kpi_values(sat: pd.DataFrame, comp: pd.DataFrame, stm: pd.DataFrame, yearly:
         row["K5_basis"] = "policy proxy; contract eligibility unverified"
         lv = level_of(r.K2, k3, complete, bool(r.started), r.K6) if r.K4 else None
         row["level"] = pd.NA if lv is None else lv
-        row["level_label"] = "not assessable" if not r.K4 else "not started" if lv is None else str(lv)
+        labels = level_labels(r.K4, lv, r.K6)
+        row["level_label"] = labels[0]
         row["reason"] = reason({**row, "handover": handover, "first_end": first_end, "veg": veg})
         row["reason_ar"] = reason_ar({**row, "handover": handover, "first_end": first_end, "veg": veg})
-        row["level_word"] = "not assessable" if not r.K4 else "not started" if lv is None else LEVEL_WORD[lv]
-        row["level_word_ar"] = "غير قابل للتقييم" if not r.K4 else "بداية غير مؤكدة" if lv is None else LEVEL_WORD_AR[lv]
+        row["level_word"] = labels[1]
+        row["level_word_ar"] = labels[2]
         row["k3_first_deadline"] = first_end
         rows.append(row)
     out = pd.DataFrame(rows)
@@ -380,7 +442,7 @@ def eligible_order(group: pd.DataFrame) -> pd.DataFrame:
 
 
 def rank_cycle(kpi: pd.DataFrame) -> pd.DataFrame:
-    """inspection order inside each quarter: level, then K2 descending, then K3 descending. the top N with level 1-3 form the cycle list (not started compounds have no level)."""
+    """inspection order inside each quarter: level, then K2 descending, then K3 descending. the top N with level 1-3 form the cycle list; compounds with no priority level are not ranked."""
     kpi = kpi.copy()
     kpi["cycle_rank"] = pd.array([pd.NA] * len(kpi), dtype="Int64")
     for _, group in kpi.groupby("qi"):

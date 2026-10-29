@@ -22,6 +22,7 @@ from src.pipeline.common import (
     qindex,
     src,
 )
+from src.pipeline.kpis import KPI_ORIGINS
 
 ACCEPTED = ("CONFIRMED", "CONFIRMED_MINOR_FIX", "AUDIT_LIVE_CHECKED")
 TEXT_EXT = {".csv", ".json", ".geojson", ".md", ".txt", ".yaml", ".yml"}
@@ -86,7 +87,8 @@ def g_freshness(sat: pd.DataFrame) -> dict:
 
 def g_separation(t: dict, kpi: pd.DataFrame) -> dict:
     cols = {tab: set(df.columns) for tab, df in {**t, "kpi_values": kpi}.items()}
-    missing = [f"{tab}.{c}" for tab, cs in cols.items() for c in cs if c not in {**ORIGINS, "kpi_values": {c: "derived" for c in kpi}}[tab]]
+    declared = {**ORIGINS, "kpi_values": KPI_ORIGINS}
+    missing = [f"{tab}.{c}" for tab, cs in cols.items() for c in cs if c not in declared[tab]]
     gen_in_kpi = [c for c in ("land_area_origin", "units_origin", "floors_origin") if c in kpi]
     prefixed = [tab for tab in cols if tab.startswith(("g_", "fin_", "complaints"))]
     bad = len(missing) + len(gen_in_kpi) + len(prefixed)

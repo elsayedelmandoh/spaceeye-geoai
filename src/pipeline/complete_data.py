@@ -30,6 +30,14 @@ def write_table(frame, path):
     pq.write_table(table, path)
 
 
+def write_completion_cycle_list(kpi):
+    """Write the completion bundle's cycle list without touching the real output path."""
+    OUT.mkdir(parents=True, exist_ok=True)
+    cycle = kpis.cycle_list(kpi, CFG["asof"])
+    cycle.to_csv(OUT / "cycle_list.csv", index=False, encoding="utf-8-sig")
+    # run_all owns the real cycle-list CSV.
+
+
 def capacity_paths(kpi, n):
     """S3 is a stored re-ranking only. Never changes levels, cash or progress."""
     rows = []
@@ -201,9 +209,7 @@ def build(refresh_inputs=True):
     write_table(quarterly, APP / "sim_clean" / "fin_quarterly.parquet")
     write_table(dataset, PRIVATE / "ml_dataset_extended.parquet")
     caps.to_csv(OUT / "inspection_capacity.csv", index=False)
-    cycle = kpis.cycle_list(kpi, CFG["asof"])
-    cycle.to_csv(OUT / "cycle_list.csv", index=False, encoding="utf-8-sig")
-    cycle.to_csv(REAL / f"cycle_list_{CFG['asof']}.csv", index=False, encoding="utf-8-sig")
+    write_completion_cycle_list(kpi)
     counts = {}
     for split, mask in (("train", dataset.quarter.le("2024Q4")), ("embargo", dataset.quarter.eq("2025Q1")),
                         ("time_test", dataset.quarter.between("2025Q2", "2026Q1")), ("censored", dataset.label_censored)):
