@@ -153,21 +153,27 @@ Reviewer identity, date and PR are intentionally left blank: this is a draft rev
 
 ## Resolution status (working tree, not yet reviewed by a human)
 
-Fixes applied by the coder lane and verified by the orchestrator (65 -> 69 passed, 1 skipped; Ruff clean on touched files; `git diff --check` clean; a differential run of old vs new `add_k2`/`add_start_evidence` on 60 random fixtures gave identical frames):
+Fixes applied by the coder lane and verified by the orchestrator (65 -> 75 passed, 1 skipped; Ruff clean on touched files apart from an old RUF100 in `activity.py`; a differential run of old vs new `add_k2`/`add_start_evidence` on 60 random fixtures gave identical frames; `KPI_ORIGINS` equals the 37 columns of the real `kpi_values` schema recorded in `data/dictionaries/real__kpi_values.md`).
 
 | Fix | State |
 |-----|-------|
 | 1 level test for K6/K3/combo boundaries, "not assessable" test | DONE |
 | 2 spec-example reason test | DONE |
 | 3 `rank_cycle`/`cycle_list` test | DONE |
-| 4 declare `kpi_values` column origins, stop the gate generating them | OPEN: could stop the real run; needs a check against the real `kpi_values` (external F: data) |
-| 5 shared ordering helper | DONE (`kpis.eligible_order`, used by `rank_cycle` and `complete_data.capacity_paths`) |
-| 6 `reason_ar` mirrors the English template | OPEN: changes committee-facing Arabic text; human decision |
+| 4 declare `kpi_values` column origins, stop the gate generating them | DONE (`kpis.KPI_ORIGINS`, used by `gates.g_separation` and the dictionary writer; the real run itself was not executed because the external F: data is not available here) |
+| 5 shared ordering helper | DONE (`kpis.eligible_order`) |
+| 6 `reason_ar` mirrors the English template | DONE (level head, activity score, K6 after may-be-complete); the Arabic wording still needs a native-speaker review before committee use |
 | 7 stale module docstring | DONE |
 | 8 split `add_start_evidence`, flatten `add_k2` | DONE, behaviour preserved |
-| 9 pin month arithmetic | DONE (documents K3/K6 rounding vs K5 calendar months; no behaviour change) |
-| 10 small cleanups | DONE except `veg_latest` (`kpis.py` year arithmetic still inline) |
+| 9 pin month arithmetic | DONE |
+| 10 small cleanups | DONE (`summer_year`, `qindex_of`, level-word constants) |
 | 11 board Evidence lines name their tests; T-AH-08 wording | DONE |
-| 12-16 human decisions | OPEN |
+| 12 label for unknown start | DONE: "start unknown" when K4 passes, no construction start and K6 is unknown; spec table and dictionary updated; scenario exports keep the label |
+| 13 month arithmetic | KEPT as is and documented (spec section 2 and `months_between`) |
+| 14 strict K6 gap rule | KEPT and documented (spec section 2) |
+| 15 owner of `cycle_list_<asof>.csv` | DONE: `run_all` owns the real path; `complete_data` writes only its own `data_completion/cycle_list.csv` |
+| 16 T-AH-08 board wording | DONE |
 
-Reviewer identity, date and PR remain blank; no "Review accepted" box is ticked.
+Small remaining note: for "start unknown" rows the Arabic reason head still reads "بداية غير مؤكدة", while `level_word_ar` reads "بداية غير معروفة".
+
+Reviewer identity, date and PR remain blank; no D2 "Review accepted" box is ticked.
