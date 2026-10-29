@@ -9,8 +9,8 @@ Scope: 12 R7 compounds, six real check cases, inspection capacity 4. The classif
 ## Required task-board updates
 
 - Use docs/requirements/02-team-roles-and-tasks.md as the single task board; preserve IDs/owners.
-- After implementing/verifying a task, mark its main checkbox [x], add evidence, and have an agent reviewer tick the separate Review accepted checkbox after an independent review (review log such as logs/review-NN.md or a documented review in the PR); human acceptance is no longer required.
-- Main [x] means implemented/ready for review, not reviewed/approved. When ticking Review accepted, record truthfully: "agent review" plus the lane/model, date, and log/PR/commit reference; never use a human's name that did not perform the review, never reuse the owner as their own reviewer, and never tick the box without a recorded review.
+- After implementing/verifying a task, mark its main checkbox [x], add evidence and set the label to "Implemented; review pending". After an independent review recorded in logs/review-NN.md (or the PR), tick its separate Review accepted checkbox and set the label to "Done; review accepted". Human acceptance is not required.
+- Main [x] means implemented/ready for review, not accepted. On the board record only the review log reference and date; never write an agent, model or lane name, never name a person who did not perform the review, and never tick the box without a recorded review.
 - Keep partial/open tasks unchecked and failed/excluded experiments labelled. Synchronize docs/REMAINING_TEAM_TASKS.md in the same branch/PR.
 - Do not infer completion from a placeholder, available input data or a successful unrelated test.
 

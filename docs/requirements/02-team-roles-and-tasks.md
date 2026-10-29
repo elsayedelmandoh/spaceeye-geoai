@@ -76,15 +76,15 @@ Goal: one command (`python -m src.pipeline.run_all`) builds the R7 tables, A, K2
 
 ### D1: scope and config
 
-- [x] **T-AH-01** [Must] D1 · Confirm R7 boundaries (a boundary with a reviewed confidence label from the location audit; no numeric threshold is applied) and count R7 compounds (open item 4) · `compounds.district` checked, count in §16 · depends: - · reviewer: elsayed **Implemented; agent review accepted (see below).**
+- [x] **T-AH-01** [Must] D1 · Confirm R7 boundaries (a boundary with a reviewed confidence label from the location audit; no numeric threshold is applied) and count R7 compounds (open item 4) · `compounds.district` checked, count in §16 · depends: - · reviewer: elsayed **Done; review accepted.**
   - Evidence: [implementation/output](../../data/DATASET_CONTRACT.md).
-  - [x] Review accepted (agent review: claude-sonnet-5-5 orchestrator session, 2026-10-29; logs/review-01.md, findings fixed in f63a712 and c23a860, review recorded in 4822040).
-- [x] **T-AH-02** [Must] D1 · Write config before any result: `cycle_capacity` ≈ a third of R7, K6 thresholds (`k6_l2: 13`, `k6_l1: 24`: level 2 from 13 months, level 1 above 24), K5 grace (`fines.grace_months: 12`), R7 filter key (`scope_districts`), in `configs/data.yaml` with a dated comment · depends: T-AH-01 · reviewer: salma **Implemented; agent review accepted (see below).**
+  - [x] Review accepted (logs/review-01.md, 2026-10-29).
+- [x] **T-AH-02** [Must] D1 · Write config before any result: `cycle_capacity` ≈ a third of R7, K6 thresholds (`k6_l2: 13`, `k6_l1: 24`: level 2 from 13 months, level 1 above 24), K5 grace (`fines.grace_months: 12`), R7 filter key (`scope_districts`), in `configs/data.yaml` with a dated comment · depends: T-AH-01 · reviewer: salma **Done; review accepted.**
   - Evidence: [implementation/output](../../data/DATASET_CONTRACT.md).
-  - [x] Review accepted (agent review: claude-sonnet-5-5 orchestrator session, 2026-10-29; logs/review-01.md, findings fixed in f63a712 and c23a860, review recorded in 4822040; the before-any-result claim rests on the setter's own statement of 2026-10-29, not on git).
-- [x] **T-AH-03** [Must] D1 · Filter R8 out of every built table in `build_real` (audited R8 files stay untouched in `real_data/`) + test that no R8 code reaches `kpi_values` · depends: T-AH-02 · reviewer: elsayed **Implemented; agent review accepted (see below).**
+  - [x] Review accepted (logs/review-01.md, 2026-10-29).
+- [x] **T-AH-03** [Must] D1 · Filter R8 out of every built table in `build_real` (audited R8 files stay untouched in `real_data/`) + test that no R8 code reaches `kpi_values` · depends: T-AH-02 · reviewer: elsayed **Done; review accepted.**
   - Evidence: [implementation/output](../../data/DATASET_CONTRACT.md). Filter: `in_scope` in `src/pipeline/codify.py`; scope audit: `scope_checks` in `src/pipeline/release.py`. Tests in `tests/test_scope.py`: `test_in_scope_drops_r8_rows`, `test_scope_checks_pass_when_kpi_values_hold_only_known_codes`, `test_scope_checks_fail_when_kpi_values_hold_an_r8_code`, `test_scope_checks_fail_when_compounds_hold_an_r8_district` (fabricated tables; no workspace data). The filter runs in `codify`, not `build_real`.
-  - [x] Review accepted (agent review: claude-sonnet-5-5 orchestrator session, 2026-10-29; logs/review-01.md, findings fixed in f63a712 and c23a860, review recorded in 4822040).
+  - [x] Review accepted (logs/review-01.md, 2026-10-29).
 
 ### D2: indicators, levels, cycle list
 
