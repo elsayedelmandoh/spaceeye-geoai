@@ -30,8 +30,8 @@ Proposed accountable operator: Track A owner; reviewer: another team member. The
 
 1. Open a feature branch; preserve the last accepted bundle and input hashes. Update source observations and publication evidence before advancing cutoff/computation dates in configuration. Cache refresh requires the original source workflow.
 2. Keep thresholds and capacity fixed unless a reviewed decision changes them. Recheck R7 scope and boundary provenance, source dates, missing observations and approved height products. New quarters must be supported by actual inputs.
-3. Run the preparation steps, inspect the current audit and render the quality report. Resolve STOP/FIX. Document an explicit review decision for every FLAG, including the existing 2019Q2 flag. Never fill missing physical measurements with invented observations.
-4. Run relevant tests. If behavior changed, run the two-build delivery check. Separately verify new component outputs and bundle integrity; a prior manifest does not certify new files.
+3. Run `make run` (`uv run --locked --offline python -m src.pipeline.team_run --full`, which runs `src.pipeline.run_all`) after updating `asof`, `last_quarter` and `computed_on`; it exits non-zero on any STOP. Inspect the current audit and render the quality report. Resolve STOP/FIX. Document an explicit review decision for every FLAG, including the existing 2019Q2 flag. Never fill missing physical measurements with invented observations.
+4. Compare `app_data/manifest.csv` with the previous accepted bundle and run `python -m src.pipeline.full_repro` if code changed. Run relevant tests. If behavior changed, run the two-build delivery check. Separately verify new component outputs and bundle integrity; a prior manifest does not certify new files.
 5. Review changes in priorities/reasons against source evidence. Inspect a sample of publication cutoffs and confirm that generated data has not entered public maps or the real backtest.
 6. Publish a reviewed versioned bundle through a feature branch/PR. Record cutoff, code revision, source hashes, limits and reviewer. Keep prior releases available for comparison.
 
