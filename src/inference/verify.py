@@ -12,6 +12,7 @@ Responsibilities:
 import os
 import re
 import csv
+import math
 import datetime
 from pathlib import Path
 from typing import Dict, Any, List, Tuple, Set
@@ -47,6 +48,8 @@ def extract_context_facts(context: Dict[str, Any]) -> Tuple[Set[str], Set[str], 
 
     def walk(obj):
         if obj is None:
+            return
+        if isinstance(obj, float) and math.isnan(obj):
             return
         if isinstance(obj, (int, float)):
             # Store integer representation and float representation

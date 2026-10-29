@@ -231,7 +231,9 @@ Goal: inspection files for 5 compounds where every number matches the source, pl
 - [x] **T-VE-03** [Must] D3 · Inspection file template filled by code (what happened · why + rejected explanation · what it means · what we do: action, owner, date, escalation trigger); works without the LLM · reviewer: salma **Implemented; review pending.**
   - Evidence: [src/inference/inspection_template.py](../../src/inference/inspection_template.py). Output: [app_data/files/C07_2026Q3_inspection.html](../../app_data/files/C07_2026Q3_inspection.html). Rejects observation error citing 27 satellite passes.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [ ] **T-VE-04** [Should] D3 · Gemini writes one paragraph from attached facts only + 3 questions for the visit · reviewer: elsayed
+- [x] **T-VE-04** [Should] D3 · Gemini writes one paragraph from attached facts only + 3 questions for the visit · reviewer: elsayed **Implemented; review pending.**
+  - Evidence: [src/inference/generate.py](../../src/inference/generate.py). Formatted with facts, generates grounded executive paragraph + 3 field inspection questions. Tests: [tests/test_inference.py](../../tests/test_inference.py) pass 100%.
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-VE-05** [Must] D3 · Verifier: every number, date and code matched against the source JSON; causal words ("because", "بسبب") flagged for manual review; verdicts logged · `ai_verification_log.csv` (correct / wrong number / unsupported claim / missing context) + test · reviewer: elsayed **Implemented; review pending.**
   - Evidence: [implementation/output](../../src/inference/verify.py). Tests: tests/test_inference.py::test_verifier_catches_wrong_number_and_causal_word passes 100%.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
