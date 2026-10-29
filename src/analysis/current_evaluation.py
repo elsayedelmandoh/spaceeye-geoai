@@ -114,6 +114,11 @@ def developer_diagnostic(frame, train_mask, test_mask, public, features, metrics
     return {**result, "status": "FITTED", "train_classes": train.y_outcome_6m.value_counts().to_dict(), "test_classes": test.y_outcome_6m.value_counts().to_dict()}
 
 
+def without_height(columns: list[str]) -> list[str]:
+    """candidate ablation: drop the stale static height feature (off by default, see configs/data.yaml candidates)."""
+    return [c for c in columns if c != "height_mean_m"]
+
+
 def run():
     protocol_hash = sha(PROTOCOL)  # Existing frozen protocol must exist before fitting.
     path = PRIVATE / "ml_dataset_extended.parquet"
@@ -135,6 +140,8 @@ def run():
     public = [c for c in features if meta["column_origins"][c] == "derived_public_observation"]
     if not public or "K5_egp" in public:
         raise ValueError("Invalid public feature set")
+    if CFG.get("candidates", {}).get("no_height_ablation", False):
+        features, public = without_height(features), without_height(public)
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "models").mkdir(exist_ok=True)
     predictions, metrics, confusions = [], [], {}

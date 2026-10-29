@@ -201,3 +201,16 @@ def onset_events(first_month: str = "2023-02") -> pd.DataFrame:
             if d[i] and (i == 0 or not d[i - 1]) and m[i] >= first_month:
                 out.append({"code": code, "onset": pd.Period(m[i], "M")})
     return pd.DataFrame(out)
+
+
+def a_acceleration(frame: pd.DataFrame, col: str = "A") -> pd.Series:
+    """candidate feature: year-over-year second difference (A(t)-A(t-4)) - (A(t-4)-A(t-8)) per code, quarterly index qi.
+    Uses only past quarters; a missing quarter or fewer than 8 earlier quarters gives NaN, never 0.
+    Not wired into the dataset: a v2 build needs the external data and a protocol hashed before fitting."""
+    values = frame.set_index(["code", "qi"])[col]
+
+    def lagged(k: int) -> np.ndarray:
+        return values.reindex(pd.MultiIndex.from_arrays([frame.code, frame.qi - k])).to_numpy(dtype=float)
+
+    now = frame[col].to_numpy(dtype=float)
+    return pd.Series((now - lagged(4)) - (lagged(4) - lagged(8)), index=frame.index)

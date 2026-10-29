@@ -242,3 +242,7 @@ generator:
     unknown_code_rows: 15
     before_launch_rows: 5
     phone_texts: 10
+
+# candidate variants, all off by default; any switch on needs a new protocol written and hashed before fitting (2026-10-29)
+candidates:
+  no_height_ablation: false   # drop height_mean_m from both Track B feature lists
