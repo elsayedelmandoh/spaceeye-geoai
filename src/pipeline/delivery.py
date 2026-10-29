@@ -18,7 +18,7 @@ from src.pipeline.common import APP, BASE_DIR, CFG, PRIVATE, REAL
 from src.pipeline.kpis import KPI_ORIGINS
 from src.pipeline.release import audit
 
-DOCS = BASE_DIR / "docs" / "data"
+DOCS = BASE_DIR / "data"
 LABEL = CFG["generator"]["label"]
 
 # Explicit semantics for the new fields; inherited monthly fields reuse R2 specs.

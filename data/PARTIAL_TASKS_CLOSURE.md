@@ -24,4 +24,4 @@ All 57 tests and touched-source lint passed. The cached-data team workflow compl
 
 Repeat-fit evidence is recorded in CURRENT_MODEL_REPRODUCIBILITY.json. Version 5 packages the binary scope and current reports. Historical v3/v4 bundles and Git history preserve earlier experiments. Raw sources, private mappings/truth and checkpoints are not published. The 2019Q2 source-event FLAG remains visible.
 
-See [remaining tasks](../REMAINING_TEAM_TASKS.md) for all original IDs. AH-16, EL-01, EL-10, EL-11 and EL-17 have moved from unresolved implementation to implemented/review status. Original named review is not signed on behalf of colleagues.
+See [remaining tasks](../docs/REMAINING_TEAM_TASKS.md) for all original IDs. AH-16, EL-01, EL-10, EL-11 and EL-17 have moved from unresolved implementation to implemented/review status. Original named review is not signed on behalf of colleagues.

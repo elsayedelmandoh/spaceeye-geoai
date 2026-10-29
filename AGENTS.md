@@ -1,5 +1,7 @@
 # Repository working guide
 
+- New-device setup: docs/REVIEW_SETUP.md; `python -m src.pipeline.setup_review`. Runtime paths are checkout-relative; use SPACEEYE_DATA_ROOT to move the shared data root. Exact full-rebuild inputs: data/REBUILD_INPUTS.csv (84 files), checked/transferred by src.pipeline.source_cache. Do not reintroduce personal drives or Cloud project IDs.
+
 ## Git workflow
 
 - Work and commit on a feature branch only. Never edit,commit or push directly on main.

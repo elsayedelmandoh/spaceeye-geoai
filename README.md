@@ -1,5 +1,7 @@
 # SpaceEye: R7 inspection priority observatory
 
+**New device or review:** follow [REVIEW_SETUP](docs/REVIEW_SETUP.md). Run `uv sync --locked`, then `uv run --locked python -m src.pipeline.setup_review`. Paths are checkout-relative; `SPACEEYE_DATA_ROOT` relocates the workspace without requiring a specific drive. The [84-file source manifest](data/REBUILD_INPUTS.csv) and source-cache tool cover full rebuilds.
+
 [Download the current v5 data](releases/ready-data/SpaceEye_R7_READY_DATA_2026-10-28_v5.zip?raw=1) ? [Data guide](releases/ready-data/DATA_GUIDE.md) ? [Task board and human reviews](docs/requirements/02-team-roles-and-tasks.md) ? [Remaining work](docs/REMAINING_TEAM_TASKS.md)
 
 SpaceEye supports deciding which coded R7 compounds the inspection committee should visit first. The current delivery is a prepared-data/rule/model workflow. The five-screen dashboard, inspection agent, real visit form and final presentation remain separate tasks.

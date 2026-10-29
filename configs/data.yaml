@@ -10,9 +10,11 @@ last_quarter: "2026Q3"
 scope_districts: [R7]
 
 paths:
-  real_data: "F:/ACUD AI Data Lab/Project/real_data"
-  app_data: "F:/ACUD AI Data Lab/Project/app_data"
-  private: "F:/ACUD AI Data Lab/Project/private"
+  # Relative to the repository root, never the terminal's working directory.
+  # SPACEEYE_DATA_ROOT can relocate all three folders together on any device.
+  real_data: "../Project/real_data"
+  app_data: "../Project/app_data"
+  private: "../Project/private"
 
 # source files, relative to paths.real_data
 sources:
