@@ -109,8 +109,9 @@ def main() -> int:
     write_real({"quality_checks_log": qlog.assign(run_id=run_id, computed_at=CFG["computed_on"]), "run_log": log_df})
     write_duckdb()
     m = manifest()
+    final_scan = gates.final_no_names_scan()
     print(f"run_id {run_id}; {len(m)} files hashed; manifest sha {hashlib.sha256(m.to_csv(index=False).encode()).hexdigest()[:16]}")
-    return 0 if stop.empty else 1
+    return 0 if stop.empty and final_scan["status"] == "PASS" else 1
 
 
 if __name__ == "__main__":

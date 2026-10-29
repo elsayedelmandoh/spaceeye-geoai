@@ -14,18 +14,19 @@ import pandas as pd
 from src.pipeline.build_real import ORIGINS
 from src.pipeline.common import (
     APP,
+    BASE_DIR,
     CFG,
     N_Q,
     PRIVATE,
-    months_between,
-    qend,
     qindex,
+    qindex_of,
+    qlabel,
     src,
 )
 from src.pipeline.kpis import KPI_ORIGINS
 
 ACCEPTED = ("CONFIRMED", "CONFIRMED_MINOR_FIX", "AUDIT_LIVE_CHECKED")
-TEXT_EXT = {".csv", ".json", ".geojson", ".md", ".txt", ".yaml", ".yml"}
+TEXT_EXT = {".csv", ".json", ".geojson", ".md", ".txt", ".yaml", ".yml", ".html", ".htm", ".xml"}
 AR = str.maketrans({"أ": "ا", "إ": "ا", "آ": "ا", "ى": "ي", "ة": "ه", "ـ": "", "ً": "", "ٌ": "", "ٍ": "", "َ": "", "ُ": "", "ِ": "", "ّ": "", "ْ": ""})
 
 
@@ -34,7 +35,7 @@ def _row(gate, dimension, rule, threshold, owner, on_fail, value, ok, impact, fl
     return {"gate": gate, "dimension": dimension, "rule": rule, "threshold": threshold, "owner": owner, "on_failure": on_fail, "value": str(value), "status": status, "impact": impact}
 
 
-# ---- the nine gates ---------------------------------------------------------------------------------------------------------------------
+# ---- the ten data gates ------------------------------------------------------------------------------------------------------------------
 
 def g_source(stm: pd.DataFrame) -> dict:
     excl = pd.read_csv(src("facts") / "records_excluded_misinterpreted.csv", encoding="utf-8-sig").record_id
@@ -48,7 +49,7 @@ def g_completeness(sat: pd.DataFrame, asof: int) -> dict:
     now = sat[sat.qi == asof]
     share = round(100 * sat.K4.mean(), 1)
     return _row("completeness", "Completeness", ">= 6 dynamic world images in the quarter", "all compounds at the as-of quarter", "R3", "flag: not assessable",
-                f"{int(now.K4.sum())} of {len(now)} assessable at {CFG['asof']}; {share}% of all compound-quarters", bool(now.K4.all()), "a compound below the minimum gets no level")
+                f"{int(now.K4.sum())} of {len(now)} assessable at {CFG['asof']}; {share}% of all compound-quarters", len(now) > 0 and bool(now.K4.all()), "a compound below the minimum gets no level")
 
 
 def g_validity(t: dict, kpi: pd.DataFrame) -> dict:
@@ -72,17 +73,17 @@ def g_consistency(t: dict, kpi: pd.DataFrame) -> dict:
     codes = set(t["compounds"].code)
     n = len(codes)
     stray = sum(len(set(df.code) - codes) for df in (t["sat_quarterly"], t["sat_yearly"], t["statements"], t["eval_outcomes"], kpi))
-    counts_ok = (len(t["sat_quarterly"]) == n * N_Q and len(t["sat_yearly"]) == n * 11
+    counts_ok = (len(t["sat_quarterly"]) == n * N_Q and len(t["sat_yearly"]) == n * len(range(2016, 2027))
                  and len(kpi) == n * (qindex(CFG["last_quarter"]) - qindex(CFG["backtest"]["first_quarter"]) + 1))
     return _row("consistency", "Consistency", "every compound_id is in the register; row counts equal after each join", "0 stray codes, counts as expected", "R1", "stop",
                 f"{stray} stray codes; counts ok={counts_ok}", stray == 0 and counts_ok, "a join that changes rows silently changes every KPI", "STOP")
 
 
 def g_freshness(sat: pd.DataFrame) -> dict:
-    last = int(sat.dropna(subset=["built_prob_mean"]).qi.max())
-    lag = months_between(qend(last), pd.Timestamp(CFG["computed_on"]))
-    return _row("freshness", "Freshness", "last quarter is at most one quarter before the computation date", "<= 3 months", "R3", "flag: stale",
-                f"last quarter {CFG['last_quarter']}, {lag} months before {CFG['computed_on']}", lag <= 3, "stale data means levels describe the past")
+    last_qi = int(sat.dropna(subset=["built_prob_mean"]).qi.max())
+    lag_quarters = qindex_of(pd.Timestamp(CFG["computed_on"])) - last_qi
+    return _row("freshness", "Freshness", "last quarter is at most one quarter before the computation date", "<= 1 quarter", "R3", "flag: stale",
+                f"last quarter {qlabel(last_qi)}, {lag_quarters} quarter(s) before {CFG['computed_on']}", lag_quarters <= 1, "stale data means levels describe the past")
 
 
 def g_separation(t: dict, kpi: pd.DataFrame) -> dict:
@@ -99,7 +100,7 @@ def g_separation(t: dict, kpi: pd.DataFrame) -> dict:
 def g_data_or_city(kpi: pd.DataFrame) -> dict:
     ok = kpi[kpi.level.notna()]
     share = ok.groupby("quarter").K2.apply(lambda s: (s == 1).mean())
-    hits = list(share[share > 0.30].index)
+    hits = list(share[share > CFG["quality"]["data_or_city_share"]].index)
     return _row("data_or_city", "Accuracy", "if more than 30% of compounds move to 'no change' in the same quarter it is an event in the source", "<= 30%",
                 "R4", "flag the quarter and review", f"{len(hits)} quarters flagged: {', '.join(hits) if hits else 'none'}", not hits, "flagged quarters may be a data event, not the city")
 
@@ -107,8 +108,8 @@ def g_data_or_city(kpi: pd.DataFrame) -> dict:
 def g_stuck(sat: pd.DataFrame) -> dict:
     n = 0
     for _, g in sat.sort_values("qi").groupby("code"):
-        v = g.built_prob_mean.dropna().round(12)
-        n += int(((v == v.shift(1)) & (v == v.shift(2)) & (v == v.shift(3))).sum())
+        v = g.built_prob_mean.astype("Float64").round(12)
+        n += int(((v == v.shift(1)) & (v == v.shift(2)) & (v == v.shift(3))).fillna(False).sum())
     return _row("stuck_series", "Accuracy", "a value exactly identical for 4 consecutive quarters", "0", "R3", "flag and review", f"{n} stuck points", n == 0, "a frozen series reads as 'no change'")
 
 
@@ -164,7 +165,11 @@ def _file_texts(path):
                 yield "\n".join(df[c].dropna().astype(str).unique())
         con.close()
     else:
-        yield path.read_bytes().decode("latin-1")
+        raw = path.read_bytes()
+        try:
+            yield raw.decode("utf-8")
+        except UnicodeDecodeError:
+            yield raw.decode("latin-1")
 
 
 def generator_files() -> list:
@@ -173,8 +178,9 @@ def generator_files() -> list:
     return [PRIVATE / n for n in names if (PRIVATE / n).exists()] + sorted((PRIVATE / "dictionaries").glob("*.md"))
 
 
-def g_no_names(root=APP, extra=None) -> dict:
+def g_no_names(root=None, extra=None) -> dict:
     """scan every file under `root` plus the generator's private tables (answer key, defects log, dictionaries)."""
+    root = APP if root is None else root
     pats = _patterns(forbidden_names())
     extra = generator_files() if extra is None else extra
     files = [(p, str(p.relative_to(root))) for p in sorted(root.rglob("*")) if p.is_file()] + [(p, "private/" + p.name) for p in extra]
@@ -183,33 +189,28 @@ def g_no_names(root=APP, extra=None) -> dict:
         n = sum(_hits(chunk, pats) for chunk in _file_texts(p))
         if n:
             bad[label] = n
+    ok = bool(pats) and not bad
     return _row("no_names", "Privacy", "no compound or developer name (english or arabic) in any output, generator tables included", "0 files with a match", "R1", "stop",
-                f"{len(pats)} patterns, {len(files)} files; files with a match: {', '.join(bad) if bad else 'none'}", not bad, "names appear only in the backtest slide, never in data", "STOP")
+                f"{len(pats)} patterns, {len(files)} files; files with a match: {', '.join(bad) if bad else 'none'}", ok, "names appear only in the backtest slide, never in data", "STOP")
 
 
-def final_no_names_scan(run_id: str = "") -> dict:
-    """H1: scan the final exports (app_data + repo data/ + docs/deliverables/quality-report.md) and raise if any file carries a name; called from team_run.main after sources() and from run_all after manifest()."""
-    from pathlib import Path
-    base = Path(__file__).resolve().parents[3]
-    extra = []
-    for p in (base / "data").rglob("*"):
-        if p.is_file(): extra.append(str(p.resolve()))
-    extra.append(str((base / "docs" / "deliverables" / "quality-report.md").resolve()))
-    if (base / "app_data").exists():
-        for p in (base / "app_data").rglob("*"):
-            if p.is_file(): extra.append(str(p.resolve()))
-    extra_files = sorted({p for p in extra if Path(p).exists()})
-    result = g_no_names(extra=extra_files)
-    return result
+def final_no_names_scan() -> dict:
+    """Scan final app data, private generator tables, repository data, and the quality report."""
+    repo_files = sorted(path for path in (BASE_DIR / "data").rglob("*") if path.is_file())
+    quality_report = BASE_DIR / "docs" / "deliverables" / "quality-report.md"
+    extra = generator_files() + repo_files
+    if quality_report.exists():
+        extra.append(quality_report)
+    return g_no_names(extra=extra)
 
 
-# ---- extra check (not one of the nine) ---------------------------------------------------------------------------------------------------
+# ---- extra check (not one of the ten data gates) ---------------------------------------------------------------------------------------
 
 def c_veg_pull() -> dict:
     """the new pull must reproduce the audited vegetation rows of the 3 compounds that have them."""
     aud = pd.read_csv(APP / "raw" / "veg_audited.csv").merge(pd.read_csv(APP / "raw" / "veg_pulled.csv"), on=["code", "year"], suffixes=("", "_p"))
     d = float((aud.veg_share - aud.veg_share_p).abs().max())
-    return _row("veg_pull_check", "Accuracy", "pulled vegetation share equals the audited file on the 3 shared compounds", "max diff <= 0.02", "R3", "flag", f"max diff {d:.4f} on {len(aud)} rows", d <= 0.02,
+    return _row("veg_pull_check", "Accuracy", "pulled vegetation share equals the audited file on the 3 shared compounds", "max diff <= 0.02", "R3", "flag", f"max diff {d:.4f} on {len(aud)} rows", d <= CFG["quality"]["veg_pull_max_diff"],
                 "vegetation drives the may-be-complete flag")
 
 

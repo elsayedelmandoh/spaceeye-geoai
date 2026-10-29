@@ -37,6 +37,11 @@ sources:
 
 heights_max_year: 2024
 
+# fixed quality-gate thresholds (same values as the pre-existing checks)
+quality:
+  data_or_city_share: 0.30
+  veg_pull_max_diff: 0.02
+
 # indicators
 k1_active: 0.02            # dynamic world 12-month change that counts as growth
 n_images_min: 6            # K4: dynamic world images in the quarter
