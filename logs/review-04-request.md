@@ -21,10 +21,17 @@ Prepared by the task owner on 30 October 2026 for the board reviewer (elsayed). 
 | T-AH-18 roof uniformity | Owner decision: test or cut | Spec section 13 puts it first in the cut order ("cut at D4 anyway"). Proposed: cut, recorded on the board; no test is run. |
 | T-AH-19 code freeze | Tag after the v6 and imagery merges | Tag `main` after both PRs merge. `make run` (`team_run --full`) is the one run command. |
 
-## Owner decisions still open from review-03 (proposed answers, for ahmed to confirm)
+## Owner decisions from review-03: confirmed by ahmed on 30 October 2026
 19. **Canonical quality log:** `data_completion/quality_checks.csv` for the report, with the Track A record kept in `real/quality_checks_log.parquet`. Both already carry the same run id.
 20. **State after a STOP:** keep the files and write no manifest. A STOP returns a non-zero exit and the release steps refuse to package.
 21. **Backtest explanations:** keep the shared template and add one line per case from its own numbers (assessable quarters, first alert). No new criterion.
 22. **Frozen-clock check:** accept "data cut, final model" and document it. Refitting A per quarter is out of scope.
 23. **Two-run check:** keep it in one process for now, and add the code hash to `run_id` only at the next accepted bundle (this changes recorded run ids).
-24. **2019Q2 data_or_city FLAG:** the owner reviews the quarter's Dynamic World image counts before deciding. Until then it stays visible as FLAG and is never turned into PASS.
+24. **2019Q2 data_or_city FLAG:** checked. Dynamic World image counts are normal: the median per compound is 10 in 2019Q1, 14 in 2019Q2 and 19 in 2019Q3, all above the minimum of 6. Only one compound had a level in 2019Q2, so a single compound with K2 = 1 makes the share 1 of 1. The flag comes from that one-compound denominator, not from a source event or a city event. It stays visible as FLAG with this note, and the gate is not changed after seeing it.
+
+Implemented on `fix/data-v6`:
+- 20: `run_all` writes no manifest on a STOP and removes an old one; `bundle` refuses to package without a manifest.
+- 21: the backtest report has a "This case" column built from each case's own quarters.
+- 22: the docstring and the technical doc state "data cut, final model".
+- 19, 23 and 24: recorded here.
+- T-AH-18: first proposed as a cut; the owner then asked for the test, with radar added. It was run and failed (roof 0.495, radar 0.551, both 0.543 against 0.75); the board records it as a failed experiment.

@@ -16,13 +16,17 @@ The styling is presentation only; all data, gate and track logic is separate.
 
 from __future__ import annotations
 
+import json
 import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
 
 import pandas as pd
+import pydeck as pdk
 import streamlit as st
+
+from src.dashboard.ops_visits import render_ops_visits_form  # T-NA-04
 
 # --------------------------------------------------------------------------- #
 # Configuration
@@ -341,38 +345,216 @@ def render_banner(track: Track) -> None:
         )
 
 
-def render_map_slot(track: Track) -> None:
-    """Map is Track A only. Track B must never draw generated numbers on a map."""
-    if track.generated:
-        return  # hidden completely, no placeholder
-    section_title("🗺️", "Priority map")
-    boundaries = APP_DATA / "real" / "compound_boundaries.geojson"
-    if boundaries.exists():
-        st.info("Map slot ready (rendered in T-NA-02 from compound_boundaries.geojson).")
+# --------------------------------------------------------------------------- #
+# Screen 1 data (T-NA-02): boundaries + latest-quarter KPIs (stored files only)
+# --------------------------------------------------------------------------- #
+
+LEVELS: dict[int, tuple[str, str]] = {
+    1: ("Inspect now", "#EF4444"),
+    2: ("Inspect this cycle", "#F97316"),
+    3: ("Document review", "#EAB308"),
+    4: ("Routine", "#22C55E"),
+}
+NOT_ASSESSABLE: tuple[str, str] = ("Not assessable", "#6B7280")
+
+REQUIRED_KPI_COLUMNS = {"code", "quarter", "level"}
+
+
+def _level_style(level: object) -> tuple[str, str]:
+    try:
+        return LEVELS[int(level)]
+    except (TypeError, ValueError, KeyError):
+        return NOT_ASSESSABLE
+
+
+def level_word(level: object) -> str:
+    return _level_style(level)[0]
+
+
+def _hex_to_rgba(hex_color: str, alpha: int = 175) -> list[int]:
+    h = hex_color.lstrip("#")
+    return [int(h[i:i + 2], 16) for i in (0, 2, 4)] + [alpha]
+
+
+@st.cache_data(show_spinner=False)
+def _read_boundaries(path_str: str) -> tuple[dict, list[str]]:
+    data = json.loads(Path(path_str).read_text(encoding="utf-8"))
+    features, bad_codes = [], []
+    for feat in data.get("features", []):
+        props = feat.get("properties") or {}
+        code = next((str(v) for k, v in props.items() if k.lower() in CODE_COLUMNS), None)
+        if code is None or not CODE_PATTERN.match(code):
+            bad_codes.append(str(code))
+            continue
+        features.append({
+            "type": "Feature",
+            "geometry": feat.get("geometry"),
+            "properties": {"code": code},
+        })
+    return {"type": "FeatureCollection", "features": features}, bad_codes
+
+
+def load_boundaries() -> dict | None:
+    path = APP_DATA / "real" / "compound_boundaries.geojson"
+    if not path.exists():
+        return None
+    geojson, bad_codes = _read_boundaries(str(path))
+    if bad_codes:
+        st.error(
+            f"no_names gate: compound_boundaries.geojson has {len(bad_codes)} "
+            "feature(s) without a valid code. Display stopped."
+        )
+        st.stop()
+    return geojson
+
+
+def load_latest_kpis() -> tuple[pd.DataFrame, str] | None:
+    kpis = load_table("real/kpi_values.parquet", TRACK_A)
+    if kpis is None or kpis.empty:
+        return None
+    missing = REQUIRED_KPI_COLUMNS - set(kpis.columns)
+    if missing:
+        st.error(f"kpi_values.parquet is missing column(s): {', '.join(sorted(missing))}.")
+        return None
+    asof = kpis["quarter"].max()
+    return kpis[kpis["quarter"] == asof].copy(), str(asof)
+
+
+def build_cycle_list(latest_df: pd.DataFrame) -> pd.DataFrame:
+    df = latest_df.copy()
+    df["level_word"] = df["level"].map(level_word)
+    if "cycle_rank" in df.columns:
+        df = df[df["cycle_rank"].notna()].sort_values("cycle_rank")
     else:
-        st.warning("real/compound_boundaries.geojson not found yet (hand-off from ahmed, D2).")
+        df = df[df["level"].isin([1, 2, 3])].sort_values(["level", "code"])
+    wanted = ("cycle_rank", "code", "level_word", "reason_ar", "K2", "K3", "K6")
+    return df[[c for c in wanted if c in df.columns]].reset_index(drop=True)
 
 
-# --------------------------------------------------------------------------- #
-# Screens (skeletons; content arrives in T-NA-02 .. T-NA-07)
-# --------------------------------------------------------------------------- #
+def _geo_points(geometry: dict | None) -> list[list[float]]:
+    points: list[list[float]] = []
+
+    def walk(node: object) -> None:
+        if isinstance(node, (list, tuple)) and node:
+            if isinstance(node[0], (int, float)):
+                points.append([float(node[0]), float(node[1])])
+            else:
+                for child in node:
+                    walk(child)
+
+    if geometry:
+        walk(geometry.get("coordinates"))
+    return points
+
+
+def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None) -> None:
+    if track.generated:
+        return
+    section_title("🗺️", "Priority map")
+
+    geojson = load_boundaries()
+    if geojson is None:
+        st.warning("real/compound_boundaries.geojson not found yet.")
+        return
+    if latest is None:
+        st.info("Waiting for real/kpi_values.parquet to colour the boundaries by level.")
+        return
+
+    latest_df, asof = latest
+    levels = dict(zip(latest_df["code"], latest_df["level"]))
+
+    features, points = [], []
+    counts = {word: 0 for word, _ in [*LEVELS.values(), NOT_ASSESSABLE]}
+    for feat in geojson["features"]:
+        code = feat["properties"]["code"]
+        word, color = _level_style(levels.get(code))
+        counts[word] += 1
+        points += _geo_points(feat["geometry"])
+        features.append({
+            "type": "Feature",
+            "geometry": feat["geometry"],
+            "properties": {"code": code, "level_word": word,
+                           "fill_color": _hex_to_rgba(color)},
+        })
+
+    with st.container(border=True):
+        if not features:
+            st.info("No R7 boundaries in the file.")
+            return
+        layer = pdk.Layer(
+            "GeoJsonLayer",
+            data={"type": "FeatureCollection", "features": features},
+            get_fill_color="properties.fill_color",
+            get_line_color=[255, 255, 255, 220],
+            line_width_min_pixels=1,
+            stroked=True, filled=True, pickable=True,
+        )
+        view = pdk.data_utils.compute_view(points, view_proportion=0.9) if points else None
+        st.pydeck_chart(
+            pdk.Deck(
+                layers=[layer],
+                initial_view_state=view,
+                map_style="dark",
+                tooltip={"text": "{code}\n{level_word}"},
+            ),
+            use_container_width=True,
+        )
+        legend = "".join(
+            f'<span class="se-pill" style="border-color:{color};margin-right:0.4rem">'
+            f'<span style="color:{color}">●</span> {word} · {counts[word]}</span>'
+            for word, color in [*LEVELS.values(), NOT_ASSESSABLE]
+        )
+        st.markdown(legend, unsafe_allow_html=True)
+        st.caption(f"{ORIGIN_DERIVED} derived · as of {asof} · grey = not assessable")
+
+
+def render_cycle_list(latest: tuple[pd.DataFrame, str] | None) -> None:
+    section_title("📋", "Cycle list")
+    if latest is None:
+        st.info("Waiting for real/kpi_values.parquet.")
+        return
+
+    latest_df, asof = latest
+    cycle = build_cycle_list(latest_df)
+    if cycle.empty:
+        st.info(f"No compounds in the cycle list for {asof}.")
+        return
+
+    export = cycle.rename(columns={"level_word": "level"})
+    with st.container(border=True):
+        st.dataframe(
+            export,
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "cycle_rank": st.column_config.NumberColumn("Rank", width="small"),
+                "code": st.column_config.TextColumn("Code", width="small"),
+                "level": st.column_config.TextColumn("Priority level", width="medium"),
+                "reason_ar": st.column_config.TextColumn("السبب (Arabic reason)", width="large"),
+            },
+        )
+        left, right = st.columns([3, 1])
+        left.caption(f"{ORIGIN_DERIVED} derived · {len(export)} compound(s) · as of {asof}")
+        right.download_button(
+            "⬇️ Download CSV",
+            data=export.to_csv(index=False).encode("utf-8-sig"),
+            file_name=f"cycle_list_{asof}.csv",
+            mime="text/csv",
+            use_container_width=True,
+        )
+
 
 def screen_priority_map(track: Track) -> None:
     page_header("🛰️", "Priority map", "Whom should the committee visit first?")
-    render_map_slot(track)
-
-    section_title("📋", "Cycle list")
-    kpis = load_table("real/kpi_values.parquet", TRACK_A)  # real/derived in both tracks
-    if kpis is None:
-        st.info("Waiting for real/kpi_values.parquet. Cycle list appears here (T-NA-02).")
-    else:
-        st.dataframe(kpis.head(10), use_container_width=True, hide_index=True)
+    latest = load_latest_kpis()
+    render_map_slot(track, latest)
+    render_cycle_list(latest)
 
     if track.generated:
         section_title("🧠", "Classifier probabilities")
         preds = load_table("ml/predictions.parquet", track)
         if preds is None:
-            st.info("Waiting for ml/predictions.parquet (hand-off, D3).")
+            st.info("Waiting for ml/predictions.parquet.")
         else:
             st.dataframe(tag_generated_columns(preds.head(10)),
                          use_container_width=True, hide_index=True)
@@ -380,14 +562,17 @@ def screen_priority_map(track: Track) -> None:
 
 def screen_compound_file(track: Track) -> None:
     page_header("🗂️", "Compound file", "Why this one? Evidence behind the priority level.")
-    st.info("Skeleton. Curves, images, K2-K6 and visit form arrive in T-NA-03 / T-NA-04.")
+    st.info("Skeleton. Curves, images and K2-K6 arrive in T-NA-03.")
     if track.generated:
         st.caption(f"Track B adds binary probabilities and K5 in EGP, always tagged {ORIGIN_GENERATED}.")
+
+    section_title("📝", "Visit form")
+    render_ops_visits_form()
 
 
 def screen_backtest(track: Track) -> None:
     page_header("⏱️", "Would it have warned?", "Backtest and early-warning evidence.")
-    st.info("Skeleton. Frozen-clock table and recall@N arrive in T-NA-05.")
+    st.info("Skeleton.")
 
 
 def screen_data_trust(track: Track) -> None:
@@ -397,17 +582,15 @@ def screen_data_trust(track: Track) -> None:
             f"**Colour key** &nbsp; {ORIGIN_REAL} real · {ORIGIN_DERIVED} derived · "
             f"{ORIGIN_GENERATED} generated"
         )
-    st.info("Skeleton. Gates, coverage and the 1,009/1,026 facts arrive in T-NA-06.")
+    st.info("Skeleton.")
 
 
 def screen_what_if(track: Track) -> None:
     page_header("🧪", "What if?", "Compound-level twin: who moves up if conditions change?")
     if not track.generated:
-        st.warning(
-            "Scenarios use generated data. Switch to Track B in the sidebar to open them."
-        )
+        st.warning("Scenarios use generated data. Switch to Track B in the sidebar.")
         return
-    st.info("Skeleton. Scenarios S1-S3 arrive in T-NA-07.")
+    st.info("Skeleton.")
 
 
 SCREEN_FUNCTIONS = {
@@ -419,12 +602,7 @@ SCREEN_FUNCTIONS = {
 }
 
 
-# --------------------------------------------------------------------------- #
-# Sidebar + entry point
-# --------------------------------------------------------------------------- #
-
 def render_sidebar() -> tuple[Track, str]:
-    # Brand block
     st.sidebar.markdown(
         """
         <div class="se-brand">
@@ -437,7 +615,6 @@ def render_sidebar() -> tuple[Track, str]:
     )
     st.sidebar.divider()
 
-    # Track switch is the first control; Track A is index 0 = default.
     st.sidebar.markdown('<div class="se-side-label">Data track</div>', unsafe_allow_html=True)
     label = st.sidebar.selectbox(
         "Track",
@@ -445,7 +622,6 @@ def render_sidebar() -> tuple[Track, str]:
         index=0,
         key="track_label",
         label_visibility="collapsed",
-        help="Track A: public/derived data. Track B: adds generated ACUD-style data.",
     )
     track = TRACKS[label]
 
@@ -478,22 +654,9 @@ def main() -> None:
     )
     inject_css()
     track, screen = render_sidebar()
-    render_banner(track)  # fixed orange banner on every screen in Track B
+    render_banner(track)
     SCREEN_FUNCTIONS[screen](track)
 
-def main() -> None:
-    # Temporary Streamlit page configuration for this branch
-    st.set_page_config(
-        page_title="SpaceEye GeoAI - Ops Visits",
-        layout="wide"
-    )
-    
-    st.title("🌍 SpaceEye GeoAI Dashboard")
-    
-    st.markdown("---")
-    
-    # Render the operations visits form
-    render_ops_visits_form()
 
 if __name__ == "__main__":
     main()
