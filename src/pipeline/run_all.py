@@ -6,6 +6,7 @@ output: app_data/real/*.parquet, compound_boundaries.geojson, spaceeye.duckdb, m
 
 import hashlib
 import shutil
+from dataclasses import dataclass
 
 import duckdb
 import pandas as pd
@@ -55,6 +56,32 @@ def manifest() -> pd.DataFrame:
     return out
 
 
+@dataclass(frozen=True)
+class _BacktestInputs:
+    tables: dict[str, pd.DataFrame]
+    model: object
+    threshold: float
+    mode: str
+    backtest_model: object
+    backtest_threshold: float
+    leak: pd.DataFrame
+    kpi: pd.DataFrame
+    run_id: str
+
+
+def _backtest(inputs: _BacktestInputs) -> tuple[int, str]:
+    raw_sat = inputs.tables["sat_quarterly"]
+    sat_bt = raw_sat.merge(activity.score(raw_sat, inputs.backtest_model, inputs.backtest_threshold, mode=inputs.mode)[["code", "qi", "activity_prob", "active"]], on=["code", "qi"], how="left")
+    kpi_bt = kpis.kpi_values(sat_bt, inputs.tables["compounds"], inputs.tables["statements"], inputs.tables["sat_yearly"], inputs.run_id)
+    cases, summary = backtest_check.run(kpi_bt, inputs.tables["eval_outcomes"])
+    summary["activity_variant"] = {"mode": inputs.mode, "plots_left_out": len(inputs.leak), "threshold": inputs.backtest_threshold}
+    summary["frozen_clock_check"] = backtest_check.frozen_clock_check(inputs.model, inputs.threshold, inputs.mode, inputs.tables["sat_quarterly"], inputs.kpi, inputs.tables["compounds"], inputs.tables["statements"], inputs.tables["sat_yearly"], inputs.run_id)
+    backtest_check.save(cases, summary)
+    kpi_bt.to_parquet(APP / "backtest" / "kpi_values_backtest.parquet", index=False)
+    detail = f"after start {summary['after_start_reading']['n']}/{summary['n_cases']}, point in time {summary['point_in_time_reading']['n']}/{summary['n_cases']}, literal {summary['literal_reading']['n']}/{summary['n_cases']}; frozen clock {summary['frozen_clock_check']}"
+    return len(cases), detail
+
+
 def main() -> int:
     log = []
 
@@ -87,16 +114,8 @@ def main() -> int:
     t["sat_quarterly"] = kpis.add_k2(sat, t["statements"])
     kpi = kpis.kpi_values(t["sat_quarterly"], t["compounds"], t["statements"], t["sat_yearly"], run_id)
     step("kpis", len(kpi), f"asof {CFG['asof']}: " + ", ".join(f"{k}: {v}" for k, v in kpi[kpi.quarter == CFG["asof"]].level_label.value_counts().sort_index().items()))
-
-    sat_bt = raw_sat.merge(activity.score(raw_sat, model_bt, thr_bt, mode=mode)[["code", "qi", "activity_prob", "active"]], on=["code", "qi"], how="left")
-    kpi_bt = kpis.kpi_values(sat_bt, t["compounds"], t["statements"], t["sat_yearly"], run_id)
-    cases, summary = backtest_check.run(kpi_bt, t["eval_outcomes"])
-    summary["activity_variant"] = {"mode": mode, "plots_left_out": len(leak), "threshold": thr_bt}
-    summary["frozen_clock_check"] = backtest_check.frozen_clock_check(model, thr, mode, t["sat_quarterly"], kpi, t["compounds"], t["statements"], t["sat_yearly"], run_id)
-    backtest_check.save(cases, summary)
-    kpi_bt.to_parquet(APP / "backtest" / "kpi_values_backtest.parquet", index=False)
-    step("backtest", len(cases), f"after start {summary['after_start_reading']['n']}/{summary['n_cases']}, point in time {summary['point_in_time_reading']['n']}/{summary['n_cases']}, literal {summary['literal_reading']['n']}/{summary['n_cases']}; "
-         f"frozen clock {summary['frozen_clock_check']}")
+    backtest_rows, backtest_detail = _backtest(_BacktestInputs(t, model, thr, mode, model_bt, thr_bt, leak, kpi, run_id))
+    step("backtest", backtest_rows, backtest_detail)
 
     out = {**t, "kpi_values": kpi}
     write_real(out)
@@ -109,8 +128,9 @@ def main() -> int:
     write_real({"quality_checks_log": qlog.assign(run_id=run_id, computed_at=CFG["computed_on"]), "run_log": log_df})
     write_duckdb()
     m = manifest()
+    final_scan = gates.final_no_names_scan()
     print(f"run_id {run_id}; {len(m)} files hashed; manifest sha {hashlib.sha256(m.to_csv(index=False).encode()).hexdigest()[:16]}")
-    return 0 if stop.empty else 1
+    return 0 if stop.empty and final_scan["status"] == "PASS" else 1
 
 
 if __name__ == "__main__":

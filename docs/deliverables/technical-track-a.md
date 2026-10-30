@@ -4,9 +4,9 @@ Task T-AH-20. Current prepared-data scope: 12 coded R7 compounds, through 2026Q3
 
 ## Flow and rules
 
-Configured public-source caches feed compound boundaries/register, published statements, quarterly satellite observations and annual vegetation/height. `src/pipeline/kpis.py` derives activity, K2–K6, priorities, English reasons and the capacity-limited cycle list. Quality gates determine whether delivery may proceed. Publication dates limit what is known at each historical cutoff.
+Configured public-source caches feed compound boundaries/register, published statements, quarterly satellite observations and annual vegetation/height. `src/pipeline/kpis.py` derives activity, K2–K6, priorities, English and Arabic reasons (`reason`, `reason_ar`) and the capacity-limited cycle list. Quality gates determine whether delivery may proceed. Publication dates limit what is known at each historical cutoff.
 
-Separate observed start requires four assessable active quarters or published delivery. Legacy start remains for K2 comparability. K6 uses the first known launch/promise publication, with thresholds 13–24 and above 24 months; insufficient evidence stays null. K5 is a union of screening months, not a legal finding. Priorities use the worst applicable signal, the completion cap and data assessability. Capacity 4 selects eligible levels 1–3 by level, descending K2, descending K3, then code. Height is context only: OBT 2016–2023 and approved v4 estimate for 2024; later annual heights remain unknown.
+Separate observed start requires four assessable active quarters or published delivery. Legacy start remains for K2 comparability. K6 uses the first known launch/promise publication, with thresholds 13–24 and above 24 months; insufficient evidence stays null. K5 is a union of screening months, not a legal finding. Priorities use the worst applicable signal, the completion cap and data assessability. Capacity 4 selects eligible levels 1–3 by level, descending K2, descending K3, then code. Height is context only: OBT where available (none for 2016-2019; 5-11 of 12 compounds per year for 2020-2023) and the v4 estimate for 2024 (10 of 12); see data/ANNUAL_CONTEXT_COVERAGE.csv. Later annual heights remain unknown.
 
 Generated finance, complaints, fine assumptions and forward scenarios stay separate from public observations. The financial-priority scenarios are hypothetical. Read the [implemented specification](../../data/IMPLEMENTED_DATA_SPEC.md) and [dataset contract](../../data/DATASET_CONTRACT.md) for field definitions and limits.
 
@@ -19,6 +19,10 @@ uv run --locked --offline python -m src.pipeline.component_data
 uv run --locked --offline python -m src.pipeline.source_catalog
 uv run --locked --offline python -m src.pipeline.quality_report
 ```
+
+The quality report is built from `app_data/data_completion/quality_checks.csv`, the ten-gate run of `src.pipeline.complete_data`; `app_data/real/quality_checks_log.parquet` remains the Track A run's own record and hand-off contract file, with the same run id linking the two records.
+
+On WSL, mount F: at `/mnt/f` first (`sudo mkdir -p /mnt/f && sudo mount -t drvfs F: /mnt/f`).
 
 If Make is installed, `make data` executes those four preparation steps without fitting. `make current` runs `python -m src.pipeline.team_run`, including the current small model diagnostics. `make run` runs `python -m src.pipeline.team_run --full`, first rebuilding/fitting Track A. All need external caches/private inputs configured in `configs/data.yaml`; none downloads new satellite imagery. Teammates using the ready-data ZIP do not need these source inputs or commands.
 

@@ -1,0 +1,178 @@
+# KPI definitions for SpaceEye R7 (documentation config, T-SA-02).
+# Source of truth for numeric thresholds is configs/data.yaml; this file must match it.
+# Spec: docs/requirements/01-specs.md section 2.
+meta:
+  scope: R7
+  compounds: 12
+  reporting_quarter: 2026Q3
+  cycle_capacity: 4
+  eligible_levels: [1, 2, 3]
+  origin_key: { real: green, derived: blue, generated: orange }
+  tags_note: "TODO: 2 tags per kpi_reference.csv (file not in repo; asked reviewer)"
+
+kpis:
+  A:
+    name: Activity score
+    origin: derived
+    track: A
+    tags: TODO
+    fields:
+      purpose: Is it building?
+      unit: Probability 0-1
+      source: Dynamic World + Sentinel-2
+      frequency: Quarterly
+      owner_role: Spatial data analyst
+      baseline: K1 (DW change alone)
+      target: Set by owner
+      thresholds: Model threshold (out-of-fold)
+      leading_lagging: Leading
+      international_axis: Urban planning
+    note: Probability that the compound is building this quarter. It does not measure completion or finishing.
+
+  K2:
+    name: Quarters with no activity
+    origin: derived
+    track: A
+    tags: TODO
+    fields:
+      purpose: For how long has it not been?
+      unit: Quarters
+      source: A
+      frequency: Quarterly
+      owner_role: Spatial data analyst
+      baseline: "0"
+      target: "0-1" # copied from spec; confirm meaning with reviewer
+      thresholds: "2 / 4"
+      leading_lagging: Leading
+      international_axis: Urban planning
+    thresholds_numeric: { l1_min: 4, l2_min: 2 } # 2-3 -> level 2, 1 -> level 3
+    note: Counted only after construction started. Unknown never raises a level.
+
+  K3:
+    name: Handover clock
+    origin: real
+    track: A
+    tags: TODO
+    fields:
+      purpose: Has it passed its first commitment?
+      unit: Months
+      source: Statements + Decree 2184
+      frequency: Per statement / quarter
+      owner_role: Developer follow-up officer
+      baseline: First announced date
+      target: "<= 0"
+      thresholds: "12 / 24"
+      leading_lagging: Lagging
+      international_axis: Housing
+    thresholds_numeric: { l1_gt: 24, l2_min: 13 } # 13-24 -> level 2, 1-12 -> level 3
+    note: Measured from the FIRST announced handover date; later promises never reset it. Nearest month (days / 30.44).
+
+  K4:
+    name: Assessability
+    origin: real
+    track: A
+    tags: TODO
+    fields:
+      purpose: Can we trust the signal?
+      unit: Yes/No
+      source: DW + boundaries
+      frequency: Quarterly
+      owner_role: Data engineer
+      baseline: "-"
+      target: "100%"
+      thresholds: ">= 6 images"
+      leading_lagging: Guard
+      international_axis: Governance/data
+    thresholds_numeric: { min_images: 6 }
+    note: Needs at least 6 Dynamic World images in the quarter plus a boundary with a reviewed confidence label. No numeric confidence threshold is defined. If it fails the result is Not assessable.
+
+  K5:
+    name: Fine exposure (policy screening months)
+    origin: derived
+    track: A (months) / B (EGP, generated only)
+    tags: TODO
+    fields:
+      purpose: How long has it been fine-eligible?
+      unit: Months (real); EGP (generated only)
+      source: K3, K6 + contract fine rate (assumed)
+      frequency: Quarterly
+      owner_role: Developer follow-up officer
+      baseline: "0"
+      target: "0"
+      thresholds: Context, no level
+      leading_lagging: Lagging
+      international_axis: Governance/data
+    illustrative_assumptions: # mirrors configs/data.yaml fines block
+      assumption: true
+      fine_rate_month: 0.01
+      land_price_egp_m2: [2500, 12000]
+      allocation_lead_months: [6, 18]
+    note: Illustrative policy screening only, not an assessed legal fine. It never sets a priority level. K5 uses calendar months.
+
+  K6:
+    name: Never-started clock
+    origin: derived
+    track: A
+    tags: TODO
+    fields:
+      purpose: Is land held without building?
+      unit: Months
+      source: A + statements
+      frequency: Quarterly
+      owner_role: Spatial data analyst
+      baseline: First launch / promise date
+      target: 0 (started)
+      thresholds: 13-24 / > 24
+      leading_lagging: Leading
+      international_axis: Urban planning
+    thresholds_numeric: { l1_gt: 24, l2_min: 13 }
+    note: Months without a confirmed observed start. Unknown if any quarter since the launch/promise is not assessable, and unknown never raises a level. Nearest month (days / 30.44).
+
+priority:
+  rule: Worst applicable level among K2, K3 and K6, no weights. K2 counts only after construction started.
+  levels:
+    1:
+      label: Inspect now
+      condition: "K2 >= 4, or K3 > 24, or (K2 >= 2 and K3 > 12), or K6 > 24"
+      action: Visit within two weeks and inform the pillar lead
+    2:
+      label: Inspect this cycle
+      condition: "K2 = 2-3, or K3 = 13-24, or K6 = 13-24"
+      action: Within the cycle's visits
+    3:
+      label: Document review
+      condition: "K2 = 1, or K3 = 1-12"
+      action: Request the supervisor report
+    4:
+      label: Routine
+      condition: Otherwise, when construction has started
+      action: Next cycle
+  follow_up_states:
+    not_started: No construction start, K6 known and <= 12 months, and no K3 deadline has passed. No level. Watch.
+    start_unknown: No construction start and K6 unknown. No level. Watch and collect evidence. Unknown never raises a level.
+    not_assessable: K4 failed. No level. Fix location/images first.
+  may_be_complete:
+    condition: Handover announced, or vegetation share >= 0.10
+    effect: Cap level at 3 and add flag "May be complete - confirm on site"
+    note: A flag for on-site confirmation, not proof of completion.
+
+cycle:
+  capacity: 4
+  eligible_levels: [1, 2, 3]
+  order: [level ascending, K2 descending, K3 descending, code ascending]
+
+track_b:
+  status: Generated data only. Synthetic - for training only.
+  triggers:
+    - "B1 and K2 >= 2 -> level 1"
+    - "any of B1, B2, B3, B5 -> level at least 2"
+    - "B4 -> context only"
+  note: Generated signals are never used to label a real Track A compound as distressed.
+
+backtest:
+  source: data/BACKTEST_CURRENT.md
+  cases: 6
+  after_start_reading: "1 of 6"
+  point_in_time_reading: "0 of 6"
+  original_criterion: "5 cases (not reduced). Criterion not achieved."
+  note: Counts only, no percentages. Warning detection is not causal proof.

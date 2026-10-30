@@ -481,6 +481,19 @@ def main() -> None:
     render_banner(track)  # fixed orange banner on every screen in Track B
     SCREEN_FUNCTIONS[screen](track)
 
+def main() -> None:
+    # Temporary Streamlit page configuration for this branch
+    st.set_page_config(
+        page_title="SpaceEye GeoAI - Ops Visits",
+        layout="wide"
+    )
+    
+    st.title("🌍 SpaceEye GeoAI Dashboard")
+    
+    st.markdown("---")
+    
+    # Render the operations visits form
+    render_ops_visits_form()
 
 if __name__ == "__main__":
     main()

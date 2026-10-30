@@ -1,0 +1,17 @@
+gemini:
+  # Owner-stated default model; GEMINI_MODEL overrides this when set.
+  model: gemini-3.1-flash-lite
+  # 30 = 5 inspection files x 3 calls each (15) plus the same again for one full re-run
+  max_calls_total: 30
+  # One paragraph call, one questions call, and one retry for each inspection file.
+  max_calls_per_file: 3
+  # Enough for one Arabic paragraph or three questions while bounding each response.
+  max_output_tokens: 1024
+  # Keeps repeated drafts deterministic for review and verification.
+  temperature: 0
+  # confirmed by the project owner on 2026-10-29 (budget and model)
+  approval: approved  # allowed: pending | approved
+  prompts:
+    system: prompts/system/inspection_agent.md
+    inspection_paragraph: prompts/templates/inspection_paragraph.md
+    visit_questions: prompts/templates/visit_questions.md

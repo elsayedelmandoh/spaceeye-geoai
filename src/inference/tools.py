@@ -1,255 +1,313 @@
-"""Inspection Agent Plain Python Tools (T-VE-02) - Leak-Free & Lineage-Preserved.
+"""Plain-Python data tools for cutoff-controlled inspection files."""
 
-Provides fact retrieval, KPI lookup, rule consultation, and imagery discovery
-for R7 compound inspection briefings. Strictly prevents temporal leakage
-(Lookahead Bias) by filtering statements, deadlines, and complaints against
-the quarter cutoff date.
+from __future__ import annotations
 
-Tools:
-- get_facts(code, as_of_quarter)
-- get_kpis(code, as_of_quarter)
-- get_complaints_summary(code, as_of_quarter)
-- get_images(code)
-- get_rules(article_id)
-- build_inspection_context(code, as_of_quarter)
-"""
-
-import os
-import sys
+import re
+from collections.abc import Mapping, Sequence
+from functools import lru_cache
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+
+import numpy as np
 import pandas as pd
 
-if sys.stdout and hasattr(sys.stdout, "reconfigure"):
-    try:
-        sys.stdout.reconfigure(encoding="utf-8")
-    except Exception:
-        pass
+from src.pipeline.common import APP, CFG, REAL, SRC, qend, qindex, require_data_root
+
+type FrameSource = pd.DataFrame | str | Path
+type TablesSource = Mapping[str, FrameSource] | str | Path | None
+type JsonValue = (
+    None | bool | int | float | str | list[JsonValue] | dict[str, JsonValue]
+)
+
+_REAL_TABLES = ("statements", "kpi_values", "compounds")
+_KPI_FIELDS = (
+    ("A", "activity_prob"),
+    ("K2", "K2"),
+    ("K3", "K3"),
+    ("K4", "K4"),
+    ("K5_months", "K5_months"),
+    ("K6", "K6"),
+    ("level", "level"),
+    ("level_label", "level_label"),
+    ("level_word", "level_word"),
+    ("reason", "reason"),
+    ("reason_ar", "reason_ar"),
+    ("may_be_complete", "may_be_complete"),
+)
+_LINK_COLUMNS = ("link", "source_link", "url")
+_ARTICLE_COLUMNS = ("article_id", "article", "article_no", "article_number", "id")
+_MISSING_IMAGES = {
+    "status": "missing",
+    "images": [],
+    "reason": "Wayback images not prepared (T-AH-15)",
+}
 
 
-def get_data_dir() -> Path:
-    """Dynamically locates the ready-data directory in scratch or brain paths."""
-    # 1. Relative to this module file
-    module_root = Path(__file__).resolve().parent.parent.parent
-    rel_ready = module_root / "app_data_ready" / "SpaceEye_R7_READY_DATA_2026-10-28_v5"
-    if rel_ready.exists():
-        return rel_ready
-
-    # 2. Fixed paths fallback
-    scratch_ready = Path(r"C:\Users\7748\.gemini\antigravity\scratch\spaceeye-geoai\spaceeye-geoai-main\app_data_ready\SpaceEye_R7_READY_DATA_2026-10-28_v5")
-    if scratch_ready.exists():
-        return scratch_ready
-
-    brain_ready = Path(r"C:\Users\7748\.gemini\antigravity\brain\3f90bddb-bdaa-4cd7-816d-10c2a8a2f767\spaceeye-geoai-main\releases\ready-data\SpaceEye_R7_READY_DATA_2026-10-28_v5")
-    if brain_ready.exists():
-        return brain_ready
-
-    raise FileNotFoundError("SpaceEye ready-data v5 directory not found.")
-
-
-def quarter_cutoff_date(quarter: str) -> pd.Timestamp:
-    """Calculates the inclusive end timestamp for a given quarter (e.g. 2026Q3 -> 2026-09-30 23:59:59)."""
-    p = pd.Period(quarter, freq="Q")
-    return p.end_time
-
-
-def get_facts(code: str, as_of_quarter: str = "2026Q3") -> Dict[str, Any]:
-    """Retrieves static register facts and published statements strictly filtered by cutoff."""
-    data_dir = get_data_dir()
-    comp_path = data_dir / "csv" / "real" / "compounds.csv"
-    statements_path = data_dir / "csv" / "real" / "statements.csv"
-
-    comp_df = pd.read_csv(comp_path)
-    match = comp_df[comp_df["code"] == code]
-    if match.empty:
-        return {"error": f"Compound code {code} not found in R7 register"}
-
-    row = match.iloc[0].to_dict()
-    cutoff = quarter_cutoff_date(as_of_quarter)
-
-    # Prevent temporal leakage: first_deadline is only valid if published on or before cutoff
-    first_deadline = None
-    if pd.notna(row.get("first_deadline")) and pd.notna(row.get("first_deadline_published")):
-        pub_date = pd.to_datetime(row["first_deadline_published"])
-        if pub_date <= cutoff:
-            first_deadline = row["first_deadline"]
-
-    # Filter published statements strictly on or before cutoff
-    statements_list = []
-    if statements_path.exists():
-        stmt_df = pd.read_csv(statements_path)
-        c_stmts = stmt_df[stmt_df["code"] == code].copy()
-        c_stmts["pub_dt"] = pd.to_datetime(c_stmts["published_date"])
-        safe_stmts = c_stmts[c_stmts["pub_dt"] <= cutoff]
-        
-        for _, s_row in safe_stmts.iterrows():
-            statements_list.append({
-                "statement_id": s_row.get("statement_id"),
-                "record_id": s_row.get("record_id"),
-                "kind": s_row.get("kind"),
-                "subtype": s_row.get("subtype"),
-                "published_date": s_row.get("published_date"),
-                "verdict": s_row.get("verdict"),
-                "origin": s_row.get("origin", "real")
-            })
-
+@lru_cache(maxsize=4)
+def _tables(base: str | Path | None = None) -> dict[str, pd.DataFrame]:
+    """Load the prepared real tables lazily from a real-table directory."""
+    if base is None:
+        require_data_root()
+        base = REAL
+    root = Path(base)
     return {
-        "code": code,
-        "developer_code": row.get("developer_code"),
-        "district": row.get("district", "R7"),
-        "land_area_m2": row.get("land_area_m2"),
-        "land_area_origin": row.get("land_area_origin", "real"),
-        "floors_allowed": row.get("floors_allowed", 8),
-        "floors_origin": row.get("floors_origin", "generated"),
-        "units": row.get("units"),
-        "units_origin": row.get("units_origin", "real"),
-        "first_deadline": first_deadline,
-        "first_deadline_published": row.get("first_deadline_published") if first_deadline else None,
-        "boundary_confidence": row.get("boundary_confidence", "high"),
-        "cutoff_date": cutoff.strftime("%Y-%m-%d"),
-        "published_statements_count": len(statements_list),
-        "published_statements": statements_list
+        name: pd.read_parquet(root / f"{name}.parquet")
+        for name in _REAL_TABLES
     }
 
 
-def get_kpis(code: str, as_of_quarter: str = "2026Q3") -> Dict[str, Any]:
-    """Retrieves satellite-derived KPIs, levels, and Arabic reason sentence."""
-    data_dir = get_data_dir()
-    kpi_path = data_dir / "csv" / "real" / "kpi_values.csv"
-    kpi_df = pd.read_csv(kpi_path)
+def _read_frame(source: str | Path) -> pd.DataFrame:
+    """Read one CSV or Parquet table from a supplied path."""
+    path = Path(source)
+    if path.suffix.lower() == ".csv":
+        return pd.read_csv(path)
+    return pd.read_parquet(path)
 
-    match = kpi_df[(kpi_df["code"] == code) & (kpi_df["quarter"] == as_of_quarter)]
-    if match.empty:
-        c_all = kpi_df[kpi_df["code"] == code]
-        if c_all.empty:
-            return {"error": f"No KPI records found for compound {code}"}
-        match = c_all.tail(1)
 
-    row = match.iloc[0].to_dict()
-    clean_kpis = {k: (None if pd.isna(v) else v) for k, v in row.items()}
-
-    # Recent historical quarterly trajectory (up to 4 previous quarters)
-    history = []
-    c_hist = kpi_df[kpi_df["code"] == code].sort_values("qi")
-    for _, h_row in c_hist.tail(4).iterrows():
-        history.append({
-            "quarter": h_row.get("quarter"),
-            "activity_prob": round(float(h_row.get("activity_prob", 0.0)), 3) if pd.notna(h_row.get("activity_prob")) else None,
-            "active": bool(h_row.get("active", False)),
-            "level": int(h_row.get("level")) if pd.notna(h_row.get("level")) else None
-        })
-
+def _resolve_tables(tables: TablesSource) -> dict[str, pd.DataFrame]:
+    """Resolve preloaded frames, table paths, or a real-table directory."""
+    if tables is None:
+        return _tables()
+    if isinstance(tables, (str, Path)):
+        return _tables(tables)
     return {
-        "code": code,
-        "quarter": clean_kpis.get("quarter", as_of_quarter),
-        "level": int(clean_kpis.get("level")) if clean_kpis.get("level") is not None else None,
-        "level_word_ar": clean_kpis.get("level_word_ar", f"المستوى {clean_kpis.get('level')}"),
-        "reason_ar": clean_kpis.get("reason_ar", "لا توجد أسباب مسجلة"),
-        "K2_stoppage_quarters": clean_kpis.get("K2"),
-        "K3_delay_months": clean_kpis.get("K3"),
-        "K4_image_count_sufficient": bool(clean_kpis.get("K4", True)),
-        "K5_fine_eligible_months": clean_kpis.get("K5_months", 0),
-        "K6_unstarted_months": clean_kpis.get("K6"),
-        "cycle_rank": clean_kpis.get("cycle_rank"),
-        "origin": clean_kpis.get("origin", "real/satellite Sentinel-2"),
-        "run_id": clean_kpis.get("run_id"),
-        "activity_history": history
+        name: source if isinstance(source, pd.DataFrame) else _read_frame(source)
+        for name, source in tables.items()
     }
 
 
-def get_complaints_summary(code: str, as_of_quarter: str = "2026Q3") -> Dict[str, Any]:
-    """Retrieves operational complaint counts strictly filtered before cutoff (Synthetic context)."""
-    data_dir = get_data_dir()
-    cmp_path = data_dir / "csv" / "operations" / "complaints.csv"
-    if not cmp_path.exists():
-        return {"total_count": 0, "recent_samples": [], "origin": "generated/synthetic operations"}
+def _require_table(tables: Mapping[str, pd.DataFrame], name: str) -> pd.DataFrame:
+    """Return a required table or fail with its missing name."""
+    if name not in tables:
+        raise KeyError(f"Required table '{name}' was not supplied")
+    return tables[name]
 
-    cutoff = quarter_cutoff_date(as_of_quarter)
-    cmp_df = pd.read_csv(cmp_path)
-    c_cmp = cmp_df[cmp_df["code"] == code].copy()
-    c_cmp["created_dt"] = pd.to_datetime(c_cmp["created_at"])
-    safe_cmp = c_cmp[c_cmp["created_dt"] <= cutoff]
 
-    recent_samples = []
-    for _, r in safe_cmp.tail(3).iterrows():
-        recent_samples.append({
-            "complaint_id": r.get("complaint_id"),
-            "category": r.get("category"),
-            "text_ar": r.get("text_ar")
-        })
+def _json_value(value: object) -> JsonValue:
+    """Convert a dataframe value to a JSON-safe value with unknown as None."""
+    if value is None:
+        return None
+    missing = pd.isna(value)
+    if isinstance(missing, (bool, np.bool_)) and bool(missing):
+        return None
+    if isinstance(value, (pd.Timestamp, np.datetime64)):
+        return pd.Timestamp(value).isoformat()
+    if isinstance(value, np.bool_):
+        return bool(value)
+    if isinstance(value, np.integer):
+        return int(value)
+    if isinstance(value, np.floating):
+        return float(value)
+    return value if isinstance(value, (bool, int, float, str)) else str(value)
 
+
+def _optional_text(value: object) -> str | None:
+    """Return non-empty text or None for an unknown value."""
+    scalar = _json_value(value)
+    if scalar is None:
+        return None
+    text = str(scalar).strip()
+    return text or None
+
+
+def _source_link(row: pd.Series) -> str | None:
+    """Return the first populated source-link column without inventing one."""
+    for column in _LINK_COLUMNS:
+        if column in row:
+            link = _optional_text(row[column])
+            if link is not None:
+                return link
+    return None
+
+
+def _fact(row: pd.Series) -> dict[str, JsonValue]:
+    """Convert one statement row to a code-safe evidence record."""
     return {
-        "total_count": len(safe_cmp),
-        "recent_samples": recent_samples,
-        "origin": "generated/synthetic operations for training only"
+        "record_id": _optional_text(row.get("record_id")),
+        "kind": _optional_text(row.get("kind")),
+        "subtype": _optional_text(row.get("subtype")),
+        "published_date": _optional_text(row.get("published_date")),
+        "period_start": _optional_text(row.get("period_start")),
+        "period_end": _optional_text(row.get("period_end")),
+        "detail": _optional_text(row.get("detail")),
+        "link": _source_link(row),
     }
 
 
-def get_images(code: str) -> Dict[str, Any]:
-    """Retrieves before/after satellite imagery metadata, or explicit missing status."""
-    return {
-        "code": code,
-        "status": "missing_image",
-        "reason": "Esri Wayback satellite imagery handoff pending from Task T-AH-15",
-        "attribution": "Maxar / Esri Wayback (planned)"
+def get_facts(
+    code: str,
+    quarter: str,
+    tables: TablesSource = None,
+) -> list[dict[str, JsonValue]]:
+    """Return published statements available by the requested quarter-end."""
+    frame = _require_table(_resolve_tables(tables), "statements")
+    published = pd.to_datetime(frame["published_date"], format="mixed", errors="coerce")
+    cutoff_date = qend(qindex(quarter)).date()
+    selected = frame.loc[frame["code"].eq(code) & published.dt.date.le(cutoff_date)].copy()
+    selected["__published_at"] = published.loc[selected.index]
+    sort_columns = ["__published_at"]
+    if "record_id" in selected:
+        sort_columns.append("record_id")
+    selected = selected.sort_values(sort_columns, kind="stable")
+    return [_fact(row) for _, row in selected.iterrows()]
+
+
+def _is_false(value: object) -> bool:
+    """Return whether a boolean field is explicitly false."""
+    if value is False:
+        return True
+    return isinstance(value, str) and value.strip().casefold() == "false"
+
+
+def _kpi_record(row: pd.Series) -> dict[str, JsonValue]:
+    """Convert one KPI row to the public inspection-field contract."""
+    record: dict[str, JsonValue] = {
+        "quarter": _optional_text(row.get("quarter")),
     }
+    for output_name, source_name in _KPI_FIELDS:
+        record[output_name] = _json_value(row.get(source_name))
+    if _is_false(record["K4"]):
+        record["level_label"] = "not assessable"
+        record["level_word"] = "not assessable"
+    return record
 
 
-def get_rules(article_id: Optional[str] = None) -> List[Dict[str, Any]]:
-    """Retrieves statutory articles from Decree 2184, Law 119/2008, and ACUD conditions."""
-    data_dir = get_data_dir()
-    rules_path = data_dir / "csv" / "real" / "rules.csv"
-    rules_df = pd.read_csv(rules_path)
-
-    if article_id:
-        rules_df = rules_df[rules_df["rule_id"] == article_id]
-
-    rules_list = []
-    for _, r in rules_df.iterrows():
-        rules_list.append({
-            "rule_id": r.get("rule_id"),
-            "source": r.get("source"),
-            "article": r.get("article"),
-            "rule": r.get("rule"),
-            "value": r.get("value") if pd.notna(r.get("value")) else None,
-            "unit": r.get("unit") if pd.notna(r.get("unit")) else "",
-            "origin": r.get("origin", "real")
-        })
-    return rules_list
+def _previous_rows(frame: pd.DataFrame, code: str, quarter: str) -> pd.DataFrame:
+    """Return the compound's earlier KPI rows in chronological order."""
+    rows = frame.loc[frame["code"].eq(code)].copy()
+    rows = rows.loc[rows["quarter"].astype(str).lt(str(quarter))]
+    sort_column = "qi" if "qi" in rows else "quarter"
+    return rows.sort_values(sort_column, kind="stable")
 
 
-def build_inspection_context(code: str, as_of_quarter: str = "2026Q3") -> Dict[str, Any]:
-    """Builds a complete, leak-free briefing context dictionary for an inspection file."""
-    facts = get_facts(code, as_of_quarter)
-    kpis = get_kpis(code, as_of_quarter)
-    complaints = get_complaints_summary(code, as_of_quarter)
-    images = get_images(code)
-    rules = get_rules()
+def get_kpis(
+    code: str,
+    quarter: str,
+    tables: TablesSource = None,
+    history: int = 8,
+) -> dict[str, JsonValue]:
+    """Return one compound-quarter KPI record and its earlier-quarter series."""
+    if history < 0:
+        raise ValueError("history must be zero or greater")
+    frame = _require_table(_resolve_tables(tables), "kpi_values")
+    rows = frame.loc[frame["code"].eq(code) & frame["quarter"].eq(quarter)]
+    if rows.empty:
+        raise LookupError(f"No KPI row for code '{code}' and quarter '{quarter}'")
+    current = rows.iloc[0]
+    result = _kpi_record(current)
+    result["code"] = code
+    earlier = _previous_rows(frame, code, quarter).tail(history)
+    result["series"] = [_kpi_record(row) for _, row in earlier.iterrows()]
+    result["origin"] = _json_value(current.get("origin"))
+    result["run_id"] = _optional_text(current.get("run_id"))
+    result["computed_at"] = _optional_text(current.get("computed_at"))
+    return result
 
-    relevant_rules = [
-        r for r in rules if r["rule_id"] in ["R01", "R06", "R12", "R13", "R17", "R18"]
+
+def _missing_images() -> dict[str, JsonValue]:
+    """Return the explicit image-unavailable response."""
+    return dict(_MISSING_IMAGES)
+
+
+def _image_rows(frame: pd.DataFrame, code: str) -> list[pd.Series]:
+    """Return at most one source row for each image position."""
+    matching = frame.loc[frame["code"].eq(code)].copy()
+    selected = []
+    for image_type in ("before", "after"):
+        rows = matching.loc[matching["image_type"].astype(str).str.casefold().eq(image_type)]
+        if not rows.empty:
+            selected.append(rows.iloc[0])
+    return selected
+
+
+def get_images(
+    code: str,
+    images_path: str | Path | None = None,
+) -> dict[str, JsonValue]:
+    """Return source Wayback image metadata or an explicit missing status."""
+    path = Path(images_path) if images_path is not None else APP / "images" / "images.csv"
+    if not path.is_file():
+        return _missing_images()
+    frame = pd.read_csv(path)
+    required = {"code", "image_type", "capture_date", "attribution", "path"}
+    missing_columns = sorted(required.difference(frame.columns))
+    if missing_columns:
+        raise ValueError(f"Image table is missing columns: {', '.join(missing_columns)}")
+    rows = _image_rows(frame, code)
+    if not rows:
+        return _missing_images()
+    images = [
+        {
+            "image_type": _optional_text(row.get("image_type")),
+            "capture_date": _optional_text(row.get("capture_date")),
+            "attribution": _optional_text(row.get("attribution")),
+            "path": _optional_text(row.get("path")),
+        }
+        for row in rows
+    ]
+    return {"status": "available", "images": images}
+
+
+def _normalized_article(value: object) -> str:
+    """Normalize an article identifier for conservative matching."""
+    text = str(value).strip().casefold()
+    text = re.sub(r"^(?:article|art)\s*", "", text)
+    return re.sub(r"\s+", "", text)
+
+
+def _article_matches(value: object, selector: str) -> bool:
+    """Match an exact article or a parent article number."""
+    target = _normalized_article(value)
+    wanted = _normalized_article(selector)
+    if target == wanted:
+        return True
+    return bool(re.fullmatch(r"\d+", wanted)) and target.startswith(f"{wanted}(")
+
+
+def _rule_rows(frame: pd.DataFrame, articles: str | Sequence[str]) -> list[bool]:
+    """Return one article-selection mask per dataframe row."""
+    columns = [column for column in _ARTICLE_COLUMNS if column in frame]
+    selectors = [articles] if isinstance(articles, str) else list(articles)
+    if not columns or not selectors:
+        return [False] * len(frame)
+    return [
+        any(
+            _article_matches(row[column], selector)
+            for column in columns
+            for selector in selectors
+        )
+        for _, row in frame.iterrows()
     ]
 
-    return {
-        "compound_code": code,
-        "quarter": as_of_quarter,
-        "cutoff_date": facts.get("cutoff_date"),
-        "facts": facts,
-        "kpis": kpis,
-        "complaints_summary": complaints,
-        "images": images,
-        "applicable_rules": relevant_rules
-    }
 
-
-if __name__ == "__main__":
-    print("Testing Upgraded Leak-Free Tools for C07 (2026Q3)...")
-    ctx = build_inspection_context("C07", "2026Q3")
-    print(f"Code: {ctx['compound_code']}")
-    print(f"Cutoff: {ctx['cutoff_date']}")
-    print(f"Level: {ctx['kpis']['level']} ({ctx['kpis']['level_word_ar']})")
-    print(f"Reason AR: {ctx['kpis']['reason_ar']}")
-    print(f"Complaints Count (Before Cutoff): {ctx['complaints_summary']['total_count']}")
-    print(f"Published Statements Count (Before Cutoff): {ctx['facts']['published_statements_count']}")
-    print(f"Imagery Status: {ctx['images']['status']}")
-    print("\nAll upgraded tools verified successfully with zero leakage!")
+def get_rules(
+    query: str | None = None,
+    articles: str | Sequence[str] | None = None,
+    path: str | Path | None = None,
+) -> list[dict[str, JsonValue]]:
+    """Return matching rows from the Decree 2184 reference CSV."""
+    source_path = Path(path) if path is not None else SRC / CFG["sources"]["decree"]
+    if not source_path.is_file():
+        raise FileNotFoundError(
+            "Decree 2184 reference CSV for config key 'sources.decree' not found: "
+            f"{source_path}. Mount F: under /mnt/f when using the configured path."
+        )
+    frame = pd.read_csv(source_path)
+    selected = frame
+    if articles is not None:
+        mask = _rule_rows(selected, articles)
+        selected = selected.loc[mask]
+    if query is not None:
+        needle = query.strip().casefold()
+        mask = selected.apply(
+            lambda row: any(
+                needle in str(value).casefold()
+                for value in row
+                if isinstance(value, str)
+            ),
+            axis=1,
+        )
+        selected = selected.loc[mask]
+    return [
+        {str(column): _json_value(value) for column, value in row.items()}
+        for _, row in selected.iterrows()
+    ]

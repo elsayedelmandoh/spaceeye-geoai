@@ -12,7 +12,7 @@ import pandas as pd
 from src.generator import simulate
 from src.generator.inputs import MONTHS
 from src.pipeline import backtest_check
-from src.pipeline.common import APP, BASE_DIR, CFG, PRIVATE, REAL, qend
+from src.pipeline.common import APP, BASE_DIR, CFG, PRIVATE, REAL
 from src.pipeline.privacy import assert_safe_texts
 
 OUT = APP / "partial_task_exports"
@@ -31,6 +31,18 @@ def scenario_level_labels(frame: pd.DataFrame) -> pd.DataFrame:
         level_word_ar=frame.level.map({1: "الأولى", 2: "الثانية", 3: "الثالثة", 4: "الرابعة"}).fillna(frame.level_word_ar),
         level_label=frame.level.map(lambda value: str(int(value)) if pd.notna(value) else pd.NA).fillna(frame.level_label),
     )
+
+
+def backtest_case_readings(kpi: pd.DataFrame, code: str, first_deadline) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Return assessable and after-start alert quarters using the shared cutoff rules."""
+    assessable = backtest_check.assessable_quarters(
+        kpi[kpi.code == code],
+        pd.Timestamp(first_deadline),
+    )
+    alerts = assessable.loc[
+        assessable.level.isin(CFG["backtest"]["levels"]) & assessable.started
+    ]
+    return assessable, alerts, alerts
 
 
 def backtest_report():
@@ -53,9 +65,7 @@ def backtest_report():
     rows = []
     for e in events.itertuples():
         freeze = pd.Timestamp(e.first_deadline) - pd.DateOffset(months=CFG["backtest"]["months_before"])
-        mine = kpi.loc[kpi.code.eq(e.code) & kpi.qi.map(qend).le(freeze)].sort_values("qi")
-        valid = mine.loc[mine.K4]
-        alerts = valid.loc[valid.level.isin([1, 2]) & valid.started]
+        valid, alerts, after_start = backtest_case_readings(kpi, e.code, e.first_deadline)
         point = alerts.iloc[0] if len(alerts) else valid.iloc[-1] if len(valid) else None
         if len(valid):
             alternative = "The absence or timing of the warning was solely due to no assessable quarter."
@@ -68,7 +78,7 @@ def backtest_report():
             rejection = "Not rejectable numerically with the saved pre-cutoff evidence; retain unknown."
         rows.append({"case": e.case, "code": e.code, "freeze_date": str(freeze.date()),
                      "what_happened": f"{e.outcome_type}; outcome date {e.outcome_date}; first published {e.outcome_first_published}",
-                     "assessable_quarters_before_cutoff": len(valid), "after_start_alert_quarters": len(alerts),
+                     "assessable_quarters_before_cutoff": len(valid), "after_start_alert_quarters": len(after_start),
                      "why": point.reason if point is not None else "No assessable pre-cutoff KPI quarter exists in the saved window.",
                      "competing_explanation": alternative, "numeric_check": rejection,
                      "what_next": "Review the cited public outcome and original promise; confirm actual status on site. Do not infer predictive success from a later alert."})

@@ -31,7 +31,7 @@ format:
 	ruff format src/ tests/
 
 test:
-	uv run pytest tests/ -v
+	uv run --locked --offline pytest -q
 
 # --- Cleanup ---
 clean:

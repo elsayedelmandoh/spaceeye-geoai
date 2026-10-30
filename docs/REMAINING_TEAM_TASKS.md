@@ -63,9 +63,9 @@ Reuse [protocol](../data/EW_PROTOCOL_CURRENT.md), [method card](deliverables/met
 
 | ID / tier | Status / existing work | Remaining action and acceptance |
 | --- | --- | --- |
-| T-VE-01 / Must | Build/configuration: project-specific model/budget approval not established. | Confirm permitted Gemini model and call budget; add project prompts under prompts/system and prompts/templates. Keep credentials out of Git. |
-| T-VE-02 / Must | Partial: 180 cutoff-controlled inspection contexts ready. | Implement/test get_facts, get_kpis, get_images, get_rules in src/inference/tools.py. Include evidence IDs/links and explicit missing-image status until AH-15 is ready. |
-| T-VE-03 / Must | Partial: facts, KPIs and context inputs ready. | Build the deterministic report: what happened; why/rejected explanation; meaning; action, owner, due date and escalation trigger. It must work without an LLM. |
+| T-EL-01 / Must | Configuration, prompts, approval guard and tests are done. The model and call budget were confirmed and approved by the project owner on 2026-10-29. | The API key must be present in the git-ignored `.env` on the machine that runs generation; this cannot be checked from the repository. Keep credentials out of Git. |
+| T-EL-02 / Must | Implemented in src/inference/tools.py (get_facts, get_kpis, get_images, get_rules) with tests, including one on the real-schema tables of the prepared v5 release. | Images stay an explicit missing status until T-AH-15; full F: data run pending. |
+| T-EL-03 / Must | Implemented in src/inference/inspection_file.py: sections filled by code with evidence ids, numeric rejected explanations, action, owner role, due date and escalation trigger; works without the model. | Arabic sentence templates need a native-speaker review; due-date constants and owner roles to be confirmed; HTML/PDF output is T-EL-06. |
 | T-VE-04 / Should | Build: project-specific Gemini paragraph workflow not complete. | Generate one paragraph from attached facts plus three visit questions. Flag unsupported/causal claims for review. |
 | T-VE-05 / Must | Build: data checks are not an AI claim verifier. | Match generated numbers/dates/codes to JSON; flag causal/unsupported claims. Produce ai_verification_log.csv with original verdict categories and meaningful tests. |
 | T-VE-06 / Must | Build: final stored inspection reports not ready. | Produce five Arabic HTML/PDF files with actual model/time and truthful review footer. Never invent reviewer sign-off. Integrate permitted imagery when ready. |

@@ -1,12 +1,12 @@
 """
-propose: step 6. success criterion of DATA_PLAN_FINAL section 3, computed once on the frozen-clock kpi_values (built with the backtest variant of A, without the leaking plots).
-reading used after the 26 Oct corrections (FIXES_PROTOCOL section 5): a case counts if, in some quarter whose end is 6 or more months before the case's first announced
+propose: step 6. success criterion, computed once on the frozen-clock kpi_values (built with the backtest variant of A, without the leaking plots).
+reading used after the 26 Oct corrections: a case counts if, in some quarter whose end is 6 or more months before the case's first announced
 delivery date (the K3 clock origin), construction had already started (4 active quarters of A, or a published launch / delivery event) and the level is 1-2.
 the same table also gives the other readings of "stays in level 1-2":
   point in time: level 1-2 at the last quarter that ends 6 or more months before the first date (the alert is standing at that moment);
   literal:       level 1-2 in any such quarter (after the "not started" fix a quarter before construction has no level, so it equals the after-start reading).
-the results before the corrections (literal 8, point in time 0, after start 0 of 8) are kept in before_corrections/. thresholds are never changed after a result.
-secondary: the same with the original promise date of the eval table; the other 14 compounds flagged.
+the results before the corrections (historical, 8 cases): literal 8, point in time 0, after start 0 of 8. thresholds are never changed after a result.
+secondary: the same with the original promise date of the eval table; the other R7 compounds (6) flagged.
 input: kpi_values, eval_outcomes. output: backtest/cases.csv, backtest/summary.json.
 """
 
@@ -16,14 +16,20 @@ import numpy as np
 import pandas as pd
 
 from src.pipeline import activity, kpis
-from src.pipeline.common import APP, CFG, months_between, qend, qindex
+from src.pipeline.common import APP, CFG, months_between, qend, qindex, summer_year
 
 B = CFG["backtest"]
 
 
+def assessable_quarters(kc: pd.DataFrame, first: pd.Timestamp) -> pd.DataFrame:
+    """Return the level-known quarters eligible at the frozen pre-first-date cutoff."""
+    cutoff = first - pd.DateOffset(months=B["months_before"])
+    return kc[kc.level.notna() & (kc.qi.map(qend) <= cutoff)].sort_values("qi")
+
+
 def readings(kc: pd.DataFrame, first: pd.Timestamp) -> dict:
     """the readings of the criterion for one compound (kc sorted by quarter, assessable quarters only)."""
-    elig = kc[kc.qi.map(qend) <= first - pd.DateOffset(months=B["months_before"])]
+    elig = assessable_quarters(kc, first)
     hit = elig[elig.level.isin(B["levels"])]
     after = hit[hit.started]
 
@@ -62,15 +68,21 @@ def run(kpi: pd.DataFrame, ev: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
 
 
 def frozen_clock_check(model, thr: float, mode: str, sat_a: pd.DataFrame, full: pd.DataFrame, comp, stm, yearly, run_id: str) -> dict:
-    """recompute from data cut at the quarter (no later image, statement or vegetation year) and compare with the full run at that quarter."""
+    """Recompute from data cut at the quarter and compare with the full run at that quarter.
+
+    This uses the final fitted A; checks the data cut-off, not a model refit.
+    """
     base = sat_a[["code", "qi", "built_prob_mean", "n_images", "K4"]]
     out = {}
-    for q in ("2021Q4", "2023Q2", "2024Q4", "2025Q3"):
+    for q in CFG["quality"]["frozen_check_quarters"]:
         qi = qindex(q)
         cut = base[base.qi <= qi]
         sat_c = cut.merge(activity.score(cut, model, thr, last_qi=qi, mode=mode)[["code", "qi", "activity_prob", "active"]], on=["code", "qi"], how="left")
-        part = kpis.kpi_values(sat_c, comp, stm[pd.to_datetime(stm.published_date) <= qend(qi)], yearly[yearly.year <= 2016 + qi // 4], run_id, upto=qi)
+        part = kpis.kpi_values(sat_c, comp, stm[pd.to_datetime(stm.published_date) <= qend(qi)], yearly[yearly.year <= summer_year(qi)], run_id, upto=qi)
         a, b = part[part.qi == qi].set_index("code"), full[full.qi == qi].set_index("code")
+        if a.empty:
+            out[q] = False
+            continue
         cols = ["activity_prob", "K2", "K3", "level", "may_be_complete", "started"]
         out[q] = bool(np.allclose(a[cols].astype(float).values, b.loc[a.index, cols].astype(float).values, equal_nan=True))
     return out

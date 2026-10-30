@@ -2,6 +2,7 @@
 
 import argparse
 
+from src.pipeline import gates
 from src.pipeline.common import require_data_root
 
 
@@ -31,6 +32,9 @@ def main():
     quality()
     from src.pipeline.source_catalog import main as sources
     sources()
+    scan = gates.final_no_names_scan()
+    if scan["status"] != "PASS":
+        raise RuntimeError("Final privacy scan failed")
     print("Current team delivery complete; read the current binary metrics and review limitations before use")
 
 
