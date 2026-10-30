@@ -28,6 +28,8 @@
 - Financial fine rates,allocation dates and simulated visits are assumptions,not actual contracts,assessed fines or fieldwork.
 - No post2024height or finishing product was approved by the prior experiments.
 
+- T-AH-15 imagery: data/imagery/README.md and data/IMAGERY_COMPARISON.md. Esri pixels/report ZIPs stay outside Git under the configured data root. Publish code/metadata only; keep per-frame dates/credits. Inspector pairs use a distinct baseline at least 12 months before the selected after capture, with publication cutoffs. Sentinel timelines are retrospective context, never model X or finishing/road-timing evidence. Scan imagery folders separately with g_no_names; the numerical build excludes them.
+
 ## Validation and communication
 
 - Maintain docs/requirements/02-team-roles-and-tasks.md after each verified implementation. The main checkbox [x] means implemented/ready for review (label "Implemented; review pending"). Tick the separate Review accepted checkbox only after an independent review recorded in logs/review-NN.md (or the PR), set the label to "Done; review accepted", and write the box as `- [x] Review accepted (logs/review-NN.md, YYYY-MM-DD; findings fixed in <commits>; review recorded in <commit>; <caveat, if any>).`. Keep the task's other information; the board names no agent, model or lane.

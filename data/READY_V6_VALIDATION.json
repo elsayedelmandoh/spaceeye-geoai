@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "release": "SpaceEye_R7_READY_DATA_2026-10-30_v6.zip",
+  "sha256": "1794028194a5395e23166c358d2528dd87681d77e513d9e23116fa2f628bcb88",
+  "bytes": 1465759,
+  "archive_members": 293,
+  "verified_manifest_entries": 292,
+  "crc": "PASS",
+  "scope": "Archive integrity only; data/model evidence is recorded in the current reports"
+}

@@ -1,0 +1,4417 @@
+[
+  {
+    "quarter": "2016Q1",
+    "status": "available",
+    "scene_id": "COPERNICUS/S2_SR_HARMONIZED/20160310T083002_20160310T084111_T36RUU",
+    "capture_date": "2016-03-10",
+    "collection": "COPERNICUS/S2_SR_HARMONIZED",
+    "product_created": null,
+    "product_id": "S2A_MSIL2A_20160310T083002_N0500_R021_T36RUU_20231028T031745",
+    "source_crs": "EPSG:3857",
+    "resolution_m": 10,
+    "method": "earth_engine_existing_account_thumbnail",
+    "local_bad_fraction": 0.0,
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "tile_cloud_percent": 0.00502,
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL classes sampled at 60 m",
+    "visualization": "RGB reflectance 0-0.6; harmonized DN 0-6000; gamma 1.0",
+    "visual_url": "https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_S2_SR_HARMONIZED",
+    "note": "Retrospective visual thumbnail. L1C/TOA and L2A surface reflectance have different processing; no quantitative colour-change claim. No thumbnail access capability is published.",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "preview_saturation_fraction": [
+      0.7879752066115703,
+      0.07650137741046832,
+      8.953168044077135e-05
+    ],
+    "calibrated_saturation_fraction": [
+      3.443526170798898e-05,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "3c976c3f452cbc792a3f97d9785c38ec1aa4ecc7cd104acb37c16cb70685b682"
+  },
+  {
+    "quarter": "2016Q2",
+    "status": "available",
+    "scene_id": "COPERNICUS/S2_SR_HARMONIZED/20160618T082602_20160618T083357_T36RUU",
+    "capture_date": "2016-06-18",
+    "collection": "COPERNICUS/S2_SR_HARMONIZED",
+    "product_created": null,
+    "product_id": "S2A_MSIL2A_20160618T082602_N0500_R021_T36RUU_20231008T192451",
+    "source_crs": "EPSG:3857",
+    "resolution_m": 10,
+    "method": "earth_engine_existing_account_thumbnail",
+    "local_bad_fraction": 0.0,
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "tile_cloud_percent": 0.002084,
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL classes sampled at 60 m",
+    "visualization": "RGB reflectance 0-0.6; harmonized DN 0-6000; gamma 1.0",
+    "visual_url": "https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_S2_SR_HARMONIZED",
+    "note": "Retrospective visual thumbnail. L1C/TOA and L2A surface reflectance have different processing; no quantitative colour-change claim. No thumbnail access capability is published.",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "preview_saturation_fraction": [
+      0.8979063360881543,
+      0.11527548209366391,
+      2.066115702479339e-05
+    ],
+    "calibrated_saturation_fraction": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "8069e370fe04ee3ac32e938a0737467c7de3f967b14fd67fa5924ef739e323a1"
+  },
+  {
+    "quarter": "2016Q3",
+    "status": "available",
+    "scene_id": "COPERNICUS/S2_SR_HARMONIZED/20160916T083002_20160916T084134_T36RUU",
+    "capture_date": "2016-09-16",
+    "collection": "COPERNICUS/S2_SR_HARMONIZED",
+    "product_created": null,
+    "product_id": "S2A_MSIL2A_20160916T083002_N0500_R021_T36RUU_20230930T200643",
+    "source_crs": "EPSG:3857",
+    "resolution_m": 10,
+    "method": "earth_engine_existing_account_thumbnail",
+    "local_bad_fraction": 0.0,
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "tile_cloud_percent": 3.742933,
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL classes sampled at 60 m",
+    "visualization": "RGB reflectance 0-0.6; harmonized DN 0-6000; gamma 1.0",
+    "visual_url": "https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_S2_SR_HARMONIZED",
+    "note": "Retrospective visual thumbnail. L1C/TOA and L2A surface reflectance have different processing; no quantitative colour-change claim. No thumbnail access capability is published.",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "preview_saturation_fraction": [
+      0.9124380165289256,
+      0.0874724517906336,
+      8.264462809917356e-05
+    ],
+    "calibrated_saturation_fraction": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "9c39cb38538f60dc011bc2892de478da66d30929b30745dd880d00a793ad65a0"
+  },
+  {
+    "quarter": "2016Q4",
+    "status": "available",
+    "scene_id": "COPERNICUS/S2_SR_HARMONIZED/20161225T083342_20161225T083838_T36RUU",
+    "capture_date": "2016-12-25",
+    "collection": "COPERNICUS/S2_SR_HARMONIZED",
+    "product_created": null,
+    "product_id": "S2A_MSIL2A_20161225T083342_N0500_R021_T36RUU_20231026T110804",
+    "source_crs": "EPSG:3857",
+    "resolution_m": 10,
+    "method": "earth_engine_existing_account_thumbnail",
+    "local_bad_fraction": 0.0,
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "tile_cloud_percent": 0.394999,
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL classes sampled at 60 m",
+    "visualization": "RGB reflectance 0-0.6; harmonized DN 0-6000; gamma 1.0",
+    "visual_url": "https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_S2_SR_HARMONIZED",
+    "note": "Retrospective visual thumbnail. L1C/TOA and L2A surface reflectance have different processing; no quantitative colour-change claim. No thumbnail access capability is published.",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "preview_saturation_fraction": [
+      0.5442424242424242,
+      0.019428374655647382,
+      0.0
+    ],
+    "calibrated_saturation_fraction": [
+      6.198347107438017e-05,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "8cf4cb870494f5ec9901ecbc73fe4fb4669c613b63c9dc23e767943f37f6739b"
+  },
+  {
+    "quarter": "2017Q1",
+    "status": "available",
+    "scene_id": "S2A_36RUU_20170325_0_L2A",
+    "capture_date": "2017-03-25",
+    "product_created": "2022-11-08T11:10:43.744Z",
+    "collection": "sentinel-2-l2a",
+    "local_bad_fraction": 0.0,
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "tile_cloud_percent": 1.139532,
+    "visual_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2017/3/S2A_36RUU_20170325_0_L2A/TCI.tif",
+    "scl_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2017/3/S2A_36RUU_20170325_0_L2A/SCL.tif",
+    "candidates_in_first_page": 4,
+    "resolution_m": 10,
+    "source_crs": "EPSG:32636",
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "note": "Retrospective visual context. Processing/availability may postdate capture; not model X or historical availability proof.",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": 0
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": 0
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": 0
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2017/3/S2A_36RUU_20170325_0_L2A/B04.tif",
+      "green": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2017/3/S2A_36RUU_20170325_0_L2A/B03.tif",
+      "blue": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2017/3/S2A_36RUU_20170325_0_L2A/B02.tif"
+    },
+    "preview_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2017/3/S2A_36RUU_20170325_0_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a/items/S2A_36RUU_20170325_0_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.9620956873315364,
+      0.19857180293501048,
+      0.0
+    ],
+    "calibrated_saturation_fraction": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "20b27557249887217ae99256fa9b79f81b8497cb8aa0473a77096a9b89f25d6f"
+  },
+  {
+    "quarter": "2017Q2",
+    "status": "available",
+    "scene_id": "S2A_36RUU_20170603_0_L2A",
+    "capture_date": "2017-06-03",
+    "product_created": "2022-11-03T17:53:02.053Z",
+    "collection": "sentinel-2-l2a",
+    "local_bad_fraction": 0.0,
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "tile_cloud_percent": 0.28618,
+    "visual_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2017/6/S2A_36RUU_20170603_0_L2A/TCI.tif",
+    "scl_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2017/6/S2A_36RUU_20170603_0_L2A/SCL.tif",
+    "candidates_in_first_page": 2,
+    "resolution_m": 10,
+    "source_crs": "EPSG:32636",
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "note": "Retrospective visual context. Processing/availability may postdate capture; not model X or historical availability proof.",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": 0
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": 0
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": 0
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2017/6/S2A_36RUU_20170603_0_L2A/B04.tif",
+      "green": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2017/6/S2A_36RUU_20170603_0_L2A/B03.tif",
+      "blue": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2017/6/S2A_36RUU_20170603_0_L2A/B02.tif"
+    },
+    "preview_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2017/6/S2A_36RUU_20170603_0_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a/items/S2A_36RUU_20170603_0_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.992634396525906,
+      0.7115528601377658,
+      0.007281371668164121
+    ],
+    "calibrated_saturation_fraction": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "9edb021c5de70f8df981b2a4547cecfa082ec3b873461161f2afa4478c4ec1ec"
+  },
+  {
+    "quarter": "2017Q3",
+    "status": "available",
+    "scene_id": "S2B_36RUU_20170906_0_L2A",
+    "capture_date": "2017-09-06",
+    "product_created": "2022-11-03T18:06:57.181Z",
+    "collection": "sentinel-2-l2a",
+    "local_bad_fraction": 0.0,
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "tile_cloud_percent": 0.371963,
+    "visual_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2017/9/S2B_36RUU_20170906_0_L2A/TCI.tif",
+    "scl_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2017/9/S2B_36RUU_20170906_0_L2A/SCL.tif",
+    "candidates_in_first_page": 10,
+    "resolution_m": 10,
+    "source_crs": "EPSG:32636",
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "note": "Retrospective visual context. Processing/availability may postdate capture; not model X or historical availability proof.",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": 0
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": 0
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": 0
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2017/9/S2B_36RUU_20170906_0_L2A/B04.tif",
+      "green": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2017/9/S2B_36RUU_20170906_0_L2A/B03.tif",
+      "blue": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2017/9/S2B_36RUU_20170906_0_L2A/B02.tif"
+    },
+    "preview_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2017/9/S2B_36RUU_20170906_0_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a/items/S2B_36RUU_20170906_0_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.982432988918838,
+      0.7238787810721773,
+      0.00193733153638814
+    ],
+    "calibrated_saturation_fraction": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "6269c040bb62f270405172c6cae64e9ddddb0dd9656880a1881a44a28d1901d9"
+  },
+  {
+    "quarter": "2017Q4",
+    "status": "available",
+    "scene_id": "S2B_36RUU_20171215_0_L2A",
+    "capture_date": "2017-12-15",
+    "product_created": "2022-11-08T11:09:48.142Z",
+    "collection": "sentinel-2-l2a",
+    "local_bad_fraction": 0.0,
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "tile_cloud_percent": 5.288602,
+    "visual_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2017/12/S2B_36RUU_20171215_0_L2A/TCI.tif",
+    "scl_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2017/12/S2B_36RUU_20171215_0_L2A/SCL.tif",
+    "candidates_in_first_page": 7,
+    "resolution_m": 10,
+    "source_crs": "EPSG:32636",
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "note": "Retrospective visual context. Processing/availability may postdate capture; not model X or historical availability proof.",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": 0
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": 0
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": 0
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2017/12/S2B_36RUU_20171215_0_L2A/B04.tif",
+      "green": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2017/12/S2B_36RUU_20171215_0_L2A/B03.tif",
+      "blue": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2017/12/S2B_36RUU_20171215_0_L2A/B02.tif"
+    },
+    "preview_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2017/12/S2B_36RUU_20171215_0_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a/items/S2B_36RUU_20171215_0_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.9352163821503444,
+      0.31074985025456725,
+      0.0016004043126684635
+    ],
+    "calibrated_saturation_fraction": [
+      0.00034628631326744536,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "d45ef20f277a977a28c7e9e5a0070909e9790e6d9d9e088ac6b697a03b937b3c"
+  },
+  {
+    "quarter": "2018Q1",
+    "status": "available",
+    "scene_id": "S2A_36RUU_20180330_0_L2A",
+    "capture_date": "2018-03-30",
+    "product_created": "2022-11-08T10:55:12.651Z",
+    "collection": "sentinel-2-l2a",
+    "local_bad_fraction": 0.0,
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "tile_cloud_percent": 13.453529,
+    "visual_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2018/3/S2A_36RUU_20180330_0_L2A/TCI.tif",
+    "scl_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2018/3/S2A_36RUU_20180330_0_L2A/SCL.tif",
+    "candidates_in_first_page": 1,
+    "resolution_m": 10,
+    "source_crs": "EPSG:32636",
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "note": "Retrospective visual context. Processing/availability may postdate capture; not model X or historical availability proof.",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": 0
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": 0
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": 0
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2018/3/S2A_36RUU_20180330_0_L2A/B04.tif",
+      "green": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2018/3/S2A_36RUU_20180330_0_L2A/B03.tif",
+      "blue": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2018/3/S2A_36RUU_20180330_0_L2A/B02.tif"
+    },
+    "preview_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2018/3/S2A_36RUU_20180330_0_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a/items/S2A_36RUU_20180330_0_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.9723251722072477,
+      0.5046327493261455,
+      0.00016846361185983828
+    ],
+    "calibrated_saturation_fraction": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "ebc59ccd1a5572cba618b642b5187cdf025e1209c4ba438bf17cf13bd5cc0412"
+  },
+  {
+    "quarter": "2018Q2",
+    "status": "available",
+    "scene_id": "S2B_T36RUU_20180613T083020_L2A",
+    "capture_date": "2018-06-13",
+    "product_created": "2024-03-14T05:52:56.525Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 0.314714,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2018/6/S2B_T36RUU_20180613T083020_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2018/6/S2B_T36RUU_20180613T083020_L2A/SCL.tif",
+    "candidates_in_first_page": 6,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2018/6/S2B_T36RUU_20180613T083020_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2018/6/S2B_T36RUU_20180613T083020_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2018/6/S2B_T36RUU_20180613T083020_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2018/6/S2B_T36RUU_20180613T083020_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2B_T36RUU_20180613T083020_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.9795691075172207,
+      0.6889412997903563,
+      0.021451033243486073
+    ],
+    "calibrated_saturation_fraction": [
+      0.0002807726864330638,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "1da1dc247c7bda967af81947b9c4d74a5fcf65832a15bf1fe34077e161258408"
+  },
+  {
+    "quarter": "2018Q3",
+    "status": "available",
+    "scene_id": "S2B_T36RUU_20180921T083013_L2A",
+    "capture_date": "2018-09-21",
+    "product_created": "2024-02-23T12:28:13.973Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 8.911327,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2018/9/S2B_T36RUU_20180921T083013_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2018/9/S2B_T36RUU_20180921T083013_L2A/SCL.tif",
+    "candidates_in_first_page": 11,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2018/9/S2B_T36RUU_20180921T083013_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2018/9/S2B_T36RUU_20180921T083013_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2018/9/S2B_T36RUU_20180921T083013_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2018/9/S2B_T36RUU_20180921T083013_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2B_T36RUU_20180921T083013_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.7702905061395627,
+      0.46743972746331236,
+      0.0036781221922731356
+    ],
+    "calibrated_saturation_fraction": [
+      0.00012166816412099432,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "71dcb951449e66e5a1a5116e5d9cb32a7fa24d7c26b288f9afd568bd7c4303b2"
+  },
+  {
+    "quarter": "2018Q4",
+    "status": "available",
+    "scene_id": "S2B_T36RUU_20181021T084059_L2A",
+    "capture_date": "2018-10-21",
+    "product_created": "2024-02-20T13:06:26.001Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 11.163526,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2018/10/S2B_T36RUU_20181021T084059_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2018/10/S2B_T36RUU_20181021T084059_L2A/SCL.tif",
+    "candidates_in_first_page": 2,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2018/10/S2B_T36RUU_20181021T084059_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2018/10/S2B_T36RUU_20181021T084059_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2018/10/S2B_T36RUU_20181021T084059_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2018/10/S2B_T36RUU_20181021T084059_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2B_T36RUU_20181021T084059_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.866417714884696,
+      0.43696653189577717,
+      0.0011043725666367175
+    ],
+    "calibrated_saturation_fraction": [
+      1.8718179095537587e-05,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "e80cc50c6c6d60701d07776c812fdeab2ecc28059657f661685c4f2651788e93"
+  },
+  {
+    "quarter": "2019Q1",
+    "status": "available",
+    "scene_id": "S2A_36RUU_20190315_0_L2A",
+    "capture_date": "2019-03-15",
+    "product_created": "2022-11-08T10:55:10.879Z",
+    "collection": "sentinel-2-l2a",
+    "local_bad_fraction": 0.0,
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "tile_cloud_percent": 0.345941,
+    "visual_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2019/3/S2A_36RUU_20190315_0_L2A/TCI.tif",
+    "scl_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2019/3/S2A_36RUU_20190315_0_L2A/SCL.tif",
+    "candidates_in_first_page": 10,
+    "resolution_m": 10,
+    "source_crs": "EPSG:32636",
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "note": "Retrospective visual context. Processing/availability may postdate capture; not model X or historical availability proof.",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": 0
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": 0
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": 0
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2019/3/S2A_36RUU_20190315_0_L2A/B04.tif",
+      "green": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2019/3/S2A_36RUU_20190315_0_L2A/B03.tif",
+      "blue": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2019/3/S2A_36RUU_20190315_0_L2A/B02.tif"
+    },
+    "preview_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2019/3/S2A_36RUU_20190315_0_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a/items/S2A_36RUU_20190315_0_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.6695492662473794,
+      0.26996293800539084,
+      0.003154013177598083
+    ],
+    "calibrated_saturation_fraction": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "7a9e48eedb6b184f8193c00610ff4a62f58f82b7ffd47fb4f917396c549ae937"
+  },
+  {
+    "quarter": "2019Q2",
+    "status": "available",
+    "scene_id": "S2A_T36RUU_20190613T083046_L2A",
+    "capture_date": "2019-06-13",
+    "product_created": "2024-09-25T04:55:30.897Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 4.535778,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2019/6/S2A_T36RUU_20190613T083046_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2019/6/S2A_T36RUU_20190613T083046_L2A/SCL.tif",
+    "candidates_in_first_page": 14,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2019/6/S2A_T36RUU_20190613T083046_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2019/6/S2A_T36RUU_20190613T083046_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2019/6/S2A_T36RUU_20190613T083046_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2019/6/S2A_T36RUU_20190613T083046_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2A_T36RUU_20190613T083046_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.949320530098832,
+      0.4559654836777478,
+      0.011492961964660079
+    ],
+    "calibrated_saturation_fraction": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "72985bd7d04ca7defec464e5b809a8fd0914bf32d1fa71bfb6677b305600ed06"
+  },
+  {
+    "quarter": "2019Q3",
+    "status": "available",
+    "scene_id": "S2B_T36RUU_20190916T083039_L2A",
+    "capture_date": "2019-09-16",
+    "product_created": "2024-07-25T12:36:38.987Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 0.974512,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2019/9/S2B_T36RUU_20190916T083039_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2019/9/S2B_T36RUU_20190916T083039_L2A/SCL.tif",
+    "candidates_in_first_page": 19,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2019/9/S2B_T36RUU_20190916T083039_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2019/9/S2B_T36RUU_20190916T083039_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2019/9/S2B_T36RUU_20190916T083039_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2019/9/S2B_T36RUU_20190916T083039_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2B_T36RUU_20190916T083039_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.840511755016472,
+      0.3432071728062294,
+      0.011137316561844864
+    ],
+    "calibrated_saturation_fraction": [
+      8.423180592991914e-05,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "056467777548d992605201d2e57ed52cb1ded58e12121a0124fa79abdbec7d3c"
+  },
+  {
+    "quarter": "2019Q4",
+    "status": "available",
+    "scene_id": "S2B_T36RUU_20191215T083332_L2A",
+    "capture_date": "2019-12-15",
+    "product_created": "2024-01-20T18:27:03.008Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 11.625078,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2019/12/S2B_T36RUU_20191215T083332_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2019/12/S2B_T36RUU_20191215T083332_L2A/SCL.tif",
+    "candidates_in_first_page": 15,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2019/12/S2B_T36RUU_20191215T083332_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2019/12/S2B_T36RUU_20191215T083332_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2019/12/S2B_T36RUU_20191215T083332_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2019/12/S2B_T36RUU_20191215T083332_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2B_T36RUU_20191215T083332_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.4716325995807128,
+      0.07658542976939203,
+      0.0006457771787960467
+    ],
+    "calibrated_saturation_fraction": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "b2369c7ecdd37e529fe5dae15e44503d8f5f4f60540e9b531d8fe1836bb63446"
+  },
+  {
+    "quarter": "2020Q1",
+    "status": "available",
+    "scene_id": "S2B_T36RUU_20200324T083444_L2A",
+    "capture_date": "2020-03-24",
+    "product_created": "2024-01-20T00:22:29.471Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 0.207242,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2020/3/S2B_T36RUU_20200324T083444_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2020/3/S2B_T36RUU_20200324T083444_L2A/SCL.tif",
+    "candidates_in_first_page": 8,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2020/3/S2B_T36RUU_20200324T083444_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2020/3/S2B_T36RUU_20200324T083444_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2020/3/S2B_T36RUU_20200324T083444_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2020/3/S2B_T36RUU_20200324T083444_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2B_T36RUU_20200324T083444_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.75687893081761,
+      0.4682071728062294,
+      0.008498053309374065
+    ],
+    "calibrated_saturation_fraction": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "ebc6748dc01008926b4316fad1fa5e02b7b5da2eae6858b93a6d81312f9a96fd"
+  },
+  {
+    "quarter": "2020Q2",
+    "status": "available",
+    "scene_id": "S2A_T36RUU_20200617T083929_L2A",
+    "capture_date": "2020-06-17",
+    "product_created": "2024-01-22T15:06:00.162Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 0.007319,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2020/6/S2A_T36RUU_20200617T083929_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2020/6/S2A_T36RUU_20200617T083929_L2A/SCL.tif",
+    "candidates_in_first_page": 16,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2020/6/S2A_T36RUU_20200617T083929_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2020/6/S2A_T36RUU_20200617T083929_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2020/6/S2A_T36RUU_20200617T083929_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2020/6/S2A_T36RUU_20200617T083929_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2A_T36RUU_20200617T083929_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.9827418388739143,
+      0.6441674153938305,
+      0.013196316262353998
+    ],
+    "calibrated_saturation_fraction": [
+      9.359089547768794e-06,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "cdbaf439c6a9ea9713822c3abbce750f92321354459d871ef0b399d3d2a2ab5f"
+  },
+  {
+    "quarter": "2020Q3",
+    "status": "available",
+    "scene_id": "S2A_T36RUU_20200915T083304_L2A",
+    "capture_date": "2020-09-15",
+    "product_created": "2024-01-19T07:49:52.736Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 0.705532,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2020/9/S2A_T36RUU_20200915T083304_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2020/9/S2A_T36RUU_20200915T083304_L2A/SCL.tif",
+    "candidates_in_first_page": 19,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2020/9/S2A_T36RUU_20200915T083304_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2020/9/S2A_T36RUU_20200915T083304_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2020/9/S2A_T36RUU_20200915T083304_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2020/9/S2A_T36RUU_20200915T083304_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2A_T36RUU_20200915T083304_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.7565326445043427,
+      0.4147854896675651,
+      0.008956648697214735
+    ],
+    "calibrated_saturation_fraction": [
+      9.359089547768794e-06,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "6e424b94bbb4100bc23992856574263d2ca312b8f727cd17a4f7c9745fac298c"
+  },
+  {
+    "quarter": "2020Q4",
+    "status": "available",
+    "scene_id": "S2B_T36RUU_20201219T083257_L2A",
+    "capture_date": "2020-12-19",
+    "product_created": "2024-01-19T06:47:11.669Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 2.75363,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2020/12/S2B_T36RUU_20201219T083257_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2020/12/S2B_T36RUU_20201219T083257_L2A/SCL.tif",
+    "candidates_in_first_page": 12,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2020/12/S2B_T36RUU_20201219T083257_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2020/12/S2B_T36RUU_20201219T083257_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2020/12/S2B_T36RUU_20201219T083257_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2020/12/S2B_T36RUU_20201219T083257_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2B_T36RUU_20201219T083257_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.5062612309074573,
+      0.11424640610961366,
+      0.0027890086852351004
+    ],
+    "calibrated_saturation_fraction": [
+      7.487271638215035e-05,
+      2.807726864330638e-05,
+      0.0
+    ],
+    "rendered_source_sha256": "d5e1a12e6832022049a5cac5c6444aea2aab1a3e01983e0e0120b18dccadae6e"
+  },
+  {
+    "quarter": "2021Q1",
+    "status": "available",
+    "scene_id": "S2B_T36RUU_20210319T083932_L2A",
+    "capture_date": "2021-03-19",
+    "product_created": "2024-01-14T13:17:38.969Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 0.439431,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2021/3/S2B_T36RUU_20210319T083932_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2021/3/S2B_T36RUU_20210319T083932_L2A/SCL.tif",
+    "candidates_in_first_page": 9,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2021/3/S2B_T36RUU_20210319T083932_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2021/3/S2B_T36RUU_20210319T083932_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2021/3/S2B_T36RUU_20210319T083932_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2021/3/S2B_T36RUU_20210319T083932_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2B_T36RUU_20210319T083932_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.7112440101826895,
+      0.3548685983827493,
+      0.011015648397723869
+    ],
+    "calibrated_saturation_fraction": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "934417a5d5ac984b03964e0d987ed87bab614c24d1290825243c6f7b6293f353"
+  },
+  {
+    "quarter": "2021Q2",
+    "status": "available",
+    "scene_id": "S2B_T36RUU_20210617T083902_L2A",
+    "capture_date": "2021-06-17",
+    "product_created": "2024-01-14T12:51:33.381Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 0.002595,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2021/6/S2B_T36RUU_20210617T083902_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2021/6/S2B_T36RUU_20210617T083902_L2A/SCL.tif",
+    "candidates_in_first_page": 18,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2021/6/S2B_T36RUU_20210617T083902_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2021/6/S2B_T36RUU_20210617T083902_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2021/6/S2B_T36RUU_20210617T083902_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2021/6/S2B_T36RUU_20210617T083902_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2B_T36RUU_20210617T083902_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.9697701407607068,
+      0.5965109314165918,
+      0.01698674752920036
+    ],
+    "calibrated_saturation_fraction": [
+      9.359089547768794e-06,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "7754f2bc90351694d7e1e946324d61cbcdbb400f24f7d8355904968bd131c603"
+  },
+  {
+    "quarter": "2021Q3",
+    "status": "available",
+    "scene_id": "S2B_T36RUU_20210915T083702_L2A",
+    "capture_date": "2021-09-15",
+    "product_created": "2024-01-17T02:49:34.849Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 13.772811,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2021/9/S2B_T36RUU_20210915T083702_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2021/9/S2B_T36RUU_20210915T083702_L2A/SCL.tif",
+    "candidates_in_first_page": 17,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2021/9/S2B_T36RUU_20210915T083702_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2021/9/S2B_T36RUU_20210915T083702_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2021/9/S2B_T36RUU_20210915T083702_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2021/9/S2B_T36RUU_20210915T083702_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2B_T36RUU_20210915T083702_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.8028414195867026,
+      0.44342430368373764,
+      0.02233078766097634
+    ],
+    "calibrated_saturation_fraction": [
+      0.0005989817310572028,
+      0.00018718179095537587,
+      0.00017782270140760708
+    ],
+    "rendered_source_sha256": "c2be35c82dba28a47d8ed11e993f83b9976a788cb91a72310e7d168e37b378c0"
+  },
+  {
+    "quarter": "2021Q4",
+    "status": "available",
+    "scene_id": "S2A_T36RUU_20211219T083349_L2A",
+    "capture_date": "2021-12-19",
+    "product_created": "2024-01-12T21:05:27.388Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 0.884476,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2021/12/S2A_T36RUU_20211219T083349_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2021/12/S2A_T36RUU_20211219T083349_L2A/SCL.tif",
+    "candidates_in_first_page": 10,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2021/12/S2A_T36RUU_20211219T083349_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2021/12/S2A_T36RUU_20211219T083349_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2021/12/S2A_T36RUU_20211219T083349_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2021/12/S2A_T36RUU_20211219T083349_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2A_T36RUU_20211219T083349_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.501095013477089,
+      0.20838012878107218,
+      0.0031259359089547767
+    ],
+    "calibrated_saturation_fraction": [
+      0.00018718179095537587,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "0c8d205db3d633370b78d258340cacba17961f5ec7a732eba349c6c5ba270d1b"
+  },
+  {
+    "quarter": "2022Q1",
+    "status": "available",
+    "scene_id": "S2A_36RUU_20220309_0_L2A",
+    "capture_date": "2022-03-09",
+    "product_created": "2022-11-06T12:51:34.340Z",
+    "collection": "sentinel-2-l2a",
+    "local_bad_fraction": 0.0,
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "tile_cloud_percent": 6.079532,
+    "visual_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2022/3/S2A_36RUU_20220309_0_L2A/TCI.tif",
+    "scl_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2022/3/S2A_36RUU_20220309_0_L2A/SCL.tif",
+    "candidates_in_first_page": 10,
+    "resolution_m": 10,
+    "source_crs": "EPSG:32636",
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "note": "Retrospective visual context. Processing/availability may postdate capture; not model X or historical availability proof.",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2022/3/S2A_36RUU_20220309_0_L2A/B04.tif",
+      "green": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2022/3/S2A_36RUU_20220309_0_L2A/B03.tif",
+      "blue": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2022/3/S2A_36RUU_20220309_0_L2A/B02.tif"
+    },
+    "preview_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2022/3/S2A_36RUU_20220309_0_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a/items/S2A_36RUU_20220309_0_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.6748371518418689,
+      0.24956948188080263,
+      0.003303758610362384
+    ],
+    "calibrated_saturation_fraction": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "99e2b6fa35eafdb81ef6351d20829572cd5d262504e08b99941b1ea4ae08d19a"
+  },
+  {
+    "quarter": "2022Q2",
+    "status": "available",
+    "scene_id": "S2A_36RUU_20220617_0_L2A",
+    "capture_date": "2022-06-17",
+    "product_created": "2022-11-06T12:34:57.893Z",
+    "collection": "sentinel-2-l2a",
+    "local_bad_fraction": 0.0,
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "tile_cloud_percent": 0.002608,
+    "visual_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2022/6/S2A_36RUU_20220617_0_L2A/TCI.tif",
+    "scl_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2022/6/S2A_36RUU_20220617_0_L2A/SCL.tif",
+    "candidates_in_first_page": 14,
+    "resolution_m": 10,
+    "source_crs": "EPSG:32636",
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "note": "Retrospective visual context. Processing/availability may postdate capture; not model X or historical availability proof.",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2022/6/S2A_36RUU_20220617_0_L2A/B04.tif",
+      "green": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2022/6/S2A_36RUU_20220617_0_L2A/B03.tif",
+      "blue": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2022/6/S2A_36RUU_20220617_0_L2A/B02.tif"
+    },
+    "preview_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2022/6/S2A_36RUU_20220617_0_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a/items/S2A_36RUU_20220617_0_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.9633030098831986,
+      0.5732816711590296,
+      0.021666292303084755
+    ],
+    "calibrated_saturation_fraction": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "74c83db8900b66234cc7dbf8a932d06182221b157e603f5e8cfde1ec9ca42229"
+  },
+  {
+    "quarter": "2022Q3",
+    "status": "available",
+    "scene_id": "S2A_36RUU_20220915_0_L2A",
+    "capture_date": "2022-09-15",
+    "product_created": "2022-11-06T12:35:36.213Z",
+    "collection": "sentinel-2-l2a",
+    "local_bad_fraction": 0.0,
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "tile_cloud_percent": 9.345965,
+    "visual_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2022/9/S2A_36RUU_20220915_0_L2A/TCI.tif",
+    "scl_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2022/9/S2A_36RUU_20220915_0_L2A/SCL.tif",
+    "candidates_in_first_page": 19,
+    "resolution_m": 10,
+    "source_crs": "EPSG:32636",
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "note": "Retrospective visual context. Processing/availability may postdate capture; not model X or historical availability proof.",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2022/9/S2A_36RUU_20220915_0_L2A/B04.tif",
+      "green": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2022/9/S2A_36RUU_20220915_0_L2A/B03.tif",
+      "blue": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2022/9/S2A_36RUU_20220915_0_L2A/B02.tif"
+    },
+    "preview_url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/36/R/UU/2022/9/S2A_36RUU_20220915_0_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a/items/S2A_36RUU_20220915_0_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.7296065438754118,
+      0.39973607367475295,
+      0.022536687631027254
+    ],
+    "calibrated_saturation_fraction": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "9f52c3f8a5e0a196f3c6c1b5c5c10f8c2dfed3e934c4abfd668f722ab6929ad1"
+  },
+  {
+    "quarter": "2022Q4",
+    "status": "available",
+    "scene_id": "S2B_T36RUU_20221219T083300_L2A",
+    "capture_date": "2022-12-19",
+    "product_created": "2024-01-11T01:27:28.135Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 7.521896,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2022/12/S2B_T36RUU_20221219T083300_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2022/12/S2B_T36RUU_20221219T083300_L2A/SCL.tif",
+    "candidates_in_first_page": 5,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2022/12/S2B_T36RUU_20221219T083300_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2022/12/S2B_T36RUU_20221219T083300_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2022/12/S2B_T36RUU_20221219T083300_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2022/12/S2B_T36RUU_20221219T083300_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2B_T36RUU_20221219T083300_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.4400550314465409,
+      0.11424640610961366,
+      0.00643905360886493
+    ],
+    "calibrated_saturation_fraction": [
+      0.00019654088050314466,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "bf36c708e312dcb909188004727173b59bf9d469b219431510d4b49a05ff3a27"
+  },
+  {
+    "quarter": "2023Q1",
+    "status": "available",
+    "scene_id": "S2B_T36RUU_20230309T084115_L2A",
+    "capture_date": "2023-03-09",
+    "product_created": "2024-01-10T08:35:12.168Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 12.675934,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2023/3/S2B_T36RUU_20230309T084115_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2023/3/S2B_T36RUU_20230309T084115_L2A/SCL.tif",
+    "candidates_in_first_page": 8,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2023/3/S2B_T36RUU_20230309T084115_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2023/3/S2B_T36RUU_20230309T084115_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2023/3/S2B_T36RUU_20230309T084115_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2023/3/S2B_T36RUU_20230309T084115_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2B_T36RUU_20230309T084115_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.6117475292003594,
+      0.2749794100029949,
+      0.018119197364480383
+    ],
+    "calibrated_saturation_fraction": [
+      0.00021525905959868225,
+      2.807726864330638e-05,
+      0.0
+    ],
+    "rendered_source_sha256": "91f4a0c91ff535179883ac015e04e866c412f1d6a01ae4879fe4cbec882a1c6c"
+  },
+  {
+    "quarter": "2023Q2",
+    "status": "available",
+    "scene_id": "S2B_T36RUU_20230617T084038_L2A",
+    "capture_date": "2023-06-17",
+    "product_created": "2024-01-09T16:30:29.697Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 0.005445,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2023/6/S2B_T36RUU_20230617T084038_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2023/6/S2B_T36RUU_20230617T084038_L2A/SCL.tif",
+    "candidates_in_first_page": 14,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2023/6/S2B_T36RUU_20230617T084038_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2023/6/S2B_T36RUU_20230617T084038_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2023/6/S2B_T36RUU_20230617T084038_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2023/6/S2B_T36RUU_20230617T084038_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2B_T36RUU_20230617T084038_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.9714828541479484,
+      0.5345256813417191,
+      0.023173105720275533
+    ],
+    "calibrated_saturation_fraction": [
+      9.359089547768794e-06,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "ccdadb4b189ed8d4e4f9fbe898e9d0bc72de6e295473bc20e4e6293087e6d39c"
+  },
+  {
+    "quarter": "2023Q3",
+    "status": "available",
+    "scene_id": "S2B_T36RUU_20230915T083906_L2A",
+    "capture_date": "2023-09-15",
+    "product_created": "2024-01-09T20:44:02.256Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 0.034827,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2023/9/S2B_T36RUU_20230915T083906_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2023/9/S2B_T36RUU_20230915T083906_L2A/SCL.tif",
+    "candidates_in_first_page": 18,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2023/9/S2B_T36RUU_20230915T083906_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2023/9/S2B_T36RUU_20230915T083906_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2023/9/S2B_T36RUU_20230915T083906_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2023/9/S2B_T36RUU_20230915T083906_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2B_T36RUU_20230915T083906_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.7218197813716681,
+      0.42903002395926926,
+      0.039766771488469604
+    ],
+    "calibrated_saturation_fraction": [
+      0.0010294998502545672,
+      3.7436358191075174e-05,
+      0.0
+    ],
+    "rendered_source_sha256": "42a07528286f7c515068efddf6e83698f07d513857b2aa1601da906e08a9df0e"
+  },
+  {
+    "quarter": "2023Q4",
+    "status": "available",
+    "scene_id": "S2B_T36RUU_20231214T083625_L2A",
+    "capture_date": "2023-12-14",
+    "product_created": "2024-01-09T17:02:23.010Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 0.712914,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2023/12/S2B_T36RUU_20231214T083625_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2023/12/S2B_T36RUU_20231214T083625_L2A/SCL.tif",
+    "candidates_in_first_page": 13,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2023/12/S2B_T36RUU_20231214T083625_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2023/12/S2B_T36RUU_20231214T083625_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2023/12/S2B_T36RUU_20231214T083625_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2023/12/S2B_T36RUU_20231214T083625_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2B_T36RUU_20231214T083625_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.42621293800539084,
+      0.12983864929619646,
+      0.0051755765199161426
+    ],
+    "calibrated_saturation_fraction": [
+      0.0001403863432165319,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "d8d7fb2aa95e5fd866fb5f345fb0051becca6145d3e4ff3d35179fd2e0bda47d"
+  },
+  {
+    "quarter": "2024Q1",
+    "status": "available",
+    "scene_id": "S2B_T36RUU_20240313T083002_L2A",
+    "capture_date": "2024-03-13",
+    "product_created": "2024-03-13T14:55:51.006Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 24.030733,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2024/3/S2B_T36RUU_20240313T083002_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2024/3/S2B_T36RUU_20240313T083002_L2A/SCL.tif",
+    "candidates_in_first_page": 11,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2024/3/S2B_T36RUU_20240313T083002_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2024/3/S2B_T36RUU_20240313T083002_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2024/3/S2B_T36RUU_20240313T083002_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2024/3/S2B_T36RUU_20240313T083002_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2B_T36RUU_20240313T083002_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.6010688080263552,
+      0.2489517819706499,
+      0.015947888589398024
+    ],
+    "calibrated_saturation_fraction": [
+      3.7436358191075174e-05,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "cdde8898c296dd9cbdfd38d235ec6abaa11dd978c0753ef03476c9e51dcf651c"
+  },
+  {
+    "quarter": "2024Q2",
+    "status": "available",
+    "scene_id": "S2A_T36RUU_20240616T083138_L2A",
+    "capture_date": "2024-06-16",
+    "product_created": "2024-06-16T15:05:32.731Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 0.000823,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2024/6/S2A_T36RUU_20240616T083138_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2024/6/S2A_T36RUU_20240616T083138_L2A/SCL.tif",
+    "candidates_in_first_page": 19,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2024/6/S2A_T36RUU_20240616T083138_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2024/6/S2A_T36RUU_20240616T083138_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2024/6/S2A_T36RUU_20240616T083138_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2024/6/S2A_T36RUU_20240616T083138_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2A_T36RUU_20240616T083138_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.969358340820605,
+      0.6426886792452831,
+      0.04607479784366577
+    ],
+    "calibrated_saturation_fraction": [
+      0.0001497454327643007,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "b0fbe1a9b900a40545e126d77ae523ea620919375acf01fafe63f7f404c807d7"
+  },
+  {
+    "quarter": "2024Q3",
+    "status": "available",
+    "scene_id": "S2A_T36RUU_20240914T084021_L2A",
+    "capture_date": "2024-09-14",
+    "product_created": "2024-09-14T13:21:29.137Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.005075779239348013,
+    "tile_cloud_percent": 12.445058,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2024/9/S2A_T36RUU_20240914T084021_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2024/9/S2A_T36RUU_20240914T084021_L2A/SCL.tif",
+    "candidates_in_first_page": 19,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.06419529837251356,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2024/9/S2A_T36RUU_20240914T084021_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2024/9/S2A_T36RUU_20240914T084021_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2024/9/S2A_T36RUU_20240914T084021_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2024/9/S2A_T36RUU_20240914T084021_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2A_T36RUU_20240914T084021_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.7348850703803534,
+      0.53473158131177,
+      0.11485474693021863
+    ],
+    "calibrated_saturation_fraction": [
+      0.0019186133572926026,
+      0.0011230907457322552,
+      0.001132449835280024
+    ],
+    "rendered_source_sha256": "7b9b59639271a96118c9ccff58383860a616b8ff26c3060b5ce2b95f7e9c4247"
+  },
+  {
+    "quarter": "2024Q4",
+    "status": "available",
+    "scene_id": "S2A_T36RUU_20241223T083350_L2A",
+    "capture_date": "2024-12-23",
+    "product_created": "2024-12-23T13:07:52.772Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 0.200384,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2024/12/S2A_T36RUU_20241223T083350_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2024/12/S2A_T36RUU_20241223T083350_L2A/SCL.tif",
+    "candidates_in_first_page": 19,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2024/12/S2A_T36RUU_20241223T083350_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2024/12/S2A_T36RUU_20241223T083350_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2024/12/S2A_T36RUU_20241223T083350_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2024/12/S2A_T36RUU_20241223T083350_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2A_T36RUU_20241223T083350_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.40397574123989216,
+      0.11479859239293201,
+      0.006083408206049716
+    ],
+    "calibrated_saturation_fraction": [
+      3.7436358191075174e-05,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "79da6fe0f74b98e062a2bd2a9000c175beac784ec2a0afa5fb935bb737e6aafa"
+  },
+  {
+    "quarter": "2025Q1",
+    "status": "available",
+    "scene_id": "S2A_T36RUU_20250315T084039_L2A",
+    "capture_date": "2025-03-15",
+    "product_created": "2025-03-15T14:08:59.893Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 0.327726,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2025/3/S2A_T36RUU_20250315T084039_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2025/3/S2A_T36RUU_20250315T084039_L2A/SCL.tif",
+    "candidates_in_first_page": 10,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2025/3/S2A_T36RUU_20250315T084039_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2025/3/S2A_T36RUU_20250315T084039_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2025/3/S2A_T36RUU_20250315T084039_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2025/3/S2A_T36RUU_20250315T084039_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2A_T36RUU_20250315T084039_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.5498465109314166,
+      0.2649558250973345,
+      0.023865678346810422
+    ],
+    "calibrated_saturation_fraction": [
+      0.0002994908655286014,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "73755095132610df5783930b066e59d7577ff175b7ba2a64b68aef923137f878"
+  },
+  {
+    "quarter": "2025Q2",
+    "status": "available",
+    "scene_id": "S2B_T36RUU_20250616T084108_L2A",
+    "capture_date": "2025-06-16",
+    "product_created": "2025-06-16T12:47:09.150Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 0.071018,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2025/6/S2B_T36RUU_20250616T084108_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2025/6/S2B_T36RUU_20250616T084108_L2A/SCL.tif",
+    "candidates_in_first_page": 19,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2025/6/S2B_T36RUU_20250616T084108_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2025/6/S2B_T36RUU_20250616T084108_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2025/6/S2B_T36RUU_20250616T084108_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2025/6/S2B_T36RUU_20250616T084108_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2B_T36RUU_20250616T084108_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.9484969302186284,
+      0.5857947738843965,
+      0.04709493860437257
+    ],
+    "calibrated_saturation_fraction": [
+      8.423180592991914e-05,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "d11bc6eacc496570fb0d2d8117257a6005e92edbc8d189089d7028db78056981"
+  },
+  {
+    "quarter": "2025Q3",
+    "status": "available",
+    "scene_id": "S2B_T36RUU_20250914T083807_L2A",
+    "capture_date": "2025-09-14",
+    "product_created": "2025-09-14T12:37:12.976Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 0.001184,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2025/9/S2B_T36RUU_20250914T083807_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2025/9/S2B_T36RUU_20250914T083807_L2A/SCL.tif",
+    "candidates_in_first_page": 24,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2025/9/S2B_T36RUU_20250914T083807_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2025/9/S2B_T36RUU_20250914T083807_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2025/9/S2B_T36RUU_20250914T083807_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2025/9/S2B_T36RUU_20250914T083807_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2B_T36RUU_20250914T083807_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.6979541030248577,
+      0.3768343815513627,
+      0.036556603773584904
+    ],
+    "calibrated_saturation_fraction": [
+      0.00012166816412099432,
+      2.807726864330638e-05,
+      1.8718179095537587e-05
+    ],
+    "rendered_source_sha256": "3287a14cafa642dba2ca82a433e3a66c94810d0894e257a8b3cf5521ed5dcffa"
+  },
+  {
+    "quarter": "2025Q4",
+    "status": "available",
+    "scene_id": "S2C_T36RUU_20251218T084103_L2A",
+    "capture_date": "2025-12-18",
+    "product_created": "2025-12-18T14:26:12.676Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 1.854994,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2025/12/S2C_T36RUU_20251218T084103_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2025/12/S2C_T36RUU_20251218T084103_L2A/SCL.tif",
+    "candidates_in_first_page": 17,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2025/12/S2C_T36RUU_20251218T084103_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2025/12/S2C_T36RUU_20251218T084103_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2025/12/S2C_T36RUU_20251218T084103_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2025/12/S2C_T36RUU_20251218T084103_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2C_T36RUU_20251218T084103_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.40564165917939504,
+      0.14855682839173406,
+      0.010791030248577419
+    ],
+    "calibrated_saturation_fraction": [
+      0.00016846361185983828,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "ca6d3b8757da94300bd8d29505faf93bac6a8902c1ced8c39065759e96b03113"
+  },
+  {
+    "quarter": "2026Q1",
+    "status": "available",
+    "scene_id": "S2A_T36RUU_20260320T083921_L2A",
+    "capture_date": "2026-03-20",
+    "product_created": "2026-03-20T16:01:49.817Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 19.598575,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2026/3/S2A_T36RUU_20260320T083921_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2026/3/S2A_T36RUU_20260320T083921_L2A/SCL.tif",
+    "candidates_in_first_page": 10,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2026/3/S2A_T36RUU_20260320T083921_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2026/3/S2A_T36RUU_20260320T083921_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2026/3/S2A_T36RUU_20260320T083921_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2026/3/S2A_T36RUU_20260320T083921_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2A_T36RUU_20260320T083921_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.6507655735250075,
+      0.290964734950584,
+      0.02806790955375861
+    ],
+    "calibrated_saturation_fraction": [
+      9.359089547768794e-06,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "35c0104451687d6d3c93a9bb14df0bae0b1738770a4dd625bb37f39bab07e1f9"
+  },
+  {
+    "quarter": "2026Q2",
+    "status": "available",
+    "scene_id": "S2C_T36RUU_20260616T083555_L2A",
+    "capture_date": "2026-06-16",
+    "product_created": "2026-06-16T15:32:51.745Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 0.049383,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2026/6/S2C_T36RUU_20260616T083555_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2026/6/S2C_T36RUU_20260616T083555_L2A/SCL.tif",
+    "candidates_in_first_page": 23,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2026/6/S2C_T36RUU_20260616T083555_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2026/6/S2C_T36RUU_20260616T083555_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2026/6/S2C_T36RUU_20260616T083555_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2026/6/S2C_T36RUU_20260616T083555_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2C_T36RUU_20260616T083555_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.9112945492662474,
+      0.6244852500748728,
+      0.050960242587601075
+    ],
+    "calibrated_saturation_fraction": [
+      0.00023397723869421984,
+      0.0,
+      0.0
+    ],
+    "rendered_source_sha256": "1bf6020b612bfc1bf40e70e096a54b021d72991be99f588cb15e165bca3c4946"
+  },
+  {
+    "quarter": "2026Q3",
+    "status": "available",
+    "scene_id": "S2C_T36RUU_20260914T083612_L2A",
+    "capture_date": "2026-09-14",
+    "product_created": "2026-09-14T15:22:45.284Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "tile_cloud_percent": 0.001888,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2026/9/S2C_T36RUU_20260914T083612_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2026/9/S2C_T36RUU_20260914T083612_L2A/SCL.tif",
+    "candidates_in_first_page": 27,
+    "resolution_m": 10,
+    "note": "Retrospective visual context. Product processing/availability may be later than capture; not model X or historical availability proof.",
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2026/9/S2C_T36RUU_20260914T083612_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2026/9/S2C_T36RUU_20260914T083612_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2026/9/S2C_T36RUU_20260914T083612_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2026/9/S2C_T36RUU_20260914T083612_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2C_T36RUU_20260914T083612_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.6862926774483378,
+      0.40242213237496255,
+      0.03219526804432465
+    ],
+    "calibrated_saturation_fraction": [
+      9.359089547768794e-06,
+      1.8718179095537587e-05,
+      0.0
+    ],
+    "rendered_source_sha256": "14bf49e316cd126f47a9f7e937aa2c6113ceebd970ea9db6c028748bc2f67d9a"
+  },
+  {
+    "quarter": "2026Q4",
+    "status": "available",
+    "scene_id": "S2B_T36RUU_20261029T083114_L2A",
+    "capture_date": "2026-10-29",
+    "product_created": "2026-10-29T15:39:09.010Z",
+    "collection": "sentinel-2-c1-l2a",
+    "local_bad_fraction": 0.0,
+    "quality_by_code": {
+      "C01": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C02": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C03": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C04": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C07": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C10": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C12": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C14": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C17": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C18": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C19": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      },
+      "C21": {
+        "bad_fraction": 0.0,
+        "valid_fraction": 1.0
+      }
+    },
+    "tile_cloud_percent": 7.785339,
+    "visual_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2026/10/S2B_T36RUU_20261029T083114_L2A/TCI.tif",
+    "scl_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2026/10/S2B_T36RUU_20261029T083114_L2A/SCL.tif",
+    "candidates_in_first_page": 4,
+    "resolution_m": 10,
+    "source_crs": "EPSG:32636",
+    "method": "earth_search_public_cog",
+    "product_level": "L2A surface reflectance",
+    "quality_method": "SCL at 20 m, nearest-resampled to RGB 10 m grid",
+    "selection_target_date": "2026-10-30",
+    "note": "Retrospective visual context. Processing/availability may postdate capture; not model X or historical availability proof.",
+    "band_calibration": {
+      "red": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "green": {
+        "scale": 0.0001,
+        "offset": -0.1
+      },
+      "blue": {
+        "scale": 0.0001,
+        "offset": -0.1
+      }
+    },
+    "rgb_band_urls": {
+      "red": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2026/10/S2B_T36RUU_20261029T083114_L2A/B04.tif",
+      "green": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2026/10/S2B_T36RUU_20261029T083114_L2A/B03.tif",
+      "blue": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2026/10/S2B_T36RUU_20261029T083114_L2A/B02.tif"
+    },
+    "preview_url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/36/R/UU/2026/10/S2B_T36RUU_20261029T083114_L2A/TCI.tif",
+    "source_item_url": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-c1-l2a/items/S2B_T36RUU_20261029T083114_L2A",
+    "visualization_policy": "fixed_reflectance_0_0.6",
+    "visualization": "Source red/green/blue calibration, reflectance 0-0.6, gamma 1.0; no per-scene stretch",
+    "preview_saturation_fraction": [
+      0.5223963012878107,
+      0.33209793351302785,
+      0.03743635819107517
+    ],
+    "calibrated_saturation_fraction": [
+      8.423180592991914e-05,
+      9.359089547768794e-06,
+      0.0
+    ],
+    "rendered_source_sha256": "91f088402b55d9bc1037d3e8d105ee2c30929f90411bc4ff6bf1ee72c7b8b968"
+  }
+]
