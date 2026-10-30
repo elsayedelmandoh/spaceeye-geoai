@@ -30,7 +30,7 @@ if str(root_dir) not in sys.path:
 
 def load_dataset(base_dir: Path) -> pd.DataFrame:
     """Loads extended dataset from v5 ready package or local tables."""
-    csv_path = base_dir / "app_data_ready" / "SpaceEye_R7_READY_DATA_2026-10-30_v6" / "training" / "ml_dataset_extended.csv"
+    csv_path = base_dir / "app_data_ready" / "SpaceEye_R7_READY_DATA_2026-10-31_v7" / "training" / "ml_dataset_extended.csv"
     if not csv_path.exists():
         alt = base_dir / "app_data" / "ml" / "ml_dataset.csv"
         if alt.exists():
