@@ -1,0 +1,79 @@
+{
+ "c": 0.1828,
+ "n_plots_qualifying": 21,
+ "fallback_used": false,
+ "min_plots": 10,
+ "c_fallback": 0.225,
+ "plots_total": 225,
+ "plots_excluded_touch_r7_or_district_buffer500": 45,
+ "plots_excluded_compound_only_buffer500": 37,
+ "qualifying_rule": "status completed or share >= 20 m (count-based, share_full_of_present) >= 0.8 in 2023",
+ "c_quartiles_25_75": [
+  0.1315,
+  0.2607
+ ],
+ "sensitivity_compound_only_exclusion": {
+  "c": 0.1915,
+  "n_plots_qualifying": 24
+ },
+ "plots_with_start_not_excluded": 128,
+ "shape_check": [
+  {
+   "years_since_start": -2,
+   "n_plot_years": 18,
+   "median_share_ge20": 0.0,
+   "n_excl_left_censored": 17,
+   "median_share_ge20_excl_left_censored": 0.0
+  },
+  {
+   "years_since_start": -1,
+   "n_plot_years": 36,
+   "median_share_ge20": 0.0,
+   "n_excl_left_censored": 24,
+   "median_share_ge20_excl_left_censored": 0.0
+  },
+  {
+   "years_since_start": 0,
+   "n_plot_years": 69,
+   "median_share_ge20": 0.0,
+   "n_excl_left_censored": 41,
+   "median_share_ge20_excl_left_censored": 0.0
+  },
+  {
+   "years_since_start": 1,
+   "n_plot_years": 104,
+   "median_share_ge20": 0.0,
+   "n_excl_left_censored": 61,
+   "median_share_ge20_excl_left_censored": 0.0
+  },
+  {
+   "years_since_start": 2,
+   "n_plot_years": 98,
+   "median_share_ge20": 0.0,
+   "n_excl_left_censored": 55,
+   "median_share_ge20_excl_left_censored": 0.052
+  },
+  {
+   "years_since_start": 3,
+   "n_plot_years": 76,
+   "median_share_ge20": 0.0,
+   "n_excl_left_censored": 33,
+   "median_share_ge20_excl_left_censored": 0.143
+  },
+  {
+   "years_since_start": 4,
+   "n_plot_years": 64,
+   "median_share_ge20": 0.002,
+   "n_excl_left_censored": 21,
+   "median_share_ge20_excl_left_censored": 0.178
+  },
+  {
+   "years_since_start": 5,
+   "n_plot_years": 43,
+   "median_share_ge20": 0.0,
+   "n_excl_left_censored": 0,
+   "median_share_ge20_excl_left_censored": NaN
+  }
+ ],
+ "protocol_sha256": "d48ac669dba8495061c06a0405ee59ba94103826b6777e3aabb1a9de88fe7cec"
+}
