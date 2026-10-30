@@ -3,10 +3,10 @@
 Task T-AH-12. Snapshot of saved data-only checks; rendering this report does not rerun them.
 
 Source: `app_data/data_completion/quality_checks.csv` (external configured input).
-Source SHA256: `06dbcfab60c4edeb5828057384e4f1ceb7f7fed2c269ec459ba0a32b36480301`.
+Source SHA256: `d10487c275305bb1140f630b86fefe1dee821e046052e1e7f6af777576e0c44e`.
 Source: `data_completion/quality_checks.csv` (ten-gate run of complete_data). The Track A run keeps its own record in `real/quality_checks_log.parquet` with the same run id.
 
-Run id: `R1-1846440cf3`.
+Run id: `R1-e7ddf4b1c0`.
 Computed at: `2026-10-30`.
 
 Results: 1 FLAG, 10 PASS.
@@ -23,7 +23,7 @@ Results: 1 FLAG, 10 PASS.
 | data_or_city | Accuracy | FLAG | 1 quarters flagged: 2019Q2 | R4 | flag the quarter and review | flagged quarters may be a data event, not the city |
 | stuck_series | Accuracy | PASS | 0 stuck points | R3 | flag and review | a frozen series reads as 'no change' |
 | veg_pull_check | Accuracy | PASS | max diff 0.0000 on 24 rows | R3 | flag | vegetation drives the may-be-complete flag |
-| no_names | Privacy | PASS | 76 patterns, 346 files; files with a match: none | R1 | stop | names appear only in the backtest slide, never in data |
+| no_names | Privacy | PASS | 76 patterns, 360 files; files with a match: none | R1 | stop | names appear only in the backtest slide, never in data |
 
 ## Decisions and limits
 
