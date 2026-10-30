@@ -89,6 +89,7 @@ fines:
   fine_rate_month: 0.01   # illustrative 1% of assumed land value/month; contract rate unavailable
   land_price_egp_m2: [2500, 12000]
   grace_months: 12
+  assumed_delivery_months: 48   # display-only K5 when no delivery date is published: ACUD's stated 4-year term (record REG-0022); never sets the level
   overlap: union         # a month meeting both conditions is counted once
   allocation_lead_months: [6, 18] # generated lag before first public/observed anchor, not a measured rate
   earliest_allocation: "2016-01-01"
