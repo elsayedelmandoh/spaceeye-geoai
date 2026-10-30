@@ -4,13 +4,13 @@ The observed figures are ready locally. Git contains **source selections, metada
 
 ## View the existing report
 
-Under the configured data root, open `app_data/imagery_comparison/index.html`. It works offline. The local controlled-copy report is `imagery_delivery/SpaceEye_R7_IMAGERY_REVIEW_2026-10-30.zip` alongside `app_data`; its `.zip.sha256.txt` verifies the archive. Do not upload it to this repository or treat the imagery as MIT-licensed training data.
+Under the configured data root, open `app_data/imagery_comparison/index.html`. It works offline. The local controlled-copy report is `imagery_delivery/SpaceEye_R7_IMAGERY_REVIEW_2026-10-30_v2.zip` alongside `app_data`; its `.zip.sha256.txt` verifies the archive. Do not upload it to this repository or treat the imagery as MIT-licensed training data.
 
 A teammate with an appropriately shared copy can extract it and open `imagery_comparison/index.html`, or install it into their configured data root:
 
 ```sh
 uv sync --locked
-uv run --locked python -m src.pipeline.imagery_delivery --package /path/to/SpaceEye_R7_IMAGERY_REVIEW_2026-10-30.zip
+uv run --locked python -m src.pipeline.imagery_delivery --package /path/to/SpaceEye_R7_IMAGERY_REVIEW_2026-10-30_v2.zip
 ```
 
 Replace the example path with the received file. The matching checksum must be beside it. Installation validates every member and preflights collisions before writing; differing existing files are preserved. `SPACEEYE_DATA_ROOT` relocates the destination. There is no public image-download URL implied by this guide. The normal `setup_review` command installs numerical v6 data, without imagery.
@@ -27,7 +27,7 @@ See the [comparison](../IMAGERY_COMPARISON.md), [coverage](../IMAGERY_COVERAGE.c
 
 The numerical as-of remains `configs/data.yaml: asof` (currently 2026Q3). After is the latest capture whose release and capture are both available by that quarter-end. Before is the latest eligible capture at least **12 calendar months before that after capture**. Mixed-date frames use their latest capture date for conservative selection. A literal baseline measured only from the current as-of would choose the same July 2025 observation for both roles, so the distinct-year refinement prevents duplicate pairs. Missing baselines remain missing.
 
-`images.csv` contains the pair only. Minimum fields are `code`, `role`, `capture_date`, `publication_date`, `source`, `resolution_m`, `attribution`; compatibility fields include `image_type`, `release_date` and APP-relative `path`. `capture_date` is intentionally empty for a mixed-date mosaic: read `capture_dates`, `capture_date_min`, `capture_date_max` and `mixed_capture_dates`. Resolution lists retain the underlying providers' metadata; screen pixels do not increase native resolution. `sha256` identifies the actual local figure. `wayback_timeline.csv` retains all 100 observations; `stage_02` etc. are chronological positions, not construction-stage labels.
+`images.csv` contains the pair only. Minimum fields are `code`, `role`, `capture_date`, `publication_date`, `source`, `resolution_m`, `attribution`; compatibility fields include `image_type`, `release_date` and APP-relative `path`. `capture_date` is intentionally empty for a mixed-date mosaic: read `capture_dates`, `capture_date_min`, `capture_date_max` and `mixed_capture_dates`. `capture_age_months_at_asof` uses completed calendar months since the latest capture; current after frames are **14 months old** at the 2026-09-30 as-of. Gallery/inspector captions show this age; historical tool requests recompute it for their requested quarter. Resolution lists retain the underlying providers' metadata; screen pixels do not increase native resolution. `sha256` identifies the actual local figure. `wayback_timeline.csv` retains all 100 observations; `stage_02` etc. are chronological positions, not construction-stage labels.
 
 The image tool gates both release date and latest capture date when given a historical quarter. It cannot infer historical availability from capture alone. The current pair may be unavailable at an earlier cutoff; the full chronology remains a separate review artifact. Image bytes are embedded only when rendering local HTML, never inserted into the model's factual context.
 
@@ -55,5 +55,7 @@ The recorded product IDs preserve source selection. External rendering/source se
 ## Rights and limits
 
 Keep the [third-party notice](THIRD_PARTY_IMAGERY.md), source-item links, Esri/provider credits and Copernicus notices with the figures. Esri static-map educational/non-commercial use is subject to the applicable service/provider terms; it is not a blanket image redistribution or model-training licence. This delivery keeps Esri pixels outside Git. Sentinel figures contain modified Copernicus Sentinel data and are not represented as CC0.
+
+Inspection HTML that embeds Esri pixels as base64 follows the same rule as the JPEGs: keep it local for attributed educational review; never commit or redistribute it. T-EL-06 report generation does not remove the underlying image rights. Only metadata/source-code files belong in Git.
 
 These are inspector context only, outside model X and KPI computation. Current reviewed boundaries are used consistently; they do not establish historical allocation or cadastral accuracy. Images do not establish finishing, legal handover, floor count, height, construction percentage, or paved-road timing. Earlier finishing and road-timing experiments remain rejected. Review acceptance for T-AH-15 is still pending.

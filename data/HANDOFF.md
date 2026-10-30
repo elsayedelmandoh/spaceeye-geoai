@@ -33,7 +33,7 @@ Raw sources and private evaluation inputs live outside Git under Project/real_da
 | [Annual coverage](ANNUAL_CONTEXT_COVERAGE.csv) | Missing years/values preserved; heights only through the approved 2024 product |
 | [Current ZIP validation](READY_V6_VALIDATION.json) | CRC and all 292 manifest hashes; model contracts are covered by their separate tests/reports |
 
-Latest integrated imagery/v6 test suite: 230 passed (30 October 2026). The 2019Q2 source-event FLAG remains visible. Report rendering does not rerun source checks; freshness is relative to the configured computation date. Different evidence files describe different scoped runs, not interchangeable project-wide certifications.
+Latest integrated imagery/v6 test suite: 240 passed (30 October 2026). The 2019Q2 source-event FLAG remains visible. Report rendering does not rerun source checks; freshness is relative to the configured computation date. Different evidence files describe different scoped runs, not interchangeable project-wide certifications.
 
 Labels are generated future distress events, not real-world diagnoses. Not_distressed does not imply completed or guaranteed healthy. Fine rates, allocation dates, land values and relief eligibility are assumptions. K5 never becomes a verified legal assessment. S1/S2 use explicit frozen public context; S3 changes capacity selection only. Generated visits are not field evidence.
 

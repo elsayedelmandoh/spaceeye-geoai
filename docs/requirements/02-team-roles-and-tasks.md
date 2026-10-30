@@ -17,8 +17,8 @@ Updated on 30 October 2026 against 77 current IDs, including the added T-AH-22. 
 
 | State | Count | Meaning |
 | --- | ---: | --- |
-| Main task checked | 42 | Implemented, with evidence; 27 still await assigned review |
-| Main task unchecked, open/partial | 34 | Original work/decision still unresolved |
+| Main task checked | 44 | Implemented, with evidence; 29 still await assigned review |
+| Main task unchecked, open/partial | 32 | Original work/decision still unresolved |
 | Main task unchecked, failed/excluded experiment | 1 | AH-17 ran and failed; no finishing feature delivered |
 | Review accepted | 15 recorded | Existing review records retained; no new reviewer acceptance inferred |
 
@@ -242,6 +242,7 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-E
   - Evidence: [implementation/output](../../src/inference/verifier.py). `verify_text` matches every number, date, quarter and code of an AI text against the source JSON (Arabic-Indic digits normalised), flags causal wording ("because", "بسبب" and others) for manual review, and gives each token a verdict (correct / wrong number / unsupported claim / missing context); `append_log` writes tokens only, never the text, to `app_data/ai_verification_log.csv`. Tests: `tests/test_ai_verifier.py` (fabricated data). Caveats: the older `src/inference/verify.py` stays for its own tests; the verifier is not yet wired into the narrative step or run on a real model output; the two functions the merge `91c3940` dropped from `tools.py` are restored, so `tests/test_inspection_tools.py` passes again; `generate_inspection_brief` is restored in `generate.py` as a wrapper over the guarded narrative step with a deterministic fallback, so `tests/test_inference.py` passes again (full suite: 216 passed, 1 skipped); its test only imports the function and never calls it.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [ ] **T-EL-06** [Must] D4 · Arabic HTML/PDF output with footer "Drafted by AI, reviewed by [name]" + model + time; 5 stored files for the presentation (deliverable 11) · `app_data/files/` · depends: T-AH-15 · reviewer: salma
+  - Image-rights condition: generated HTML embedding Esri pixels stays local for attributed educational review; never commit or redistribute it. See [imagery rights](../../data/imagery/README.md).
 - [x] **T-EL-07** [Should] D3 · Complaints masking: regex on numbers and names **before** any model (Law 151/2020); `assert_zero_phones` passes + test · reviewer: elsayed **Implemented; review pending.**
   - Evidence: [implementation/output](../../src/pipeline/privacy.py).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
