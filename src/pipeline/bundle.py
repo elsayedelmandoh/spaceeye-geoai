@@ -18,7 +18,7 @@ from src.pipeline.common import APP, BASE_DIR, PRIVATE, artifact_path
 PROJECT = APP.parent
 REPO = BASE_DIR
 RELEASES = PROJECT / "releases"
-TAG = "SpaceEye_R7_READY_DATA_2026-10-30_v6"
+TAG = "SpaceEye_R7_READY_DATA_2026-10-31_v7"
 
 
 def sha(path):
