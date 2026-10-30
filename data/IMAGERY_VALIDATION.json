@@ -1,0 +1,54 @@
+{
+  "status": "PASS",
+  "study_start": "2016-01-01",
+  "study_through": "2026-10-30",
+  "project_data_cutoff": "2026Q3",
+  "compounds": 12,
+  "wayback_frames": 100,
+  "wayback_min_per_compound": 5,
+  "wayback_max_per_compound": 13,
+  "mixed_date_wayback_frames": 26,
+  "sentinel_frames": 528,
+  "sentinel_quarters": 44,
+  "sentinel_missing_frames": 0,
+  "sentinel_latest_capture": "2026-10-29",
+  "partial_quarter": "2026Q4",
+  "per_compound_cloud_shadow_nodata_max": 0.06419529837251356,
+  "wayback_source_resolution_range_m": [
+    0.31,
+    0.5
+  ],
+  "same_extent_per_compound": true,
+  "numerical_release_modified": false,
+  "numerical_release": "SpaceEye_R7_READY_DATA_2026-10-30_v6.zip",
+  "numerical_release_sha256": "1794028194a5395e23166c358d2528dd87681d77e513d9e23116fa2f628bcb88",
+  "sentinel_display_policy": "Fixed physical RGB reflectance 0-0.6, gamma 1.0; source scale/offset applied; no per-scene fitting",
+  "context_metadata_coverage_min": 0.967396903088127,
+  "image_source_code_sha256_lf": {
+    "src\\pipeline\\imagery_sources.py": "4ef7ae4c99fc354dadea3af231af88a253c4020e1288672d09e04fcb5b22bc77",
+    "src\\pipeline\\imagery_compare.py": "d38b27ebfccd2c169ed19bc5b5228256b4432517605163277a85ef7c7d26fdac",
+    "src\\pipeline\\imagery_earth_engine.py": "02ef7f42c35ca1efe3947e764d960c9c79994b86c35dda10a9c937b8e5d02e23"
+  },
+  "no_training_or_threshold_change": true,
+  "limits": [
+    "Static map context only; no finishing, completion, height or accuracy claims.",
+    "Mixed capture dates remain mixed; source accuracy is not cadastral accuracy.",
+    "Sentinel frames are retrospective selected scenes; no historical availability proof.",
+    "Source display/rendering paths are not independent sensors or field validation."
+  ],
+  "package_files": 638,
+  "package_bytes": 65402333,
+  "package_sha256": "c082d5298a877f9ce290673f2b7057ad587f8ac54e76caaa5d8afc2b0e94702c",
+  "producer_code_revision": "09f6416",
+  "test_suite_passed": 240,
+  "privacy": {
+    "status": "PASS",
+    "patterns": 76,
+    "matched_files": 0
+  },
+  "code_review": {
+    "status": "findings addressed",
+    "record": "logs/review-imagery.md",
+    "assigned_task_review_accepted": false
+  }
+}

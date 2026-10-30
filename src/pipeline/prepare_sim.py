@@ -57,6 +57,7 @@ def main():
     out = APP / "sim_clean"
     out.mkdir(parents=True, exist_ok=True)
     for name, df in tables.items():
+        df = df.assign(synthetic_label=CFG["generator"]["label"])  # a column too, so CSV and DuckDB copies keep the flag
         tab = pa.Table.from_pandas(df, preserve_index=False)
         tab = tab.replace_schema_metadata({**(tab.schema.metadata or {}), b"synthetic_label": CFG["generator"]["label"].encode()})
         pq.write_table(tab, out / f"{name}.parquet")

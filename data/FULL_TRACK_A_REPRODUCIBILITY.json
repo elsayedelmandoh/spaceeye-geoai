@@ -1,7 +1,11 @@
 {
   "mode": "two full src.pipeline.run_all runs, including activity fitting",
   "equal_manifests": true,
-  "artifacts": 276,
+  "artifacts": 301,
   "protected_simulation_and_historical_binary_evaluation_unchanged": true,
-  "status": "PASS"
+  "status": "PASS",
+  "manifest_sha256": "b4c86deea0154f7f4d99e7b1adcc148bf4b3366841f6c282f97bb9d63237035c",
+  "run_id": "R1-1846440cf3",
+  "git_revision": "75a581adf25a003af8ff4f5483309a015a294fa3",
+  "computed_on": "2026-10-30"
 }

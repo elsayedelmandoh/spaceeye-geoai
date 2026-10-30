@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 from collections.abc import Mapping, Sequence
 from functools import lru_cache
@@ -323,8 +324,12 @@ def _missing_images(status: str = "missing") -> dict[str, JsonValue]:
 
 
 def _image_rows(frame: pd.DataFrame, code: str) -> list[pd.Series]:
-    """Return at most one source row for each image position."""
+    """Use an explicit chronological timeline, or the legacy before/after pair."""
     matching = frame.loc[frame["code"].eq(code)].copy()
+    if "sequence" in matching:
+        matching["sequence"] = pd.to_numeric(matching["sequence"], errors="coerce")
+        matching = matching.dropna(subset=["sequence"]).sort_values("sequence", kind="stable")
+        return [row for _, row in matching.drop_duplicates("image_type").iterrows()]
     selected = []
     for image_type in ("before", "after"):
         rows = matching.loc[matching["image_type"].astype(str).str.casefold().eq(image_type)]
@@ -336,8 +341,9 @@ def _image_rows(frame: pd.DataFrame, code: str) -> list[pd.Series]:
 def get_images(
     code: str,
     images_path: str | Path | None = None,
+    quarter: str | None = None,
 ) -> dict[str, JsonValue]:
-    """Return source Wayback image metadata or an explicit missing status."""
+    """Return dated imagery observations; release availability controls historical views."""
     path = Path(images_path) if images_path is not None else APP / "images" / "images.csv"
     missing_status = "missing_image" if images_path is None else "missing"
     if not path.is_file():
@@ -347,8 +353,19 @@ def get_images(
     missing_columns = sorted(required.difference(frame.columns))
     if missing_columns:
         raise ValueError(f"Image table is missing columns: {', '.join(missing_columns)}")
+    if "release_date" in frame:
+        cutoff = qend(qindex(quarter or CFG["asof"]))
+        released = pd.to_datetime(frame["release_date"], errors="coerce")
+        frame = frame.loc[released.notna() & released.le(cutoff)]
+        if "capture_date_max" in frame:
+            captured = pd.to_datetime(frame["capture_date_max"], errors="coerce")
+            frame = frame.loc[captured.notna() & captured.le(cutoff)]
+    elif quarter is not None:
+        return {"status": missing_status, "images": [], "reason": "Historical image availability is unknown: release dates are absent"}
     rows = _image_rows(frame, code)
     if not rows:
+        if quarter is not None and "release_date" in frame:
+            return {"status": missing_status, "images": [], "reason": "No dated Wayback release is available by the selected quarter cutoff"}
         return _missing_images(missing_status)
     images = [
         {
@@ -359,6 +376,23 @@ def get_images(
         }
         for row in rows
     ]
+    for image, row in zip(images, rows):
+        for field in ("capture_date_min", "capture_date_max", "release_date", "source_url", "usage"):
+            if field in frame:
+                image[field] = _optional_text(row.get(field))
+        if "capture_dates" in frame and _optional_text(row.get("capture_dates")):
+            image["capture_dates"] = json.loads(str(row["capture_dates"]))
+        if "mixed_capture_dates" in frame:
+            image["mixed_capture_dates"] = bool(row["mixed_capture_dates"])
+        if "sequence" in frame:
+            image["sequence"] = int(row["sequence"])
+    from src.pipeline.imagery_contract import capture_age_months
+    asof_date = qend(qindex(quarter or CFG["asof"])).date().isoformat()
+    for image in images:
+        latest_capture = image.get("capture_date_max") or image.get("capture_date")
+        if latest_capture and str(latest_capture) <= asof_date:
+            image["capture_age_months_at_asof"] = capture_age_months(str(latest_capture), asof_date)
+            image["asof_date"] = asof_date
     return {"status": "available", "images": images}
 
 
@@ -412,7 +446,7 @@ def get_rules(
     if not source_path.is_file():
         raise FileNotFoundError(
             "Decree 2184 reference CSV for config key 'sources.decree' not found: "
-            f"{source_path}. Mount F: under /mnt/f when using the configured path."
+            f"{source_path}. Run src.pipeline.setup_review for prepared rules, or configure SPACEEYE_DATA_ROOT and install source caches."
         )
     frame = _read_frame(source_path)
     selected = frame
@@ -482,7 +516,7 @@ def build_inspection_context(
     facts = get_facts(code, as_of_quarter)
     kpis = get_kpis(code, as_of_quarter)
     complaints = get_complaints_summary(code, as_of_quarter)
-    images = get_images(code)
+    images = get_images(code, quarter=as_of_quarter)
     rules = get_rules()
     relevant_rule_ids = {"R01", "R06", "R12", "R13", "R17", "R18"}
     applicable_rules = [

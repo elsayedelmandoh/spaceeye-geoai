@@ -1,0 +1,157 @@
+{
+  "scope": "Synthetic - for training only",
+  "protocol_sha256_before_fit": "0d3348d792c6606b8b79c5503511ec4987a26ea431d40ea0b1f56e33c363203b",
+  "train_rows": 96,
+  "test_rows": 48,
+  "train_classes": {
+    "not_distressed": 89,
+    "distressed": 7
+  },
+  "test_classes": {
+    "not_distressed": 44,
+    "distressed": 4
+  },
+  "target": "distressed / not_distressed in next six months",
+  "binary_implementation_acceptance": true,
+  "classes": [
+    "distressed",
+    "not_distressed"
+  ],
+  "confusion_matrices": {
+    "logistic_satellite": [
+      [
+        1,
+        3
+      ],
+      [
+        6,
+        38
+      ]
+    ],
+    "logistic_combined": [
+      [
+        1,
+        3
+      ],
+      [
+        3,
+        41
+      ]
+    ],
+    "boosting_satellite": [
+      [
+        0,
+        4
+      ],
+      [
+        8,
+        36
+      ]
+    ],
+    "boosting_combined": [
+      [
+        0,
+        4
+      ],
+      [
+        4,
+        40
+      ]
+    ]
+  },
+  "random_at_4": {
+    "draws": 2000,
+    "mean": 0.335375,
+    "low": 0.0,
+    "high": 0.75
+  },
+  "public_features": [
+    "A",
+    "active",
+    "K2",
+    "K3",
+    "level",
+    "started",
+    "d_A",
+    "d_K2",
+    "K4",
+    "K5_months",
+    "K6",
+    "may_be_complete",
+    "observed_started",
+    "start_observation_sufficient",
+    "K1",
+    "veg_share",
+    "activity_prob"
+  ],
+  "combined_features": [
+    "cover_ratio",
+    "cover_req0",
+    "cover_ctc",
+    "land_late",
+    "cmp_rate90",
+    "cmp_pctl",
+    "gap",
+    "report_age",
+    "meters",
+    "kwh_per_meter",
+    "kwh_ratio",
+    "d_cover_ratio",
+    "d_cover_ctc",
+    "d_land_late",
+    "d_cmp_rate90",
+    "d_gap",
+    "d_meters",
+    "d_kwh_ratio",
+    "A",
+    "active",
+    "K2",
+    "K3",
+    "level",
+    "started",
+    "d_A",
+    "d_K2",
+    "K4",
+    "K5_months",
+    "K6",
+    "may_be_complete",
+    "observed_started",
+    "start_observation_sufficient",
+    "K1",
+    "veg_share",
+    "planned_pct",
+    "reported_pct",
+    "K5_egp",
+    "activity_prob",
+    "land_months_late"
+  ],
+  "developer_holdout": {
+    "held_developers": [
+      "D02",
+      "D05",
+      "D12"
+    ],
+    "seed": 2026,
+    "train_rows": 56,
+    "test_rows": 20,
+    "status": "FITTED_UNINFORMATIVE",
+    "train_classes": {
+      "not_distressed": 50,
+      "distressed": 6
+    },
+    "test_classes": {
+      "not_distressed": 20
+    }
+  },
+  "input_sha256": {
+    "dataset": "46f22ec46be33645d16f181984bd1069695f6ef1a56a42149a0333254adb7821",
+    "metadata": "d7888e2014781ff565d598b922f810423bb3a9f3be77b5f88a230fd40e5cf73b",
+    "protocol": "0d3348d792c6606b8b79c5503511ec4987a26ea431d40ea0b1f56e33c363203b",
+    "source": "16434a1c55de1ce267768c87cfab7daf9450b291ae59696757f249523f008015"
+  },
+  "limits": [
+    "Completion prediction removed by the team lead; handover observations remain context.",
+    "Per-row synthetic labels are not independent real events.",
+    "Real-case check set is not used for fitting or tuning."
+  ]
+}

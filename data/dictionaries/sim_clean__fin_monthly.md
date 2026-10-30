@@ -23,3 +23,4 @@ Actual schema;540rows. Synthetic - for training only
 | kwh | float64 | kWh / month | generated | electricity billed: occupied homes x 153 x temperature seasonality + standby of empty meters + the site meter while building; 4 % estimated reads; real monthly max temperature; site load follows the work done |
 | status_level | str | on_plan / behind / late / distressed | derived | level ACUD recorded at its last quarterly review; K3 > 24 or no reported progress for 6 months or land arrears with cover below the minimum -> distressed; K3 > 0 -> late; reported 10+ points under plan -> behind |
 | warning_issued | bool |  | generated | a warning letter was issued in the month; 12-month grace expired (decree art. 5), or 3 months with no reported progress at a quarterly review (every 6 months while it lasts) |
+| synthetic_label | str | see meaning | generated/derived from generated | Synthetic - for training only; retained on generated products. |

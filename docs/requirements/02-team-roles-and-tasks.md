@@ -13,14 +13,14 @@ Source of every task: [`01-specs.md`](01-specs.md) (section numbers in brackets,
 
 ## Current implementation marks for human review
 
-Updated on 28 October 2026 against all 76 IDs in the newly supplied task board. Current approved binary scope is preserved.
+Updated on 30 October 2026 against 77 current IDs, including the added T-AH-22. Current approved binary scope and existing review records are preserved.
 
 | State | Count | Meaning |
 | --- | ---: | --- |
-| Main task checked | 36 | Implemented, with evidence; human review pending |
-| Main task unchecked, open/partial | 39 | Original work/decision still unresolved |
+| Main task checked | 44 | Implemented, with evidence; 29 still await assigned review |
+| Main task unchecked, open/partial | 32 | Original work/decision still unresolved |
 | Main task unchecked, failed/excluded experiment | 1 | AH-17 ran and failed; no finishing feature delivered |
-| Human review accepted | 0 recorded | Review checkboxes are deliberately pending |
+| Review accepted | 15 recorded | Existing review records retained; no new reviewer acceptance inferred |
 
 These are task counts, not effort percentages. Legacy D-day labels remain planning labels; actual program day/dates need team confirmation. Completion prediction is removed; no old three-class requirement is restored from the pasted copy.
 
@@ -122,12 +122,17 @@ Goal: one command (`python -m src.pipeline.run_all`) builds the R7 tables, A, K2
 - [x] **T-AH-13** [Must] D3 · Two runs identical: run `run_all` twice, compare `manifest.csv` sha; add a `make run` target · depends: T-AH-22 (a fresh two-run pass on the real data) · reviewer: elsayed **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/FULL_TRACK_A_REPRODUCIBILITY.json).
   - Open before acceptance: a fresh two-run PASS on the current commit must be run on ahmed's F: machine (step 1 of T-AH-22: `team_run --full`, then `full_repro`), because the committed result predates the path change and records no hash or revision. `full_repro` now stores the manifest hash, run id, git revision and `computed_on`, so the new result can be tied to a commit. Until it exists, "two runs identical" must not be relied on in the slides or the memo, and this Review accepted box stays unticked.
+  - Update 2026-10-30: fresh two-run PASS on ahmed's F: data at git revision 75a581a (branch fix/data-v6): 301 equal artifacts, protected simulation/history unchanged, manifest sha256 b4c86dee…, run id R1-1846440cf3, computed_on 2026-10-30 ([evidence](../../data/FULL_TRACK_A_REPRODUCIBILITY.json)). Both runs share one process (review-03 M11 option not taken). Review pending.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [ ] **T-AH-14** [Should] D3 · Fallback ready: if A fails on new quarters, K1 path documented and switchable in config (§13) · reviewer: elsayed **Partial; see [remaining work](../REMAINING_TEAM_TASKS.md).**
+- [x] **T-AH-14** [Should] D3 · Fallback ready: if A fails on new quarters, K1 path documented and switchable in config (§13) · reviewer: elsayed **Implemented; review pending.**
+  - Evidence: `activity.apply_source` (switch `activity.source: k1`), tests in `tests/test_activity_fallback.py`, effect on the current data in [K1_FALLBACK_CHECK.md](../../data/K1_FALLBACK_CHECK.md) (3 of 12 levels change at 2026Q3; backtest 2 of 6 instead of 1; not a reason to switch), doc section in [technical-track-a.md](../deliverables/technical-track-a.md).
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
 
 ### D3-D4: images for the compound file
 
-- [ ] **T-AH-15** [Should] D3 · Check Esri Wayback terms; then 2 Wayback images per R7 compound (before/after) with capture date + attribution · `app_data/images/<code>_{before,after}.jpg` + `images.csv` · reviewer: elsayed
+- [x] **T-AH-15** [Should] D3 · Check Esri Wayback terms; then 2 Wayback images per R7 compound (before/after) with capture date + attribution · `app_data/images/<code>_{before,after}.jpg` + `images.csv` · reviewer: elsayed **Implemented; review pending.**
+  - Evidence: [use/rebuild guide](../../data/imagery/README.md), [source/method comparison](../../data/IMAGERY_COMPARISON.md), [pair index](../../data/imagery/images.csv), [validation](../../data/IMAGERY_VALIDATION.json). Local figures: 24 inspector-pair rows, 100 distinct Wayback observations and 528 quarterly Sentinel context figures. Esri pixels/report ZIP stay outside Git; metadata, hashes, supported acquisition and portable installation code are provided. Distinct-year pair rule and publication cutoffs are documented/tested. Images are inspector context, never model X or proof of finishing; current numerical v6 is unchanged by imagery.
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-AH-16** [Should] D3 · Open Buildings height 2016-2023 + 2024 v4 estimate (context only; no fixed error guarantee) and vegetation series ready per compound for screen 2 (height is context, never in the level) · reviewer: elsayed **Done; review accepted.**
   - Evidence: [implementation/output](../deliverables/annual-context.md).
   - [x] Review accepted (logs/review-03.md, 2026-10-29; findings fixed in 236e051; review recorded in 7de6b7f; coverage figures come from data/ANNUAL_CONTEXT_COVERAGE.csv, not regenerated here).
@@ -146,7 +151,14 @@ Goal: one command (`python -m src.pipeline.run_all`) builds the R7 tables, A, K2
 
 ### D4: real-data run on the F: drive (only ahmed has the data, about 5 GB, so it cannot be run elsewhere)
 
-- [ ] **T-AH-22** [Must] D4 · On ahmed's machine with the F: data (WSL: `sudo mkdir -p /mnt/f && sudo mount -t drvfs F: /mnt/f`), on the latest `feat/ml`: (1) `uv run --locked --offline python -m src.pipeline.team_run --full`, then `uv run --locked --offline python -m src.pipeline.full_repro`; (2) regenerate and commit `data/BACKTEST_CURRENT.md` (with the frozen-clock result), `docs/deliverables/quality-report.md`, `data/FULL_TRACK_A_REPRODUCIBILITY.json` (manifest hash, run id, git revision), `data/R1_REPORT.md`, the current model metrics and EW reports; (3) confirm the separation and no_names gates on the real `kpi_values`; (4) run the v2 Stage 1 evaluation of `data/EW_PROTOCOL_V2.md` (check `sha256sum -c EW_PROTOCOL_V2.sha256` first; set `candidates.variant: v2` and `candidates.no_height_ablation: true`; v1 results stay labelled v1); (5) send the numbers, not the data, to the team · `data/*`, `docs/deliverables/quality-report.md`, `data/V2_MODEL_*`, `data/EW_REPORT_V2.md` · depends: coder fixes for review-03 committed, v2 protocol commit 8a16575 · reviewer: elsayed
+- [x] **T-AH-22** [Must] D4 · On ahmed's machine with the F: data (WSL: `sudo mkdir -p /mnt/f && sudo mount -t drvfs F: /mnt/f`), on the latest `feat/ml`: (1) `uv run --locked --offline python -m src.pipeline.team_run --full`, then `uv run --locked --offline python -m src.pipeline.full_repro`; (2) regenerate and commit `data/BACKTEST_CURRENT.md` (with the frozen-clock result), `docs/deliverables/quality-report.md`, `data/FULL_TRACK_A_REPRODUCIBILITY.json` (manifest hash, run id, git revision), `data/R1_REPORT.md`, the current model metrics and EW reports; (3) confirm the separation and no_names gates on the real `kpi_values`; (4) run the v2 Stage 1 evaluation of `data/EW_PROTOCOL_V2.md` (check `sha256sum -c EW_PROTOCOL_V2.sha256` first; set `candidates.variant: v2` and `candidates.no_height_ablation: true`; v1 results stay labelled v1); (5) send the numbers, not the data, to the team · `data/*`, `docs/deliverables/quality-report.md`, `data/V2_MODEL_*`, `data/EW_REPORT_V2.md` · depends: coder fixes for review-03 committed, v2 protocol commit 8a16575 · reviewer: elsayed **Implemented; review pending.**
+  - Evidence (2026-10-30, branch fix/data-v6). Run on Windows with the F: data rather than WSL; `.gitattributes` now keeps the frozen protocols LF so the v2 hash check passes on Windows.
+    - (1) `team_run --full` and `full_repro`: PASS. A crash in the backtest step of a full rebuild (activity merged twice) is fixed in run_all. Reproducibility record: [FULL_TRACK_A_REPRODUCIBILITY.json](../../data/FULL_TRACK_A_REPRODUCIBILITY.json).
+    - (2) Regenerated: [BACKTEST_CURRENT](../../data/BACKTEST_CURRENT.md) (frozen clock true at 2021Q4, 2023Q2, 2024Q4 and 2025Q3; 1 of 6 after start), [quality report](../deliverables/quality-report.md), [R1](../../data/R1_REPORT.md), [R2](../../data/R2_REPORT.md), current metrics and the EW report; ready data v6.
+    - (3) separation and no_names: PASS on the real `kpi_values`.
+    - (4) v2 Stage 1 (v2a, no height): [report](../../data/EW_REPORT_V2.md) and [side by side with v1](../../data/EW_V2A_VS_V1.md). v1 stays primary, as the protocol requires; boosting_satellite falls from 4 of 4 to 1 of 4.
+    - (5) Numbers for the team: in the PR description.
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
 
 ---
 
@@ -218,7 +230,7 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-E
   - Evidence: `configs/ai.yaml` (model `gemini-3.1-flash-lite`, 30 calls in total, 3 per file, 1024 output tokens, temperature 0, approval approved by the owner on 2026-10-29), `src/inference/ai_config.py` (loader, approval guard, call counter; the key is read only from the environment or the git-ignored `.env` and is never echoed), `prompts/system/inspection_agent.md`, `prompts/templates/inspection_paragraph.md`, `prompts/templates/visit_questions.md`. Tests: `tests/test_ai_config.py` (fabricated values only). Caveat: the API key must be present in the git-ignored `.env` of the machine that runs generation; it cannot be checked from the repo.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-EL-02** [Must] D2 · Agent tools as plain Python: `get_facts` (register + record_id + link), `get_kpis` (A, K2-K6, level, series), `get_images` (two Wayback images + capture date), `get_rules` (Decree 2184 articles) (§6 A) · `src/inference/tools.py` + tests on first-build data · reviewer: ahmed **Implemented; review pending.**
-  - Evidence: [implementation/output](../../src/inference/tools.py). Tests: `tests/test_inference_tools.py` (cutoff on the quarter end, unknown stays None, missing-image status, article filter, and one test on the real-schema tables of the prepared v5 release, which returned code C01 at 2026Q3). Caveats: images return an explicit `missing` status until T-AH-15; the full F: data run is pending.
+  - Evidence: [implementation/output](../../src/inference/tools.py). Tests: `tests/test_inference_tools.py` (quarter-end cutoff, unknown stays None, missing-image status, article filter, prepared-release real schema). T-AH-15 adds optional local before/after images with capture/publication cutoffs and offline HTML integration; absent images remain explicitly missing. See the [imagery handoff](../../data/imagery/README.md). The separate full source/v2 run remains T-AH-22; imagery does not complete it.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-EL-03** [Must] D3 · Inspection file template filled by code (what happened · why + rejected explanation · what it means · what we do: action, owner, date, escalation trigger); works without the LLM · reviewer: salma **Implemented; review pending.**
   - Evidence: [implementation/output](../../src/inference/inspection_file.py). `build_inspection_file` fills what happened, why (facts with record ids and links, numeric rejected explanations, open explanations), what it means and what we do (action by level, owner role, due date from the quarter end, escalation trigger) with no model call; an optional AI paragraph goes only into a separate draft field. Tests: `tests/test_inspection_file.py` (all seven states, determinism, forbidden wording, evidence ids), plus `get_kpis` now returns the compound code. Caveats: the Arabic sentence templates need a native-speaker review; due-date constants and owner roles are proposals for the team to confirm; the final HTML/PDF with model and time is T-EL-06.
@@ -230,6 +242,7 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-E
   - Evidence: [implementation/output](../../src/inference/verifier.py). `verify_text` matches every number, date, quarter and code of an AI text against the source JSON (Arabic-Indic digits normalised), flags causal wording ("because", "بسبب" and others) for manual review, and gives each token a verdict (correct / wrong number / unsupported claim / missing context); `append_log` writes tokens only, never the text, to `app_data/ai_verification_log.csv`. Tests: `tests/test_ai_verifier.py` (fabricated data). Caveats: the older `src/inference/verify.py` stays for its own tests; the verifier is not yet wired into the narrative step or run on a real model output; the two functions the merge `91c3940` dropped from `tools.py` are restored, so `tests/test_inspection_tools.py` passes again; `generate_inspection_brief` is restored in `generate.py` as a wrapper over the guarded narrative step with a deterministic fallback, so `tests/test_inference.py` passes again (full suite: 216 passed, 1 skipped); its test only imports the function and never calls it.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [ ] **T-EL-06** [Must] D4 · Arabic HTML/PDF output with footer "Drafted by AI, reviewed by [name]" + model + time; 5 stored files for the presentation (deliverable 11) · `app_data/files/` · depends: T-AH-15 · reviewer: salma
+  - Image-rights condition: generated HTML embedding Esri pixels stays local for attributed educational review; never commit or redistribute it. See [imagery rights](../../data/imagery/README.md).
 - [x] **T-EL-07** [Should] D3 · Complaints masking: regex on numbers and names **before** any model (Law 151/2020); `assert_zero_phones` passes + test · reviewer: elsayed **Implemented; review pending.**
   - Evidence: [implementation/output](../../src/pipeline/privacy.py).
   - [ ] Review accepted (record reviewer, date and PR after actual review).

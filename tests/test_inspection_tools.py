@@ -50,7 +50,8 @@ def test_get_complaints_summary_cutoff():
     assert "synthetic" in cmp["origin"]
 
 
-def test_get_images_explicit_missing_status():
+def test_get_images_explicit_missing_status(tmp_path, monkeypatch):
+    monkeypatch.setattr("src.inference.tools.APP", tmp_path)
     images = get_images("C07")
     assert images["status"] == "missing_image"
     assert "T-AH-15" in images["reason"]

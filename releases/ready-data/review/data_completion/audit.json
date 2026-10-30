@@ -88,15 +88,15 @@
     "app_data/real/eval_outcomes.parquet": "47c90a9a6292420c8322a0e95a807cba6eec0565247a005c032a93f6e3878041",
     "app_data/real/drivers_monthly.parquet": "143dbdae0f905d5d4e964d9fa28faf1745094688487305f76abbc7812e39b1e4",
     "app_data/real/rules.parquet": "1a41a7d20bb4dd939415eece033eaf8b6482dfbe5aab31bc16b70431e7a91348",
-    "app_data/real/kpi_values.parquet": "c6c4e8869f339a72483ca310ead0ca99886e8f4090523a6617a0d9d584343b89",
+    "app_data/real/kpi_values.parquet": "1cbcd7998630fa7b1da33aa41b223c8a7d70219d8e151934d9f407dcb8b1de4d",
     "app_data/sim/fin_monthly.parquet": "081b0d37258236256e62a15b55ac93e3bf67fa2dd53140148d329d3832d853ff",
     "app_data/sim/complaints.parquet": "f2046e2a22f962b3f49a092341e9e7d4df04007f1ed879ba40ea638561dd67a7",
     "private/answer_key.parquet": "ce7f4cb858a5f273e9410b69dcbc5c0c97ffefcccd78df261f23a3b490a7cfb0",
-    "configs/data.yaml": "5b9c17a9a2492ee41c5900a22b0fe222591cf1225eac2d03c2ef5af8ded39007",
-    "configs/synthetic_sources.json": "4703875e68d69742b62f3e6fb9e478fa81aa59cabadfcc0894a78b6c30fad64f",
-    "src/pipeline/complete_data.py": "5b3f15a9012c6569eeedeea8c8fa43af41adb095c9d77052537aa2df3e502284",
-    "src/pipeline/kpis.py": "94431dd93f4abdd41408e5840ea724b630c86b461d50d157fde97928af362501",
-    "src/analysis/ew_features.py": "67d984be6df757fe99b18a3c96b5941d30184c1d998f51483e153abfc84e31ac"
+    "configs/data.yaml": "2c64ad074a02cd658be234c3f30e69c6d6093ad3b4f0089c8594184ee2e4a47e",
+    "configs/synthetic_sources.json": "88fcee4397175e2c09f42e67f511748ac99d57c0234579f3971d806b9b806949",
+    "src/pipeline/complete_data.py": "e3df898e295b45b7a2f89c036a744ec631bf033fad7b43a352698fb6e48eed11",
+    "src/pipeline/kpis.py": "2df4e06294cce4b6b9a956e886c7764a22bac2da4cc7b28f2aacf5b2438fb1a3",
+    "src/analysis/ew_features.py": "7044164b4d6b3eb63a353596ec7e7f028e2050dc2e693db156a7b78dca09a838"
   },
   "generated_missing_inputs": [
     "Synthetic allocation dates and vintage-based contract price assumptions; allocation dates excluded from X/public K6.",

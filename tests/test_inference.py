@@ -4,6 +4,7 @@ tests/test_inference.py - Comprehensive Verification Suite for Verina's AI Pipel
 
 import sys
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 # Add project root to sys.path
@@ -43,7 +44,8 @@ class TestInferencePipeline(unittest.TestCase):
 
     def test_tools_get_images(self):
         """T-VE-02: get_images handles satellite images with graceful fallback citing T-AH-15."""
-        images = get_images("C07")
+        with patch("src.inference.tools.Path.is_file", return_value=False):
+            images = get_images("C07")
         self.assertIn("status", images)
         self.assertEqual(images["status"], "missing_image")
         self.assertIn("T-AH-15", images.get("reason", ""))

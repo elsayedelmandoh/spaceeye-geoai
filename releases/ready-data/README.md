@@ -1,10 +1,10 @@
 # Ready data: start here
 
-For a complete reviewer handoff, use [REVIEW_SETUP](../../docs/REVIEW_SETUP.md) and the [saved audit files](review/README.md). `python -m src.pipeline.setup_review` installs verified prepared data using portable paths. Exact raw/cache rebuild requirements and archive transfer commands are documented; the v5 ZIP itself is unchanged.
+For a complete reviewer handoff, use [REVIEW_SETUP](../../docs/REVIEW_SETUP.md) and the [saved audit files](review/README.md). `python -m src.pipeline.setup_review` installs verified prepared data using portable paths. Exact raw/cache rebuild requirements and archive transfer commands are documented; the v6 ZIP (30 October) rebuilds v5 with the current code; see its README for the changes.
 
-**[Download v5](SpaceEye_R7_READY_DATA_2026-10-28_v5.zip?raw=1)** and [read the data guide](DATA_GUIDE.md).
+**[Download v6](SpaceEye_R7_READY_DATA_2026-10-30_v6.zip?raw=1)** and [read the data guide](DATA_GUIDE.md).
 
-For T-AH-10, open the separate [backtest files and replay instructions](backtest/README.md): `cases.csv`, `summary.json` and the prepared inputs needed to reproduce case counts without the external source drive. The v5 ZIP is unchanged.
+For T-AH-10, open the separate [backtest files and replay instructions](backtest/README.md): `cases.csv`, `summary.json` and the prepared inputs needed to reproduce case counts without the external source drive. The backtest files were published with v5; the case counts are unchanged in v6.
 
 Current scope: 12 coded R7 compounds, capacity 4, 180 training rows and 40 features. Version 5 adopts the team lead's binary prediction scope: distressed / not_distressed in the next six months. Completion prediction is removed; source handover facts remain context.
 
@@ -20,4 +20,4 @@ Training ends 2024Q4; 2025Q1 is embargoed; time test is 2025Q2 through 2026Q1. E
 
 [Scope decision](../../data/BINARY_SCOPE_DECISION.md), [current report](../../data/EW_REPORT_CURRENT.md), [remaining tasks](../../docs/REMAINING_TEAM_TASKS.md).
 
-[ZIP SHA256](SpaceEye_R7_READY_DATA_2026-10-28_v5.zip.sha256.txt). Raw data, quarantines, private names/truth, credentials and model checkpoints are excluded. Earlier versioned ZIPs are historical snapshots; do not mix their targets/prediction schemas with v5.
+[ZIP SHA256](SpaceEye_R7_READY_DATA_2026-10-30_v6.zip.sha256.txt). Raw data, quarantines, private names/truth, credentials and model checkpoints are excluded. Earlier versioned ZIPs are historical snapshots; do not mix their targets/prediction schemas with v6.
