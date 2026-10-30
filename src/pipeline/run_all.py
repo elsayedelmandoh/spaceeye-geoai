@@ -11,7 +11,15 @@ from dataclasses import dataclass
 import duckdb
 import pandas as pd
 
-from src.pipeline import activity, backtest_check, build_real, codify, gates, kpis
+from src.pipeline import (
+    activity,
+    backtest_check,
+    build_real,
+    codify,
+    enrich,
+    gates,
+    kpis,
+)
 from src.pipeline.common import APP, BASE_DIR, CFG, IMAGERY_DIRS, RAW, REAL
 
 
@@ -122,6 +130,8 @@ def main() -> int:
     backtest_rows, backtest_detail = _backtest(_BacktestInputs(t, model, thr, mode, model_bt, thr_bt, leak, kpi, run_id, raw_sat))
     step("backtest", backtest_rows, backtest_detail)
 
+    t["sat_yearly"] = enrich.yearly(t["sat_yearly"])
+    t["compounds"] = enrich.compounds(t["compounds"], kpi, CFG["asof"])
     out = {**t, "kpi_values": kpi}
     write_real(out)
     kpis.cycle_list(kpi, CFG["asof"]).to_csv(REAL / f"cycle_list_{CFG['asof']}.csv", index=False, encoding="utf-8-sig")

@@ -181,6 +181,13 @@ ORIGINS = {
 
 ORIGINS["sat_quarterly"].update({c: "derived" for c in (
     "start_reference_date_asof", "start_reference_published", "start_reference_source")})
+# display fills added by enrich.py; real values always win and the *_source column names the basis
+ORIGINS["sat_yearly"].update({"height_mean_m_filled": "real|derived|assumption", "height_filled_source": "key",
+                              "veg_share_filled": "derived|assumption", "veg_filled_source": "key",
+                              "stage": "derived", "stage_source": "key", "stage_ar": "derived"})
+ORIGINS["compounds"].update({c: "assumption" for c in (
+    "launch_assumed", "first_deadline_assumed", "expected_handover_assumed")} | {c: "key" for c in (
+    "launch_assumed_source", "first_deadline_assumed_source", "expected_handover_source")})
 
 
 def build_all() -> dict[str, pd.DataFrame]:
