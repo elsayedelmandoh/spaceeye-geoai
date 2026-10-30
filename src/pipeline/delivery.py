@@ -14,7 +14,7 @@ import pandas as pd
 from src.generator import dictionaries
 from src.pipeline import complete_data, run_all
 from src.pipeline.build_real import ORIGINS
-from src.pipeline.common import APP, BASE_DIR, CFG, PRIVATE, REAL
+from src.pipeline.common import APP, BASE_DIR, CFG, IMAGERY_DIRS, PRIVATE, REAL
 from src.pipeline.kpis import KPI_ORIGINS
 from src.pipeline.release import audit
 
@@ -176,7 +176,8 @@ def fingerprint(protected=False):
         paths = [p for folder in ("raw", "sim", "model", "backtest", "ew") for p in (APP / folder).rglob("*") if p.is_file()]
         paths += [PRIVATE / n for n in ("answer_key.parquet", "answer_key_complaints.parquet", "ml_dataset.parquet", "ml_dataset_metadata.json")]
     else:
-        paths = [p for p in APP.rglob("*") if p.is_file() and p.suffix != ".duckdb" and p.name not in {"manifest.csv", "delivery_reproducibility.json"}]
+        paths = [p for p in APP.rglob("*") if p.is_file() and p.suffix != ".duckdb" and p.name not in {"manifest.csv", "delivery_reproducibility.json"}
+                 and p.relative_to(APP).parts[0] not in IMAGERY_DIRS]
         paths += list(PRIVATE.glob("*.parquet")) + list(PRIVATE.glob("ml_dataset*.json")) + list((PRIVATE / "dictionaries").glob("*.md"))
     hashes = {p.relative_to(APP.parent).as_posix(): run_all.sha(p) for p in sorted(set(paths)) if p.exists()}
     if not protected:

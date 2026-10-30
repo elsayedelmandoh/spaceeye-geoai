@@ -123,7 +123,8 @@ def developer_diagnostic(frame, train_mask, test_mask, public, features, metrics
             predictions.append(part)
             joblib.dump(model, OUT / "models" / f"{method}_developer.joblib")
     pd.concat(predictions, ignore_index=True).to_parquet(OUT / "developer_holdout_predictions.parquet", index=False)
-    return {**result, "status": "FITTED", "train_classes": train.y_outcome_6m.value_counts().to_dict(), "test_classes": test.y_outcome_6m.value_counts().to_dict()}
+    status = "FITTED" if test.y_outcome_6m.eq("distressed").any() else "FITTED_UNINFORMATIVE"  # no distressed test row: recall is undefined
+    return {**result, "status": status, "train_classes": train.y_outcome_6m.value_counts().to_dict(), "test_classes": test.y_outcome_6m.value_counts().to_dict()}
 
 
 def without_height(columns: list[str]) -> list[str]:
@@ -223,12 +224,13 @@ def run():
     ranking = pd.DataFrame(metrics).query("metric == 'distressed_recall_at_4' and view == 'time_test'")
     lines = ["# Current early-warning evaluation", "", f"Synthetic - for training only. See [frozen protocol]({PROTOCOL.name}).", "",
              f"Training: {len(train)} rows. Time test: {len(test)} rows. Capacity: 4. Target: distressed / not_distressed.", "",
-             "**Binary implementation acceptance: PASS.** Both classes are represented; the two probabilities sum to one. Completion prediction is outside the approved scope.", "",
+             "**Binary implementation acceptance: PASS** (implementation checks only: both classes are represented and the two probabilities sum to one; it says nothing about predictive power). Completion prediction is outside the approved scope.", "",
+             f"Statistical power is very low: the time test holds {int(test.y_outcome_6m.eq('distressed').sum())} distressed rows, and rows of a compound that is already distressed count as well (persistence, not only new onsets).", "",
              "| Method | Distressed cases selected | Recall@4 |", "| --- | --- | --- |"]
     lines += [f"| {r.method} | {r.numerator:g} of {r.denominator:g} | {r.value:.3f} |" for r in ranking.itertuples()]
     lines += ["", f"Random: 2,000 draws, mean {random_summary['mean']:.3f}, 95% interval [{random_summary['low']:.3f}, {random_summary['high']:.3f}].",
               "", f"Class support, per-class recall and macro-F1: [metrics]({STEM}_MODEL_METRICS.csv). Exact split, feature sets and confusion counts: [metadata]({STEM}_MODEL_METADATA.json).",
-              "", f"Secondary developer holdout: {developer_holdout['status']}; see metadata and the metrics view column.",
+              "", f"Secondary developer holdout: {developer_holdout['status']}" + (" (its test rows hold no distressed case, so recall is undefined and the view is uninformative)" if developer_holdout["status"] == "FITTED_UNINFORMATIVE" else "") + "; see metadata and the metrics view column.",
               "", "This is the current binary scope; historical N=8 and v4 three-class-scope results remain separate. Scores do not establish real-world predictive accuracy or fairness."]
     (docs / f"EW_REPORT_{STEM}.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"Binary evaluation PASS; train={len(train)}, test={len(test)}, developer_holdout={developer_holdout['status']}")

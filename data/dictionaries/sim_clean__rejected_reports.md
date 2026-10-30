@@ -9,3 +9,4 @@ Actual schema;5rows. Synthetic - for training only
 | reported_pct | float64 | percent | generated | supervisor-engineer progress report, only in months where a report arrived. in months with a real announced value it IS that value; quarterly report of the true progress at quarter end; optimistic developers add 2-8 points; rounding probability 16% (final multiples-of-5 share is checked separately); 5 % missing (35 % while stalled) |
 | report_date | datetime64[ns] | calendar date | generated | date of the report; 15-45 days after the quarter end (late-style developers up to 75); real publication date for announced values; see reported_pct |
 | dq_reason | str | see meaning | generated/derived from generated | Observable reason for quarantine/rejection; phone masking also applies to rejected complaint text. |
+| synthetic_label | str | see meaning | generated/derived from generated | Synthetic - for training only; retained on generated products. |

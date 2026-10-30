@@ -3,8 +3,11 @@
 Task T-AH-12. Snapshot of saved data-only checks; rendering this report does not rerun them.
 
 Source: `app_data/data_completion/quality_checks.csv` (external configured input).
-Source SHA256: `e4a8b411e76aa624f724bb4a1aaeeb70370e37734e9f62edd9bde0c405fdb1b0`.
+Source SHA256: `06dbcfab60c4edeb5828057384e4f1ceb7f7fed2c269ec459ba0a32b36480301`.
 Source: `data_completion/quality_checks.csv` (ten-gate run of complete_data). The Track A run keeps its own record in `real/quality_checks_log.parquet` with the same run id.
+
+Run id: `R1-1846440cf3`.
+Computed at: `2026-10-30`.
 
 Results: 1 FLAG, 10 PASS.
 
@@ -15,18 +18,18 @@ Results: 1 FLAG, 10 PASS.
 | validity | Validity | PASS | 0 violations | R1 | stop | invalid values break K1, A and K3 |
 | uniqueness | Uniqueness | PASS | 0 duplicates | R1 | stop | duplicates double-count a quarter |
 | consistency | Consistency | PASS | 0 stray codes; counts ok=True | R1 | stop | a join that changes rows silently changes every KPI |
-| freshness | Freshness | PASS | last quarter 2026Q3, 1 months before 2026-10-26 | R3 | flag: stale | stale data means levels describe the past |
+| freshness | Freshness | PASS | last quarter 2026Q3, 1 quarter(s) before 2026-10-30 | R3 | flag: stale | stale data means levels describe the past |
 | separation | Consistency | PASS | 0 columns without origin, 0 generated tables | R1 | stop | mixing generated and real numbers on the map |
 | data_or_city | Accuracy | FLAG | 1 quarters flagged: 2019Q2 | R4 | flag the quarter and review | flagged quarters may be a data event, not the city |
 | stuck_series | Accuracy | PASS | 0 stuck points | R3 | flag and review | a frozen series reads as 'no change' |
 | veg_pull_check | Accuracy | PASS | max diff 0.0000 on 24 rows | R3 | flag | vegetation drives the may-be-complete flag |
-| no_names | Privacy | PASS | 77 patterns, 346 files; files with a match: none | R1 | stop | names appear only in the backtest slide, never in data |
+| no_names | Privacy | PASS | 76 patterns, 346 files; files with a match: none | R1 | stop | names appear only in the backtest slide, never in data |
 
 ## Decisions and limits
 
 STOP blocks delivery. FIX requires correction and a gate rerun. FLAG stays visible and requires review; it is not a PASS.
 
-The 2019Q2 source-event FLAG remains unresolved. Review source coverage before interpreting that quarter as a physical construction change.
+Unresolved FLAG: data_or_city: 1 quarters flagged: 2019Q2. Review before interpreting it.
 
 Owner codes are pipeline roles, not evidence of a named teammate's review or sign-off. Freshness is relative to the configured computation date, not the report rendering date.
 

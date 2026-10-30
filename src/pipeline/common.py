@@ -12,6 +12,9 @@ import pandas as pd
 import yaml
 
 BASE_DIR = Path(__file__).resolve().parents[2]
+# app_data folders owned by the imagery work (T-AH-15): written by another step, often while the data build runs, so the data
+# build's manifests, reproducibility checks and file counts leave them out (the imagery step checks its own outputs)
+IMAGERY_DIRS = {"imagery_comparison", "imagery_work", "images", "images_research"}
 
 
 def load_cfg(path: Path | None = None) -> dict:

@@ -210,6 +210,7 @@ def build(refresh_inputs=True):
     quarterly = quarterly_finances(src.mon, src.rep, kpi, land)
     truth = pd.read_parquet(PRIVATE / "answer_key.parquet")
     dataset, features, keys = expanded_dataset(src, sat, tables["sat_yearly"], kpi, quarterly, tables["compounds"], truth)
+    dataset = dataset.assign(synthetic_label=LABEL)  # labels and most features are generated; keep the flag as a column
     caps = capacity_paths(kpi, CFG["cycle_capacity"])
     write_table(land, APP / "sim_clean" / "fine_assumptions.parquet")
     write_table(quarterly, APP / "sim_clean" / "fin_quarterly.parquet")
@@ -227,7 +228,7 @@ def build(refresh_inputs=True):
                         BASE_DIR / "configs" / "synthetic_sources.json", Path(__file__), BASE_DIR / "src" / "pipeline" / "kpis.py", BASE_DIR / "src" / "analysis" / "ew_features.py"]}
     meta = {"synthetic_label": LABEL, "dataset": "private/ml_dataset_extended.parquet", "rows": len(dataset), "keys": keys,
             "features": features, "targets": ["label_distress_next_6m", "y_outcome_6m"], "censor_column": "label_censored",
-            "excluded_from_X": ["already_completed_at_cutoff"], "split_counts": counts, "input_and_code_sha256": inputs,
+            "excluded_from_X": ["already_completed_at_cutoff", "synthetic_label"], "split_counts": counts, "input_and_code_sha256": inputs,
             "target_definition": "Binary distressed/not_distressed in the next six calendar months, excluding cutoff. Completion is not predicted. Already-handed-over cutoffs are excluded from the cohort. Censored targets are null. Boolean and categorical targets encode the same distress event.",
             "fine_policy": {**CFG["fines"], "basis": "research screening proxy, not verified contractual eligibility; monthly union, stops accruing at first published handover"},
             "complaint_rate": "90-day complaints per 1000 units sold in the cutoff MONTH (monthly flow, not cumulative sold inventory); own-history percentile requires 12 prior valid months. Historical binary EW instead used total register units. Sales-denominator stock is unavailable in the exported feed; interpret this as a flow-normalized diagnostic, not a buyer incidence rate.",

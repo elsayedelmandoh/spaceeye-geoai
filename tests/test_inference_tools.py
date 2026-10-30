@@ -13,7 +13,7 @@ import pytest
 from src.inference.tools import get_facts, get_images, get_kpis, get_rules
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-RELEASE_ZIP = REPO_ROOT / "releases" / "ready-data" / "SpaceEye_R7_READY_DATA_2026-10-28_v5.zip"
+RELEASE_ZIP = REPO_ROOT / "releases" / "ready-data" / "SpaceEye_R7_READY_DATA_2026-10-30_v6.zip"
 _REQUIRED_RELEASE_TABLES = (
     "tables/real/statements.parquet",
     "tables/real/kpi_values.parquet",
@@ -500,7 +500,7 @@ def test_prepared_release_tables_drive_the_inspection_tools(tmp_path):
         "computed_at",
     }
 
-    assert payload["archive_root"] == "SpaceEye_R7_READY_DATA_2026-10-28_v5"
+    assert payload["archive_root"] == "SpaceEye_R7_READY_DATA_2026-10-30_v6"
     assert payload["table_files"] == [
         "compounds.parquet",
         "drivers_monthly.parquet",

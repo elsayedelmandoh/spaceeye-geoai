@@ -40,6 +40,12 @@ Register fields have adjacent origin columns where values can be generated. Boun
 
 Height values used by the application are OBT2016–2023 and the approved v4 estimate for2024. Later rows do not imply approved later heights.
 The yearly height product is a model/observation product, not ground surveying or a per-building ±2m guarantee.
+Later model experiments are closed and none is published:
+- The v8/v9 Sentinel-2 building and height model (selected combiner C7) gives built area and heights for 2024-2026 as **candidates only**. It failed the independent Wayback test: agreement 0.69 for 2023->2025 and 0.74 for 2025->2026, against a gate of 0.80.
+- The v10 two-year change-head retrain lost the pre-registered 2 % rule against C7 on 2022 validation (S 4.628 vs 4.677) and was not tested further.
+- Finishing detection (Sentinel-2 0.674; Qwen3-VL-32B 0.559) and paved-road timing (1 of 12 events) were rejected.
+
+The candidate values stay outside this repository with their protocols and results (`Project/real_data/29_height_final/`). A coded R7 copy for optional display is in `app_data/candidates/compound_satellite_candidates_2024_2026.csv` (36 rows). It is not part of the ready bundle and is never an input to indicators or models. Any display must label it "candidate, not validated".
 The current accepted activity mode is q2hold; the quarterly feature table is not an independent fresh physical observation every quarter.
 
 ## Start fields

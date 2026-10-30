@@ -1,7 +1,7 @@
 # spaceeye real-data pipeline (R1): paths, thresholds, seed.
 # data lives outside the repo; sources are audited files and are never modified.
 seed: 2026
-computed_on: "2026-10-26"        # fixed so two runs give identical outputs
+computed_on: "2026-10-30"        # fixed so two runs give identical outputs (v6 rebuild; was 2026-10-26)
 asof: "2026Q3"                    # latest quarter for the cycle list
 first_quarter: "2016Q1"           # quarter index 0
 last_quarter: "2026Q3"
@@ -79,7 +79,7 @@ levels:
 # recorded 2026-10-28 in commit ca24988
   k6_l1: 24
   k6_l2: 13
-# recorded 2026-10-26 in commit 215980b
+# set 2026-10-28 in commit ca24988 (was 8 for 22 compounds since 215980b, 2026-10-26)
 cycle_capacity: 4          # 12 R7 compounds / 3, fixed before rebuilding
 inspection_capacity_fraction: 0.3333333333333333
 

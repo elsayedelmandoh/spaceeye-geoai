@@ -2,6 +2,8 @@
 
 Portable review handoff (29 October 2026): [device setup, prepared model refitting and complete source-cache transfer](REVIEW_SETUP.md) are available, with seven saved audit artifacts. Task/review acceptance marks are preserved; this setup change does not complete any pending dashboard, agent or fieldwork task.
 
+Data delivery v6 (30 October 2026): rebuilt with the current code after a review of the v5 data work (stale "start unknown" labels, synthetic_label columns, uninformative developer holdout, provenance comment, name gate on binaries, backtest crash in a full rebuild). Height experiments are closed (v10 lost the 2 % rule; 2024-2026 model values are candidates only). See data/DATASET_CONTRACT.md.
+
 T-AH-10 handoff update (29 October 2026): [original case outputs, prepared inputs and replay command](../releases/ready-data/backtest/README.md) are published separately from the unchanged v5 ZIP. Case-count replay needs no external source drive; full activity refitting and raw-source clock checks still require the source caches. Review status is unchanged.
 
 Updated on 28 October 2026 for approved binary scope and delivery v5. AH-16, EL-01, EL-10, EL-11 and EL-17 are no longer open implementation tasks; see [scope decision](../data/BINARY_SCOPE_DECISION.md). Based on the original **02-team-roles-and-tasks.md** supplied by the team lead. Original task IDs, owners and priority tiers are preserved.
@@ -15,7 +17,7 @@ This is an implementation snapshot, not an assessment of individual effort. Work
 - [Current model report](https://github.com/elsayedelmandoh/spaceeye-geoai/blob/feat/binary-distress-scope/data/EW_REPORT_CURRENT.md).
 - [Original board](requirements/02-team-roles-and-tasks.md), [current data contract](../data/DATASET_CONTRACT.md), [technical decisions](requirements/D1_DECISIONS_CURRENT.md).
 
-Use **SpaceEye_R7_READY_DATA_2026-10-28_v5.zip**: 23 ready tables, with binary model outputs. It includes prepared observations, generated operations, 180-row/40-feature training data, complaint corpora, inspection contexts, synthetic visit exercises, current model diagnostics and S1/S2/S3 outputs. Raw sources, private name mappings, hidden truth and model checkpoints are excluded.
+Use **SpaceEye_R7_READY_DATA_2026-10-30_v6.zip**: 23 ready tables, with binary model outputs. It includes prepared observations, generated operations, 180-row/40-feature training data, complaint corpora, inspection contexts, synthetic visit exercises, current model diagnostics and S1/S2/S3 outputs. Raw sources, private name mappings, hidden truth and model checkpoints are excluded.
 
 Current scope: **12 R7 compounds, six public backtest cases, inspection capacity 4**. Older references to 22 compounds, eight cases or capacity 8 are historical. The rough implementation estimate is approximately halfway complete, not an estimate of remaining hours.
 

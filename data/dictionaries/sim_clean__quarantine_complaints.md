@@ -11,3 +11,4 @@ Actual schema;15rows. Synthetic - for training only
 | category | str | delay / stoppage / payment / quality / other | generated | category as filed by the complaint desk; from the causing event; 10-15 % filed under a wrong category on purpose |
 | text_ar | str | about 100 texts, the rest empty | generated | complaint text in Arabic written from templates (no LLM); 10 texts carry a planted fake phone number (defect 6); templates by true cause, spelling slips, mixed topics |
 | dq_reason | str | see meaning | generated/derived from generated | Observable reason for quarantine/rejection; phone masking also applies to rejected complaint text. |
+| synthetic_label | str | see meaning | generated/derived from generated | Synthetic - for training only; retained on generated products. |
