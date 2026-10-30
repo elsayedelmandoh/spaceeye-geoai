@@ -12,13 +12,13 @@ uv run --locked python -m src.pipeline.setup_review
 uv run --locked python -m src.pipeline.rerun_backtest
 ```
 
-The checked-in v5 ZIP is already downloaded by `git clone`; do not download another version. Setup verifies its SHA-256, all 293 manifest entries, and the seven [saved review artifacts](../releases/ready-data/review/README.md). It unpacks the complete release and installs the prepared tables/training inputs used by the current evaluation code. Repeating setup keeps identical files; a collision with different existing data stops before overwriting any file.
+The checked-in v6 ZIP is already downloaded by `git clone`; do not download another version. Setup verifies its SHA-256, all 292 manifest entries, and the seven [saved review artifacts](../releases/ready-data/review/README.md). It unpacks the complete release and installs the prepared tables/training inputs used by the current evaluation code. Repeating setup keeps identical files; a collision with different existing data stops before overwriting any file.
 
 Default data locations, relative to the **repository root** (not the terminal working directory):
 
 ```text
 <checkout-parent>/Project/
-  ready-data/             complete unpacked v5 delivery
+  ready-data/             complete unpacked v6 delivery
   app_data/              prepared tables, saved review logs and generated outputs
   private/               prepared training export; locally generated truth stays here
   real_data/             original source caches, only after source installation
@@ -52,7 +52,7 @@ After setup, this command fits/evaluates the current binary models using the alr
 uv run --locked python -m src.analysis.current_evaluation
 ```
 
-It writes local checkpoints/predictions under `app_data/ml_current` and refreshes tracked current evaluation reports. Use a feature branch and review that diff. Generated targets are synthetic future distress labels, not independent field truth. Saved prediction files and the v5 package remain the comparison reference.
+It writes local checkpoints/predictions under `app_data/ml_current` and refreshes tracked current evaluation reports. Use a feature branch and review that diff. Generated targets are synthetic future distress labels, not independent field truth. Saved prediction files and the v6 package remain the comparison reference.
 
 The separate backtest replay checks six real-case outputs from frozen prepared inputs. Expected counts are 1/6 after-start, 0/6 point-in-time, 2/6 literal. The fixed five-case success criterion is not met. Replay does not refit activity or rerun source-to-output clock checks.
 
@@ -101,3 +101,8 @@ Record actual findings, revision, date and review evidence before accepting a ta
 ## Executed validation
 
 [Validation record](../data/PORTABLE_REVIEW_VALIDATION.json): 89 tests passed; isolated checkout launched from a different working directory; prepared setup and extracted-package verification passed; prepared and complete-source binary refits matched saved primary predictions/metrics; a clean full rebuild passed 61 data-audit checks and all four frozen-clock checks. This execution used Windows; POSIX/WSL path handling is implemented but those operating systems were not executed in this check. The original backtest success criterion and 2019Q2 FLAG remain unchanged.
+
+
+## Optional observed imagery
+
+The numerical setup does not install imagery. Follow the [imagery guide](../data/imagery/README.md) to view a controlled local report copy or rebuild figures from recorded source selections. Git contains metadata and code only, with no Esri JPEG/ZIP. The inspector pair and quarterly Sentinel context are outside model X. An Earth Engine account is only needed to rebuild four early periods, not to read metadata or install an appropriately shared report.

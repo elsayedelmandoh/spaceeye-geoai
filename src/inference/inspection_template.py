@@ -132,35 +132,10 @@ def generate_deterministic_report(
             "escalation": "عدم الرد ينقل الكمبوند تلقائياً للأولوية الثانية في دورة المتابعة القادمة."
         }
 
-    # Imagery Box (Contract with T-AH-15)
-    if images.get("status") == "available" and "before_url" in images:
-        imagery_html = f"""
-        <div class="imagery-box">
-            <div class="imagery-title">🛰️ صور الأقمار الصناعية للموقع (Maxar / Esri Wayback):</div>
-            <div class="imagery-grid">
-                <div>
-                    <img src="{images['before_url']}" alt="صورة سابقة" class="sat-img">
-                    <div class="img-caption">صورة سابقة بتاريخ: {images.get('before_date', 'غير محدد')}</div>
-                </div>
-                <div>
-                    <img src="{images['after_url']}" alt="صورة حديثة" class="sat-img">
-                    <div class="img-caption">صورة ربع الأساس بتاريخ: {images.get('after_date', 'غير محدد')}</div>
-                </div>
-            </div>
-            <div class="img-attr">المصدر والاعتماد: {images.get('attribution', 'Maxar / Wayback')}</div>
-        </div>
-        """
-    else:
-        imagery_html = f"""
-        <div class="imagery-box placeholder">
-            <div class="imagery-title">🛰️ صور الأقمار الصناعية للموقع (Satellite Imagery Status):</div>
-            <div class="placeholder-msg">
-                <span class="warning-icon">ℹ️</span>
-                <strong>حالة الصور:</strong> قيد التجهيز والتسليم من مهمة الزميل أحمد (T-AH-15).<br>
-                <em>السياسة المعتمدة: التوثيق الشفاف لحالة (missing_image) والالتزام الصارم بعدم اختلاق أي صور تخيلية أو غير موثقة.</em>
-            </div>
-        </div>
-        """
+    # Embed installed map files at the rendering boundary; plain tool/model
+    # context contains paths and metadata only, never image base64 payloads.
+    from src.inference.imagery_html import render_imagery_html
+    imagery_html = render_imagery_html(images)
 
     # AI Section (if injected)
     ai_section_html = ""

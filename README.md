@@ -1,5 +1,7 @@
 # SpaceEye: R7 inspection priority observatory
 
+**Observed imagery:** [view/rebuild guide](data/imagery/README.md), [source comparison](data/IMAGERY_COMPARISON.md) and [frame metadata](data/imagery/wayback_timeline.csv). The 100 Wayback / 528 Sentinel figures stay outside Git; the numerical v6 release is separate.
+
 **New device or review:** follow [REVIEW_SETUP](docs/REVIEW_SETUP.md). Run `uv sync --locked`, then `uv run --locked python -m src.pipeline.setup_review`. Paths are checkout-relative; `SPACEEYE_DATA_ROOT` relocates the workspace without requiring a specific drive. The [84-file source manifest](data/REBUILD_INPUTS.csv) and source-cache tool cover full rebuilds.
 
 [Download the current v6 data](releases/ready-data/SpaceEye_R7_READY_DATA_2026-10-30_v6.zip?raw=1) ? [Data guide](releases/ready-data/DATA_GUIDE.md) ? [Task board and human reviews](docs/requirements/02-team-roles-and-tasks.md) ? [Remaining work](docs/REMAINING_TEAM_TASKS.md)
@@ -49,7 +51,7 @@ The historical early_warning/release modules remain for saved experiment audits 
 
 - [Current handoff](data/HANDOFF.md), [dataset contract](data/DATASET_CONTRACT.md), [sources and generation](data/DATA_SOURCES_AND_GENERATION.md).
 - [Product requirements](docs/requirements/01-specs.md), [actual repository structure](docs/project-definition/08-structure.md).
-- [Approved binary scope](data/BINARY_SCOPE_DECISION.md), [model card](docs/deliverables/method-card.md), [package validation](data/READY_V5_VALIDATION.json).
+- [Approved binary scope](data/BINARY_SCOPE_DECISION.md), [model card](docs/deliverables/method-card.md), [package validation](data/READY_V6_VALIDATION.json).
 
 Work only on feature branches/PRs, preserve teammates' work and use the configured human Git identity. A checked main task means implemented/ready for review; its separate review checkbox requires actual human acceptance. Keep evidence and the remaining-task handoff synchronized. Current unresolved work is not represented by empty placeholder deliverables.
 

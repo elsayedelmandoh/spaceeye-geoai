@@ -1,0 +1,3664 @@
+[
+  {
+    "code": "C01",
+    "release_id": "18289",
+    "release_date": "2020-07-01",
+    "capture_dates": [
+      "2019-10-06"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.5
+    ],
+    "accuracy_m": [
+      4.23
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2019-10-06",
+        "provider": "Maxar",
+        "source": "Metro",
+        "area_fraction_approx": 1.0
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2020_r09/MapServer"
+  },
+  {
+    "code": "C01",
+    "release_id": "9812",
+    "release_date": "2021-02-24",
+    "capture_dates": [
+      "2020-06-28"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      4.23
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2020-06-28",
+        "provider": "Maxar",
+        "source": "Metro",
+        "area_fraction_approx": 1.0
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2021_r03/MapServer"
+  },
+  {
+    "code": "C01",
+    "release_id": "44710",
+    "release_date": "2022-06-08",
+    "capture_dates": [
+      "2021-04-09"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2021-04-09",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 1.0
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2022_r07/MapServer"
+  },
+  {
+    "code": "C01",
+    "release_id": "7110",
+    "release_date": "2022-11-02",
+    "capture_dates": [
+      "2022-06-13"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2022-06-13",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 1.0
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2022_r14/MapServer"
+  },
+  {
+    "code": "C01",
+    "release_id": "17632",
+    "release_date": "2023-08-10",
+    "capture_dates": [
+      "2023-02-10"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.46
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-02-10",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 1.0
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2023_r07/MapServer"
+  },
+  {
+    "code": "C01",
+    "release_id": "32553",
+    "release_date": "2024-08-15",
+    "capture_dates": [
+      "2023-07-29"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-07-29",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 1.0
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2024_r08/MapServer"
+  },
+  {
+    "code": "C01",
+    "release_id": "52304",
+    "release_date": "2025-09-04",
+    "capture_dates": [
+      "2025-04-08"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.46
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-04-08",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 1.0
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2025_r08/MapServer"
+  },
+  {
+    "code": "C01",
+    "release_id": "63116",
+    "release_date": "2026-09-24",
+    "capture_dates": [
+      "2025-07-23"
+    ],
+    "providers": [
+      "Vantor"
+    ],
+    "context_providers": [
+      "Vantor"
+    ],
+    "resolution_m": [
+      0.34
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-07-23",
+        "provider": "Vantor",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 1.0
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2026_r09/MapServer"
+  },
+  {
+    "code": "C02",
+    "release_id": "18289",
+    "release_date": "2020-07-01",
+    "capture_dates": [
+      "2018-08-18"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0000000000000002,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2018-08-18",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 1.0000000000000002
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2020_r09/MapServer"
+  },
+  {
+    "code": "C02",
+    "release_id": "9812",
+    "release_date": "2021-02-24",
+    "capture_dates": [
+      "2019-10-06"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.5
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0000000000000002,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2019-10-06",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 1.0000000000000002
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2021_r03/MapServer"
+  },
+  {
+    "code": "C02",
+    "release_id": "44710",
+    "release_date": "2022-06-08",
+    "capture_dates": [
+      "2021-04-09"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0000000000000002,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2021-04-09",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 1.0000000000000002
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2022_r07/MapServer"
+  },
+  {
+    "code": "C02",
+    "release_id": "45134",
+    "release_date": "2022-12-14",
+    "capture_dates": [
+      "2022-06-13"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0000000000000002,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2022-06-13",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 1.0000000000000002
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2022_r15/MapServer"
+  },
+  {
+    "code": "C02",
+    "release_id": "12457",
+    "release_date": "2023-11-01",
+    "capture_dates": [
+      "2023-02-10"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.46
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0000000000000002,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-02-10",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 1.0000000000000002
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2023_r10/MapServer"
+  },
+  {
+    "code": "C02",
+    "release_id": "56450",
+    "release_date": "2024-10-10",
+    "capture_dates": [
+      "2024-05-15"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.5
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0000000000000002,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2024-05-15",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 1.0000000000000002
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2024_r11/MapServer"
+  },
+  {
+    "code": "C02",
+    "release_id": "25285",
+    "release_date": "2025-05-29",
+    "capture_dates": [
+      "2025-01-26"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0000000000000002,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-01-26",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 1.0000000000000002
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2025_r05/MapServer"
+  },
+  {
+    "code": "C02",
+    "release_id": "10842",
+    "release_date": "2026-05-28",
+    "capture_dates": [
+      "2025-07-23"
+    ],
+    "providers": [
+      "Vantor"
+    ],
+    "context_providers": [
+      "Vantor"
+    ],
+    "resolution_m": [
+      0.34
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0000000000000002,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-07-23",
+        "provider": "Vantor",
+        "source": "Vivid",
+        "area_fraction_approx": 1.0000000000000002
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2026_r05/MapServer"
+  },
+  {
+    "code": "C03",
+    "release_id": "45134",
+    "release_date": "2022-12-14",
+    "capture_dates": [
+      "2022-06-13"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999995698,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2022-06-13",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.1947425157703194
+      },
+      {
+        "capture_date": "2022-06-13",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.8052574842292504
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2022_r15/MapServer"
+  },
+  {
+    "code": "C03",
+    "release_id": "17632",
+    "release_date": "2023-08-10",
+    "capture_dates": [
+      "2022-06-13",
+      "2023-02-10"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31,
+      0.46
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999995699,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2022-06-13",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.8052574842292505
+      },
+      {
+        "capture_date": "2023-02-10",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.1947425157703194
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2023_r07/MapServer"
+  },
+  {
+    "code": "C03",
+    "release_id": "12457",
+    "release_date": "2023-11-01",
+    "capture_dates": [
+      "2023-02-10"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.46
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999995698,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-02-10",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.1947425157703194
+      },
+      {
+        "capture_date": "2023-02-10",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.8052574842292504
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2023_r10/MapServer"
+  },
+  {
+    "code": "C03",
+    "release_id": "32553",
+    "release_date": "2024-08-15",
+    "capture_dates": [
+      "2023-02-10",
+      "2023-07-29"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31,
+      0.46
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999995699,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-02-10",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.8052574842292505
+      },
+      {
+        "capture_date": "2023-07-29",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.1947425157703194
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2024_r08/MapServer"
+  },
+  {
+    "code": "C03",
+    "release_id": "56450",
+    "release_date": "2024-10-10",
+    "capture_dates": [
+      "2023-07-29",
+      "2024-05-15"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31,
+      0.5
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999995698,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-07-29",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.1947425157703194
+      },
+      {
+        "capture_date": "2024-05-15",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.8052574842292504
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2024_r11/MapServer"
+  },
+  {
+    "code": "C03",
+    "release_id": "25285",
+    "release_date": "2025-05-29",
+    "capture_dates": [
+      "2023-07-29",
+      "2024-12-26",
+      "2025-01-26"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31,
+      0.34
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.999999999999318,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-07-29",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.1947425157703194
+      },
+      {
+        "capture_date": "2025-01-26",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.7012121041381728
+      },
+      {
+        "capture_date": "2024-12-26",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.10404538009082574
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2025_r05/MapServer"
+  },
+  {
+    "code": "C03",
+    "release_id": "52304",
+    "release_date": "2025-09-04",
+    "capture_dates": [
+      "2024-12-26",
+      "2025-01-26",
+      "2025-04-08"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31,
+      0.34,
+      0.46
+    ],
+    "accuracy_m": [
+      5.0,
+      8.47
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999993179,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-01-26",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.7012121041381727
+      },
+      {
+        "capture_date": "2024-12-26",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.10404538009082577
+      },
+      {
+        "capture_date": "2025-04-08",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.19474251577031942
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2025_r08/MapServer"
+  },
+  {
+    "code": "C03",
+    "release_id": "10842",
+    "release_date": "2026-05-28",
+    "capture_dates": [
+      "2025-04-08",
+      "2025-07-23"
+    ],
+    "providers": [
+      "Vantor"
+    ],
+    "context_providers": [
+      "Vantor"
+    ],
+    "resolution_m": [
+      0.34,
+      0.46
+    ],
+    "accuracy_m": [
+      5.0,
+      8.47
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999995698,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-04-08",
+        "provider": "Vantor",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.1947425157703194
+      },
+      {
+        "capture_date": "2025-07-23",
+        "provider": "Vantor",
+        "source": "Vivid",
+        "area_fraction_approx": 0.8052574842292504
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2026_r05/MapServer"
+  },
+  {
+    "code": "C03",
+    "release_id": "63116",
+    "release_date": "2026-09-24",
+    "capture_dates": [
+      "2025-07-23"
+    ],
+    "providers": [
+      "Vantor"
+    ],
+    "context_providers": [
+      "Vantor"
+    ],
+    "resolution_m": [
+      0.34
+    ],
+    "accuracy_m": [
+      5.0,
+      8.47
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999995699,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-07-23",
+        "provider": "Vantor",
+        "source": "Vivid",
+        "area_fraction_approx": 0.8052574842292505
+      },
+      {
+        "capture_date": "2025-07-23",
+        "provider": "Vantor",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.1947425157703194
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2026_r09/MapServer"
+  },
+  {
+    "code": "C04",
+    "release_id": "44710",
+    "release_date": "2022-06-08",
+    "capture_dates": [
+      "2021-04-09"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0,
+    "context_coverage_fraction": 0.967396903088127,
+    "visible_sources": [
+      {
+        "capture_date": "2021-04-09",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 1.0
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2022_r07/MapServer"
+  },
+  {
+    "code": "C04",
+    "release_id": "7110",
+    "release_date": "2022-11-02",
+    "capture_dates": [
+      "2022-06-13"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0,
+    "context_coverage_fraction": 0.967396903088127,
+    "visible_sources": [
+      {
+        "capture_date": "2022-06-13",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 1.0
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2022_r14/MapServer"
+  },
+  {
+    "code": "C04",
+    "release_id": "17632",
+    "release_date": "2023-08-10",
+    "capture_dates": [
+      "2023-02-10"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.46
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-02-10",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 1.0
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2023_r07/MapServer"
+  },
+  {
+    "code": "C04",
+    "release_id": "32553",
+    "release_date": "2024-08-15",
+    "capture_dates": [
+      "2023-07-29"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-07-29",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 1.0
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2024_r08/MapServer"
+  },
+  {
+    "code": "C04",
+    "release_id": "52304",
+    "release_date": "2025-09-04",
+    "capture_dates": [
+      "2025-04-08"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.46
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-04-08",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 1.0
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2025_r08/MapServer"
+  },
+  {
+    "code": "C04",
+    "release_id": "63116",
+    "release_date": "2026-09-24",
+    "capture_dates": [
+      "2025-07-23"
+    ],
+    "providers": [
+      "Vantor"
+    ],
+    "context_providers": [
+      "Vantor"
+    ],
+    "resolution_m": [
+      0.34
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-07-23",
+        "provider": "Vantor",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 1.0
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2026_r09/MapServer"
+  },
+  {
+    "code": "C07",
+    "release_id": "45134",
+    "release_date": "2022-12-14",
+    "capture_dates": [
+      "2022-06-13"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2022-06-13",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 1.0
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2022_r15/MapServer"
+  },
+  {
+    "code": "C07",
+    "release_id": "12457",
+    "release_date": "2023-11-01",
+    "capture_dates": [
+      "2023-02-10"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.46
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-02-10",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 1.0
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2023_r10/MapServer"
+  },
+  {
+    "code": "C07",
+    "release_id": "56450",
+    "release_date": "2024-10-10",
+    "capture_dates": [
+      "2024-05-15"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.5
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2024-05-15",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 1.0
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2024_r11/MapServer"
+  },
+  {
+    "code": "C07",
+    "release_id": "25285",
+    "release_date": "2025-05-29",
+    "capture_dates": [
+      "2025-01-26"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-01-26",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 1.0
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2025_r05/MapServer"
+  },
+  {
+    "code": "C07",
+    "release_id": "10842",
+    "release_date": "2026-05-28",
+    "capture_dates": [
+      "2025-07-23"
+    ],
+    "providers": [
+      "Vantor"
+    ],
+    "context_providers": [
+      "Vantor"
+    ],
+    "resolution_m": [
+      0.34
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-07-23",
+        "provider": "Vantor",
+        "source": "Vivid",
+        "area_fraction_approx": 1.0
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2026_r05/MapServer"
+  },
+  {
+    "code": "C10",
+    "release_id": "18289",
+    "release_date": "2020-07-01",
+    "capture_dates": [
+      "2019-10-06"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.5
+    ],
+    "accuracy_m": [
+      4.23
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0000000000000002,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2019-10-06",
+        "provider": "Maxar",
+        "source": "Metro",
+        "area_fraction_approx": 1.0000000000000002
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2020_r09/MapServer"
+  },
+  {
+    "code": "C10",
+    "release_id": "9812",
+    "release_date": "2021-02-24",
+    "capture_dates": [
+      "2020-06-28"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      4.23
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0000000000000002,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2020-06-28",
+        "provider": "Maxar",
+        "source": "Metro",
+        "area_fraction_approx": 1.0000000000000002
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2021_r03/MapServer"
+  },
+  {
+    "code": "C10",
+    "release_id": "44710",
+    "release_date": "2022-06-08",
+    "capture_dates": [
+      "2021-04-09"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0000000000000002,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2021-04-09",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 1.0000000000000002
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2022_r07/MapServer"
+  },
+  {
+    "code": "C10",
+    "release_id": "7110",
+    "release_date": "2022-11-02",
+    "capture_dates": [
+      "2022-06-13"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0000000000000002,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2022-06-13",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 1.0000000000000002
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2022_r14/MapServer"
+  },
+  {
+    "code": "C10",
+    "release_id": "17632",
+    "release_date": "2023-08-10",
+    "capture_dates": [
+      "2023-02-10"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.46
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0000000000000002,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-02-10",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 1.0000000000000002
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2023_r07/MapServer"
+  },
+  {
+    "code": "C10",
+    "release_id": "32553",
+    "release_date": "2024-08-15",
+    "capture_dates": [
+      "2023-07-29"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0000000000000002,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-07-29",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 1.0000000000000002
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2024_r08/MapServer"
+  },
+  {
+    "code": "C10",
+    "release_id": "52304",
+    "release_date": "2025-09-04",
+    "capture_dates": [
+      "2025-04-08"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.46
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0000000000000002,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-04-08",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 1.0000000000000002
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2025_r08/MapServer"
+  },
+  {
+    "code": "C10",
+    "release_id": "63116",
+    "release_date": "2026-09-24",
+    "capture_dates": [
+      "2025-07-23"
+    ],
+    "providers": [
+      "Vantor"
+    ],
+    "context_providers": [
+      "Vantor"
+    ],
+    "resolution_m": [
+      0.34
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0000000000000002,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-07-23",
+        "provider": "Vantor",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 1.0000000000000002
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2026_r09/MapServer"
+  },
+  {
+    "code": "C12",
+    "release_id": "18289",
+    "release_date": "2020-07-01",
+    "capture_dates": [
+      "2019-10-06"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.5
+    ],
+    "accuracy_m": [
+      4.23
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999997,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2019-10-06",
+        "provider": "Maxar",
+        "source": "Metro",
+        "area_fraction_approx": 0.9999999999999997
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2020_r09/MapServer"
+  },
+  {
+    "code": "C12",
+    "release_id": "9812",
+    "release_date": "2021-02-24",
+    "capture_dates": [
+      "2020-06-28"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      4.23
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999997,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2020-06-28",
+        "provider": "Maxar",
+        "source": "Metro",
+        "area_fraction_approx": 0.9999999999999997
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2021_r03/MapServer"
+  },
+  {
+    "code": "C12",
+    "release_id": "44710",
+    "release_date": "2022-06-08",
+    "capture_dates": [
+      "2021-04-09"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999997,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2021-04-09",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.9999999999999997
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2022_r07/MapServer"
+  },
+  {
+    "code": "C12",
+    "release_id": "7110",
+    "release_date": "2022-11-02",
+    "capture_dates": [
+      "2022-06-13"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999997,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2022-06-13",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.9999999999999997
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2022_r14/MapServer"
+  },
+  {
+    "code": "C12",
+    "release_id": "17632",
+    "release_date": "2023-08-10",
+    "capture_dates": [
+      "2023-02-10"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.46
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999997,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-02-10",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.9999999999999997
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2023_r07/MapServer"
+  },
+  {
+    "code": "C12",
+    "release_id": "32553",
+    "release_date": "2024-08-15",
+    "capture_dates": [
+      "2023-07-29"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999997,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-07-29",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.9999999999999997
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2024_r08/MapServer"
+  },
+  {
+    "code": "C12",
+    "release_id": "52304",
+    "release_date": "2025-09-04",
+    "capture_dates": [
+      "2025-04-08"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.46
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999997,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-04-08",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.9999999999999997
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2025_r08/MapServer"
+  },
+  {
+    "code": "C12",
+    "release_id": "63116",
+    "release_date": "2026-09-24",
+    "capture_dates": [
+      "2025-07-23"
+    ],
+    "providers": [
+      "Vantor"
+    ],
+    "context_providers": [
+      "Vantor"
+    ],
+    "resolution_m": [
+      0.34
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999997,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-07-23",
+        "provider": "Vantor",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.9999999999999997
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2026_r09/MapServer"
+  },
+  {
+    "code": "C14",
+    "release_id": "18289",
+    "release_date": "2020-07-01",
+    "capture_dates": [
+      "2018-08-18"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999997,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2018-08-18",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.9999999999999997
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2020_r09/MapServer"
+  },
+  {
+    "code": "C14",
+    "release_id": "9812",
+    "release_date": "2021-02-24",
+    "capture_dates": [
+      "2019-10-06"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.5
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999997,
+    "context_coverage_fraction": 0.9999753559903538,
+    "visible_sources": [
+      {
+        "capture_date": "2019-10-06",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.9999999999999997
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2021_r03/MapServer"
+  },
+  {
+    "code": "C14",
+    "release_id": "44710",
+    "release_date": "2022-06-08",
+    "capture_dates": [
+      "2021-04-09"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999998792,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2021-04-09",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.9140553433455667
+      },
+      {
+        "capture_date": "2021-04-09",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.08594465665431256
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2022_r07/MapServer"
+  },
+  {
+    "code": "C14",
+    "release_id": "7110",
+    "release_date": "2022-11-02",
+    "capture_dates": [
+      "2021-04-09",
+      "2022-06-13"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999998792,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2021-04-09",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.9140553433455667
+      },
+      {
+        "capture_date": "2022-06-13",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.08594465665431256
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2022_r14/MapServer"
+  },
+  {
+    "code": "C14",
+    "release_id": "45134",
+    "release_date": "2022-12-14",
+    "capture_dates": [
+      "2022-06-13"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999998792,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2022-06-13",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.08594465665431254
+      },
+      {
+        "capture_date": "2022-06-13",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.9140553433455667
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2022_r15/MapServer"
+  },
+  {
+    "code": "C14",
+    "release_id": "17632",
+    "release_date": "2023-08-10",
+    "capture_dates": [
+      "2022-06-13",
+      "2023-02-10"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31,
+      0.46
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999998792,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2022-06-13",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.9140553433455667
+      },
+      {
+        "capture_date": "2023-02-10",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.08594465665431256
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2023_r07/MapServer"
+  },
+  {
+    "code": "C14",
+    "release_id": "12457",
+    "release_date": "2023-11-01",
+    "capture_dates": [
+      "2023-02-10"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.46
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999998792,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-02-10",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.08594465665431254
+      },
+      {
+        "capture_date": "2023-02-10",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.9140553433455667
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2023_r10/MapServer"
+  },
+  {
+    "code": "C14",
+    "release_id": "32553",
+    "release_date": "2024-08-15",
+    "capture_dates": [
+      "2023-02-10",
+      "2023-07-29"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31,
+      0.46
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999998792,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-02-10",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.9140553433455667
+      },
+      {
+        "capture_date": "2023-07-29",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.08594465665431256
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2024_r08/MapServer"
+  },
+  {
+    "code": "C14",
+    "release_id": "56450",
+    "release_date": "2024-10-10",
+    "capture_dates": [
+      "2023-07-29",
+      "2024-05-15"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31,
+      0.5
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999998792,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-07-29",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.08594465665431254
+      },
+      {
+        "capture_date": "2024-05-15",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.9140553433455667
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2024_r11/MapServer"
+  },
+  {
+    "code": "C14",
+    "release_id": "25285",
+    "release_date": "2025-05-29",
+    "capture_dates": [
+      "2023-07-29",
+      "2024-12-26",
+      "2025-01-26"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31,
+      0.34
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999998102,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-07-29",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.08594465665431254
+      },
+      {
+        "capture_date": "2025-01-26",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.5233359281608233
+      },
+      {
+        "capture_date": "2024-12-26",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.39071941518467435
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2025_r05/MapServer"
+  },
+  {
+    "code": "C14",
+    "release_id": "52304",
+    "release_date": "2025-09-04",
+    "capture_dates": [
+      "2024-12-26",
+      "2025-01-26",
+      "2025-04-08"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31,
+      0.34,
+      0.46
+    ],
+    "accuracy_m": [
+      5.0,
+      8.47
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0000000000001543,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-01-26",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.5233359281610871
+      },
+      {
+        "capture_date": "2024-12-26",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.3907194151847547
+      },
+      {
+        "capture_date": "2025-04-08",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.08594465665431253
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2025_r08/MapServer"
+  },
+  {
+    "code": "C14",
+    "release_id": "10842",
+    "release_date": "2026-05-28",
+    "capture_dates": [
+      "2025-04-08",
+      "2025-07-23"
+    ],
+    "providers": [
+      "Vantor"
+    ],
+    "context_providers": [
+      "Vantor"
+    ],
+    "resolution_m": [
+      0.34,
+      0.46
+    ],
+    "accuracy_m": [
+      5.0,
+      8.47
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999998792,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-04-08",
+        "provider": "Vantor",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.08594465665431254
+      },
+      {
+        "capture_date": "2025-07-23",
+        "provider": "Vantor",
+        "source": "Vivid",
+        "area_fraction_approx": 0.9140553433455667
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2026_r05/MapServer"
+  },
+  {
+    "code": "C14",
+    "release_id": "63116",
+    "release_date": "2026-09-24",
+    "capture_dates": [
+      "2025-07-23"
+    ],
+    "providers": [
+      "Vantor"
+    ],
+    "context_providers": [
+      "Vantor"
+    ],
+    "resolution_m": [
+      0.34
+    ],
+    "accuracy_m": [
+      5.0,
+      8.47
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999998792,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-07-23",
+        "provider": "Vantor",
+        "source": "Vivid",
+        "area_fraction_approx": 0.9140553433455667
+      },
+      {
+        "capture_date": "2025-07-23",
+        "provider": "Vantor",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.08594465665431256
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2026_r09/MapServer"
+  },
+  {
+    "code": "C17",
+    "release_id": "45134",
+    "release_date": "2022-12-14",
+    "capture_dates": [
+      "2022-06-13"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999998,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2022-06-13",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.9999999999999998
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2022_r15/MapServer"
+  },
+  {
+    "code": "C17",
+    "release_id": "12457",
+    "release_date": "2023-11-01",
+    "capture_dates": [
+      "2023-02-10"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.46
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999998,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-02-10",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.9999999999999998
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2023_r10/MapServer"
+  },
+  {
+    "code": "C17",
+    "release_id": "56450",
+    "release_date": "2024-10-10",
+    "capture_dates": [
+      "2024-05-15"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.5
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999998,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2024-05-15",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.9999999999999998
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2024_r11/MapServer"
+  },
+  {
+    "code": "C17",
+    "release_id": "25285",
+    "release_date": "2025-05-29",
+    "capture_dates": [
+      "2025-01-26"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999998,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-01-26",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.9999999999999998
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2025_r05/MapServer"
+  },
+  {
+    "code": "C17",
+    "release_id": "10842",
+    "release_date": "2026-05-28",
+    "capture_dates": [
+      "2025-07-23"
+    ],
+    "providers": [
+      "Vantor"
+    ],
+    "context_providers": [
+      "Vantor"
+    ],
+    "resolution_m": [
+      0.34
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999998,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-07-23",
+        "provider": "Vantor",
+        "source": "Vivid",
+        "area_fraction_approx": 0.9999999999999998
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2026_r05/MapServer"
+  },
+  {
+    "code": "C18",
+    "release_id": "18289",
+    "release_date": "2020-07-01",
+    "capture_dates": [
+      "2019-10-06"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.5
+    ],
+    "accuracy_m": [
+      4.23
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999999,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2019-10-06",
+        "provider": "Maxar",
+        "source": "Metro",
+        "area_fraction_approx": 0.9999999999999999
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2020_r09/MapServer"
+  },
+  {
+    "code": "C18",
+    "release_id": "9812",
+    "release_date": "2021-02-24",
+    "capture_dates": [
+      "2020-06-28"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      4.23
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999999,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2020-06-28",
+        "provider": "Maxar",
+        "source": "Metro",
+        "area_fraction_approx": 0.9999999999999999
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2021_r03/MapServer"
+  },
+  {
+    "code": "C18",
+    "release_id": "44710",
+    "release_date": "2022-06-08",
+    "capture_dates": [
+      "2021-04-09"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999999,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2021-04-09",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.9999999999999999
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2022_r07/MapServer"
+  },
+  {
+    "code": "C18",
+    "release_id": "7110",
+    "release_date": "2022-11-02",
+    "capture_dates": [
+      "2022-06-13"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999999,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2022-06-13",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.9999999999999999
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2022_r14/MapServer"
+  },
+  {
+    "code": "C18",
+    "release_id": "17632",
+    "release_date": "2023-08-10",
+    "capture_dates": [
+      "2023-02-10"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.46
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999999,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-02-10",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.9999999999999999
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2023_r07/MapServer"
+  },
+  {
+    "code": "C18",
+    "release_id": "32553",
+    "release_date": "2024-08-15",
+    "capture_dates": [
+      "2023-07-29"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999999,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-07-29",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.9999999999999999
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2024_r08/MapServer"
+  },
+  {
+    "code": "C18",
+    "release_id": "52304",
+    "release_date": "2025-09-04",
+    "capture_dates": [
+      "2025-04-08"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.46
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999999,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-04-08",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.9999999999999999
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2025_r08/MapServer"
+  },
+  {
+    "code": "C18",
+    "release_id": "63116",
+    "release_date": "2026-09-24",
+    "capture_dates": [
+      "2025-07-23"
+    ],
+    "providers": [
+      "Vantor"
+    ],
+    "context_providers": [
+      "Vantor"
+    ],
+    "resolution_m": [
+      0.34
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999999,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-07-23",
+        "provider": "Vantor",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.9999999999999999
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2026_r09/MapServer"
+  },
+  {
+    "code": "C19",
+    "release_id": "45134",
+    "release_date": "2022-12-14",
+    "capture_dates": [
+      "2022-06-13"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999997217,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2022-06-13",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.15506947256780912
+      },
+      {
+        "capture_date": "2022-06-13",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.8449305274319125
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2022_r15/MapServer"
+  },
+  {
+    "code": "C19",
+    "release_id": "17632",
+    "release_date": "2023-08-10",
+    "capture_dates": [
+      "2022-06-13",
+      "2023-02-10"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31,
+      0.46
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999997218,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2022-06-13",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.8449305274319127
+      },
+      {
+        "capture_date": "2023-02-10",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.15506947256780912
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2023_r07/MapServer"
+  },
+  {
+    "code": "C19",
+    "release_id": "12457",
+    "release_date": "2023-11-01",
+    "capture_dates": [
+      "2023-02-10"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.46
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999997217,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-02-10",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.15506947256780912
+      },
+      {
+        "capture_date": "2023-02-10",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.8449305274319125
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2023_r10/MapServer"
+  },
+  {
+    "code": "C19",
+    "release_id": "32553",
+    "release_date": "2024-08-15",
+    "capture_dates": [
+      "2023-02-10",
+      "2023-07-29"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31,
+      0.46
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999997218,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-02-10",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.8449305274319127
+      },
+      {
+        "capture_date": "2023-07-29",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.15506947256780912
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2024_r08/MapServer"
+  },
+  {
+    "code": "C19",
+    "release_id": "56450",
+    "release_date": "2024-10-10",
+    "capture_dates": [
+      "2023-07-29",
+      "2024-05-15"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31,
+      0.5
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999997217,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-07-29",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.15506947256780912
+      },
+      {
+        "capture_date": "2024-05-15",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.8449305274319125
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2024_r11/MapServer"
+  },
+  {
+    "code": "C19",
+    "release_id": "25285",
+    "release_date": "2025-05-29",
+    "capture_dates": [
+      "2023-07-29",
+      "2024-12-26",
+      "2025-01-26"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31,
+      0.34
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999998923,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-07-29",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.15506947256780912
+      },
+      {
+        "capture_date": "2025-01-26",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.3310677394764208
+      },
+      {
+        "capture_date": "2024-12-26",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.5138627879556624
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2025_r05/MapServer"
+  },
+  {
+    "code": "C19",
+    "release_id": "52304",
+    "release_date": "2025-09-04",
+    "capture_dates": [
+      "2024-12-26",
+      "2025-01-26",
+      "2025-04-08"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31,
+      0.34,
+      0.46
+    ],
+    "accuracy_m": [
+      5.0,
+      8.47
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999998922,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-01-26",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.3310677394764207
+      },
+      {
+        "capture_date": "2024-12-26",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.5138627879556624
+      },
+      {
+        "capture_date": "2025-04-08",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.1550694725678091
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2025_r08/MapServer"
+  },
+  {
+    "code": "C19",
+    "release_id": "10842",
+    "release_date": "2026-05-28",
+    "capture_dates": [
+      "2025-04-08",
+      "2025-07-23"
+    ],
+    "providers": [
+      "Vantor"
+    ],
+    "context_providers": [
+      "Vantor"
+    ],
+    "resolution_m": [
+      0.34,
+      0.46
+    ],
+    "accuracy_m": [
+      5.0,
+      8.47
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999997217,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-04-08",
+        "provider": "Vantor",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.15506947256780912
+      },
+      {
+        "capture_date": "2025-07-23",
+        "provider": "Vantor",
+        "source": "Vivid",
+        "area_fraction_approx": 0.8449305274319125
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2026_r05/MapServer"
+  },
+  {
+    "code": "C19",
+    "release_id": "63116",
+    "release_date": "2026-09-24",
+    "capture_dates": [
+      "2025-07-23"
+    ],
+    "providers": [
+      "Vantor"
+    ],
+    "context_providers": [
+      "Vantor"
+    ],
+    "resolution_m": [
+      0.34
+    ],
+    "accuracy_m": [
+      5.0,
+      8.47
+    ],
+    "metadata_layer": 5,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999997218,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-07-23",
+        "provider": "Vantor",
+        "source": "Vivid",
+        "area_fraction_approx": 0.8449305274319127
+      },
+      {
+        "capture_date": "2025-07-23",
+        "provider": "Vantor",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.15506947256780912
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2026_r09/MapServer"
+  },
+  {
+    "code": "C21",
+    "release_id": "18289",
+    "release_date": "2020-07-01",
+    "capture_dates": [
+      "2018-08-18"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999998,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2018-08-18",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.9999999999999998
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2020_r09/MapServer"
+  },
+  {
+    "code": "C21",
+    "release_id": "9812",
+    "release_date": "2021-02-24",
+    "capture_dates": [
+      "2019-10-06"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.5
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 0.9999999999999998,
+    "context_coverage_fraction": 0.9999376771325995,
+    "visible_sources": [
+      {
+        "capture_date": "2019-10-06",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.9999999999999998
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2021_r03/MapServer"
+  },
+  {
+    "code": "C21",
+    "release_id": "44710",
+    "release_date": "2022-06-08",
+    "capture_dates": [
+      "2021-04-09"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0000000000001752,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2021-04-09",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.3926565013748445
+      },
+      {
+        "capture_date": "2021-04-09",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.6073434986253308
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2022_r07/MapServer"
+  },
+  {
+    "code": "C21",
+    "release_id": "7110",
+    "release_date": "2022-11-02",
+    "capture_dates": [
+      "2021-04-09",
+      "2022-06-13"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0000000000001752,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2021-04-09",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.3926565013748445
+      },
+      {
+        "capture_date": "2022-06-13",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.6073434986253308
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2022_r14/MapServer"
+  },
+  {
+    "code": "C21",
+    "release_id": "45134",
+    "release_date": "2022-12-14",
+    "capture_dates": [
+      "2022-06-13"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.000000000000175,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2022-06-13",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.6073434986253304
+      },
+      {
+        "capture_date": "2022-06-13",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.3926565013748445
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2022_r15/MapServer"
+  },
+  {
+    "code": "C21",
+    "release_id": "17632",
+    "release_date": "2023-08-10",
+    "capture_dates": [
+      "2022-06-13",
+      "2023-02-10"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31,
+      0.46
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0000000000001752,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2022-06-13",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.3926565013748445
+      },
+      {
+        "capture_date": "2023-02-10",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.6073434986253308
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2023_r07/MapServer"
+  },
+  {
+    "code": "C21",
+    "release_id": "12457",
+    "release_date": "2023-11-01",
+    "capture_dates": [
+      "2023-02-10"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.46
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.000000000000175,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-02-10",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.6073434986253304
+      },
+      {
+        "capture_date": "2023-02-10",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.3926565013748445
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2023_r10/MapServer"
+  },
+  {
+    "code": "C21",
+    "release_id": "32553",
+    "release_date": "2024-08-15",
+    "capture_dates": [
+      "2023-02-10",
+      "2023-07-29"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31,
+      0.46
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0000000000001752,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-02-10",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.3926565013748445
+      },
+      {
+        "capture_date": "2023-07-29",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.6073434986253308
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2024_r08/MapServer"
+  },
+  {
+    "code": "C21",
+    "release_id": "56450",
+    "release_date": "2024-10-10",
+    "capture_dates": [
+      "2023-07-29",
+      "2024-05-15"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31,
+      0.5
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.000000000000175,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-07-29",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.6073434986253304
+      },
+      {
+        "capture_date": "2024-05-15",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.3926565013748445
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2024_r11/MapServer"
+  },
+  {
+    "code": "C21",
+    "release_id": "25285",
+    "release_date": "2025-05-29",
+    "capture_dates": [
+      "2023-07-29",
+      "2024-12-26",
+      "2025-01-26"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31,
+      0.34
+    ],
+    "accuracy_m": [
+      5.0
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0000000000001914,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2023-07-29",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.6073434986253304
+      },
+      {
+        "capture_date": "2025-01-26",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.18179342717752914
+      },
+      {
+        "capture_date": "2024-12-26",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.21086307419733183
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2025_r05/MapServer"
+  },
+  {
+    "code": "C21",
+    "release_id": "52304",
+    "release_date": "2025-09-04",
+    "capture_dates": [
+      "2024-12-26",
+      "2025-01-26",
+      "2025-04-08"
+    ],
+    "providers": [
+      "Maxar"
+    ],
+    "context_providers": [
+      "Maxar"
+    ],
+    "resolution_m": [
+      0.31,
+      0.34,
+      0.46
+    ],
+    "accuracy_m": [
+      5.0,
+      8.47
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0000000000001912,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-01-26",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.18179342717752914
+      },
+      {
+        "capture_date": "2024-12-26",
+        "provider": "Maxar",
+        "source": "Vivid",
+        "area_fraction_approx": 0.2108630741973318
+      },
+      {
+        "capture_date": "2025-04-08",
+        "provider": "Maxar",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.6073434986253303
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2025_r08/MapServer"
+  },
+  {
+    "code": "C21",
+    "release_id": "10842",
+    "release_date": "2026-05-28",
+    "capture_dates": [
+      "2025-04-08",
+      "2025-07-23"
+    ],
+    "providers": [
+      "Vantor"
+    ],
+    "context_providers": [
+      "Vantor"
+    ],
+    "resolution_m": [
+      0.34,
+      0.46
+    ],
+    "accuracy_m": [
+      5.0,
+      8.47
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.000000000000175,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-04-08",
+        "provider": "Vantor",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.6073434986253304
+      },
+      {
+        "capture_date": "2025-07-23",
+        "provider": "Vantor",
+        "source": "Vivid",
+        "area_fraction_approx": 0.3926565013748445
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2026_r05/MapServer"
+  },
+  {
+    "code": "C21",
+    "release_id": "63116",
+    "release_date": "2026-09-24",
+    "capture_dates": [
+      "2025-07-23"
+    ],
+    "providers": [
+      "Vantor"
+    ],
+    "context_providers": [
+      "Vantor"
+    ],
+    "resolution_m": [
+      0.34
+    ],
+    "accuracy_m": [
+      5.0,
+      8.47
+    ],
+    "metadata_layer": 6,
+    "coverage_fraction": 1.0,
+    "dated_coverage_fraction": 1.0000000000001752,
+    "context_coverage_fraction": 1.0,
+    "visible_sources": [
+      {
+        "capture_date": "2025-07-23",
+        "provider": "Vantor",
+        "source": "Vivid",
+        "area_fraction_approx": 0.3926565013748445
+      },
+      {
+        "capture_date": "2025-07-23",
+        "provider": "Vantor",
+        "source": "Vivid Advanced",
+        "area_fraction_approx": 0.6073434986253308
+      }
+    ],
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2026_r09/MapServer"
+  }
+]
