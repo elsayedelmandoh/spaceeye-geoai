@@ -26,7 +26,6 @@ The descriptions below preserve the current board requirements; an unchecked tas
 
 | ID | Remaining requirement |
 | --- | --- |
-| T-AH-17 | [Could] D4 · Finishing vision-model test (Qwen-VL on Wayback): pass condition ≥ 75% agreement on ~50 held-out compound-images labelled blind by salma (T-SA-12); log in `team_ideas.md`; **cut at D4 if not passed**; flag in the inspection file only · reviewer: elsayed **Failed experiment; feature excluded.** See [recorded outcome](REMAINING_TEAM_TASKS.md). |
 
 ### Verina: Track B
 
