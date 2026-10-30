@@ -1,0 +1,14 @@
+code,blocks_latest,blocks_per_year,active_quarter_share,longest_inactive_run_quarters,inactive_quarters_since_2023,height_2023_m,share_ge20m_2023,palsar_hh_jump_db,night_light_2025_vs_2019,first_promise,postponements,handover_published,status_2025_07,complete_first_seen
+C01,13.0,2.3,0.6,8.0,4.0,21.3,0.64,9.6,6.4,none published,0,none,"13 blocks, 13 frames, 0 finished; greenery none; roads sand",not by last figure
+C02,26.0,3.5,0.73,8.0,0.0,20.2,0.67,13.7,5.5,promised_delivery_start 2023-03-31 (pub 2021-01-31),1,delivery_start 2025-02-16,"26 blocks, 26 frames, 0 finished; greenery none; roads sand",not by last figure
+C03,8.0,0.0,0.67,6.0,6.0,25.4,0.92,12.6,6.1,none published,0,delivery_start 2025-09-10,"8 blocks, 7 frames, 1 finished; greenery little; roads partial",not by last figure
+C04,,,0.2,24.0,9.0,4.0,0.0,8.0,7.7,none published,0,delivery_complete 2026-09-20,"0 blocks, 0 frames, 0 finished; greenery none; roads sand",not by last figure
+C07,5.0,0.8,0.4,12.0,6.0,4.6,0.0,11.7,4.4,none published,0,none,"5 blocks, 5 frames, 0 finished; greenery none; roads sand",not by last figure
+C10,34.0,5.8,0.73,8.0,0.0,24.3,0.78,7.9,5.3,promised_completion 2023-12-31 (pub 2021-09-21),0,delivery_complete 2026-09-20,"34 blocks, 34 frames, 0 finished; greenery none; roads partial",not by last figure
+C12,17.0,2.8,0.67,6.0,6.0,29.8,0.97,13.0,5.4,promised_delivery 2022-12-31 (pub 2019-06-03),1,delivery_start 2024-04-18,"17 blocks, 17 frames, 0 finished; greenery little; roads partial",not by last figure
+C14,45.0,10.2,0.73,8.0,0.0,15.4,0.19,15.3,5.3,promised_delivery_start 2024-12-31 (pub 2022-03-16),2,none,"45 blocks, 45 frames, 0 finished; greenery little; roads partial",not by last figure
+C17,24.0,1.3,0.73,8.0,0.0,26.0,0.91,13.1,4.4,none published,0,none,"24 blocks, 24 frames, 0 finished; greenery none; roads partial",not by last figure
+C18,15.0,2.0,0.87,4.0,0.0,21.6,0.68,11.4,23.0,promised_delivery 2023-07-31 (pub 2021-09-25),0,none,"15 blocks, 15 frames, 0 finished; greenery little; roads partial",not by last figure
+C19,22.0,1.0,0.87,4.0,0.0,21.6,0.64,13.7,7.0,promised_completion 2023-12-31 (pub 2020-02-09),1,delivery_start 2025-02-11,"22 blocks, 22 frames, 0 finished; greenery none; roads partial",not by last figure
+C21,49.0,3.7,0.8,4.0,2.0,20.1,0.58,12.5,7.3,promised_delivery 2023-12-31 (pub 2020-08-23),2,none,"49 blocks, 30 frames, 19 finished; greenery little; roads partial",not by last figure
+C25,17.0,2.6,,,,,,14.6,6.8,none published,0,none,"17 blocks, 1 frames, 16 finished; greenery much; roads paved",2025-07-23
