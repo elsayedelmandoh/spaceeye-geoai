@@ -26,12 +26,12 @@ K2retains the evaluated legacy start convention. Separate observed start require
 - validity: **PASS**;0 violations.
 - uniqueness: **PASS**;0 duplicates.
 - consistency: **PASS**;0 stray codes; counts ok=True.
-- freshness: **PASS**;last quarter 2026Q3, 1 months before 2026-10-26.
+- freshness: **PASS**;last quarter 2026Q3, 1 quarter(s) before 2026-10-30.
 - separation: **PASS**;0 columns without origin, 0 generated tables.
 - data_or_city: **FLAG**;1 quarters flagged: 2019Q2.
 - stuck_series: **PASS**;0 stuck points.
 - veg_pull_check: **PASS**;max diff 0.0000 on 24 rows.
-- no_names: **PASS**;77 patterns, 344 files; files with a match: none.
+- no_names: **PASS**;76 patterns, 344 files; files with a match: none.
 
 DuckDB matches current real tables. The saved real-case backtest is documented in BACKTEST_CURRENT.md; full Track A reproducibility is in FULL_TRACK_A_REPRODUCIBILITY.json. This data-only report writer does not rerun fitting or retune the criterion. Activity mode remains q2hold; published heights are OBT where available (none for 2016-2019; 5-11 of 12 compounds per year for 2020-2023) and the v4 estimate for 2024 (10 of 12); see data/ANNUAL_CONTEXT_COVERAGE.csv. Public sources were not all re-opened during this release.
 

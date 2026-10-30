@@ -12,7 +12,7 @@ import duckdb
 import pandas as pd
 
 from src.pipeline import activity, backtest_check, build_real, codify, gates, kpis
-from src.pipeline.common import APP, BASE_DIR, CFG, RAW, REAL
+from src.pipeline.common import APP, BASE_DIR, CFG, IMAGERY_DIRS, RAW, REAL
 
 
 def sha(path) -> str:
@@ -42,10 +42,14 @@ def write_duckdb() -> None:
     con.close()
 
 
+# folders written by other steps, hashed by their own manifests or not part of R1: the generator and the imagery work
+OTHER_OUTPUTS = {"sim"} | IMAGERY_DIRS
+
+
 def manifest() -> pd.DataFrame:
     """hash of every output of this pipeline (the generator's `sim/` folder has its own manifest); the duckdb file is hashed by table content because its bytes carry no meaning."""
     rows = [(str(p.relative_to(APP)), sha(p)) for p in sorted(APP.rglob("*"))
-            if p.is_file() and p.suffix not in {".duckdb", ".md"} and p.name != "manifest.csv" and p.relative_to(APP).parts[0] != "sim"]
+            if p.is_file() and p.suffix not in {".duckdb", ".md"} and p.name != "manifest.csv" and p.relative_to(APP).parts[0] not in OTHER_OUTPUTS]
     con = duckdb.connect(str(APP / "spaceeye.duckdb"), read_only=True)
     for (tab,) in con.execute("select table_name from information_schema.tables order by 1").fetchall():
         df = con.execute(f"select * from {tab}").df().astype(str)
@@ -67,10 +71,11 @@ class _BacktestInputs:
     leak: pd.DataFrame
     kpi: pd.DataFrame
     run_id: str
+    raw_sat: pd.DataFrame  # sat_quarterly before scoring; tables['sat_quarterly'] already holds activity and K2
 
 
 def _backtest(inputs: _BacktestInputs) -> tuple[int, str]:
-    raw_sat = inputs.tables["sat_quarterly"]
+    raw_sat = inputs.raw_sat
     sat_bt = raw_sat.merge(activity.score(raw_sat, inputs.backtest_model, inputs.backtest_threshold, mode=inputs.mode)[["code", "qi", "activity_prob", "active"]], on=["code", "qi"], how="left")
     kpi_bt = kpis.kpi_values(sat_bt, inputs.tables["compounds"], inputs.tables["statements"], inputs.tables["sat_yearly"], inputs.run_id)
     cases, summary = backtest_check.run(kpi_bt, inputs.tables["eval_outcomes"])
@@ -114,7 +119,7 @@ def main() -> int:
     t["sat_quarterly"] = kpis.add_k2(sat, t["statements"])
     kpi = kpis.kpi_values(t["sat_quarterly"], t["compounds"], t["statements"], t["sat_yearly"], run_id)
     step("kpis", len(kpi), f"asof {CFG['asof']}: " + ", ".join(f"{k}: {v}" for k, v in kpi[kpi.quarter == CFG["asof"]].level_label.value_counts().sort_index().items()))
-    backtest_rows, backtest_detail = _backtest(_BacktestInputs(t, model, thr, mode, model_bt, thr_bt, leak, kpi, run_id))
+    backtest_rows, backtest_detail = _backtest(_BacktestInputs(t, model, thr, mode, model_bt, thr_bt, leak, kpi, run_id, raw_sat))
     step("backtest", backtest_rows, backtest_detail)
 
     out = {**t, "kpi_values": kpi}

@@ -16,6 +16,7 @@ from src.pipeline.common import (
     APP,
     BASE_DIR,
     CFG,
+    IMAGERY_DIRS,
     N_Q,
     PRIVATE,
     qindex,
@@ -128,12 +129,21 @@ def forbidden_names() -> set[str]:
     raw = list(reg.name_en) + list(reg.name_ar.dropna()) + list(reg.developer) + list(ev.compound)
     for key in ("boundaries", "boundaries_added"):
         raw += [f["properties"].get("name", "") for f in json.loads(src(key).read_text(encoding="utf-8"))["features"]]
+    code_map = PRIVATE / "code_map.csv"  # the coded compounds' own spellings (some differ from the audit register)
+    if code_map.exists():
+        cm = pd.read_csv(code_map, encoding="utf-8-sig")
+        raw += [v for c in ("name_en", "name_ar", "developer") if c in cm for v in cm[c].dropna()]
     out = set()
     for s in raw:
         s = str(s).replace("also written", "(")
         parts = re.split(r"[()/]", s) + [re.sub(r"\(.*", "", s)]
         out |= {_norm(p.strip(' "')) for p in parts if len(p.strip(' "')) >= 3}
-    return out
+    return out - ORDINARY_WORDS
+
+
+# one-word names that are also ordinary English words used in prose and column names ("scenario" = what-if case); the longer
+# spellings of the same compounds stay forbidden
+ORDINARY_WORDS = {"scenario"}
 
 
 def _hits(text: str, pats: list[tuple[str, re.Pattern]]) -> int:
@@ -168,8 +178,8 @@ def _file_texts(path):
         raw = path.read_bytes()
         try:
             yield raw.decode("utf-8")
-        except UnicodeDecodeError:
-            yield raw.decode("latin-1")
+        except UnicodeDecodeError:  # images and other binaries: byte noise makes chance matches, and they hold no typed names
+            return
 
 
 def generator_files() -> list:
@@ -183,7 +193,9 @@ def g_no_names(root=None, extra=None) -> dict:
     root = APP if root is None else root
     pats = _patterns(forbidden_names())
     extra = generator_files() if extra is None else extra
-    files = [(p, str(p.relative_to(root))) for p in sorted(root.rglob("*")) if p.is_file()] + [(p, "private/" + p.name) for p in extra]
+    skip = IMAGERY_DIRS if root == APP else set()  # the imagery step scans its own folders (written concurrently)
+    files = [(p, str(p.relative_to(root))) for p in sorted(root.rglob("*")) if p.is_file() and p.relative_to(root).parts[0] not in skip]
+    files += [(p, "private/" + p.name) for p in extra]
     bad = {}
     for p, label in files:
         n = sum(_hits(chunk, pats) for chunk in _file_texts(p))

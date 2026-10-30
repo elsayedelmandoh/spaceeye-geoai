@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "builds": 2,
+  "mode": "data-only; cached observations; no fitting",
+  "equal_artifacts": 350,
+  "dictionary_tables": 21,
+  "protected_raw_models_and_legacy_evaluation_unchanged": true,
+  "sha256": "2c7e7acc63f1c998ddb2a09eb188d3c75e82d0f3e2b070070e455ab99546ed51"
+}

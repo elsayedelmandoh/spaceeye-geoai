@@ -136,7 +136,7 @@
     "seed": 2026,
     "train_rows": 56,
     "test_rows": 20,
-    "status": "FITTED",
+    "status": "FITTED_UNINFORMATIVE",
     "train_classes": {
       "not_distressed": 50,
       "distressed": 6
@@ -146,10 +146,10 @@
     }
   },
   "input_sha256": {
-    "dataset": "eb2737d66f81e6f766180ecc409186001b106c39b6c3c4ed2987054c6707b5b7",
-    "metadata": "093548e251f97e9dae5cfbbe7fe33617da1bd6b632245939abbb9f413dff4ab7",
+    "dataset": "46f22ec46be33645d16f181984bd1069695f6ef1a56a42149a0333254adb7821",
+    "metadata": "d7888e2014781ff565d598b922f810423bb3a9f3be77b5f88a230fd40e5cf73b",
     "protocol": "a91086318ecfd20acf64204063c5d86d60a50b3ee3d2b01734f68a02c05b74e7",
-    "source": "d47b551ee22deb55b82435adb0821c2f9293094548c6e53766836b6e94d6528e"
+    "source": "16434a1c55de1ce267768c87cfab7daf9450b291ae59696757f249523f008015"
   },
   "limits": [
     "Completion prediction removed by the team lead; handover observations remain context.",

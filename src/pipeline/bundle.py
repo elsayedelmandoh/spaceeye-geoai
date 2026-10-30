@@ -18,7 +18,7 @@ from src.pipeline.common import APP, BASE_DIR, PRIVATE, artifact_path
 PROJECT = APP.parent
 REPO = BASE_DIR
 RELEASES = PROJECT / "releases"
-TAG = "SpaceEye_R7_READY_DATA_2026-10-28_v5"
+TAG = "SpaceEye_R7_READY_DATA_2026-10-30_v6"
 
 
 def sha(path):
@@ -181,7 +181,7 @@ def main():
     }, ensure_ascii=False, indent=2))
     write(target / "README.md", """# SpaceEye ready-to-use team data
 
-Release: 28 October 2026. Scope: 12 coded compounds in R7.
+Release: 30 October 2026 (version 6). Scope: 12 coded compounds in R7.
 Generated operations and hypothetical financial paths are labelled: Synthetic - for training only.
 
 ## Quick start
@@ -234,7 +234,15 @@ This bundle is standalone for reading, analysis and interface development. It do
 
 Raw inputs, quarantined/rejected observations, hidden answer keys, code-to-name mappings and models are excluded. Parquet is authoritative for types and null values; CSV is provided for convenient viewing. Original Arabic complaint text is data and remains unchanged.
 
-Every distributed file has a SHA-256 entry in `MANIFEST.csv`. Run `verify_package.py` after extraction to check transfer integrity. Version5 adopts the approved binary distress scope: current_ml_current contains p_distressed and p_not_distressed, summing to one. Completion prediction and its missing-class acceptance blocker are removed. Read docs/BINARY_SCOPE_DECISION.md and docs/EW_REPORT_CURRENT.md. Earlier versioned ZIPs retain historical experiments.
+Every distributed file has a SHA-256 entry in `MANIFEST.csv`. Run `verify_package.py` after extraction to check transfer integrity.
+
+Version 6 (30 October) rebuilds version 5 with the current code:
+- Indicator labels say "start unknown" where K6 is unknown.
+- Generated operations and the training export carry a `synthetic_label` column.
+- A developer holdout with no distressed test row is reported as uninformative.
+- The run lineage is new.
+
+Version 5 adopted the approved binary distress scope: current_ml_current contains p_distressed and p_not_distressed, summing to one. Completion prediction and its missing-class acceptance blocker are removed. Read docs/BINARY_SCOPE_DECISION.md and docs/EW_REPORT_CURRENT.md. Earlier versioned ZIPs retain historical experiments.
 """)
     write(target / "examples" / "read_ready_data.py", '''from pathlib import Path
 import json
@@ -279,7 +287,7 @@ print("PASS:", len(rows), "package files match SHA-256 manifest")
     with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as bundle:
         for path in sorted(target.rglob("*")):
             if path.is_file():
-                info = zipfile.ZipInfo(f"{TAG}/{path.relative_to(target).as_posix()}", date_time=(2026, 10, 28, 0, 0, 0))
+                info = zipfile.ZipInfo(f"{TAG}/{path.relative_to(target).as_posix()}", date_time=(2026, 10, 30, 0, 0, 0))
                 info.compress_type = zipfile.ZIP_DEFLATED
                 bundle.writestr(info, path.read_bytes())
     with zipfile.ZipFile(archive) as bundle:

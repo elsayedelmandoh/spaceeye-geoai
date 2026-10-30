@@ -2,7 +2,7 @@
 
 **New device or review:** follow [REVIEW_SETUP](docs/REVIEW_SETUP.md). Run `uv sync --locked`, then `uv run --locked python -m src.pipeline.setup_review`. Paths are checkout-relative; `SPACEEYE_DATA_ROOT` relocates the workspace without requiring a specific drive. The [84-file source manifest](data/REBUILD_INPUTS.csv) and source-cache tool cover full rebuilds.
 
-[Download the current v5 data](releases/ready-data/SpaceEye_R7_READY_DATA_2026-10-28_v5.zip?raw=1) ? [Data guide](releases/ready-data/DATA_GUIDE.md) ? [Task board and human reviews](docs/requirements/02-team-roles-and-tasks.md) ? [Remaining work](docs/REMAINING_TEAM_TASKS.md)
+[Download the current v6 data](releases/ready-data/SpaceEye_R7_READY_DATA_2026-10-30_v6.zip?raw=1) ? [Data guide](releases/ready-data/DATA_GUIDE.md) ? [Task board and human reviews](docs/requirements/02-team-roles-and-tasks.md) ? [Remaining work](docs/REMAINING_TEAM_TASKS.md)
 
 SpaceEye supports deciding which coded R7 compounds the inspection committee should visit first. The current delivery is a prepared-data/rule/model workflow. The five-screen dashboard, inspection agent, real visit form and final presentation remain separate tasks.
 
@@ -28,7 +28,7 @@ The rule uses the worst applicable K2/K3/K6 signal, assessability and the may-be
 
 ## Use the ready data
 
-Extract the complete v5 ZIP and open its README.md. Use CSV, Parquet or spaceeye_ready.duckdb; run verify_package.py to check the file manifest. Only the current ZIP is distributed in this checkout. Earlier files remain in Git history and a local retirement backup.
+Extract the complete v6 ZIP and open its README.md. Use CSV, Parquet or spaceeye_ready.duckdb; run verify_package.py to check the file manifest. Only the current ZIP is distributed in this checkout. Earlier files remain in Git history and a local retirement backup.
 
 The package supplies Arabic committee lists, complaint-training corpora, 180 inspection contexts, synthetic visit exercises, current binary predictions and S1/S2/S3 handoff. Contexts are not finished inspection reports; synthetic visits are not fieldwork. Raw inputs, private name mappings/truth, credentials and checkpoints are excluded.
 
