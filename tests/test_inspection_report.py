@@ -227,6 +227,138 @@ class FakeClient:
         return self.responses.pop(0)
 
 
+_FAKE_PARAGRAPH = "مسودة اختبارية للمركب في الربع."
+_FAKE_QUESTIONS = ("ما حالة البناء؟", "ما الأدلة المتاحة؟", "ما الخطوة التالية؟")
+_LOG_HEADER = "file_id,kind,token,token_type,verdict,note,checked_on"
+
+
+def _patch_cli_model(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Drive CLI model use through a fake client and local data fixtures."""
+    config = {
+        "gemini": {
+            "model": "fixture-model",
+            "temperature": 0.2,
+            "max_output_tokens": 512,
+            "max_calls_total": 3,
+            "max_calls_per_file": 3,
+            "approval": "approved",
+        }
+    }
+    real_build_report = inspection_report.build_report
+
+    def build_report_with_fake_client(code: str, quarter: str, **kwargs: object) -> Path:
+        kwargs["client"] = FakeClient(
+            (_FAKE_PARAGRAPH, "\n".join(_FAKE_QUESTIONS))
+        )
+        kwargs["budget"] = CallBudget(max_calls_total=3, max_calls_per_file=3)
+        return real_build_report(code, quarter, **kwargs)
+
+    monkeypatch.setattr(
+        inspection_report,
+        "get_kpis",
+        lambda code, quarter: {**_kpis(), "code": code, "quarter": quarter},
+    )
+    monkeypatch.setattr(inspection_report, "get_facts", lambda code, quarter: _facts())
+    monkeypatch.setattr(
+        inspection_report,
+        "get_images",
+        lambda code, quarter: {"status": "missing", "images": []},
+    )
+    monkeypatch.setattr(inspection_report, "load_ai_config", lambda: config)
+    monkeypatch.setattr(inspection_report, "build_report", build_report_with_fake_client)
+
+
+def test_cli_writes_verifier_log_with_file_scoped_rows(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _patch_cli_model(monkeypatch)
+    log_path = tmp_path / "verification.csv"
+
+    exit_code = main(
+        [
+            "--quarter",
+            "2026Q3",
+            "--codes",
+            "C01",
+            "--use-model",
+            "--log-path",
+            str(log_path),
+            "--out-dir",
+            str(tmp_path),
+        ]
+    )
+
+    assert exit_code == 0
+    lines = log_path.read_text(encoding="utf-8").splitlines()
+    assert lines.count(_LOG_HEADER) == 1
+    assert lines[0] == _LOG_HEADER
+    assert {line.split(",", maxsplit=1)[0] for line in lines[1:]} == {"C01_2026Q3"}
+    csv_text = log_path.read_text(encoding="utf-8")
+    assert _FAKE_PARAGRAPH not in csv_text
+    assert all(question not in csv_text for question in _FAKE_QUESTIONS)
+
+
+def test_cli_appends_two_code_runs_to_one_csv_with_one_header(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _patch_cli_model(monkeypatch)
+    log_path = tmp_path / "verification.csv"
+
+    for code in ("C01", "C02"):
+        exit_code = main(
+            [
+                "--quarter",
+                "2026Q3",
+                "--codes",
+                code,
+                "--use-model",
+                "--log-path",
+                str(log_path),
+                "--out-dir",
+                str(tmp_path),
+            ]
+        )
+        assert exit_code == 0
+
+    lines = log_path.read_text(encoding="utf-8").splitlines()
+    assert lines.count(_LOG_HEADER) == 1
+    assert {line.split(",", maxsplit=1)[0] for line in lines[1:]} == {
+        "C01_2026Q3",
+        "C02_2026Q3",
+    }
+
+
+def test_cli_without_log_path_writes_no_csv_and_warns(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    _patch_cli_model(monkeypatch)
+
+    exit_code = main(
+        [
+            "--quarter",
+            "2026Q3",
+            "--codes",
+            "C01",
+            "--use-model",
+            "--out-dir",
+            str(tmp_path),
+        ]
+    )
+    output = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "not logged" in output.err
+    assert list(tmp_path.rglob("*.csv")) == []
+    assert all(
+        _FAKE_PARAGRAPH not in csv_path.read_text(encoding="utf-8")
+        for csv_path in tmp_path.rglob("*.csv")
+    )
+
+
 def test_build_report_uses_a_fake_client_and_keeps_draft_verifiable(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

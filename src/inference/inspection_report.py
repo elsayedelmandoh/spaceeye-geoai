@@ -496,7 +496,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--use-model", action="store_true", help="Enable the optional bounded narrative draft.")
     parser.add_argument("--reviewer", help="Explicit reviewer label shown in the footer.")
     parser.add_argument("--out-dir", help="Output directory; defaults to app_data/files.")
+    parser.add_argument(
+        "--log-path",
+        help=(
+            "Append verifier verdict rows (tokens only) to this CSV, "
+            "e.g. app_data/ai_verification_log.csv"
+        ),
+    )
     args = parser.parse_args(argv)
+
+    if args.use_model and args.log_path is None:
+        print("no --log-path: verifier verdicts not logged", file=sys.stderr)
 
     generated_at = args.generated_at or datetime.now(UTC).isoformat(timespec="seconds")
     written: list[Path] = []
@@ -509,6 +519,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 use_model=args.use_model,
                 reviewer=args.reviewer,
                 out_dir=args.out_dir,
+                log_path=args.log_path,
             )
         except LookupError as error:
             print(
