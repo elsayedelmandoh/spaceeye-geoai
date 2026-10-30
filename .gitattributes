@@ -1,0 +1,3 @@
+
+# frozen protocols are hashed byte for byte; keep LF on every platform
+data/EW_PROTOCOL_*.md text eol=lf
