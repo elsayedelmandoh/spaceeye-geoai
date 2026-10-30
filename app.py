@@ -349,22 +349,20 @@ def render_banner(track: Track) -> None:
 # Screen 1 data (T-NA-02): boundaries + latest-quarter KPIs (stored files only)
 # --------------------------------------------------------------------------- #
 
-# Level word + colour. Colour is never the only carrier: the word is always shown.
 LEVELS: dict[int, tuple[str, str]] = {
     1: ("Inspect now", "#EF4444"),
     2: ("Inspect this cycle", "#F97316"),
     3: ("Document review", "#EAB308"),
     4: ("Routine", "#22C55E"),
 }
-NOT_ASSESSABLE: tuple[str, str] = ("Not assessable", "#6B7280")  # grey
+NOT_ASSESSABLE: tuple[str, str] = ("Not assessable", "#6B7280")
 
 REQUIRED_KPI_COLUMNS = {"code", "quarter", "level"}
 
 
 def _level_style(level: object) -> tuple[str, str]:
-    """(word, hex colour) for a level; anything missing/invalid = grey."""
     try:
-        return LEVELS[int(level)]  # int(NaN)/int(None) raise -> not assessable
+        return LEVELS[int(level)]
     except (TypeError, ValueError, KeyError):
         return NOT_ASSESSABLE
 
@@ -380,11 +378,6 @@ def _hex_to_rgba(hex_color: str, alpha: int = 175) -> list[int]:
 
 @st.cache_data(show_spinner=False)
 def _read_boundaries(path_str: str) -> tuple[dict, list[str]]:
-    """Read the GeoJSON and keep ONLY geometry + code (whitelist = no-names gate).
-
-    Returns (clean FeatureCollection, list of features whose code is invalid).
-    Pure function so it is safe to cache; the caller decides how to react.
-    """
     data = json.loads(Path(path_str).read_text(encoding="utf-8"))
     features, bad_codes = [], []
     for feat in data.get("features", []):
@@ -396,13 +389,12 @@ def _read_boundaries(path_str: str) -> tuple[dict, list[str]]:
         features.append({
             "type": "Feature",
             "geometry": feat.get("geometry"),
-            "properties": {"code": code},  # every other property is dropped
+            "properties": {"code": code},
         })
     return {"type": "FeatureCollection", "features": features}, bad_codes
 
 
 def load_boundaries() -> dict | None:
-    """Stored R7 boundaries (real/derived). None if the hand-off file is missing."""
     path = APP_DATA / "real" / "compound_boundaries.geojson"
     if not path.exists():
         return None
@@ -417,10 +409,6 @@ def load_boundaries() -> dict | None:
 
 
 def load_latest_kpis() -> tuple[pd.DataFrame, str] | None:
-    """kpi_values for the latest (as-of) quarter, plus that quarter's label.
-
-    Real/derived table, so it is allowed in both tracks. None if missing/invalid.
-    """
     kpis = load_table("real/kpi_values.parquet", TRACK_A)
     if kpis is None or kpis.empty:
         return None
@@ -433,19 +421,17 @@ def load_latest_kpis() -> tuple[pd.DataFrame, str] | None:
 
 
 def build_cycle_list(latest_df: pd.DataFrame) -> pd.DataFrame:
-    """Cycle list rows in committee order, level as a word, Arabic reason kept."""
     df = latest_df.copy()
     df["level_word"] = df["level"].map(level_word)
     if "cycle_rank" in df.columns:
         df = df[df["cycle_rank"].notna()].sort_values("cycle_rank")
-    else:  # fallback if the rank column is not in the hand-off yet
+    else:
         df = df[df["level"].isin([1, 2, 3])].sort_values(["level", "code"])
     wanted = ("cycle_rank", "code", "level_word", "reason_ar", "K2", "K3", "K6")
     return df[[c for c in wanted if c in df.columns]].reset_index(drop=True)
 
 
 def _geo_points(geometry: dict | None) -> list[list[float]]:
-    """Flatten any Polygon/MultiPolygon into [lon, lat] points (for map framing)."""
     points: list[list[float]] = []
 
     def walk(node: object) -> None:
@@ -462,14 +448,13 @@ def _geo_points(geometry: dict | None) -> list[list[float]]:
 
 
 def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None) -> None:
-    """Map is Track A only. Track B must never draw generated numbers on a map."""
     if track.generated:
-        return  # hidden completely, no placeholder
+        return
     section_title("🗺️", "Priority map")
 
     geojson = load_boundaries()
     if geojson is None:
-        st.warning("real/compound_boundaries.geojson not found yet (hand-off from ahmed, D2).")
+        st.warning("real/compound_boundaries.geojson not found yet.")
         return
     if latest is None:
         st.info("Waiting for real/kpi_values.parquet to colour the boundaries by level.")
@@ -482,7 +467,7 @@ def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None) -> No
     counts = {word: 0 for word, _ in [*LEVELS.values(), NOT_ASSESSABLE]}
     for feat in geojson["features"]:
         code = feat["properties"]["code"]
-        word, color = _level_style(levels.get(code))  # no KPI row = grey
+        word, color = _level_style(levels.get(code))
         counts[word] += 1
         points += _geo_points(feat["geometry"])
         features.append({
@@ -514,7 +499,6 @@ def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None) -> No
             ),
             use_container_width=True,
         )
-        # Legend: colour chip + level word + count (colour is never the only cue)
         legend = "".join(
             f'<span class="se-pill" style="border-color:{color};margin-right:0.4rem">'
             f'<span style="color:{color}">●</span> {word} · {counts[word]}</span>'
@@ -525,10 +509,9 @@ def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None) -> No
 
 
 def render_cycle_list(latest: tuple[pd.DataFrame, str] | None) -> None:
-    """Cycle list with Arabic reason + CSV download. Shown in both tracks."""
     section_title("📋", "Cycle list")
     if latest is None:
-        st.info("Waiting for real/kpi_values.parquet. Cycle list appears here (T-NA-02).")
+        st.info("Waiting for real/kpi_values.parquet.")
         return
 
     latest_df, asof = latest
@@ -537,7 +520,7 @@ def render_cycle_list(latest: tuple[pd.DataFrame, str] | None) -> None:
         st.info(f"No compounds in the cycle list for {asof}.")
         return
 
-    export = cycle.rename(columns={"level_word": "level"})  # level stays a word
+    export = cycle.rename(columns={"level_word": "level"})
     with st.container(border=True):
         st.dataframe(
             export,
@@ -554,7 +537,6 @@ def render_cycle_list(latest: tuple[pd.DataFrame, str] | None) -> None:
         left.caption(f"{ORIGIN_DERIVED} derived · {len(export)} compound(s) · as of {asof}")
         right.download_button(
             "⬇️ Download CSV",
-            # utf-8-sig so Excel opens the Arabic text correctly
             data=export.to_csv(index=False).encode("utf-8-sig"),
             file_name=f"cycle_list_{asof}.csv",
             mime="text/csv",
@@ -562,21 +544,17 @@ def render_cycle_list(latest: tuple[pd.DataFrame, str] | None) -> None:
         )
 
 
-# --------------------------------------------------------------------------- #
-# Screens (skeletons; content arrives in T-NA-02 .. T-NA-07)
-# --------------------------------------------------------------------------- #
-
 def screen_priority_map(track: Track) -> None:
     page_header("🛰️", "Priority map", "Whom should the committee visit first?")
-    latest = load_latest_kpis()  # real/derived: allowed in both tracks
-    render_map_slot(track, latest)  # Track A only; Track B = list only
+    latest = load_latest_kpis()
+    render_map_slot(track, latest)
     render_cycle_list(latest)
 
     if track.generated:
         section_title("🧠", "Classifier probabilities")
         preds = load_table("ml/predictions.parquet", track)
         if preds is None:
-            st.info("Waiting for ml/predictions.parquet (hand-off, D3).")
+            st.info("Waiting for ml/predictions.parquet.")
         else:
             st.dataframe(tag_generated_columns(preds.head(10)),
                          use_container_width=True, hide_index=True)
@@ -588,14 +566,13 @@ def screen_compound_file(track: Track) -> None:
     if track.generated:
         st.caption(f"Track B adds binary probabilities and K5 in EGP, always tagged {ORIGIN_GENERATED}.")
 
-    # T-NA-04: visit form. Real committee records, so no 🟠 tag; shown in both tracks.
     section_title("📝", "Visit form")
     render_ops_visits_form()
 
 
 def screen_backtest(track: Track) -> None:
     page_header("⏱️", "Would it have warned?", "Backtest and early-warning evidence.")
-    st.info("Skeleton. Frozen-clock table and recall@N arrive in T-NA-05.")
+    st.info("Skeleton.")
 
 
 def screen_data_trust(track: Track) -> None:
@@ -605,17 +582,15 @@ def screen_data_trust(track: Track) -> None:
             f"**Colour key** &nbsp; {ORIGIN_REAL} real · {ORIGIN_DERIVED} derived · "
             f"{ORIGIN_GENERATED} generated"
         )
-    st.info("Skeleton. Gates, coverage and the 1,009/1,026 facts arrive in T-NA-06.")
+    st.info("Skeleton.")
 
 
 def screen_what_if(track: Track) -> None:
     page_header("🧪", "What if?", "Compound-level twin: who moves up if conditions change?")
     if not track.generated:
-        st.warning(
-            "Scenarios use generated data. Switch to Track B in the sidebar to open them."
-        )
+        st.warning("Scenarios use generated data. Switch to Track B in the sidebar.")
         return
-    st.info("Skeleton. Scenarios S1-S3 arrive in T-NA-07.")
+    st.info("Skeleton.")
 
 
 SCREEN_FUNCTIONS = {
@@ -627,12 +602,7 @@ SCREEN_FUNCTIONS = {
 }
 
 
-# --------------------------------------------------------------------------- #
-# Sidebar + entry point
-# --------------------------------------------------------------------------- #
-
 def render_sidebar() -> tuple[Track, str]:
-    # Brand block
     st.sidebar.markdown(
         """
         <div class="se-brand">
@@ -645,7 +615,6 @@ def render_sidebar() -> tuple[Track, str]:
     )
     st.sidebar.divider()
 
-    # Track switch is the first control; Track A is index 0 = default.
     st.sidebar.markdown('<div class="se-side-label">Data track</div>', unsafe_allow_html=True)
     label = st.sidebar.selectbox(
         "Track",
@@ -653,7 +622,6 @@ def render_sidebar() -> tuple[Track, str]:
         index=0,
         key="track_label",
         label_visibility="collapsed",
-        help="Track A: public/derived data. Track B: adds generated ACUD-style data.",
     )
     track = TRACKS[label]
 
@@ -686,7 +654,7 @@ def main() -> None:
     )
     inject_css()
     track, screen = render_sidebar()
-    render_banner(track)  # fixed orange banner on every screen in Track B
+    render_banner(track)
     SCREEN_FUNCTIONS[screen](track)
 
 
