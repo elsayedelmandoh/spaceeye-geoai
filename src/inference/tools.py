@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 from collections.abc import Mapping, Sequence
 from functools import lru_cache
@@ -209,8 +210,12 @@ def _missing_images() -> dict[str, JsonValue]:
 
 
 def _image_rows(frame: pd.DataFrame, code: str) -> list[pd.Series]:
-    """Return at most one source row for each image position."""
+    """Use an explicit chronological timeline, or the legacy before/after pair."""
     matching = frame.loc[frame["code"].eq(code)].copy()
+    if "sequence" in matching:
+        matching["sequence"] = pd.to_numeric(matching["sequence"], errors="coerce")
+        matching = matching.dropna(subset=["sequence"]).sort_values("sequence", kind="stable")
+        return [row for _, row in matching.drop_duplicates("image_type").iterrows()]
     selected = []
     for image_type in ("before", "after"):
         rows = matching.loc[matching["image_type"].astype(str).str.casefold().eq(image_type)]
@@ -222,8 +227,9 @@ def _image_rows(frame: pd.DataFrame, code: str) -> list[pd.Series]:
 def get_images(
     code: str,
     images_path: str | Path | None = None,
+    quarter: str | None = None,
 ) -> dict[str, JsonValue]:
-    """Return source Wayback image metadata or an explicit missing status."""
+    """Return dated imagery observations; release availability controls historical views."""
     path = Path(images_path) if images_path is not None else APP / "images" / "images.csv"
     if not path.is_file():
         return _missing_images()
@@ -232,6 +238,15 @@ def get_images(
     missing_columns = sorted(required.difference(frame.columns))
     if missing_columns:
         raise ValueError(f"Image table is missing columns: {', '.join(missing_columns)}")
+    if "release_date" in frame:
+        cutoff = qend(qindex(quarter or CFG["asof"]))
+        released = pd.to_datetime(frame["release_date"], errors="coerce")
+        frame = frame.loc[released.notna() & released.le(cutoff)]
+        if "capture_date_max" in frame:
+            captured = pd.to_datetime(frame["capture_date_max"], errors="coerce")
+            frame = frame.loc[captured.notna() & captured.le(cutoff)]
+    elif quarter is not None:
+        return {"status": "missing", "images": [], "reason": "Historical image availability is unknown: release dates are absent"}
     rows = _image_rows(frame, code)
     if not rows:
         return _missing_images()
@@ -244,6 +259,16 @@ def get_images(
         }
         for row in rows
     ]
+    for image, row in zip(images, rows):
+        for field in ("capture_date_min", "capture_date_max", "release_date", "source_url", "usage"):
+            if field in frame:
+                image[field] = _optional_text(row.get(field))
+        if "capture_dates" in frame and _optional_text(row.get("capture_dates")):
+            image["capture_dates"] = json.loads(str(row["capture_dates"]))
+        if "mixed_capture_dates" in frame:
+            image["mixed_capture_dates"] = bool(row["mixed_capture_dates"])
+        if "sequence" in frame:
+            image["sequence"] = int(row["sequence"])
     return {"status": "available", "images": images}
 
 
