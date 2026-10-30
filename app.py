@@ -1,14 +1,19 @@
-"""Dashboard placeholder: prints settings only. Use src.pipeline.team_run for the implemented workflow."""
+import streamlit as st
+from src.dashboard.ops_visits import render_ops_visits_form
 
-from src.config.config import settings
-
-
-def main() -> int:
-    """run the application entrypoint."""
-    print(f"project: {settings.PROJECT_NAME}")
-    print(f"environment: {settings.ENV}")
-    return 0
-
+def main() -> None:
+    # Temporary Streamlit page configuration for this branch
+    st.set_page_config(
+        page_title="SpaceEye GeoAI - Ops Visits",
+        layout="wide"
+    )
+    
+    st.title("🌍 SpaceEye GeoAI Dashboard")
+    
+    st.markdown("---")
+    
+    # Render the operations visits form
+    render_ops_visits_form()
 
 if __name__ == "__main__":
     main()
