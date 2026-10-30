@@ -1,6 +1,6 @@
 # Inspector imagery: use and rebuild
 
-The observed figures are ready locally. Git contains **source selections, metadata, hashes, code and documentation only**. Esri JPEGs and the full imagery report ZIP stay outside Git, separate from the numerical v6 release.
+The observed figures are ready locally. Git contains source selections, metadata, hashes, code and documentation, plus, by owner decision on 30 October 2026 (private repository, educational project, team presentation), the **74 single-capture Wayback figures** in [figures/](figures/index.csv) (mixed-date frames left out). They keep their printed attribution and the [third-party notice](THIRD_PARTY_IMAGERY.md); remove them before the repository is ever made public. The full imagery report ZIP and raw tile caches stay outside Git.
 
 ## View the existing report
 
