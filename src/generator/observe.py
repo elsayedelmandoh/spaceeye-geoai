@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 
 from src.generator.economy import Economy
-from src.generator.inputs import GEN, M_END, MONTHS, N, O0, mi
+from src.generator.inputs import GEN, M_END, MONTHS, O0, N, mi
 from src.generator.stories import Signals
 from src.generator.truth import Setup, Truth
 

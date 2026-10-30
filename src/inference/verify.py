@@ -9,13 +9,12 @@ Responsibilities:
 4. Adhere to Law 151/2020: never allow ungrounded commercial claims or speculative causality.
 """
 
-import os
-import re
 import csv
-import math
 import datetime
+import math
+import re
 from pathlib import Path
-from typing import Dict, Any, List, Tuple, Set
+from typing import Any
 
 # Known causal trigger words requiring human inspector review
 CAUSAL_WORDS_AR = [
@@ -37,7 +36,7 @@ VERDICT_UNSUPPORTED = "unsupported_claim"
 VERDICT_MISSING_CONTEXT = "missing_context"
 
 
-def extract_context_facts(context: Dict[str, Any]) -> Tuple[Set[str], Set[str], Set[str]]:
+def extract_context_facts(context: dict[str, Any]) -> tuple[set[str], set[str], set[str]]:
     """
     Extracts all primitive numbers, dates, and identifier codes from the source context dictionary.
     Returns: (known_numbers, known_dates, known_codes)
@@ -59,7 +58,7 @@ def extract_context_facts(context: Dict[str, Any]) -> Tuple[Set[str], Set[str], 
                 # E.g., 0.34 -> also 34% or 34
                 pct_val = round(obj * 100, 1)
                 known_numbers.add(str(pct_val).rstrip('0').rstrip('.'))
-                known_numbers.add(f"{int(round(obj * 100))}")
+                known_numbers.add(f"{round(obj * 100)}")
                 known_numbers.add(f"{obj:.2f}")
                 known_numbers.add(f"{obj:.3f}")
             else:
@@ -95,7 +94,7 @@ def extract_context_facts(context: Dict[str, Any]) -> Tuple[Set[str], Set[str], 
     return known_numbers, known_dates, known_codes
 
 
-def find_causal_words(text: str) -> List[str]:
+def find_causal_words(text: str) -> list[str]:
     """Finds ungrounded causal words in Arabic or English text."""
     found = []
     text_lower = text.lower()
@@ -107,7 +106,7 @@ def find_causal_words(text: str) -> List[str]:
     return list(dict.fromkeys(found))
 
 
-def extract_numbers_from_text(text: str) -> List[str]:
+def extract_numbers_from_text(text: str) -> list[str]:
     """Extracts all numbers and percentage values from text."""
     # Matches numbers like 0.34, 34%, 120, 2026
     raw_nums = re.findall(r"\b\d+(?:\.\d+)?%?\b", text)
@@ -119,13 +118,13 @@ def extract_numbers_from_text(text: str) -> List[str]:
     return cleaned
 
 
-def extract_codes_from_text(text: str) -> List[str]:
+def extract_codes_from_text(text: str) -> list[str]:
     """Extracts entity codes like C07, D12, R7, K2-K6."""
     codes = re.findall(r"\b[CD]\d{2}\b|\bR\d+\b|\bK[1-6]\b", text, re.IGNORECASE)
     return [c.upper() for c in codes]
 
 
-def extract_dates_from_text(text: str) -> List[str]:
+def extract_dates_from_text(text: str) -> list[str]:
     """Extracts dates YYYY-MM-DD or YYYYQ[1-4] or standalone years from text."""
     dates = re.findall(r"\b\d{4}-\d{2}-\d{2}\b|\b\d{4}Q[1-4]\b", text)
     return dates
@@ -133,10 +132,10 @@ def extract_dates_from_text(text: str) -> List[str]:
 
 def verify_inspection_text(
     text: str,
-    source_context: Dict[str, Any],
+    source_context: dict[str, Any],
     compound_id: str = "",
     quarter: str = ""
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Verifies the inspection text against source context facts.
     
@@ -173,7 +172,7 @@ def verify_inspection_text(
             "details": "Source facts context is empty or None."
         }
 
-    known_numbers, known_dates, known_codes = extract_context_facts(source_context)
+    known_numbers, _known_dates, known_codes = extract_context_facts(source_context)
     
     # 1. Check Causal Words
     causal_found = find_causal_words(text)
@@ -241,11 +240,11 @@ def verify_inspection_text(
 
 
 def log_verification_result(
-    result: Dict[str, Any],
+    result: dict[str, Any],
     compound_id: str,
     quarter: str,
     text_preview: str,
-    log_path: Path = None
+    log_path: Path | None = None
 ) -> str:
     """
     Logs verification verdict to app_data/ai_verification_log.csv.

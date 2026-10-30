@@ -8,12 +8,12 @@ import sys
 import matplotlib
 
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt  # noqa: E402
-import pandas as pd  # noqa: E402
+import matplotlib.pyplot as plt
+import pandas as pd
 
-from src.generator import inputs, stories  # noqa: E402
-from src.generator.inputs import LABEL, SIM  # noqa: E402
-from src.pipeline.common import PRIVATE  # noqa: E402
+from src.generator import inputs, stories
+from src.generator.inputs import LABEL, SIM
+from src.pipeline.common import PRIVATE
 
 INK, MUTED = "#1f2933", "#6b7280"
 TRUTH, REPORT, ANNOUNCE, SAT, PLAN = "#1f5fbf", "#d9822b", "#111111", "#2a9d8f", "#9ca3af"

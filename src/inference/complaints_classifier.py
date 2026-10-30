@@ -17,16 +17,14 @@ Outputs:
 - docs/deliverables/complaints_metrics.csv
 """
 
-import os
-import sys
 import re
 import unicodedata
 from pathlib import Path
+
 import pandas as pd
-import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report, f1_score, accuracy_score, precision_score, recall_score
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 
 CATS = ['delay', 'stoppage', 'payment', 'quality', 'other']
 

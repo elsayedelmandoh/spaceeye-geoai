@@ -11,16 +11,14 @@ Generates 5 verified Arabic HTML inspection dossiers for presentation:
 """
 
 import sys
-import datetime
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any
 
 # Ensure project root in sys.path
 root_dir = Path(__file__).resolve().parent.parent.parent
 if str(root_dir) not in sys.path:
     sys.path.insert(0, str(root_dir))
 
-from src.inference.tools import build_inspection_context
 from src.inference.generate import generate_inspection_brief
 from src.inference.inspection_template import generate_deterministic_report
 
@@ -31,11 +29,11 @@ DEFAULT_REVIEWER = "م. سارة المحمدي (لجنة المتابعة ال�
 
 
 def render_all_reports(
-    compounds: List[str] = None,
+    compounds: list[str] | None = None,
     quarter: str = DEFAULT_QUARTER,
     reviewer_name: str = DEFAULT_REVIEWER,
-    output_dir: Path = None
-) -> List[Dict[str, Any]]:
+    output_dir: Path | None = None
+) -> list[dict[str, Any]]:
     """
     Renders official inspection HTML dossiers for all target compounds.
     """
@@ -83,7 +81,7 @@ def render_all_reports(
                 "verdict": verdict,
                 "status": "success"
             })
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - one failed compound is recorded and the batch continues
             print(f"  [ERROR] Failed rendering {code}: {e}")
             results.append({
                 "compound_id": code,

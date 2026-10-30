@@ -11,7 +11,7 @@ label_distress_next_6m = true distress in any of the next 6 months (`label_censo
 import numpy as np
 import pandas as pd
 
-from src.generator.inputs import GEN, MONTHS, N, O0
+from src.generator.inputs import GEN, MONTHS, O0, N
 
 
 def distress(u) -> np.ndarray:

@@ -16,7 +16,7 @@ import re
 import numpy as np
 import pandas as pd
 
-from src.generator.inputs import GEN, MONTHS, M_END, N, O0
+from src.generator.inputs import GEN, M_END, MONTHS, O0, N
 
 D = GEN["defects"]
 PHONE = re.compile(r"(?:\+?20|0)\s?1[0125][\s-]?\d{4}[\s-]?\d{4}")
@@ -52,7 +52,7 @@ def plant(fin: pd.DataFrame, cmp_: pd.DataFrame, units: list, rng: np.random.Gen
                 ";".join(f"{fin.at[i, 'code']}@{fin.at[i, 'month']}" for i in pick3)))
     # 2 duplicate reports with a different date
     pool = [i for i in fin.index[fin.report_date.notna()] if i not in set(pick3)]
-    k = max(3, int(round(D["duplicate_report_share"] * fin.report_date.notna().sum())))
+    k = max(3, round(D["duplicate_report_share"] * fin.report_date.notna().sum()))
     pick2 = sorted(rng.choice(pool, k, replace=False))
     dup = fin.loc[pick2].copy()
     dup["report_date"] = dup.report_date + pd.to_timedelta(rng.integers(3, 26, len(dup)), unit="D")

@@ -110,7 +110,7 @@ def sales_and_collections(sig, st, drv, rng, stress, onset, bulk_month):
         n = min(n, sig.units - cum)
         sold[m], value[m], cum = n, n * price, cum + n
     years = float(rng.uniform(*S["installment_years"]))
-    nm = int(round(12 * years))
+    nm = round(12 * years)
     late = np.where((t >= FLOAT_M) & (t < FLOAT_M + 6), S["late_rate_after_float"], S["late_rate"])
     pay = np.clip(1 - late - stress, 0.1, 1.0)
     coll = np.zeros(N)
