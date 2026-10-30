@@ -37,6 +37,14 @@ If the activity score A fails its acceptance tests on new quarters, add `source:
 
 The switch is a recorded decision, never chosen after seeing levels. Its effect on the current data is in [K1_FALLBACK_CHECK.md](../../data/K1_FALLBACK_CHECK.md).
 
+## Recorded decisions (review-03, 30 October 2026)
+
+- The quality report reads `data_completion/quality_checks.csv`; the Track A record stays in `real/quality_checks_log.parquet` (same run id).
+- A STOP keeps the outputs for diagnosis but writes no manifest, and the bundle step refuses to package.
+- The frozen-clock check cuts the data at each quarter with the final fitted A. It does not refit A.
+- The two-run check runs in one process. A code hash enters `run_id` at the next accepted bundle.
+- The 2019Q2 `data_or_city` FLAG comes from a one-compound denominator; it stays visible.
+
 ## Quarterly monitoring procedure
 
 Proposed accountable operator: Track A owner; reviewer: another team member. These are operating responsibilities, not signed assignments.

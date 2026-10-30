@@ -132,10 +132,15 @@ def main() -> int:
     log_df.loc[len(log_df)] = ["done", 0, f"gates failed: {len(stop)}", "ok" if stop.empty else "STOP", run_id, CFG["computed_on"]]
     write_real({"quality_checks_log": qlog.assign(run_id=run_id, computed_at=CFG["computed_on"]), "run_log": log_df})
     write_duckdb()
-    m = manifest()
     final_scan = gates.final_no_names_scan()
+    if not stop.empty or final_scan["status"] != "PASS":
+        # decision 20 (review-03): a STOP keeps the files for diagnosis but leaves no manifest, so nothing downstream treats them as valid
+        (APP / "manifest.csv").unlink(missing_ok=True)
+        print(f"run_id {run_id}; STOP: outputs kept for diagnosis, no manifest written")
+        return 1
+    m = manifest()
     print(f"run_id {run_id}; {len(m)} files hashed; manifest sha {hashlib.sha256(m.to_csv(index=False).encode()).hexdigest()[:16]}")
-    return 0 if stop.empty and final_scan["status"] == "PASS" else 1
+    return 0
 
 
 if __name__ == "__main__":

@@ -31,6 +31,9 @@ def write(path, text):
 
 
 def main():
+    # decision 20 (review-03): never package after a stopped Track A run
+    if not (APP / "manifest.csv").exists():
+        raise RuntimeError("No manifest.csv: the last src.pipeline.run_all stopped or never ran; the bundle is not built")
     from src.pipeline.component_data import main as prepare_components
     prepare_components()
     from src.pipeline.source_catalog import main as prepare_source_catalog

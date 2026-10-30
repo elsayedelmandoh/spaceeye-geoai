@@ -76,7 +76,10 @@ def backtest_report():
         else:
             alternative = "No warning means no underlying problem."
             rejection = "Not rejectable numerically with the saved pre-cutoff evidence; retain unknown."
-        rows.append({"case": e.case, "code": e.code, "freeze_date": str(freeze.date()),
+        # decision 21 (review-03): one line from this case's own numbers next to the shared template
+        own = (f"assessable {valid.quarter.iloc[0]}-{valid.quarter.iloc[-1]}; level at freeze {valid.level_label.iloc[-1]}; "
+               f"first level 1-2 alert {alerts.quarter.iloc[0] if len(alerts) else 'none'}") if len(valid) else "no assessable quarter before the freeze"
+        rows.append({"case": e.case, "code": e.code, "freeze_date": str(freeze.date()), "this_case": own,
                      "what_happened": f"{e.outcome_type}; outcome date {e.outcome_date}; first published {e.outcome_first_published}",
                      "assessable_quarters_before_cutoff": len(valid), "after_start_alert_quarters": len(after_start),
                      "why": point.reason if point is not None else "No assessable pre-cutoff KPI quarter exists in the saved window.",
@@ -87,8 +90,8 @@ def backtest_report():
     (OUT / "backtest/summary.json").write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
     lines = ["# Current Track A real-case check", "", "Six R7 public check cases; no generated financial labels are used here. The saved activity backtest excludes overlapping training plots.", "",
              f"After-start reading: {summary['after_start_reading']['n']} of {len(events)}. Point-in-time reading: {summary['point_in_time_reading']['n']} of {len(events)}. Original criterion remains {CFG['backtest']['min_cases']} cases; it is not reduced to obtain a pass.", "",
-             "| Case / code | Assessable pre-cutoff quarters | After-start alert quarters | Numeric alternative check |", "| --- | ---: | ---: | --- |"]
-    lines += [f"| {r.case} / {r.code} | {r.assessable_quarters_before_cutoff} | {r.after_start_alert_quarters} | {r.numeric_check} |" for r in details.itertuples()]
+             "| Case / code | This case | Assessable pre-cutoff quarters | After-start alert quarters | Numeric alternative check |", "| --- | --- | ---: | ---: | --- |"]
+    lines += [f"| {r.case} / {r.code} | {r.this_case} | {r.assessable_quarters_before_cutoff} | {r.after_start_alert_quarters} | {r.numeric_check} |" for r in details.itertuples()]
     lines += ["", "The full CSV contains what happened, the rule explanation, the competing explanation and next action. Warning detection is not causal proof. No percentages or retuned thresholds are used."]
     lines += ["", "Published [cases.csv](../releases/ready-data/backtest/cases.csv), [saved summary.json](../releases/ready-data/backtest/summary.json), and [prepared-input replay instructions](../releases/ready-data/backtest/README.md). Run `python -m src.pipeline.rerun_backtest` from a checkout without the external source drive. This replays saved prepared inputs; it does not refit activity or repeat raw-source clock checks."]
     (BASE_DIR / "data/BACKTEST_CURRENT.md").write_text("\n".join(lines) + "\n", encoding="utf-8")

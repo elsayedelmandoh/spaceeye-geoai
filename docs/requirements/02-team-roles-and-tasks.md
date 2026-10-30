@@ -137,7 +137,7 @@ Goal: one command (`python -m src.pipeline.run_all`) builds the R7 tables, A, K2
   - Evidence: [implementation/output](../deliverables/annual-context.md).
   - [x] Review accepted (logs/review-03.md, 2026-10-29; findings fixed in 236e051; review recorded in 7de6b7f; coverage figures come from data/ANNUAL_CONTEXT_COVERAGE.csv, not regenerated here).
 - [ ] **T-AH-17** [Could] D4 · Finishing vision-model test (Qwen-VL on Wayback): pass condition ≥ 75% agreement on ~50 held-out compound-images labelled blind by salma (T-SA-12); log in `team_ideas.md`; **cut at D4 if not passed**; flag in the inspection file only · reviewer: elsayed **Failed experiment; feature excluded.** See [recorded outcome](../REMAINING_TEAM_TASKS.md).
-- [ ] **T-AH-18** [Could] D4 · Roof slab uniformity test on Google heights 2016-2023 against a condition written before the test; cut at D4 if not passed · reviewer: elsayed
+- [ ] **T-AH-18** [Could] D4 · Roof slab uniformity test on Google heights 2016-2023 against a condition written before the test; cut at D4 if not passed · reviewer: elsayed **Failed experiment; feature excluded (30 October 2026).** Pre-registered test with a Sentinel-1 radar arm added (owner request): 1,457 R7-area buildings, truth from Google heights 2016-2023, one test on 2020-2021 in held-out blocks (326 rows, base rate 0.454). Balanced accuracy: roof uniformity 0.495, radar 0.551, both 0.543 (gate 0.75). Development had only 43 rows because the buildings first appear in the Google heights in 2019. The protocol and results are kept with the project's experiment records outside the repository.
 
 ### D4-D5: freeze and hand over
 
