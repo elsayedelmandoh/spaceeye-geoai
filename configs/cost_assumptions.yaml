@@ -1,0 +1,31 @@
+# Value in EGP for the inspection policy (T-SA-03), three settings.
+# ALL cost inputs are ASSUMPTIONS (assumption: true). No cost figure exists in the repo.
+# Illustrative, not a measured saving. Formula: docs/requirements/01-specs.md section 12.
+assumption: true
+currency: EGP
+projects: 12 # R7 coded compounds
+visits_per_year: 4 # field review every 3 months (spec formula)
+cycle_list_visits: 4 # cycle_capacity in configs/data.yaml
+
+# cost_per_visit method (approved): team of 3 x daily salary + transport.
+# Daily salary from monthly civil engineer pay of about 8,000 EGP / 22 days
+# (WageIndicator Egypt 2026: 3,153-10,812 EGP/month). Transport and other costs: assumed.
+settings:
+  conservative:
+    cost_per_visit: 2000 # assumption (method above)
+    operating_cost: 30000 # PLACEHOLDER, EGP per year, needs reviewer value
+    missed_cases: 2 # PLACEHOLDER, per year
+    cost_late_detection: 20000 # PLACEHOLDER, EGP per missed case
+  central:
+    cost_per_visit: 3000 # assumption (method above)
+    operating_cost: 20000 # PLACEHOLDER
+    missed_cases: 1 # PLACEHOLDER
+    cost_late_detection: 20000 # PLACEHOLDER
+  optimistic:
+    cost_per_visit: 4000 # assumption (method above)
+    operating_cost: 10000 # PLACEHOLDER
+    missed_cases: 1 # PLACEHOLDER
+    cost_late_detection: 20000 # PLACEHOLDER
+
+# Required wording (T-SA-03). Recompute with the settings above if any input changes.
+wording: "Under these assumptions, from -0.006 to 0.098 million EGP per year (illustrative; all cost inputs are assumptions)."
