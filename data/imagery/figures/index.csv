@@ -1,75 +1,96 @@
-code,capture_date,role,file,source
-C01,2019-10-06,timeline,figures/C01_stage_01.jpg,Esri World Imagery Wayback
-C01,2020-06-28,timeline,figures/C01_stage_02.jpg,Esri World Imagery Wayback
-C01,2021-04-09,timeline,figures/C01_stage_03.jpg,Esri World Imagery Wayback
-C01,2022-06-13,timeline,figures/C01_stage_04.jpg,Esri World Imagery Wayback
-C01,2023-02-10,timeline,figures/C01_stage_05.jpg,Esri World Imagery Wayback
-C01,2023-07-29,before,figures/C01_before.jpg,Esri World Imagery Wayback
-C01,2025-04-08,timeline,figures/C01_stage_07.jpg,Esri World Imagery Wayback
-C01,2025-07-23,after,figures/C01_after.jpg,Esri World Imagery Wayback
-C02,2018-08-18,timeline,figures/C02_stage_01.jpg,Esri World Imagery Wayback
-C02,2019-10-06,timeline,figures/C02_stage_02.jpg,Esri World Imagery Wayback
-C02,2021-04-09,timeline,figures/C02_stage_03.jpg,Esri World Imagery Wayback
-C02,2022-06-13,timeline,figures/C02_stage_04.jpg,Esri World Imagery Wayback
-C02,2023-02-10,timeline,figures/C02_stage_05.jpg,Esri World Imagery Wayback
-C02,2024-05-15,before,figures/C02_before.jpg,Esri World Imagery Wayback
-C02,2025-01-26,timeline,figures/C02_stage_07.jpg,Esri World Imagery Wayback
-C02,2025-07-23,after,figures/C02_after.jpg,Esri World Imagery Wayback
-C03,2022-06-13,timeline,figures/C03_stage_01.jpg,Esri World Imagery Wayback
-C03,2023-02-10,timeline,figures/C03_stage_03.jpg,Esri World Imagery Wayback
-C03,2025-07-23,after,figures/C03_after.jpg,Esri World Imagery Wayback
-C04,2021-04-09,timeline,figures/C04_stage_01.jpg,Esri World Imagery Wayback
-C04,2022-06-13,timeline,figures/C04_stage_02.jpg,Esri World Imagery Wayback
-C04,2023-02-10,timeline,figures/C04_stage_03.jpg,Esri World Imagery Wayback
-C04,2023-07-29,before,figures/C04_before.jpg,Esri World Imagery Wayback
-C04,2025-04-08,timeline,figures/C04_stage_05.jpg,Esri World Imagery Wayback
-C04,2025-07-23,after,figures/C04_after.jpg,Esri World Imagery Wayback
-C07,2022-06-13,timeline,figures/C07_stage_01.jpg,Esri World Imagery Wayback
-C07,2023-02-10,timeline,figures/C07_stage_02.jpg,Esri World Imagery Wayback
-C07,2024-05-15,before,figures/C07_before.jpg,Esri World Imagery Wayback
-C07,2025-01-26,timeline,figures/C07_stage_04.jpg,Esri World Imagery Wayback
-C07,2025-07-23,after,figures/C07_after.jpg,Esri World Imagery Wayback
-C10,2019-10-06,timeline,figures/C10_stage_01.jpg,Esri World Imagery Wayback
-C10,2020-06-28,timeline,figures/C10_stage_02.jpg,Esri World Imagery Wayback
-C10,2021-04-09,timeline,figures/C10_stage_03.jpg,Esri World Imagery Wayback
-C10,2022-06-13,timeline,figures/C10_stage_04.jpg,Esri World Imagery Wayback
-C10,2023-02-10,timeline,figures/C10_stage_05.jpg,Esri World Imagery Wayback
-C10,2023-07-29,before,figures/C10_before.jpg,Esri World Imagery Wayback
-C10,2025-04-08,timeline,figures/C10_stage_07.jpg,Esri World Imagery Wayback
-C10,2025-07-23,after,figures/C10_after.jpg,Esri World Imagery Wayback
-C12,2019-10-06,timeline,figures/C12_stage_01.jpg,Esri World Imagery Wayback
-C12,2020-06-28,timeline,figures/C12_stage_02.jpg,Esri World Imagery Wayback
-C12,2021-04-09,timeline,figures/C12_stage_03.jpg,Esri World Imagery Wayback
-C12,2022-06-13,timeline,figures/C12_stage_04.jpg,Esri World Imagery Wayback
-C12,2023-02-10,timeline,figures/C12_stage_05.jpg,Esri World Imagery Wayback
-C12,2023-07-29,before,figures/C12_before.jpg,Esri World Imagery Wayback
-C12,2025-04-08,timeline,figures/C12_stage_07.jpg,Esri World Imagery Wayback
-C12,2025-07-23,after,figures/C12_after.jpg,Esri World Imagery Wayback
-C14,2018-08-18,timeline,figures/C14_stage_01.jpg,Esri World Imagery Wayback
-C14,2019-10-06,timeline,figures/C14_stage_02.jpg,Esri World Imagery Wayback
-C14,2021-04-09,timeline,figures/C14_stage_03.jpg,Esri World Imagery Wayback
-C14,2022-06-13,timeline,figures/C14_stage_05.jpg,Esri World Imagery Wayback
-C14,2023-02-10,timeline,figures/C14_stage_07.jpg,Esri World Imagery Wayback
-C14,2025-07-23,after,figures/C14_after.jpg,Esri World Imagery Wayback
-C17,2022-06-13,timeline,figures/C17_stage_01.jpg,Esri World Imagery Wayback
-C17,2023-02-10,timeline,figures/C17_stage_02.jpg,Esri World Imagery Wayback
-C17,2024-05-15,before,figures/C17_before.jpg,Esri World Imagery Wayback
-C17,2025-01-26,timeline,figures/C17_stage_04.jpg,Esri World Imagery Wayback
-C17,2025-07-23,after,figures/C17_after.jpg,Esri World Imagery Wayback
-C18,2019-10-06,timeline,figures/C18_stage_01.jpg,Esri World Imagery Wayback
-C18,2020-06-28,timeline,figures/C18_stage_02.jpg,Esri World Imagery Wayback
-C18,2021-04-09,timeline,figures/C18_stage_03.jpg,Esri World Imagery Wayback
-C18,2022-06-13,timeline,figures/C18_stage_04.jpg,Esri World Imagery Wayback
-C18,2023-02-10,timeline,figures/C18_stage_05.jpg,Esri World Imagery Wayback
-C18,2023-07-29,before,figures/C18_before.jpg,Esri World Imagery Wayback
-C18,2025-04-08,timeline,figures/C18_stage_07.jpg,Esri World Imagery Wayback
-C18,2025-07-23,after,figures/C18_after.jpg,Esri World Imagery Wayback
-C19,2022-06-13,timeline,figures/C19_stage_01.jpg,Esri World Imagery Wayback
-C19,2023-02-10,timeline,figures/C19_stage_03.jpg,Esri World Imagery Wayback
-C19,2025-07-23,after,figures/C19_after.jpg,Esri World Imagery Wayback
-C21,2018-08-18,timeline,figures/C21_stage_01.jpg,Esri World Imagery Wayback
-C21,2019-10-06,timeline,figures/C21_stage_02.jpg,Esri World Imagery Wayback
-C21,2021-04-09,timeline,figures/C21_stage_03.jpg,Esri World Imagery Wayback
-C21,2022-06-13,timeline,figures/C21_stage_05.jpg,Esri World Imagery Wayback
-C21,2023-02-10,timeline,figures/C21_stage_07.jpg,Esri World Imagery Wayback
-C21,2025-07-23,after,figures/C21_after.jpg,Esri World Imagery Wayback
+code,capture_date,role,file,source,in_presentation,note
+C01,2016-12-17,timeline,figures/C01_2016-12-17.jpg,Esri World Imagery Wayback,yes,earliest clean capture
+C01,2018-08-18,timeline,figures/C01_2018-08-18.jpg,Esri World Imagery Wayback,no,visually close to the 2019-10-06 frame
+C01,2019-10-06,timeline,figures/C01_stage_01.jpg,Esri World Imagery Wayback,no,visually close to the 2018-08-18 frame
+C01,2020-06-28,timeline,figures/C01_stage_02.jpg,Esri World Imagery Wayback,no,visually close to the 2018-08-18 frame
+C01,2021-04-09,timeline,figures/C01_stage_03.jpg,Esri World Imagery Wayback,yes,construction stage
+C01,2022-06-13,timeline,figures/C01_stage_04.jpg,Esri World Imagery Wayback,yes,construction stage
+C01,2023-02-10,timeline,figures/C01_stage_05.jpg,Esri World Imagery Wayback,no,visually close to the 2025-04-08 frame
+C01,2023-07-29,before,figures/C01_before.jpg,Esri World Imagery Wayback,no,extra timeline frame; the shown frames tell the story
+C01,2025-04-08,timeline,figures/C01_stage_07.jpg,Esri World Imagery Wayback,no,"hazy, washed-out by dust"
+C01,2025-07-23,after,figures/C01_after.jpg,Esri World Imagery Wayback,yes,latest capture
+C02,2016-11-08,timeline,figures/C02_2016-11-08.jpg,Esri World Imagery Wayback,yes,earliest clean capture
+C02,2018-08-18,timeline,figures/C02_stage_01.jpg,Esri World Imagery Wayback,no,visually close to the 2016-11-08 frame
+C02,2019-10-06,timeline,figures/C02_stage_02.jpg,Esri World Imagery Wayback,no,extra timeline frame; the shown frames tell the story
+C02,2021-04-09,timeline,figures/C02_stage_03.jpg,Esri World Imagery Wayback,yes,construction stage
+C02,2022-06-13,timeline,figures/C02_stage_04.jpg,Esri World Imagery Wayback,no,extra timeline frame; the shown frames tell the story
+C02,2023-02-10,timeline,figures/C02_stage_05.jpg,Esri World Imagery Wayback,yes,construction stage
+C02,2024-05-15,before,figures/C02_before.jpg,Esri World Imagery Wayback,no,extra timeline frame; the shown frames tell the story
+C02,2025-01-26,timeline,figures/C02_stage_07.jpg,Esri World Imagery Wayback,no,visually close to the 2025-07-23 frame
+C02,2025-07-23,after,figures/C02_after.jpg,Esri World Imagery Wayback,yes,latest capture
+C03,2016-11-08,timeline,figures/C03_2016-11-08.jpg,Esri World Imagery Wayback,yes,earliest clean capture
+C03,2018-08-18,timeline,figures/C03_2018-08-18.jpg,Esri World Imagery Wayback,no,extra timeline frame; the shown frames tell the story
+C03,2022-06-13,timeline,figures/C03_stage_01.jpg,Esri World Imagery Wayback,yes,construction stage
+C03,2023-02-10,timeline,figures/C03_stage_03.jpg,Esri World Imagery Wayback,yes,construction stage
+C03,2025-07-23,after,figures/C03_after.jpg,Esri World Imagery Wayback,yes,latest capture
+C04,2016-11-08,timeline,figures/C04_2016-11-08.jpg,Esri World Imagery Wayback,yes,earliest clean capture
+C04,2018-08-18,timeline,figures/C04_2018-08-18.jpg,Esri World Imagery Wayback,no,extra timeline frame; the shown frames tell the story
+C04,2021-04-09,timeline,figures/C04_stage_01.jpg,Esri World Imagery Wayback,yes,construction stage
+C04,2022-06-13,timeline,figures/C04_stage_02.jpg,Esri World Imagery Wayback,no,visually close to the 2023-07-29 frame
+C04,2023-02-10,timeline,figures/C04_stage_03.jpg,Esri World Imagery Wayback,no,visually close to the 2023-07-29 frame
+C04,2023-07-29,before,figures/C04_before.jpg,Esri World Imagery Wayback,yes,construction stage
+C04,2025-04-08,timeline,figures/C04_stage_05.jpg,Esri World Imagery Wayback,no,"hazy, washed-out by dust"
+C04,2025-07-23,after,figures/C04_after.jpg,Esri World Imagery Wayback,yes,latest capture
+C07,2016-11-08,timeline,figures/C07_2016-11-08.jpg,Esri World Imagery Wayback,yes,earliest clean capture
+C07,2018-08-18,timeline,figures/C07_2018-08-18.jpg,Esri World Imagery Wayback,no,extra timeline frame; the shown frames tell the story
+C07,2022-06-13,timeline,figures/C07_stage_01.jpg,Esri World Imagery Wayback,yes,construction stage
+C07,2023-02-10,timeline,figures/C07_stage_02.jpg,Esri World Imagery Wayback,no,extra timeline frame; the shown frames tell the story
+C07,2024-05-15,before,figures/C07_before.jpg,Esri World Imagery Wayback,yes,construction stage
+C07,2025-01-26,timeline,figures/C07_stage_04.jpg,Esri World Imagery Wayback,no,visually close to the 2025-07-23 frame
+C07,2025-07-23,after,figures/C07_after.jpg,Esri World Imagery Wayback,yes,latest capture
+C10,2016-12-17,timeline,figures/C10_2016-12-17.jpg,Esri World Imagery Wayback,yes,earliest clean capture
+C10,2018-08-18,timeline,figures/C10_2018-08-18.jpg,Esri World Imagery Wayback,no,visually close to the 2019-10-06 frame
+C10,2019-10-06,timeline,figures/C10_stage_01.jpg,Esri World Imagery Wayback,no,visually close to the 2018-08-18 frame
+C10,2020-06-28,timeline,figures/C10_stage_02.jpg,Esri World Imagery Wayback,no,visually close to the 2019-10-06 frame
+C10,2021-04-09,timeline,figures/C10_stage_03.jpg,Esri World Imagery Wayback,yes,construction stage
+C10,2022-06-13,timeline,figures/C10_stage_04.jpg,Esri World Imagery Wayback,no,extra timeline frame; the shown frames tell the story
+C10,2023-02-10,timeline,figures/C10_stage_05.jpg,Esri World Imagery Wayback,yes,construction stage
+C10,2023-07-29,before,figures/C10_before.jpg,Esri World Imagery Wayback,no,extra timeline frame; the shown frames tell the story
+C10,2025-04-08,timeline,figures/C10_stage_07.jpg,Esri World Imagery Wayback,no,"hazy, washed-out by dust"
+C10,2025-07-23,after,figures/C10_after.jpg,Esri World Imagery Wayback,yes,latest capture
+C12,2016-11-08,timeline,figures/C12_2016-11-08.jpg,Esri World Imagery Wayback,yes,earliest clean capture
+C12,2018-08-18,timeline,figures/C12_2018-08-18.jpg,Esri World Imagery Wayback,no,extra timeline frame; the shown frames tell the story
+C12,2019-10-06,timeline,figures/C12_stage_01.jpg,Esri World Imagery Wayback,no,extra timeline frame; the shown frames tell the story
+C12,2020-06-28,timeline,figures/C12_stage_02.jpg,Esri World Imagery Wayback,yes,construction stage
+C12,2021-04-09,timeline,figures/C12_stage_03.jpg,Esri World Imagery Wayback,no,extra timeline frame; the shown frames tell the story
+C12,2022-06-13,timeline,figures/C12_stage_04.jpg,Esri World Imagery Wayback,no,extra timeline frame; the shown frames tell the story
+C12,2023-02-10,timeline,figures/C12_stage_05.jpg,Esri World Imagery Wayback,yes,construction stage
+C12,2023-07-29,before,figures/C12_before.jpg,Esri World Imagery Wayback,no,extra timeline frame; the shown frames tell the story
+C12,2025-04-08,timeline,figures/C12_stage_07.jpg,Esri World Imagery Wayback,no,"hazy, washed-out by dust"
+C12,2025-07-23,after,figures/C12_after.jpg,Esri World Imagery Wayback,yes,latest capture
+C14,2016-11-08,timeline,figures/C14_2016-11-08.jpg,Esri World Imagery Wayback,yes,earliest clean capture
+C14,2018-08-18,timeline,figures/C14_stage_01.jpg,Esri World Imagery Wayback,no,extra timeline frame; the shown frames tell the story
+C14,2019-10-06,timeline,figures/C14_stage_02.jpg,Esri World Imagery Wayback,no,extra timeline frame; the shown frames tell the story
+C14,2021-04-09,timeline,figures/C14_stage_03.jpg,Esri World Imagery Wayback,yes,construction stage
+C14,2022-06-13,timeline,figures/C14_stage_05.jpg,Esri World Imagery Wayback,no,extra timeline frame; the shown frames tell the story
+C14,2023-02-10,timeline,figures/C14_stage_07.jpg,Esri World Imagery Wayback,yes,construction stage
+C14,2025-07-23,after,figures/C14_after.jpg,Esri World Imagery Wayback,yes,latest capture
+C17,2016-11-08,timeline,figures/C17_2016-11-08.jpg,Esri World Imagery Wayback,yes,earliest clean capture
+C17,2018-08-18,timeline,figures/C17_2018-08-18.jpg,Esri World Imagery Wayback,no,visually close to the 2016-11-08 frame
+C17,2022-06-13,timeline,figures/C17_stage_01.jpg,Esri World Imagery Wayback,yes,construction stage
+C17,2023-02-10,timeline,figures/C17_stage_02.jpg,Esri World Imagery Wayback,no,visually close to the 2025-01-26 frame
+C17,2024-05-15,before,figures/C17_before.jpg,Esri World Imagery Wayback,yes,construction stage
+C17,2025-01-26,timeline,figures/C17_stage_04.jpg,Esri World Imagery Wayback,no,visually close to the 2023-02-10 frame
+C17,2025-07-23,after,figures/C17_after.jpg,Esri World Imagery Wayback,yes,latest capture
+C18,2016-12-17,timeline,figures/C18_2016-12-17.jpg,Esri World Imagery Wayback,yes,earliest clean capture
+C18,2018-08-18,timeline,figures/C18_2018-08-18.jpg,Esri World Imagery Wayback,no,extra timeline frame; the shown frames tell the story
+C18,2019-10-06,timeline,figures/C18_stage_01.jpg,Esri World Imagery Wayback,no,extra timeline frame; the shown frames tell the story
+C18,2020-06-28,timeline,figures/C18_stage_02.jpg,Esri World Imagery Wayback,yes,construction stage
+C18,2021-04-09,timeline,figures/C18_stage_03.jpg,Esri World Imagery Wayback,no,extra timeline frame; the shown frames tell the story
+C18,2022-06-13,timeline,figures/C18_stage_04.jpg,Esri World Imagery Wayback,yes,construction stage
+C18,2023-02-10,timeline,figures/C18_stage_05.jpg,Esri World Imagery Wayback,no,visually close to the 2023-07-29 frame
+C18,2023-07-29,before,figures/C18_before.jpg,Esri World Imagery Wayback,no,visually close to the 2023-02-10 frame
+C18,2025-04-08,timeline,figures/C18_stage_07.jpg,Esri World Imagery Wayback,no,"hazy, washed-out by dust"
+C18,2025-07-23,after,figures/C18_after.jpg,Esri World Imagery Wayback,yes,latest capture
+C19,2016-11-08,timeline,figures/C19_2016-11-08.jpg,Esri World Imagery Wayback,yes,earliest clean capture
+C19,2018-08-18,timeline,figures/C19_2018-08-18.jpg,Esri World Imagery Wayback,no,extra timeline frame; the shown frames tell the story
+C19,2022-06-13,timeline,figures/C19_stage_01.jpg,Esri World Imagery Wayback,yes,construction stage
+C19,2023-02-10,timeline,figures/C19_stage_03.jpg,Esri World Imagery Wayback,yes,construction stage
+C19,2025-07-23,after,figures/C19_after.jpg,Esri World Imagery Wayback,yes,latest capture
+C21,2016-11-08,timeline,figures/C21_2016-11-08.jpg,Esri World Imagery Wayback,yes,earliest clean capture
+C21,2018-08-18,timeline,figures/C21_stage_01.jpg,Esri World Imagery Wayback,no,visually close to the 2016-11-08 frame
+C21,2019-10-06,timeline,figures/C21_stage_02.jpg,Esri World Imagery Wayback,no,extra timeline frame; the shown frames tell the story
+C21,2021-04-09,timeline,figures/C21_stage_03.jpg,Esri World Imagery Wayback,yes,construction stage
+C21,2022-06-13,timeline,figures/C21_stage_05.jpg,Esri World Imagery Wayback,no,extra timeline frame; the shown frames tell the story
+C21,2023-02-10,timeline,figures/C21_stage_07.jpg,Esri World Imagery Wayback,yes,construction stage
+C21,2025-07-23,after,figures/C21_after.jpg,Esri World Imagery Wayback,yes,latest capture

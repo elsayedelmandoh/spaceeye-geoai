@@ -87,15 +87,15 @@ def tile_coordinates(point, level=18):
             int((1 - math.asinh(math.tan(math.radians(point.y))) / math.pi) / 2 * 2**level))
 
 
-def local_releases(point, catalogue, through):
+def local_releases(point, catalogue, through, level=18):
     ordered = sorted((key for key, value in catalogue.items() if value["itemTitle"][-11:-1] <= through),
                      key=lambda key: catalogue[key]["itemTitle"], reverse=True)
     positions = {key: i for i, key in enumerate(ordered)}
-    col, row = tile_coordinates(point)
+    col, row = tile_coordinates(point, level)
     release, result, visited = ordered[0], set(), set()
     while release and release not in visited:
         visited.add(release)
-        value = cached_request(f"{WAYBACK}/tilemap/{release}/18/{row}/{col}")
+        value = cached_request(f"{WAYBACK}/tilemap/{release}/{level}/{row}/{col}")
         if not value.get("data", [0])[0]:
             break
         selected = str(value.get("select", [release])[0])
@@ -116,9 +116,10 @@ def _esri_polygon(rings):
     return result
 
 
-def wayback_metadata(polygon, item):
+def wayback_metadata(polygon, item, level=None):
     extent = frame_extent(polygon)
-    level = max(0, min(22, 23 - round(math.log2(156543.03392804097 / ((extent[2] - extent[0]) / WIDTH)))))
+    if level is None:
+        level = max(0, min(22, 23 - round(math.log2(156543.03392804097 / ((extent[2] - extent[0]) / WIDTH)))))
     viewport = transform(box(*extent), inverse_mercator, interleaved=False)
     geometry = {"rings": [list(map(list, viewport.exterior.coords))], "spatialReference": {"wkid": 4326}}
     value = cached_request(item["metadataLayerUrl"] + f"/{level}/query", {
