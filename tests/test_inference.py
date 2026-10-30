@@ -4,19 +4,28 @@ tests/test_inference.py - Comprehensive Verification Suite for Verina's AI Pipel
 
 import sys
 import unittest
-from unittest.mock import patch
 from pathlib import Path
+from unittest.mock import patch
 
 # Add project root to sys.path
 root_dir = Path(__file__).resolve().parent.parent
 if str(root_dir) not in sys.path:
     sys.path.insert(0, str(root_dir))
 
-from src.inference.tools import get_facts, get_kpis, get_rules, get_images, build_inspection_context
 from src.inference.inspection_template import generate_deterministic_report
-from src.inference.verify import verify_inspection_text, VERDICT_CORRECT, VERDICT_WRONG_NUMBER, VERDICT_UNSUPPORTED
-from src.inference.generate import generate_inspection_brief
-from src.inference.render_reports import render_all_reports, TARGET_COMPOUNDS
+from src.inference.render_reports import TARGET_COMPOUNDS
+from src.inference.tools import (
+    build_inspection_context,
+    get_facts,
+    get_images,
+    get_kpis,
+    get_rules,
+)
+from src.inference.verify import (
+    VERDICT_UNSUPPORTED,
+    VERDICT_WRONG_NUMBER,
+    verify_inspection_text,
+)
 
 
 class TestInferencePipeline(unittest.TestCase):

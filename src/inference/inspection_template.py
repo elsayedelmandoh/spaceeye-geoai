@@ -20,7 +20,7 @@ Pipeline Integration Features:
    - Official ACUD header, print media stylesheets, avoiding page-break splits.
 """
 
-import os
+import contextlib
 import sys
 from pathlib import Path
 
@@ -29,20 +29,19 @@ if str(module_root) not in sys.path:
     sys.path.insert(0, str(module_root))
 
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Any
+
 from src.inference.tools import build_inspection_context
 
 if sys.stdout and hasattr(sys.stdout, "reconfigure"):
-    try:
+    with contextlib.suppress(OSError, ValueError):
         sys.stdout.reconfigure(encoding="utf-8")
-    except Exception:
-        pass
 
 
 def generate_deterministic_report(
-    context: Dict[str, Any],
-    ai_paragraph: Optional[str] = None,
-    ai_questions: Optional[list] = None,
+    context: dict[str, Any],
+    ai_paragraph: str | None = None,
+    ai_questions: list | None = None,
     reviewer_name: str = "م. سارة المحمدي (لجنة المتابعة الفنية)"
 ) -> str:
     """Renders a complete, professional Arabic inspection report in HTML format."""
@@ -52,7 +51,6 @@ def generate_deterministic_report(
     kpis = context["kpis"]
     complaints = context.get("complaints_summary", {"total_count": 0, "origin": "generated"})
     images = context.get("images", {"status": "missing_image"})
-    rules = context.get("applicable_rules", [])
 
     level = kpis.get("level", 4)
     level_word = kpis.get("level_word_ar", f"المستوى {level}")
@@ -95,7 +93,7 @@ def generate_deterministic_report(
             f"لاستبعاد احتمال التوقف غير المعلن للأعمال الداخلية والتشطيبات."
         )
     else:
-        why_text = f"المشروع يسير في النطاق الزمني والإنشائي الاعتيادي؛ المؤشرات مستقرة ولا توجد علامات ركود حرجة."
+        why_text = "المشروع يسير في النطاق الزمني والإنشائي الاعتيادي؛ المؤشرات مستقرة ولا توجد علامات ركود حرجة."
 
     # 3. ما يعنيه ذلك (What it means)
     if level == 1:
@@ -441,7 +439,7 @@ def generate_deterministic_report(
     return html_content
 
 
-def save_inspection_report(code: str, as_of_quarter: str = "2026Q3", output_dir: Optional[Path] = None) -> Path:
+def save_inspection_report(code: str, as_of_quarter: str = "2026Q3", output_dir: Path | None = None) -> Path:
     """Builds context, renders leak-free HTML report, and persists to disk."""
     if output_dir is None:
         module_root = Path(__file__).resolve().parent.parent.parent

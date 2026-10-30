@@ -28,7 +28,6 @@ The descriptions below preserve the current board requirements; an unchecked tas
 | --- | --- |
 | T-AH-17 | [Could] D4 · Finishing vision-model test (Qwen-VL on Wayback): pass condition ≥ 75% agreement on ~50 held-out compound-images labelled blind by salma (T-SA-12); log in `team_ideas.md`; **cut at D4 if not passed**; flag in the inspection file only · reviewer: elsayed **Failed experiment; feature excluded.** See [recorded outcome](REMAINING_TEAM_TASKS.md). |
 | T-AH-18 | [Could] D4 · Roof slab uniformity test on Google heights 2016-2023 against a condition written before the test; cut at D4 if not passed · reviewer: elsayed |
-| T-AH-19 | [Must] D4 · Code freeze for Track A; tag the commit; `run_all` is the one run command used in the presentation (deliverable 10) · reviewer: elsayed |
 
 ### Verina: Track B
 

@@ -15,8 +15,19 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from src.generator import answer, checks, complaints, defects, dictionaries, economy, inputs, observe, stories, truth
-from src.generator.inputs import GEN, LABEL, N, SIM, mi
+from src.generator import (
+    answer,
+    checks,
+    complaints,
+    defects,
+    dictionaries,
+    economy,
+    inputs,
+    observe,
+    stories,
+    truth,
+)
+from src.generator.inputs import GEN, LABEL, SIM, N, mi
 from src.pipeline.common import CFG, PRIVATE
 
 SEED = CFG["seed"]

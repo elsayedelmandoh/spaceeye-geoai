@@ -141,7 +141,7 @@ Goal: one command (`python -m src.pipeline.run_all`) builds the R7 tables, A, K2
 
 ### D4-D5: freeze and hand over
 
-- [ ] **T-AH-19** [Must] D4 · Code freeze for Track A; tag the commit; `run_all` is the one run command used in the presentation (deliverable 10) · reviewer: elsayed **Partial; see [remaining work](../REMAINING_TEAM_TASKS.md).**
+- [x] **T-AH-19** [Must] D4 · Code freeze for Track A; tag the commit; `run_all` is the one run command used in the presentation (deliverable 10) · reviewer: elsayed **Implemented 30 October 2026; review pending.** Tag `track-a-freeze-2026-10-30` on the main merge commit of `chore/lint-cleanup` (258 tests and ruff pass). `make run` (`team_run --full`, which calls `run_all`) is the one run command.
 - [x] **T-AH-20** [Must] D5 · Technical docs for Track A + monitoring plan (quarterly recompute, who runs `run_all`, what to check) · `docs/deliverables/technical-track-a.md` · reviewer: salma **Done; review accepted.**
   - Evidence: [implementation/output](../deliverables/technical-track-a.md).
   - [x] Review accepted (logs/review-03.md, 2026-10-29; findings fixed in 9fc8763 and f9be3f9; review recorded in 7de6b7f; the quarterly procedure has not been run end to end on the real data).

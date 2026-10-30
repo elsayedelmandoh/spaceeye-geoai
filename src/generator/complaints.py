@@ -11,7 +11,7 @@ surprise one healthy compound gets a one-month spike (a social media post, 3-6 x
 import numpy as np
 import pandas as pd
 
-from src.generator.inputs import DAYS, GEN, M_START, N, O0, mi
+from src.generator.inputs import DAYS, GEN, M_START, O0, N, mi
 
 C = GEN["complaints"]
 CATS = ["delay", "stoppage", "payment", "quality", "other"]
@@ -40,7 +40,7 @@ def counts_and_causes(u, rng, viral: bool) -> tuple[np.ndarray, list]:
     """per-month complaint count and, per month, the extra mass of each cause (kind -> mass)."""
     sold_cum = np.concatenate([[0], np.cumsum(u.eco.sold)[:-1]]).astype(float)
     ev = [(m, k) for m, k in u.eco.events] + [(m, k) for m, k in u.warn_events]
-    mult, share = np.ones(N), [dict() for _ in range(N)]
+    mult, share = np.ones(N), [{} for _ in range(N)]
     for m, kind in ev:
         f = float(rng.uniform(*C["event_multiplier"]))
         for j, d in enumerate(DECAY[: C["event_months"]]):

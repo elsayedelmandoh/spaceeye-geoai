@@ -9,21 +9,18 @@ Implements:
 """
 
 import sys
-import json
 from pathlib import Path
-import numpy as np
+
 import pandas as pd
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import RobustScaler
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
-    roc_auc_score,
-    recall_score,
-    precision_score,
     f1_score,
-    confusion_matrix
+    recall_score,
+    roc_auc_score,
 )
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import RobustScaler
 
 # Ensure project root in sys.path
 root_dir = Path(__file__).resolve().parent.parent.parent
@@ -102,7 +99,6 @@ def build_and_evaluate_enterprise_model(base_dir: Path):
     pipeline.fit(X_train, y_train)
     
     # Probability prediction
-    train_probs = pipeline.predict_proba(X_train)[:, 1]
     test_probs = pipeline.predict_proba(X_test)[:, 1]
     
     # Calibrated decision threshold based on prior class prevalence (Cost-Sensitive Matrix)
@@ -116,7 +112,6 @@ def build_and_evaluate_enterprise_model(base_dir: Path):
     # Metrics
     auc = float(roc_auc_score(y_test, test_probs))
     rec_cal = float(recall_score(y_test, test_preds_calibrated))
-    prec_cal = float(precision_score(y_test, test_preds_calibrated, zero_division=0))
     f1_cal = float(f1_score(y_test, test_preds_calibrated, average="macro", zero_division=0))
     
     # Operational Capacity Ranking (Top 4 compounds per quarter)

@@ -11,6 +11,7 @@ true progress is built in two moves:
 """
 
 from dataclasses import dataclass, field
+from itertools import pairwise
 
 import numpy as np
 
@@ -166,7 +167,7 @@ def weights(sig: Signals, st: Setup, season: np.ndarray, rng: np.random.Generato
 
 def bridge(knots: list, w: np.ndarray) -> np.ndarray:
     prog = np.zeros(N)
-    for (m0, v0, _), (m1, v1, _) in zip(knots, knots[1:]):
+    for (m0, v0, _), (m1, v1, _) in pairwise(knots):
         prog[m0] = v0
         if m1 == m0:
             continue

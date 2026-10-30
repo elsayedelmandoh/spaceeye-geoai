@@ -2,17 +2,17 @@
 
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-import pandas as pd
 from src.inference.tools import (
-    get_facts,
-    get_kpis,
-    get_images,
-    get_rules,
-    get_complaints_summary,
     build_inspection_context,
-    quarter_cutoff_date
+    get_complaints_summary,
+    get_facts,
+    get_images,
+    get_kpis,
+    get_rules,
+    quarter_cutoff_date,
 )
 
 

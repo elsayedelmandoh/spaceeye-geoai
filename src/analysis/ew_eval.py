@@ -21,8 +21,8 @@ TEST_LABEL_Q = ["2025Q2", "2025Q3", "2025Q4", "2026Q1"]
 TEST_ALL_Q = TEST_LABEL_Q + ["2026Q2"]
 TEST_ONSET_FROM = pd.Period("2025-07", "M")
 LOG_COLS = ["land_late", "cmp_rate90", "kwh_per_meter", "meters", "report_age"]
-GB_PARAMS = dict(max_depth=2, max_iter=60, learning_rate=0.05, min_samples_leaf=6, l2_regularization=1.0,
-                 class_weight="balanced", random_state=SEED)
+GB_PARAMS = {"max_depth": 2, "max_iter": 60, "learning_rate": 0.05, "min_samples_leaf": 6, "l2_regularization": 1.0,
+             "class_weight": "balanced", "random_state": SEED}
 
 # ---------------------------------------------------------------- rules
 
@@ -194,7 +194,7 @@ def random_baseline(df: pd.DataFrame, label_q: list[str], n: int, sims: int = 20
         tp = sum(int(g[rng.permutation(len(g))[: min(n, len(g))]].sum()) for g in groups)
         rec.append(tp / max(sum(g.sum() for g in groups), 1))
         prec.append(tp / sum(min(n, len(g)) for g in groups))
-    q = lambda a: (float(np.mean(a)), float(np.percentile(a, 2.5)), float(np.percentile(a, 97.5)))  # noqa: E731
+    q = lambda a: (float(np.mean(a)), float(np.percentile(a, 2.5)), float(np.percentile(a, 97.5)))
     return {"recall": q(rec), "precision": q(prec)}
 
 

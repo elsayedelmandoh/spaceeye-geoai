@@ -11,12 +11,13 @@ root_dir = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(root_dir))
 
 from src.inference.verify import (
-    verify_inspection_text,
-    log_verification_result,
     VERDICT_CORRECT,
+    VERDICT_UNSUPPORTED,
     VERDICT_WRONG_NUMBER,
-    VERDICT_UNSUPPORTED
+    log_verification_result,
+    verify_inspection_text,
 )
+
 
 class TestInspectionVerifier(unittest.TestCase):
 
