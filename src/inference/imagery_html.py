@@ -28,10 +28,13 @@ def render_imagery_html(images):
         attribution = escape(str(row.get("attribution") or "Source attribution unavailable"))
         source = str(row.get("source_url") or "")
         source_link = f'<a href="{escape(source, quote=True)}">Source item</a>' if urlsplit(source).scheme == "https" else ""
+        age = row.get("capture_age_months_at_asof")
+        age_caption = (f' (latest capture {escape(str(age))} completed months before as-of '
+                       f'{escape(str(row.get("asof_date") or "configured quarter"))})') if age is not None else ""
         cards.append('<figure style="margin:0;break-inside:avoid">'
                      f'<img class="sat-img" alt="{escape(str(row.get("image_type") or "Observed image"))}" '
                      f'src="data:{mime};base64,{base64.b64encode(data).decode()}">'
-                     f'<figcaption class="img-caption" dir="ltr">Capture: {escape(str(date))}; '
+                     f'<figcaption class="img-caption" dir="ltr">Capture: {escape(str(date))}{age_caption}; '
                      f'release: {escape(str(row.get("release_date") or "Unknown"))}<br>{attribution} {source_link}</figcaption></figure>')
     if not cards:
         return ('<div class="imagery-box placeholder"><div class="imagery-title">Observed imagery</div>'

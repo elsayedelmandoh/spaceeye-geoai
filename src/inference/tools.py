@@ -386,6 +386,13 @@ def get_images(
             image["mixed_capture_dates"] = bool(row["mixed_capture_dates"])
         if "sequence" in frame:
             image["sequence"] = int(row["sequence"])
+    from src.pipeline.imagery_contract import capture_age_months
+    asof_date = qend(qindex(quarter or CFG["asof"])).date().isoformat()
+    for image in images:
+        latest_capture = image.get("capture_date_max") or image.get("capture_date")
+        if latest_capture and str(latest_capture) <= asof_date:
+            image["capture_age_months_at_asof"] = capture_age_months(str(latest_capture), asof_date)
+            image["asof_date"] = asof_date
     return {"status": "available", "images": images}
 
 

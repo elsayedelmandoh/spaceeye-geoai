@@ -14,6 +14,7 @@ from shapely.ops import unary_union
 
 from src.pipeline import imagery_sources as S
 from src.pipeline.common import APP, CFG, REAL, qend, qindex
+from src.pipeline.imagery_contract import capture_age_months
 from src.pipeline.portable_io import install_files
 
 OUT = APP / "imagery_comparison"
@@ -226,6 +227,7 @@ def wayback_render(polygons):
                 "bbox_3857": json.dumps(S.frame_extent(polygons[code])),
                 "usage": "Attributed static report figure; Esri and imagery-provider terms apply; not MIT",
                 "pair_asof": cutoff,
+                "capture_age_months_at_asof": capture_age_months(dates[-1], cutoff) if dates[-1] <= cutoff else None,
                 "pair_rule": "After: latest published capture by as-of; before: latest capture at least 12 months before after; mixed dates use their maximum",
                 "sha256": hashlib.sha256(destination.read_bytes()).hexdigest()}
     completed, errors = [], []
@@ -436,7 +438,7 @@ def report(polygons):
         for row in w.to_dict("records"):
             label = row["capture_date_min"] + (" to " + row["capture_date_max"] + " (mixed)" if row["mixed_capture_dates"] else "")
             cards.append(f'<figure><a href="../{row["path"]}"><img loading="lazy" src="../{row["path"]}"></a>'
-                         f'<figcaption>{html.escape(str(label))}; published {row["release_date"]}<br>{html.escape(row["attribution"])} '
+                         f'<figcaption>{html.escape(str(label))}; latest capture {row["capture_age_months_at_asof"]} completed months before as-of {row["pair_asof"]}; published {row["release_date"]}<br>{html.escape(row["attribution"])} '
                          f'<a href="{html.escape(row["source_url"], quote=True)}">Source item</a></figcaption></figure>')
         cards.append('</div><details><summary>Quarterly Sentinel-2 timeline (10 m context)</summary><div class="grid">')
         for row in s.to_dict("records"):

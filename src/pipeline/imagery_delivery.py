@@ -13,7 +13,7 @@ from pathlib import Path
 from src.pipeline.common import APP, BASE_DIR, CFG
 from src.pipeline.portable_io import install_files, relative_file
 
-NAME = "SpaceEye_R7_IMAGERY_REVIEW_2026-10-30"
+NAME = "SpaceEye_R7_IMAGERY_REVIEW_2026-10-30_v2"
 RELEASE = APP.parent / "imagery_delivery"
 PACKAGE = RELEASE / (NAME + ".zip")
 
@@ -152,6 +152,8 @@ def build():
 The repository's software licence does not license the underlying imagery.
 
 Wayback: limited attributed static educational map report figures, rendered by Esri's official Print service. Esri and the imagery licensors retain their rights. No WMTS tile archive, raw imagery dataset, fitted image model, or blanket redistribution licence is supplied. Keep the per-figure attribution and source-item link with each figure. Do not use the Wayback figures to train/test/validate an image model without separately confirming the applicable licence.
+
+Generated inspection HTML embeds these pixels as base64 and follows the same restrictions as the JPEGs: keep it local for attributed educational review; never commit it or redistribute it. A file extension does not remove the underlying image rights.
 
 - Static-map policy: https://doc.arcgis.com/en/arcgis-online/reference/static-maps.htm
 - Esri terms: https://www.esri.com/en-us/legal/terms/web-site-service

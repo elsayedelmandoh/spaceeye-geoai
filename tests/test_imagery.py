@@ -20,6 +20,14 @@ def test_fixed_reflectance_display_respects_source_offsets_and_nodata():
     assert rgb[3] == 255 and rgb[4] == 255
 
 
+def test_capture_age_is_completed_calendar_months_and_rejects_future():
+    from src.pipeline.imagery_contract import capture_age_months
+    assert capture_age_months("2025-07-23", "2026-09-30") == 14
+    assert capture_age_months("2025-07-23", "2026-09-22") == 13
+    with pytest.raises(ValueError, match="later"):
+        capture_age_months("2026-10-29", "2026-09-30")
+
+
 @pytest.mark.parametrize("bad,valid,expected", [(0, 1, True), (.1, .95, True), (.06, .94, False), (.11, 1, False)])
 def test_sentinel_screen_requires_bad_and_valid_coverage(bad, valid, expected):
     from src.pipeline.imagery_compare import sentinel_quality_ok
@@ -97,6 +105,7 @@ def test_configured_end_comes_from_asof_and_pair_csv_has_inspector_schema(tmp_pa
     assert frame.role.tolist() == ["before", "after"]
     assert frame.capture_date.tolist() == ["2023-07-01", "2025-07-23"]
     assert frame.path.tolist() == ["images/C01_before.jpg", "images/C01_after.jpg"]
+    assert frame.capture_age_months_at_asof.tolist()[-1] == 14
     assert len(timeline) == 4
 
 
@@ -180,11 +189,13 @@ def test_html_images_are_embedded_only_when_rendered_and_cannot_read_outside_dat
     Image.new("RGB", (8, 8), "white").save(path)
     payload = {"status": "available", "images": [{"image_type": "stage_02", "path": "images/C01_stage_02.jpg",
         "capture_date": None, "capture_dates": ["2023-02-10", "2023-07-29"], "release_date": "2024-08-15",
-        "attribution": "Esri <source>", "source_url": "https://example.invalid/item"}]}
+        "attribution": "Esri <source>", "source_url": "https://example.invalid/item",
+        "capture_age_months_at_asof": 14, "asof_date": "2026-09-30"}]}
     markup = imagery_html.render_imagery_html(payload)
     assert "data:image/jpeg;base64," in markup
     assert "2023-02-10 / 2023-07-29 (mixed capture dates)" in markup
     assert "Esri &lt;source&gt;" in markup
+    assert "latest capture 14 completed months before as-of 2026-09-30" in markup
     assert "base64" not in json.dumps(payload)
     payload["images"][0]["path"] = "../outside.jpg"
     assert "data:image" not in imagery_html.render_imagery_html(payload)
