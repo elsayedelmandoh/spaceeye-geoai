@@ -215,6 +215,43 @@ def stac_candidates(bounds, start, end, collection="sentinel-2-c1-l2a"):
     return value.get("features", [])
 
 
+def calibrate_rgb(values, scale, offset):
+    """A fixed physical reflectance display; never a per-scene fitted stretch."""
+    reflectance = values.astype(np.float64) * scale + offset
+    result = np.rint(np.clip(reflectance / .6, 0, 1) * 255).astype(np.uint8)
+    result[values == 0] = 0
+    return result
+
+
+def read_reflectance_window(item, polygons):
+    import rasterio
+    from rasterio.warp import transform_geom
+    from rasterio.windows import from_bounds
+    from shapely.geometry import shape
+    from shapely.ops import unary_union
+
+    geoms = [transform_geom("EPSG:4326", "EPSG:32636", p.__geo_interface__) for p in polygons]
+    bounds = unary_union([shape(g) for g in geoms]).buffer(250).bounds
+    channels, calibration, urls = [], {}, {}
+    with rasterio.Env(GDAL_DISABLE_READDIR_ON_OPEN="EMPTY_DIR", GDAL_HTTP_MAX_RETRY=2,
+                      GDAL_HTTP_RETRY_DELAY=1, GDAL_HTTP_TIMEOUT=60, CPL_VSIL_CURL_ALLOWED_EXTENSIONS=".tif"):
+        for band in ("red", "green", "blue"):
+            asset = item["assets"][band]
+            metadata = asset.get("raster:bands", [{}])[0]
+            if "scale" not in metadata or "offset" not in metadata:
+                raise ValueError("Missing explicit source reflectance calibration: " + band)
+            with rasterio.open(asset["href"]) as source:
+                if source.crs.to_epsg() != 32636:
+                    raise ValueError("Unexpected source CRS for R7 scene")
+                window = from_bounds(*bounds, transform=source.transform).round_offsets().round_lengths()
+                values = source.read(1, window=window, boundless=True, fill_value=0)
+                transform_ = source.window_transform(window)
+            channels.append(calibrate_rgb(values, metadata["scale"], metadata["offset"]))
+            calibration[band] = {"scale": metadata["scale"], "offset": metadata["offset"]}
+            urls[band] = asset["href"]
+    return np.stack(channels), transform_, calibration, urls
+
+
 def read_sentinel_window(item, polygons):
     import rasterio
     from rasterio.enums import Resampling
@@ -222,26 +259,15 @@ def read_sentinel_window(item, polygons):
     from rasterio.warp import transform_geom
     from rasterio.windows import from_bounds
 
-    assets = item["assets"]
-    href = assets["visual"]["href"]
+    rgb, transform_, _, _ = read_reflectance_window(item, polygons)
     geoms = [transform_geom("EPSG:4326", "EPSG:32636", p.__geo_interface__) for p in polygons]
-    from shapely.geometry import shape
-    from shapely.ops import unary_union
-    union = unary_union([shape(g) for g in geoms])
-    bounds = union.buffer(250).bounds
-    with rasterio.Env(GDAL_DISABLE_READDIR_ON_OPEN="EMPTY_DIR", GDAL_HTTP_MAX_RETRY=2,
-                      GDAL_HTTP_RETRY_DELAY=1, GDAL_HTTP_TIMEOUT=60, CPL_VSIL_CURL_ALLOWED_EXTENSIONS=".tif"):
-        with rasterio.open(href) as source:
-            if source.crs.to_epsg() != 32636:
-                raise ValueError("Unexpected source CRS for R7 scene")
-            window = from_bounds(*bounds, transform=source.transform).round_offsets().round_lengths()
-            rgb = source.read([1, 2, 3], window=window, boundless=True, fill_value=0)
-            transform_ = source.window_transform(window)
-            bounds_ = rasterio.windows.bounds(window, source.transform)
-        with rasterio.open(assets["scl"]["href"]) as source:
-            scl_window = from_bounds(*bounds_, transform=source.transform)
-            scl = source.read(1, window=scl_window, out_shape=rgb.shape[1:], resampling=Resampling.nearest,
-                              boundless=True, fill_value=0)
+    bounds = rasterio.transform.array_bounds(rgb.shape[1], rgb.shape[2], transform_)
+    with (rasterio.Env(GDAL_DISABLE_READDIR_ON_OPEN="EMPTY_DIR", GDAL_HTTP_MAX_RETRY=2,
+                       GDAL_HTTP_RETRY_DELAY=1, GDAL_HTTP_TIMEOUT=60, CPL_VSIL_CURL_ALLOWED_EXTENSIONS=".tif"),
+          rasterio.open(item["assets"]["scl"]["href"]) as source):
+        window = from_bounds(*bounds, transform=source.transform)
+        scl = source.read(1, window=window, out_shape=rgb.shape[1:], resampling=Resampling.nearest,
+                          boundless=True, fill_value=0)
     mask = geometry_mask(geoms, out_shape=rgb.shape[1:], transform=transform_, invert=True)
     bad = np.isin(scl, [0, 1, 3, 8, 9, 10, 11])
     fraction = float(bad[mask].mean()) if mask.any() else 1.0

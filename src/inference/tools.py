@@ -361,9 +361,11 @@ def get_images(
             captured = pd.to_datetime(frame["capture_date_max"], errors="coerce")
             frame = frame.loc[captured.notna() & captured.le(cutoff)]
     elif quarter is not None:
-        return {"status": "missing", "images": [], "reason": "Historical image availability is unknown: release dates are absent"}
+        return {"status": missing_status, "images": [], "reason": "Historical image availability is unknown: release dates are absent"}
     rows = _image_rows(frame, code)
     if not rows:
+        if quarter is not None and "release_date" in frame:
+            return {"status": missing_status, "images": [], "reason": "No dated Wayback release is available by the selected quarter cutoff"}
         return _missing_images(missing_status)
     images = [
         {
@@ -437,7 +439,7 @@ def get_rules(
     if not source_path.is_file():
         raise FileNotFoundError(
             "Decree 2184 reference CSV for config key 'sources.decree' not found: "
-            f"{source_path}. Mount F: under /mnt/f when using the configured path."
+            f"{source_path}. Run src.pipeline.setup_review for prepared rules, or configure SPACEEYE_DATA_ROOT and install source caches."
         )
     frame = _read_frame(source_path)
     selected = frame
@@ -507,7 +509,7 @@ def build_inspection_context(
     facts = get_facts(code, as_of_quarter)
     kpis = get_kpis(code, as_of_quarter)
     complaints = get_complaints_summary(code, as_of_quarter)
-    images = get_images(code)
+    images = get_images(code, quarter=as_of_quarter)
     rules = get_rules()
     relevant_rule_ids = {"R01", "R06", "R12", "R13", "R17", "R18"}
     applicable_rules = [

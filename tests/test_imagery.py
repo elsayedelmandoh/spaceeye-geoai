@@ -3,12 +3,21 @@
 import json
 from datetime import UTC, datetime
 
+import numpy as np
 import pandas as pd
 import pytest
 from shapely.geometry import box
 
 from src.inference.tools import get_images
 from src.pipeline import imagery_sources as S
+
+
+def test_fixed_reflectance_display_respects_source_offsets_and_nodata():
+    dn = np.array([0, 1000, 4000, 7000, 10000], dtype=np.uint16)
+    rgb = S.calibrate_rgb(dn, .0001, -.1)
+    assert rgb[0] == 0 and rgb[1] == 0
+    assert abs(int(rgb[2]) - 128) <= 1
+    assert rgb[3] == 255 and rgb[4] == 255
 
 
 def test_provider_rename_and_republication_do_not_inflate_capture_counts():
@@ -21,6 +30,51 @@ def test_provider_rename_and_republication_do_not_inflate_capture_counts():
     kept = distinct_capture_states(rows)
     assert len(kept) == 2
     assert kept[0]["release_date"] == "2025-09-04"
+
+
+def test_pair_uses_a_distinct_year_old_capture_and_respects_publication():
+    from src.pipeline.imagery_compare import inspection_pair
+    rows = [
+        {"capture_dates": ["2020-01-01"], "release_date": "2020-06-01"},
+        {"capture_dates": ["2023-07-01", "2024-07-01"], "release_date": "2024-08-01"},
+        {"capture_dates": ["2024-08-01"], "release_date": "2024-09-01"},
+        {"capture_dates": ["2025-07-23"], "release_date": "2025-09-04"},
+        {"capture_dates": ["2026-03-01"], "release_date": "2026-12-01"},
+    ]
+    pair = inspection_pair(rows, "2026-09-30")
+    assert pair["after"] is rows[3]
+    assert pair["before"] is rows[1]
+    assert inspection_pair([rows[3]], "2026-09-30") == {"after": rows[3]}
+    assert inspection_pair(rows, "2019-12-31") == {}
+
+
+def test_configured_end_comes_from_asof_and_pair_csv_has_inspector_schema(tmp_path, monkeypatch):
+    from PIL import Image
+
+    from src.pipeline import imagery_compare as C
+    monkeypatch.setattr(C, "APP", tmp_path)
+    monkeypatch.setattr(C, "OUT", tmp_path / "imagery_comparison")
+    monkeypatch.setattr(C, "CFG", {"asof": "2026Q3"})
+    assert C.configured_through() == "2026-09-30"
+    selected = []
+    catalogue = {}
+    for n, date in enumerate(["2020-01-01", "2023-07-01", "2024-08-01", "2025-07-23"]):
+        selected.append({"code": "C01", "release_id": str(n), "release_date": date,
+                         "capture_dates": [date], "providers": ["Provider"], "metadata_url": "https://example.invalid/meta",
+                         "coverage_fraction": 1, "dated_coverage_fraction": 1,
+                         "resolution_m": [.3], "accuracy_m": [5]})
+        catalogue[str(n)] = {"itemID": "item" + str(n)}
+    C.save_json(C.OUT / "wayback_selected.json", selected)
+    C.save_json(C.OUT / "catalogue_snapshot.json", catalogue)
+    monkeypatch.setattr(S, "cached_request", lambda *args: {"accessInformation": "Esri; provider"})
+    monkeypatch.setattr(S, "static_wayback_map", lambda *args: (Image.new("RGB", (40, 30), "white"), None))
+    timeline = C.wayback_render({"C01": box(31.7, 29.95, 31.71, 29.96)})
+    frame = pd.read_csv(tmp_path / "images/images.csv")
+    assert {"code", "role", "capture_date", "publication_date", "source", "resolution_m", "attribution"} <= set(frame.columns)
+    assert frame.role.tolist() == ["before", "after"]
+    assert frame.capture_date.tolist() == ["2023-07-01", "2025-07-23"]
+    assert frame.path.tolist() == ["images/C01_before.jpg", "images/C01_after.jpg"]
+    assert len(timeline) == 4
 
 
 def test_map_extent_has_fixed_aspect_and_contains_the_whole_compound():
@@ -91,3 +145,64 @@ def test_stac_scene_search_has_exact_period_and_explicit_cloud_filter(monkeypatc
     assert S.stac_candidates((31.7, 29.9, 31.8, 30), "2023-01-01", "2023-03-31")[0]["id"] == "real-scene-id"
     assert seen["datetime"] == "2023-01-01T00:00:00Z/2023-03-31T23:59:59Z"
     assert json.loads(seen["query"])["eo:cloud_cover"]["lt"] == 25
+
+
+def test_html_images_are_embedded_only_when_rendered_and_cannot_read_outside_data(tmp_path, monkeypatch):
+    from PIL import Image
+
+    from src.inference import imagery_html
+    monkeypatch.setattr(imagery_html, "APP", tmp_path)
+    path = tmp_path / "images/C01_stage_02.jpg"
+    path.parent.mkdir()
+    Image.new("RGB", (8, 8), "white").save(path)
+    payload = {"status": "available", "images": [{"image_type": "stage_02", "path": "images/C01_stage_02.jpg",
+        "capture_date": None, "capture_dates": ["2023-02-10", "2023-07-29"], "release_date": "2024-08-15",
+        "attribution": "Esri <source>", "source_url": "https://example.invalid/item"}]}
+    markup = imagery_html.render_imagery_html(payload)
+    assert "data:image/jpeg;base64," in markup
+    assert "2023-02-10 / 2023-07-29 (mixed capture dates)" in markup
+    assert "Esri &lt;source&gt;" in markup
+    assert "base64" not in json.dumps(payload)
+    payload["images"][0]["path"] = "../outside.jpg"
+    assert "data:image" not in imagery_html.render_imagery_html(payload)
+
+
+def test_restored_context_builder_passes_its_cutoff_to_the_image_tool(monkeypatch):
+    from src.inference import tools
+    seen = {}
+    monkeypatch.setattr(tools, "get_facts", lambda *args: {"cutoff_date": "2020-12-31"})
+    monkeypatch.setattr(tools, "get_kpis", lambda *args: {})
+    monkeypatch.setattr(tools, "get_complaints_summary", lambda *args: {})
+    monkeypatch.setattr(tools, "get_rules", list)
+    def fake_images(code, quarter):
+        seen["quarter"] = quarter
+        return {"status": "missing", "images": []}
+    monkeypatch.setattr(tools, "get_images", fake_images)
+    tools.build_inspection_context("C01", "2020Q4")
+    assert seen["quarter"] == "2020Q4"
+
+
+def test_prepared_imagery_install_checks_members_before_writing(tmp_path):
+    import csv
+    import hashlib
+    import io
+    import zipfile
+
+    from src.pipeline.imagery_delivery import packaged_files
+    package = tmp_path / "small.zip"
+    data = b"code,image_type\nC01,before\n"
+    manifest = io.StringIO()
+    writer = csv.DictWriter(manifest, fieldnames=["file", "bytes", "sha256"], lineterminator="\n")
+    writer.writeheader()
+    writer.writerow({"file": "images/images.csv", "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()})
+    with zipfile.ZipFile(package, "w") as archive:
+        archive.writestr("IMAGERY_MANIFEST.csv", manifest.getvalue())
+        archive.writestr("images/images.csv", data)
+    package.with_suffix(".zip.sha256.txt").write_text(hashlib.sha256(package.read_bytes()).hexdigest())
+    target = tmp_path / "new-device/app_data"
+    planned = packaged_files(package, app=target)
+    assert planned[target / "images/images.csv"] == data
+    assert not target.exists()
+    package.with_suffix(".zip.sha256.txt").write_text("0" * 64)
+    with pytest.raises(ValueError, match="ZIP hash differs"):
+        packaged_files(package, app=target)
