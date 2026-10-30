@@ -34,4 +34,4 @@ Implemented on `fix/data-v6`:
 - 21: the backtest report has a "This case" column built from each case's own quarters.
 - 22: the docstring and the technical doc state "data cut, final model".
 - 19, 23 and 24: recorded here.
-- T-AH-18: cut, as recorded on the board.
+- T-AH-18: first proposed as a cut; the owner then asked for the test, with radar added. It was run and failed (roof 0.495, radar 0.551, both 0.543 against 0.75); the board records it as a failed experiment.
