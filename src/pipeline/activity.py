@@ -98,7 +98,7 @@ def training_frame(s4: pd.DataFrame, exclude: frozenset = frozenset(), mode: str
     D = features(W, s4, units)
     D["ly"] = D.qi.map(label_year)
     P = D.merge(lab[["osm_id", "year", "growth", "stable"]], left_on=["uid", "ly"], right_on=["osm_id", "year"], how="left")
-    P["y"] = np.where(P.growth == True, 1, np.where(P.stable == True, 0, np.nan))  # noqa: E712
+    P["y"] = np.where(P.growth == True, 1, np.where(P.stable == True, 0, np.nan))
     return P[P.y.notna()].reset_index(drop=True)
 
 
