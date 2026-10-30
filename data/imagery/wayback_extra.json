@@ -1,0 +1,506 @@
+[
+  {
+    "code": "C01",
+    "capture_date": "2016-12-17",
+    "release_id": "10768",
+    "release_date": "2018-01-31",
+    "providers": [
+      "DigitalGlobe"
+    ],
+    "context_providers": [
+      "DigitalGlobe"
+    ],
+    "resolution_m": [
+      0.46
+    ],
+    "accuracy_m": [
+      4.23
+    ],
+    "dated_coverage_zoom17": 1.0,
+    "dated_coverage_zoom18": 0,
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2018_r01/MapServer",
+    "item_id": "9701f2a29b1c459089a59044647a3f7b",
+    "file": "figures/C01_2016-12-17.jpg",
+    "attribution": "Esri World Imagery Wayback; imagery: DigitalGlobe. Service credits: Esri, Vantor, Earthstar Geograpics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community"
+  },
+  {
+    "code": "C01",
+    "capture_date": "2018-08-18",
+    "release_id": "11351",
+    "release_date": "2019-10-09",
+    "providers": [
+      "DigitalGlobe"
+    ],
+    "context_providers": [
+      "DigitalGlobe"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "dated_coverage_zoom17": 1.0,
+    "dated_coverage_zoom18": 0,
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2019_r13/MapServer",
+    "item_id": "b0e67588080a4e2796289d2a5ea12944",
+    "file": "figures/C01_2018-08-18.jpg",
+    "attribution": "Esri World Imagery Wayback; imagery: DigitalGlobe. Service credits: Esri, Vantor, Earthstar Geograpics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community"
+  },
+  {
+    "code": "C02",
+    "capture_date": "2016-11-08",
+    "release_id": "10768",
+    "release_date": "2018-01-31",
+    "providers": [
+      "DigitalGlobe"
+    ],
+    "context_providers": [
+      "DigitalGlobe"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      10.2
+    ],
+    "dated_coverage_zoom17": 1.0000000000000002,
+    "dated_coverage_zoom18": 0,
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2018_r01/MapServer",
+    "item_id": "9701f2a29b1c459089a59044647a3f7b",
+    "file": "figures/C02_2016-11-08.jpg",
+    "attribution": "Esri World Imagery Wayback; imagery: DigitalGlobe. Service credits: Esri, Vantor, Earthstar Geograpics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community"
+  },
+  {
+    "code": "C03",
+    "capture_date": "2016-11-08",
+    "release_id": "10768",
+    "release_date": "2018-01-31",
+    "providers": [
+      "DigitalGlobe"
+    ],
+    "context_providers": [
+      "DigitalGlobe"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      10.2
+    ],
+    "dated_coverage_zoom17": 0.9999999999999999,
+    "dated_coverage_zoom18": 0,
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2018_r01/MapServer",
+    "item_id": "9701f2a29b1c459089a59044647a3f7b",
+    "file": "figures/C03_2016-11-08.jpg",
+    "attribution": "Esri World Imagery Wayback; imagery: DigitalGlobe. Service credits: Esri, Vantor, Earthstar Geograpics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community"
+  },
+  {
+    "code": "C03",
+    "capture_date": "2018-08-18",
+    "release_id": "11351",
+    "release_date": "2019-10-09",
+    "providers": [
+      "DigitalGlobe"
+    ],
+    "context_providers": [
+      "DigitalGlobe"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "dated_coverage_zoom17": 0.9999999999999999,
+    "dated_coverage_zoom18": 0,
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2019_r13/MapServer",
+    "item_id": "b0e67588080a4e2796289d2a5ea12944",
+    "file": "figures/C03_2018-08-18.jpg",
+    "attribution": "Esri World Imagery Wayback; imagery: DigitalGlobe. Service credits: Esri, Vantor, Earthstar Geograpics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community"
+  },
+  {
+    "code": "C04",
+    "capture_date": "2016-11-08",
+    "release_id": "10768",
+    "release_date": "2018-01-31",
+    "providers": [
+      "DigitalGlobe"
+    ],
+    "context_providers": [
+      "DigitalGlobe"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      10.2
+    ],
+    "dated_coverage_zoom17": 1.0,
+    "dated_coverage_zoom18": 0,
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2018_r01/MapServer",
+    "item_id": "9701f2a29b1c459089a59044647a3f7b",
+    "file": "figures/C04_2016-11-08.jpg",
+    "attribution": "Esri World Imagery Wayback; imagery: DigitalGlobe. Service credits: Esri, Vantor, Earthstar Geograpics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community"
+  },
+  {
+    "code": "C04",
+    "capture_date": "2018-08-18",
+    "release_id": "11351",
+    "release_date": "2019-10-09",
+    "providers": [
+      "DigitalGlobe"
+    ],
+    "context_providers": [
+      "DigitalGlobe"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "dated_coverage_zoom17": 1.0,
+    "dated_coverage_zoom18": 0,
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2019_r13/MapServer",
+    "item_id": "b0e67588080a4e2796289d2a5ea12944",
+    "file": "figures/C04_2018-08-18.jpg",
+    "attribution": "Esri World Imagery Wayback; imagery: DigitalGlobe. Service credits: Esri, Vantor, Earthstar Geograpics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community"
+  },
+  {
+    "code": "C07",
+    "capture_date": "2016-11-08",
+    "release_id": "10768",
+    "release_date": "2018-01-31",
+    "providers": [
+      "DigitalGlobe"
+    ],
+    "context_providers": [
+      "DigitalGlobe"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      10.2
+    ],
+    "dated_coverage_zoom17": 1.0,
+    "dated_coverage_zoom18": 0,
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2018_r01/MapServer",
+    "item_id": "9701f2a29b1c459089a59044647a3f7b",
+    "file": "figures/C07_2016-11-08.jpg",
+    "attribution": "Esri World Imagery Wayback; imagery: DigitalGlobe. Service credits: Esri, Vantor, Earthstar Geograpics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community"
+  },
+  {
+    "code": "C07",
+    "capture_date": "2018-08-18",
+    "release_id": "11351",
+    "release_date": "2019-10-09",
+    "providers": [
+      "DigitalGlobe"
+    ],
+    "context_providers": [
+      "DigitalGlobe"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "dated_coverage_zoom17": 1.0,
+    "dated_coverage_zoom18": 0,
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2019_r13/MapServer",
+    "item_id": "b0e67588080a4e2796289d2a5ea12944",
+    "file": "figures/C07_2018-08-18.jpg",
+    "attribution": "Esri World Imagery Wayback; imagery: DigitalGlobe. Service credits: Esri, Vantor, Earthstar Geograpics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community"
+  },
+  {
+    "code": "C10",
+    "capture_date": "2016-12-17",
+    "release_id": "10768",
+    "release_date": "2018-01-31",
+    "providers": [
+      "DigitalGlobe"
+    ],
+    "context_providers": [
+      "DigitalGlobe"
+    ],
+    "resolution_m": [
+      0.46
+    ],
+    "accuracy_m": [
+      4.23
+    ],
+    "dated_coverage_zoom17": 1.0000000000000002,
+    "dated_coverage_zoom18": 0,
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2018_r01/MapServer",
+    "item_id": "9701f2a29b1c459089a59044647a3f7b",
+    "file": "figures/C10_2016-12-17.jpg",
+    "attribution": "Esri World Imagery Wayback; imagery: DigitalGlobe. Service credits: Esri, Vantor, Earthstar Geograpics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community"
+  },
+  {
+    "code": "C10",
+    "capture_date": "2018-08-18",
+    "release_id": "11351",
+    "release_date": "2019-10-09",
+    "providers": [
+      "DigitalGlobe"
+    ],
+    "context_providers": [
+      "DigitalGlobe"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "dated_coverage_zoom17": 1.0000000000000002,
+    "dated_coverage_zoom18": 0,
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2019_r13/MapServer",
+    "item_id": "b0e67588080a4e2796289d2a5ea12944",
+    "file": "figures/C10_2018-08-18.jpg",
+    "attribution": "Esri World Imagery Wayback; imagery: DigitalGlobe. Service credits: Esri, Vantor, Earthstar Geograpics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community"
+  },
+  {
+    "code": "C12",
+    "capture_date": "2016-11-08",
+    "release_id": "10768",
+    "release_date": "2018-01-31",
+    "providers": [
+      "DigitalGlobe"
+    ],
+    "context_providers": [
+      "DigitalGlobe"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      10.2
+    ],
+    "dated_coverage_zoom17": 0.9999999999999997,
+    "dated_coverage_zoom18": 0,
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2018_r01/MapServer",
+    "item_id": "9701f2a29b1c459089a59044647a3f7b",
+    "file": "figures/C12_2016-11-08.jpg",
+    "attribution": "Esri World Imagery Wayback; imagery: DigitalGlobe. Service credits: Esri, Vantor, Earthstar Geograpics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community"
+  },
+  {
+    "code": "C12",
+    "capture_date": "2018-08-18",
+    "release_id": "11351",
+    "release_date": "2019-10-09",
+    "providers": [
+      "DigitalGlobe"
+    ],
+    "context_providers": [
+      "DigitalGlobe"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "dated_coverage_zoom17": 0.9999999999999997,
+    "dated_coverage_zoom18": 0,
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2019_r13/MapServer",
+    "item_id": "b0e67588080a4e2796289d2a5ea12944",
+    "file": "figures/C12_2018-08-18.jpg",
+    "attribution": "Esri World Imagery Wayback; imagery: DigitalGlobe. Service credits: Esri, Vantor, Earthstar Geograpics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community"
+  },
+  {
+    "code": "C14",
+    "capture_date": "2016-11-08",
+    "release_id": "10768",
+    "release_date": "2018-01-31",
+    "providers": [
+      "DigitalGlobe"
+    ],
+    "context_providers": [
+      "DigitalGlobe"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      10.2
+    ],
+    "dated_coverage_zoom17": 0.9999999999999997,
+    "dated_coverage_zoom18": 0,
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2018_r01/MapServer",
+    "item_id": "9701f2a29b1c459089a59044647a3f7b",
+    "file": "figures/C14_2016-11-08.jpg",
+    "attribution": "Esri World Imagery Wayback; imagery: DigitalGlobe. Service credits: Esri, Vantor, Earthstar Geograpics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community"
+  },
+  {
+    "code": "C17",
+    "capture_date": "2016-11-08",
+    "release_id": "10768",
+    "release_date": "2018-01-31",
+    "providers": [
+      "DigitalGlobe"
+    ],
+    "context_providers": [
+      "DigitalGlobe"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      10.2
+    ],
+    "dated_coverage_zoom17": 0.9999999999999998,
+    "dated_coverage_zoom18": 0,
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2018_r01/MapServer",
+    "item_id": "9701f2a29b1c459089a59044647a3f7b",
+    "file": "figures/C17_2016-11-08.jpg",
+    "attribution": "Esri World Imagery Wayback; imagery: DigitalGlobe. Service credits: Esri, Vantor, Earthstar Geograpics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community"
+  },
+  {
+    "code": "C17",
+    "capture_date": "2018-08-18",
+    "release_id": "11351",
+    "release_date": "2019-10-09",
+    "providers": [
+      "DigitalGlobe"
+    ],
+    "context_providers": [
+      "DigitalGlobe"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "dated_coverage_zoom17": 0.9999999999999998,
+    "dated_coverage_zoom18": 0,
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2019_r13/MapServer",
+    "item_id": "b0e67588080a4e2796289d2a5ea12944",
+    "file": "figures/C17_2018-08-18.jpg",
+    "attribution": "Esri World Imagery Wayback; imagery: DigitalGlobe. Service credits: Esri, Vantor, Earthstar Geograpics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community"
+  },
+  {
+    "code": "C18",
+    "capture_date": "2016-12-17",
+    "release_id": "10768",
+    "release_date": "2018-01-31",
+    "providers": [
+      "DigitalGlobe"
+    ],
+    "context_providers": [
+      "DigitalGlobe"
+    ],
+    "resolution_m": [
+      0.46
+    ],
+    "accuracy_m": [
+      4.23
+    ],
+    "dated_coverage_zoom17": 0.9999999999999999,
+    "dated_coverage_zoom18": 0,
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2018_r01/MapServer",
+    "item_id": "9701f2a29b1c459089a59044647a3f7b",
+    "file": "figures/C18_2016-12-17.jpg",
+    "attribution": "Esri World Imagery Wayback; imagery: DigitalGlobe. Service credits: Esri, Vantor, Earthstar Geograpics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community"
+  },
+  {
+    "code": "C18",
+    "capture_date": "2018-08-18",
+    "release_id": "11351",
+    "release_date": "2019-10-09",
+    "providers": [
+      "DigitalGlobe"
+    ],
+    "context_providers": [
+      "DigitalGlobe"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "dated_coverage_zoom17": 0.9999999999999999,
+    "dated_coverage_zoom18": 0,
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2019_r13/MapServer",
+    "item_id": "b0e67588080a4e2796289d2a5ea12944",
+    "file": "figures/C18_2018-08-18.jpg",
+    "attribution": "Esri World Imagery Wayback; imagery: DigitalGlobe. Service credits: Esri, Vantor, Earthstar Geograpics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community"
+  },
+  {
+    "code": "C19",
+    "capture_date": "2016-11-08",
+    "release_id": "10768",
+    "release_date": "2018-01-31",
+    "providers": [
+      "DigitalGlobe"
+    ],
+    "context_providers": [
+      "DigitalGlobe"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      10.2
+    ],
+    "dated_coverage_zoom17": 1.0000000000000002,
+    "dated_coverage_zoom18": 0,
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2018_r01/MapServer",
+    "item_id": "9701f2a29b1c459089a59044647a3f7b",
+    "file": "figures/C19_2016-11-08.jpg",
+    "attribution": "Esri World Imagery Wayback; imagery: DigitalGlobe. Service credits: Esri, Vantor, Earthstar Geograpics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community"
+  },
+  {
+    "code": "C19",
+    "capture_date": "2018-08-18",
+    "release_id": "11351",
+    "release_date": "2019-10-09",
+    "providers": [
+      "DigitalGlobe"
+    ],
+    "context_providers": [
+      "DigitalGlobe"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      8.47
+    ],
+    "dated_coverage_zoom17": 1.0000000000000002,
+    "dated_coverage_zoom18": 0,
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2019_r13/MapServer",
+    "item_id": "b0e67588080a4e2796289d2a5ea12944",
+    "file": "figures/C19_2018-08-18.jpg",
+    "attribution": "Esri World Imagery Wayback; imagery: DigitalGlobe. Service credits: Esri, Vantor, Earthstar Geograpics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community"
+  },
+  {
+    "code": "C21",
+    "capture_date": "2016-11-08",
+    "release_id": "10768",
+    "release_date": "2018-01-31",
+    "providers": [
+      "DigitalGlobe"
+    ],
+    "context_providers": [
+      "DigitalGlobe"
+    ],
+    "resolution_m": [
+      0.31
+    ],
+    "accuracy_m": [
+      10.2
+    ],
+    "dated_coverage_zoom17": 0.9999999999999998,
+    "dated_coverage_zoom18": 0,
+    "metadata_url": "https://metadata.maptiles.arcgis.com/arcgis/rest/services/World_Imagery_Metadata_2018_r01/MapServer",
+    "item_id": "9701f2a29b1c459089a59044647a3f7b",
+    "file": "figures/C21_2016-11-08.jpg",
+    "attribution": "Esri World Imagery Wayback; imagery: DigitalGlobe. Service credits: Esri, Vantor, Earthstar Geograpics, CNES/Airbus DS, USDA FSA, USGS, Aerogrid, IGN, IGP, and the GIS User Community"
+  }
+]

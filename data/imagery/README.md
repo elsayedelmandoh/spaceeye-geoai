@@ -1,6 +1,6 @@
 # Inspector imagery: use and rebuild
 
-The observed figures are ready locally. Git contains **source selections, metadata, hashes, code and documentation only**. Esri JPEGs and the full imagery report ZIP stay outside Git, separate from the numerical v6 release.
+The observed figures are ready locally. Git contains source selections, metadata, hashes, code and documentation, plus, by owner decision on 30 October 2026 (private repository, educational project, team presentation), the **95 single-capture Wayback figures** in [figures/](figures/index.csv) (mixed-date frames left out): the 74 of the first release plus 21 older 2016-2018 frames, and one comparison panel per compound in `figures/compare/`. They keep their printed attribution and the [third-party notice](THIRD_PARTY_IMAGERY.md); remove them before the repository is ever made public. The full imagery report ZIP and raw tile caches stay outside Git.
 
 ## View the existing report
 
@@ -51,6 +51,10 @@ uv run --locked --extra imagery --extra pulls python -m src.pipeline.imagery_com
 The recorded product IDs preserve source selection. External rendering/source services can change or become unavailable; a fresh render is not promised to match the saved JPEG byte hash. No fabricated replacement is used when a recorded product fails. `--phase discover` explicitly discovers a fresh Wayback selection; it is not the frozen-selection replay above. Without `--through`, the observation end comes from the configured as-of quarter-end. An explicit later date extends visual context only, never the numerical model window.
 
 `python -m src.pipeline.imagery_delivery --build` validates local figures, writes a new local report archive, and refreshes the metadata/report files. It refuses to overwrite an existing dated archive. Review the metadata diff and privacy checks before committing. The imagery extra is needed for source acquisition/rendering, not to read metadata or install a received archive.
+
+## Presentation figures
+
+`python -m src.pipeline.imagery_figures --phase discover|render|audit|compare` builds the presentation set without touching the frozen `wayback_selected.json`. `discover` probes older Wayback releases (tile zooms 15-18) and keeps a capture only when the zoom-17 metadata shows one date over the whole compound and zoom 18 has no partial footprint; the result is recorded in `wayback_extra.json`. `render` uses the same official Print path as `imagery_compare` and deletes frames whose pixels equal an earlier frame (the metadata can date a footprint later while the tiles are unchanged). `audit` writes `figures/figures_audit.csv`; `compare` writes `figures/compare/C??_compare.jpg` and the `in_presentation` and `note` columns of `figures/index.csv`. Checked locally: 2016-06-01 appears in no probed release for any R7 footprint (the earliest usable captures are 2016-11-08 and 2016-12-17).
 
 ## Rights and limits
 

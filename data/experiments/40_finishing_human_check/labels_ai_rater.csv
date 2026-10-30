@@ -1,0 +1,115 @@
+id,interval,label,confidence,note
+S01,1->2,A,high,road and site works appear on bare desert
+S01,2->3,A,low,plaza footprints and walkways laid out
+S01,3->4,B,high,garden beds planted green
+S01,4->5,B,low,landscaping and road paving progress
+S01,5->6,B,high,lawns greening and paving
+S01,6->7,B,high,asphalt road and lawns finished
+S02,1->2,A,low,small camp and buildings in corner
+S02,2->3,A,low,trench lines at top
+S02,3->4,A,high,many building frames appear
+S02,4->5,A,low,more frames and floors
+S02,5->6,A,high,new white blocks and finishing
+S02,6->7,A,low,new blocks replace construction site
+S02,7->8,A,low,park pool new frames top-left
+S03,1->2,A,high,buildings and site appear on desert
+S03,2->3,A,low,slight frame progress bottom buildings
+S03,3->4,A,high,new frames and white finished blocks
+S03,4->5,A,high,new building and compound top-right
+S03,5->6,A,low,shadows longer; sheds and building progress
+S03,6->7,B,low,road asphalt laid; buildings same
+S03,7->8,B,low,facade whitening; road landscaping
+S04,1->2,A,high,building frames appear on desert
+S04,2->3,A,low,more frames; road paved
+S04,3->4,A,high,many new frames and floors
+S04,4->5,A,high,new frames in upper blocks
+S04,5->6,A,high,new tall frames; shadows longer
+S04,6->7,A,high,new foundations and frames top
+S04,7->8,A,high,new floors and frames top
+S05,1->2,C,high,bare desert both dates
+S05,2->3,A,high,building frames and roads appear
+S05,3->4,A,high,main building floors; new frames
+S05,4->5,A,high,many new buildings and roads
+S05,5->6,B,low,plaza landscaping; building looks same
+S05,6->7,B,low,trees and plaza finishing
+S06,1->2,A,high,buildings and site works appear
+S06,2->3,A,low,new foundations in site
+S06,3->4,A,high,fenced site works; roundabout
+S06,4->5,A,high,new small building; roundabout landscaped
+S06,5->6,A,high,large frames and cranes appear
+S06,6->7,A,low,frames progress
+S06,7->8,A,low,right building extends; roads paved
+S07,1->2,B,high,lawns and trees greening between villas
+S07,2->3,B,low,roads asphalted; villas same
+S07,3->4,B,low,roads and greenery; no new structure
+S07,4->5,C,low,only seasonal vegetation difference
+S07,5->6,B,low,park paths and lawns appear
+S07,6->7,B,low,lawns and paths; villas same
+S07,7->8,C,low,seasonal colour; buildings same
+S08,1->2,B,low,central courtyard garden finished
+S08,2->3,C,low,image quality; building same
+S08,3->4,C,low,roof colour only
+S08,4->5,C,high,sun angle only
+S08,5->6,C,high,no visible change
+S08,6->7,A,high,new parking structures built
+S09,1->2,C,high,bare desert; old compound same
+S09,2->3,C,low,haze only
+S09,3->4,A,high,new buildings top-right
+S09,4->5,A,high,roads and park; new frames
+S09,5->6,A,high,many villa frames appear
+S09,6->7,A,high,villa blocks built
+S09,7->8,A,high,new villa frames; lawns appear
+S10,1->2,A,high,road and camp buildings appear
+S10,2->3,A,high,large camp and building with roof
+S10,3->4,A,low,more huts and sheds
+S10,4->5,A,low,camp cleared; trench bed layout
+S10,5->6,B,low,planting rows on cleared land
+S10,6->7,A,high,new villas top; garden layout
+S11,1->2,A,high,villa frames and roads appear
+S11,2->3,A,low,more frames; roads laid
+S11,3->4,A,high,more villas built; landscaping
+S11,4->5,B,low,lawns and roads finished; villas same
+S11,5->6,B,low,park and pavement in central lot
+S11,6->7,A,low,small foundation in central lot
+S11,7->8,A,low,new building in central lot
+S12,1->2,A,low,foundations appear bottom-left; lawns
+S12,2->3,A,high,more foundations on left
+S12,3->4,A,high,new villas built on left
+S12,4->5,B,low,left villas finishing; lawns
+S12,5->6,B,low,facade and pool finishing left
+S12,6->7,C,low,only sun and season
+S12,7->8,B,low,trees grown; small finishing left
+S13,1->2,A,low,road and earthwork ridges appear
+S13,2->3,A,high,plant buildings and equipment appear
+S13,3->4,A,high,more sheds and plant structures
+S13,4->5,A,low,road paved; building footprints start
+S13,5->6,A,high,villa frames in rows appear
+S13,6->7,A,high,many new frames added
+S13,7->8,A,high,more frames and new buildings
+S14,1->2,A,high,building frames appear on desert
+S14,2->3,A,high,new frames in middle plots
+S14,3->4,A,high,roads and many new frames
+S14,4->5,B,low,facades whitened; lawns and paving
+S14,5->6,C,low,shadow difference only
+S14,6->7,C,low,no clear change
+S14,7->8,C,low,only sun angle; road trees
+S15,1->2,A,high,villa frames and sheds appear
+S15,2->3,A,low,more villa frames in rows
+S15,3->4,A,high,more frames; new sheds
+S15,4->5,A,high,new yard building; villas whitened
+S15,5->6,A,high,new frames and yard building
+S15,6->7,A,low,villa finishing; few new frames
+S15,7->8,A,low,new frames top-right; road paved
+S16,1->2,A,low,small sheds appear at bottom
+S16,2->3,C,low,haze only
+S16,3->4,A,high,new warehouse and sheds
+S16,4->5,A,low,new shed rows bottom
+S16,5->6,A,high,new sheds built
+S16,6->7,C,low,no clear structural change
+S16,7->8,A,high,new apartment blocks left
+S17,1->2,C,low,haze only; buildings same
+S17,2->3,B,high,courtyard garden and roundabout landscaped
+S17,3->4,C,low,sun and colour only
+S17,4->5,C,high,sun angle only
+S17,5->6,C,high,no visible change
+S17,6->7,A,high,new parking structure; roads asphalted

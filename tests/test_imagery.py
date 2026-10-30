@@ -240,3 +240,21 @@ def test_prepared_imagery_install_checks_members_before_writing(tmp_path):
     package.with_suffix(".zip.sha256.txt").write_text("0" * 64)
     with pytest.raises(ValueError, match="ZIP hash differs"):
         packaged_files(package, app=target)
+
+
+def _layers(coarse_dates, coarse_coverage, full_dates, full_coverage):
+    return {6: {"capture_dates": coarse_dates, "dated_coverage_fraction": coarse_coverage},
+            5: {"capture_dates": full_dates, "dated_coverage_fraction": full_coverage}}
+
+
+@pytest.mark.parametrize("layers,expected", [
+    (_layers(["2018-08-18"], 1.0, [], 0), "2018-08-18"),
+    (_layers(["2018-08-18"], 1.0, ["2018-08-18"], 1.0), "2018-08-18"),
+    (_layers(["2018-08-18"], 1.0, ["2019-10-06"], 0.26), None),
+    (_layers(["2018-08-18"], 1.0, ["2018-08-18"], 0.26), None),
+    (_layers(["2018-08-18", "2019-10-06"], 1.0, [], 0), None),
+    (_layers(["2018-08-18"], 0.5, [], 0), None),
+])
+def test_extra_frame_needs_one_capture_over_the_whole_compound(layers, expected):
+    from src.pipeline.imagery_figures import single_capture
+    assert single_capture(layers) == expected
