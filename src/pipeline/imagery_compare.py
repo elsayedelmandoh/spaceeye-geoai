@@ -24,6 +24,13 @@ def configured_through():
     return qend(qindex(CFG["asof"])).date().isoformat()
 
 
+def sentinel_quality_ok(measurements):
+    return bool(measurements) and all(
+        0 <= q["bad_fraction"] <= .10 and .95 <= q["valid_fraction"] <= 1
+        for q in measurements
+    )
+
+
 def inspection_pair(rows, asof):
     """Select distinct, published observations with at least a year between captures."""
     eligible = [r for r in rows if r["release_date"] <= asof and r["capture_dates"][-1] <= asof]
@@ -253,6 +260,8 @@ def select_sentinel(polygons, start, end):
         try:
             rgb, transform_, bad, measurements = S.read_sentinel_window(item, list(polygons.values()))
             quality = dict(zip(polygons, measurements))
+            if not sentinel_quality_ok(measurements):
+                continue
             score = max(q["bad_fraction"] for q in quality.values())
             if choice is None or score < choice[0]:
                 choice = score, bad, item, rgb, transform_, quality
@@ -341,7 +350,7 @@ def quarterly_sentinel(polygons, through):
                 info.setdefault("method", "earth_search_public_cog")
                 info.setdefault("product_level", "L2A surface reflectance")
                 info.setdefault("quality_method", "SCL at 20 m, nearest-resampled to RGB 10 m grid")
-                if any(q["bad_fraction"] > .10 for q in info["quality_by_code"].values()):
+                if not sentinel_quality_ok(list(info["quality_by_code"].values())):
                     rgb, transform_, info = select_sentinel(polygons, start, end)
                 if end != str(period.end_time.date()) and info.get("selection_target_date") != end:
                     rgb, transform_, info = select_sentinel(polygons, start, end)
@@ -350,6 +359,10 @@ def quarterly_sentinel(polygons, through):
                 rgb, transform_, info = restore_selected_sentinel(info, polygons)
             else:
                 rgb, transform_, info = select_sentinel(polygons, start, end)
+            if not start <= info["capture_date"] <= end:
+                raise ValueError("Recorded capture is outside the requested observation window; choose a compatible selection")
+            if set(info["quality_by_code"]) != set(polygons) or not sentinel_quality_ok(list(info["quality_by_code"].values())):
+                raise ValueError("Recorded scene fails per-compound bad/valid coverage requirements")
             cache.parent.mkdir(parents=True, exist_ok=True)
             if info.get("visualization_policy") != "fixed_reflectance_0_0.6":
                 raise ValueError("Old saturated preview cache; run imagery_compare --phase calibrate before rendering")

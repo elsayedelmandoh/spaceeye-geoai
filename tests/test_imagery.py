@@ -20,6 +20,29 @@ def test_fixed_reflectance_display_respects_source_offsets_and_nodata():
     assert rgb[3] == 255 and rgb[4] == 255
 
 
+@pytest.mark.parametrize("bad,valid,expected", [(0, 1, True), (.1, .95, True), (.06, .94, False), (.11, 1, False)])
+def test_sentinel_screen_requires_bad_and_valid_coverage(bad, valid, expected):
+    from src.pipeline.imagery_compare import sentinel_quality_ok
+    assert sentinel_quality_ok([{"bad_fraction": bad, "valid_fraction": valid}]) is expected
+
+
+@pytest.mark.parametrize("date,valid,reason", [
+    ("2026-10-29", 1, "outside the requested observation window"),
+    ("2026-10-05", .94, "coverage requirements"),
+])
+def test_recorded_json_only_scene_cannot_bypass_cutoff_or_coverage(tmp_path, monkeypatch, date, valid, reason):
+    from src.pipeline import imagery_compare as C
+    monkeypatch.setattr(C, "START", "2026-10-01")
+    monkeypatch.setattr(C, "OUT", tmp_path / "imagery_comparison")
+    monkeypatch.setattr(C, "APP", tmp_path)
+    info = {"capture_date": date, "quality_by_code": {"C01": {"bad_fraction": .06, "valid_fraction": valid}}}
+    C.save_json(C.OUT / "sentinel_scenes/2026Q4.json", info)
+    monkeypatch.setattr(C, "restore_selected_sentinel", lambda saved, polygons: (np.zeros((3, 4, 4)), None, saved))
+    rows = C.quarterly_sentinel({"C01": box(31.7, 29.95, 31.71, 29.96)}, "2026-10-10")
+    assert rows[0]["status"] == "unavailable" and reason in rows[0]["reason"]
+    assert not (C.OUT / "sentinel_scenes/2026Q4.npz").exists()
+
+
 def test_provider_rename_and_republication_do_not_inflate_capture_counts():
     from src.pipeline.imagery_compare import distinct_capture_states
     rows = [
