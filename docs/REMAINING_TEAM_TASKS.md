@@ -45,7 +45,7 @@ The list below covers **39 IDs with an unresolved implementation, evidence, deci
 
 | ID / tier | Status / existing work | Remaining action and acceptance |
 | --- | --- | --- |
-| T-AH-14 / Should | Partial: K1 exists; current activity fallback is q2hold. | Implement/document a configurable K1 fallback for future A failures and verify its effect. q2hold is not the requested K1 switch. |
+| T-AH-14 / Should | Implemented 30 Oct: `activity.source: k1` switch, tests and effect check (data/K1_FALLBACK_CHECK.md). | Review pending. |
 | T-AH-15 / Should | Build: experimental imagery exists locally; the required compound-level handoff is not ready. | Check permitted use; provide two before/after images per compound, capture dates, attribution and images.csv. Do not substitute map-release dates for verified capture dates. |
 | T-AH-18 / Could | Optional: matching completed roof-uniformity evidence was not established. | Locate existing evidence first. If retained, register acceptance before testing Google-height roof/slab uniformity; otherwise record deferral/cut. |
 | T-AH-19 / Must | Partial: full command and reproducibility evidence exist. | Agree/tag the accepted presentation revision and document its command. Two full runs already matched; do not repeat fitting for documentation-only changes. |

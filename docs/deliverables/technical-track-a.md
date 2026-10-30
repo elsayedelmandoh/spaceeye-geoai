@@ -28,6 +28,15 @@ If Make is installed, `make data` executes those four preparation steps without 
 
 `uv run --locked --offline python -m src.pipeline.delivery` separately compares two base data-only builds and protects raw/model/historical-evaluation files. Its saved evidence covers that scoped build, not every later component artifact. `src.pipeline.full_repro` backs up current local outputs then compares two full Track A runs; [saved evidence](../../data/FULL_TRACK_A_REPRODUCIBILITY.json) records equal manifests for 276 artifacts. `src.pipeline.release` remains the historical experiment workflow; use `team_run` for the current schema.
 
+## Activity fallback (T-AH-14)
+
+If the activity score A fails its acceptance tests on new quarters, add `source: k1` under `activity:` in `configs/data.yaml`.
+- The active flag then becomes K1 > `k1_active`, and A stays empty.
+- The claim narrows to Dynamic World change.
+- Run `make run` and `full_repro`.
+
+The switch is a recorded decision, never chosen after seeing levels. Its effect on the current data is in [K1_FALLBACK_CHECK.md](../../data/K1_FALLBACK_CHECK.md).
+
 ## Quarterly monitoring procedure
 
 Proposed accountable operator: Track A owner; reviewer: another team member. These are operating responsibilities, not signed assignments.

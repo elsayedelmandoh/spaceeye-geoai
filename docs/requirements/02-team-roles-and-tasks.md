@@ -124,7 +124,9 @@ Goal: one command (`python -m src.pipeline.run_all`) builds the R7 tables, A, K2
   - Open before acceptance: a fresh two-run PASS on the current commit must be run on ahmed's F: machine (step 1 of T-AH-22: `team_run --full`, then `full_repro`), because the committed result predates the path change and records no hash or revision. `full_repro` now stores the manifest hash, run id, git revision and `computed_on`, so the new result can be tied to a commit. Until it exists, "two runs identical" must not be relied on in the slides or the memo, and this Review accepted box stays unticked.
   - Update 2026-10-30: fresh two-run PASS on ahmed's F: data at git revision 75a581a (branch fix/data-v6): 301 equal artifacts, protected simulation/history unchanged, manifest sha256 b4c86dee…, run id R1-1846440cf3, computed_on 2026-10-30 ([evidence](../../data/FULL_TRACK_A_REPRODUCIBILITY.json)). Both runs share one process (review-03 M11 option not taken). Review pending.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [ ] **T-AH-14** [Should] D3 · Fallback ready: if A fails on new quarters, K1 path documented and switchable in config (§13) · reviewer: elsayed **Partial; see [remaining work](../REMAINING_TEAM_TASKS.md).**
+- [x] **T-AH-14** [Should] D3 · Fallback ready: if A fails on new quarters, K1 path documented and switchable in config (§13) · reviewer: elsayed **Implemented; review pending.**
+  - Evidence: `activity.apply_source` (switch `activity.source: k1`), tests in `tests/test_activity_fallback.py`, effect on the current data in [K1_FALLBACK_CHECK.md](../../data/K1_FALLBACK_CHECK.md) (3 of 12 levels change at 2026Q3; backtest 2 of 6 instead of 1; not a reason to switch), doc section in [technical-track-a.md](../deliverables/technical-track-a.md).
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
 
 ### D3-D4: images for the compound file
 
