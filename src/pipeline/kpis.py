@@ -72,6 +72,19 @@ KPI_ORIGINS: dict[str, str] = {
     "K5_overlap_months": "derived",
     "K5_months": "derived",
     "K5_basis": "derived",
+    "K5_status": "derived",
+    "K5_text_ar": "derived",
+    "K5_months_assumed": "assumption",
+    "K5_assumed_basis": "assumption",
+    "launch_assumed": "assumption",
+    "launch_assumed_source": "assumption",
+    "first_deadline_assumed": "assumption",
+    "first_deadline_assumed_source": "assumption",
+    "expected_handover_assumed": "assumption",
+    "expected_handover_source": "assumption",
+    "K3_assumed": "assumption",
+    "K6_status": "derived",
+    "K6_text_ar": "derived",
     "level": "derived",
     "level_label": "derived",
     "reason": "derived",
@@ -328,6 +341,64 @@ def fine_months(first_end, asof, observed_start_quarter, sufficient, handover_pu
             "K5_months": no_start + grace - overlap if pd.notna(no_start) else pd.NA}
 
 
+K6_TEXT_AR = {"known": "{} شهرًا دون بدء مؤكد", "not_applicable_started": "لا ينطبق: الإنشاء بدأ",
+              "unknown_history": "غير محدد: انقطاع في رصد الأقمار"}
+K5_TEXT_AR = {"computed": "{} شهرًا", "no_published_deadline": "لا يوجد موعد تسليم منشور",
+              "not_assessable": "غير محدد: بداية الإنشاء غير مؤكدة"}
+
+
+def k6_status(k6, observed_started) -> str:
+    """Why K6 is empty: it only counts months before a confirmed start."""
+    if pd.notna(k6):
+        return "known"
+    return "not_applicable_started" if bool(observed_started) else "unknown_history"
+
+
+def k5_status(first_end, k5_months) -> str:
+    """Why K5 is empty: it is computed from the first published delivery date."""
+    if first_end is None or pd.isna(first_end):
+        return "no_published_deadline"
+    return "computed" if pd.notna(k5_months) else "not_assessable"
+
+
+def assumed_schedule(launch, start_reference, observed_start_quarter, first_end, handover_published) -> dict:
+    """Fill missing schedule dates with stated assumptions so the screens never show an empty date.
+    Published values always win; every filled value names its basis. Display only: nothing here sets the level."""
+    a = CFG["assumptions"]
+    if pd.notna(launch):
+        lau, lau_src = pd.Timestamp(launch), "published launch"
+    elif pd.notna(start_reference):
+        lau, lau_src = pd.Timestamp(start_reference), "first published reference (launch or promise)"
+    elif pd.notna(observed_start_quarter):
+        lau = pd.Period(observed_start_quarter, "Q").start_time - pd.DateOffset(months=a["launch_to_start_months"])
+        lau_src = f"assumption: observed construction start - {a['launch_to_start_months']} months"
+    else:
+        lau, lau_src = pd.NaT, "no basis"
+    if first_end is not None and pd.notna(first_end):
+        due, due_src = pd.Timestamp(first_end), "published first delivery date"
+    elif pd.notna(lau):
+        due = lau + pd.DateOffset(months=a["delivery_months"])
+        due_src = f"assumption: launch + {a['delivery_months']} months (ACUD term)"
+    else:
+        due, due_src = pd.NaT, "no basis"
+    if pd.notna(handover_published):
+        ho, ho_src = pd.Timestamp(handover_published), "published first handover"
+    elif pd.notna(due):
+        ho = due + pd.DateOffset(months=a["handover_delay_months"])
+        ho_src = f"assumption: delivery date + {a['handover_delay_months']} months (median R7 delay)"
+    else:
+        ho, ho_src = pd.NaT, "no basis"
+    return {"launch_assumed": lau, "launch_assumed_source": lau_src, "first_deadline_assumed": due,
+            "first_deadline_assumed_source": due_src, "expected_handover_assumed": ho, "expected_handover_source": ho_src}
+
+
+def assumed_k5(first_end, assumed_end, asof, observed_start_quarter, sufficient, handover_published=None):
+    """Display-only K5 for compounds without a published date, from the assumed delivery date. Never sets the level."""
+    if first_end is not None or pd.isna(assumed_end):
+        return pd.NA
+    return fine_months(assumed_end, asof, observed_start_quarter, sufficient, handover_published)["K5_months"]
+
+
 def reason(r: dict) -> str:
     """fixed template filled by code. codes only, no names."""
     if not r["K4"]:
@@ -409,6 +480,19 @@ def kpi_values(sat: pd.DataFrame, comp: pd.DataFrame, stm: pd.DataFrame, yearly:
         row.update({name: getattr(r, name) for name in START_EVIDENCE_COLUMNS})
         row.update(fine_months(first_end, asof, r.observed_start_quarter, r.start_observation_sufficient, h if handover else None))
         row["K5_basis"] = "policy proxy; contract eligibility unverified"
+        row["K5_status"] = k5_status(first_end, row["K5_months"])
+        row["K5_text_ar"] = K5_TEXT_AR[row["K5_status"]].format(row["K5_months"])
+        sched = assumed_schedule(r.launch_date_asof, r.start_reference_date_asof, r.observed_start_quarter,
+                                 first_end, h if handover else None)
+        row.update(sched)
+        row["K5_months_assumed"] = assumed_k5(first_end, sched["first_deadline_assumed"], asof, r.observed_start_quarter,
+                                              r.start_observation_sufficient, h if handover else None)
+        row["K5_assumed_basis"] = ("not used: published date exists" if first_end is not None
+                                   else sched["first_deadline_assumed_source"])
+        due = sched["first_deadline_assumed"]
+        row["K3_assumed"] = 0 if handover or pd.isna(due) else max(0, -months_between(asof, due))
+        row["K6_status"] = k6_status(r.K6, r.observed_started)
+        row["K6_text_ar"] = K6_TEXT_AR[row["K6_status"]].format(r.K6)
         lv = level_of(r.K2, k3, complete, bool(r.started), r.K6) if r.K4 else None
         row["level"] = pd.NA if lv is None else lv
         labels = level_labels(r.K4, lv, r.K6)
@@ -422,8 +506,11 @@ def kpi_values(sat: pd.DataFrame, comp: pd.DataFrame, stm: pd.DataFrame, yearly:
     out = pd.DataFrame(rows)
     out["active"] = pd.array(out["active"], dtype="boolean")
     out["K6"] = pd.array(out["K6"], dtype="Int64")
-    for col in ("K5_no_start_months", "K5_post_grace_months", "K5_overlap_months", "K5_months"):
+    for col in ("K5_no_start_months", "K5_post_grace_months", "K5_overlap_months", "K5_months", "K5_months_assumed"):
         out[col] = pd.array(out[col], dtype="Int64")
+    out["K3_assumed"] = pd.array(out["K3_assumed"], dtype="Int64")
+    for col in ("launch_assumed", "first_deadline_assumed", "expected_handover_assumed"):
+        out[col] = out[col].astype("datetime64[ns]")
     for col in ("observed_start_quarter", "observed_start_source"):
         out[col] = out[col].astype("string")
     for col in ("launch_date_asof", "launch_first_published"):

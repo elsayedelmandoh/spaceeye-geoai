@@ -255,3 +255,10 @@ generator:
 candidates:
   variant: v1                 # v1 = frozen results; v2 writes data/V2_*, EW_REPORT_V2.md and app_data/ml_v2 and needs data/EW_PROTOCOL_V2.md + .sha256
   no_height_ablation: false   # drop height_mean_m from both Track B feature lists
+
+# Display-only assumptions that fill missing schedule dates (origin "assumption"; never set a level).
+# Grounded in the R7 records where both dates are published, plus the ACUD 4-year delivery term.
+assumptions:
+  launch_to_start_months: 9      # median published launch -> observed construction start, 4 R7 compounds
+  delivery_months: 48            # ACUD 4-year delivery term (record REG-0022); 2 R7 compounds with both dates: 34 and 57 months
+  handover_delay_months: 23      # median published first delivery date -> first published handover, 5 R7 compounds
