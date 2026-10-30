@@ -273,19 +273,34 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-E
 
 ## 7. nada: dashboard
 
-Goal: Streamlit, 5 screens, track switch on every screen, passes the ten-second test on screen 1. Everything reads stored files, no live computation (§9).
 
-- [ ] **T-NA-01** [Must] D1 · App skeleton: `app.py` runs `streamlit run app.py`, track switch (Track A default / Track B), orange banner "Synthetic - for training only" fixed in Track B, 🟠 on generated numbers, map hidden in Track B · reviewer: verina
-- [ ] **T-NA-02** [Must] D2 · Screen 1 priority map: R7 boundaries coloured by level (level written as a word, grey = not assessable), cycle list with Arabic reason, CSV download; Track B list only · depends: T-AH-08 · reviewer: ahmed
-- [ ] **T-NA-03** [Must] D3 · Screen 2 compound file: DW and A curves, height (to 2024), announced markers, first announced date, vegetation, two Wayback images, K2-K6, lineage line (origin, run_id), inspection file button; Track B: binary probabilities + K5 in EGP (🟠) · depends: T-AH-16, T-VE-10 · reviewer: ahmed
-- [ ] **T-NA-04** [Must] D3 · `ops_visits` form: code, date, result (progressing / stalled / complete / not done), note; saved to `app_data/ops_visits.csv` · reviewer: verina
-- [ ] **T-NA-05** [Must] D3 · Screen 3 would it have warned: Track A frozen-clock table (1 of 6 and why); Track B per-class recall, macro-F1, recall@N vs random, B1-B5 per compound · depends: T-AH-10, T-VE-12 · reviewer: elsayed
-- [ ] **T-NA-06** [Must] D3 · Screen 4 data trust: gates, coverage, not assessable, 1,009/1,026 facts, colour key 🟢🔵🟠 · depends: T-AH-11 · reviewer: ahmed
-- [ ] **T-NA-07** [Must] D4 · Screen 5 what if (twin): pick S1-S3, show which compounds change level and why; generated (🟠, banner, no map) · depends: T-VE-14 · reviewer: elsayed
-- [ ] **T-NA-08** [Must] D4 · Display rules check (§9): ≤ 4 main tiles, each with value + unit + denominator + "as of" + origin; the 5 forbidden mistakes; ten-second test on screen 1 with someone outside the team · reviewer: salma
-- [ ] **T-NA-09** [Should] D4 · `no_names` gate also scans dashboard exports; Arabic RTL renders correctly · reviewer: ahmed
-- [ ] **T-NA-10** [Must] D5 · User guide (how the committee uses screens 1, 2 and the visit form) · `docs/deliverables/user-guide.md` · reviewer: salma
+**Goal:** Streamlit, 5 screens, track switch on every screen, passes the ten-second test on screen 1. Everything reads stored files, no live computation (§9).
 
+* [x] **T-NA-01** [Must] D1 · App skeleton: `app.py` runs `streamlit run app.py`, track switch (Track A default / Track B), orange banner "Synthetic - for training only" fixed in Track B, 🟠 on generated numbers, map hidden in Track B · reviewer: verina **Done; review accepted.**
+  * Evidence: `app.py` (App skeleton, track state management, dark CSS theme, `enforce_no_names` gate).
+  * Review accepted (verina).
+
+* [x] **T-NA-02** [Must] D2 · Screen 1 priority map: R7 boundaries coloured by level (level written as a word, grey = not assessable), cycle list with Arabic reason, CSV download; Track B list only · depends: T-AH-08 · reviewer: ahmed **Done; review accepted.**
+  * Evidence: `app.py` (`render_map_slot`, `render_cycle_list`, `load_boundaries`, `load_latest_kpis`). PR merged to main.
+  * Review accepted (ahmed).
+
+* [ ] **T-NA-03** [Must] D3 · Screen 2 compound file: DW and A curves, height (to 2024), announced markers, first announced date, vegetation, two Wayback images, K2-K6, lineage line (origin, run_id), inspection file button; Track B: binary probabilities + K5 in EGP (🟠) · depends: T-AH-16, T-VE-10 · reviewer: ahmed
+
+* [x] **T-NA-04** [Must] D3 · `ops_visits` form: code, date, result (progressing / stalled / complete / not done), note; saved to `app_data/ops_visits.csv` · reviewer: verina **Done; review accepted.**
+  * Evidence: `src/dashboard/ops_visits.py` (`render_ops_visits_form`, appends entries safely to `app_data/ops_visits.csv`). Integrated into `app.py`.
+  * Review accepted (verina).
+
+* [ ] **T-NA-05** [Must] D3 · Screen 3 would it have warned: Track A frozen-clock table (1 of 6 and why); Track B per-class recall, macro-F1, recall@N vs random, B1-B5 per compound · depends: T-AH-10, T-VE-12 · reviewer: elsayed
+
+* [ ] **T-NA-06** [Must] D3 · Screen 4 data trust: gates, coverage, not assessable, 1,009/1,026 facts, colour key 🟢🔵🟠 · depends: T-AH-11 · reviewer: ahmed
+
+* [ ] **T-NA-07** [Must] D4 · Screen 5 what if (twin): pick S1-S3, show which compounds change level and why; generated (🟠, banner, no map) · depends: T-VE-14 · reviewer: elsayed
+
+* [ ] **T-NA-08** [Must] D4 · Display rules check (§9): ≤ 4 main tiles, each with value + unit + denominator + "as of" + origin; the 5 forbidden mistakes; ten-second test on screen 1 with someone outside the team · reviewer: salma
+
+* [ ] **T-NA-09** [Should] D4 · `no_names` gate also scans dashboard exports; Arabic RTL renders correctly · reviewer: ahmed
+
+* [ ] **T-NA-10** [Must] D5 · User guide (how the committee uses screens 1, 2 and the visit form) · `docs/deliverables/user-guide.md` · reviewer: salma
 ---
 
 ## 8. salma: KPIs, value, governance, presentation
