@@ -96,9 +96,9 @@ def predict_position_aware(text: str) -> str:
 
 
 def build_and_evaluate(project_root: Path):
-    ready_dir = project_root / "app_data_ready" / "SpaceEye_R7_READY_DATA_2026-10-30_v6"
+    ready_dir = project_root / "app_data_ready" / "SpaceEye_R7_READY_DATA_2026-10-31_v7"
     if not ready_dir.exists():
-        alt = Path(r"C:\Users\7748\.gemini\antigravity\brain\3f90bddb-bdaa-4cd7-816d-10c2a8a2f767\spaceeye-geoai-main\releases\ready-data\SpaceEye_R7_READY_DATA_2026-10-30_v6")
+        alt = Path(r"C:\Users\7748\.gemini\antigravity\brain\3f90bddb-bdaa-4cd7-816d-10c2a8a2f767\spaceeye-geoai-main\releases\ready-data\SpaceEye_R7_READY_DATA_2026-10-31_v7")
         if alt.exists():
             ready_dir = alt
         else:

@@ -1,6 +1,6 @@
 {
   "scope": "Synthetic - for training only",
-  "protocol_sha256_before_fit": "a91086318ecfd20acf64204063c5d86d60a50b3ee3d2b01734f68a02c05b74e7",
+  "protocol_sha256_before_fit": "6a6694ff7f4ee18848e1c37aa4d0948560a8e98cb47ebfadb034343f81278ca2",
   "train_rows": 96,
   "test_rows": 48,
   "train_classes": {
@@ -147,8 +147,8 @@
   },
   "input_sha256": {
     "dataset": "46f22ec46be33645d16f181984bd1069695f6ef1a56a42149a0333254adb7821",
-    "metadata": "d7888e2014781ff565d598b922f810423bb3a9f3be77b5f88a230fd40e5cf73b",
-    "protocol": "a91086318ecfd20acf64204063c5d86d60a50b3ee3d2b01734f68a02c05b74e7",
+    "metadata": "79adfc8722e66d2902a76eebad33ceff31c4142606d1baff355c3d65bb8261d3",
+    "protocol": "6a6694ff7f4ee18848e1c37aa4d0948560a8e98cb47ebfadb034343f81278ca2",
     "source": "16434a1c55de1ce267768c87cfab7daf9450b291ae59696757f249523f008015"
   },
   "limits": [

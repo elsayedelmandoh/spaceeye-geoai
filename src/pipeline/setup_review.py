@@ -1,4 +1,4 @@
-"""Install verified prepared review/training data from the checked-in v6 release."""
+"""Install verified prepared review/training data from the checked-in v7 release."""
 
 import argparse
 import csv
@@ -10,17 +10,17 @@ from pathlib import Path
 from src.pipeline.common import APP, BASE_DIR, PRIVATE
 from src.pipeline.portable_io import install_files, relative_file, sha256
 
-PACKAGE = BASE_DIR / "releases/ready-data/SpaceEye_R7_READY_DATA_2026-10-30_v6.zip"
-PACKAGE_SHA256 = "1794028194a5395e23166c358d2528dd87681d77e513d9e23116fa2f628bcb88"
+PACKAGE = BASE_DIR / "releases/ready-data/SpaceEye_R7_READY_DATA_2026-10-31_v7.zip"
+PACKAGE_SHA256 = "c470f9884be5681d2b6d2ff0a5530d05e5e0eb07a959a2a78f84762764a38343"
 REVIEW = BASE_DIR / "releases/ready-data/review"
 
 
 def setup() -> int:
     if sha256(PACKAGE.read_bytes()) != PACKAGE_SHA256:
-        raise ValueError("The frozen v6 ZIP hash differs")
+        raise ValueError("The frozen v7 ZIP hash differs")
     files = {}
     with zipfile.ZipFile(PACKAGE) as archive:
-        prefix = "SpaceEye_R7_READY_DATA_2026-10-30_v6/"
+        prefix = "SpaceEye_R7_READY_DATA_2026-10-31_v7/"
         rows = list(csv.DictReader(io.StringIO(archive.read(prefix + "MANIFEST.csv").decode("utf-8-sig"))))
         expected = {prefix + r["file"] for r in rows} | {prefix + "MANIFEST.csv"}
         if set(archive.namelist()) != expected or len(archive.namelist()) != len(expected):
