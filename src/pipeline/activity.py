@@ -98,7 +98,7 @@ def training_frame(s4: pd.DataFrame, exclude: frozenset = frozenset(), mode: str
     D = features(W, s4, units)
     D["ly"] = D.qi.map(label_year)
     P = D.merge(lab[["osm_id", "year", "growth", "stable"]], left_on=["uid", "ly"], right_on=["osm_id", "year"], how="left")
-    P["y"] = np.where(P.growth == True, 1, np.where(P.stable == True, 0, np.nan))  # noqa: E712
+    P["y"] = np.where(P.growth == True, 1, np.where(P.stable == True, 0, np.nan))
     return P[P.y.notna()].reset_index(drop=True)
 
 
@@ -234,7 +234,21 @@ def score(sat_q: pd.DataFrame, model, t: float, last_qi: int = N_Q - 1, mode: st
     s4 = load_s4()
     W = wide(sat_q[sat_q.qi <= last_qi], "code")
     out = predict(model, t, W, s4, [(c, qi) for c in sorted(W.columns) for qi in range(FIRST_A, last_qi + 1)], mode)
-    return out.rename(columns={"uid": "code"})[["code", "qi", "K1", "activity_prob", "active"]]
+    return apply_source(out.rename(columns={"uid": "code"})[["code", "qi", "K1", "activity_prob", "active"]])
+
+
+def apply_source(out: pd.DataFrame, source: str | None = None) -> pd.DataFrame:
+    """spec section 13 fallback: with `activity.source: k1` the active flag is K1 > k1_active and A is left empty (a narrower claim:
+    Dynamic World change only). the default `model` keeps A. the switch is a recorded decision, never chosen after seeing a result."""
+    source = source or ACT.get("source", "model")
+    if source == "model":
+        return out
+    if source != "k1":
+        raise ValueError(f"activity.source must be 'model' or 'k1', not {source!r}")
+    out = out.copy()
+    out["activity_prob"] = np.nan
+    out["active"] = pd.array(np.where(out.K1.notna(), out.K1 > THR, pd.NA), dtype="boolean")
+    return out
 
 
 def save(model, meta: dict, suffix: str = "") -> None:

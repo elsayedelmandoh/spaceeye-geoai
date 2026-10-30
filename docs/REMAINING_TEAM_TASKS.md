@@ -2,7 +2,7 @@
 
 Updated 30 October 2026 from the [current task board](requirements/02-team-roles-and-tasks.md), including the added T-AH-22. That board is authoritative for owners, dependencies, evidence and review records. Earlier snapshots used old owner/ID assignments; this handoff uses the current assignments.
 
-There are **77 current task IDs**: **42 implemented**, including **15 with recorded review acceptance**, and **35 unchecked**. One unchecked task, T-AH-17, is a failed/excluded finishing experiment, not a missing production feature. These are task counts, not effort percentages. No acceptance is inferred from implementation or test results.
+There are **77 current task IDs**: **44 implemented**, including **15 with recorded review acceptance**, and **33 unchecked**. One unchecked task, T-AH-17, is a failed/excluded finishing experiment, not a missing production feature. These are task counts, not effort percentages. No acceptance is inferred from implementation or test results.
 
 Use the current [v6 ready-data guide](../releases/ready-data/README.md), [device setup](REVIEW_SETUP.md), [data contract](../data/DATASET_CONTRACT.md), [current model evidence](../data/EW_REPORT_CURRENT.md) and [imagery handoff](../data/imagery/README.md). Scope remains 12 coded R7 compounds, inspection capacity 4, binary distressed/not_distressed. Numerical data and inspector imagery are separate products.
 
@@ -26,11 +26,9 @@ The descriptions below preserve the current board requirements; an unchecked tas
 
 | ID | Remaining requirement |
 | --- | --- |
-| T-AH-14 | [Should] D3 · Fallback ready: if A fails on new quarters, K1 path documented and switchable in config (§13) · reviewer: elsayed |
 | T-AH-17 | [Could] D4 · Finishing vision-model test (Qwen-VL on Wayback): pass condition ≥ 75% agreement on ~50 held-out compound-images labelled blind by salma (T-SA-12); log in `team_ideas.md`; **cut at D4 if not passed**; flag in the inspection file only · reviewer: elsayed **Failed experiment; feature excluded.** See [recorded outcome](REMAINING_TEAM_TASKS.md). |
 | T-AH-18 | [Could] D4 · Roof slab uniformity test on Google heights 2016-2023 against a condition written before the test; cut at D4 if not passed · reviewer: elsayed |
 | T-AH-19 | [Must] D4 · Code freeze for Track A; tag the commit; `run_all` is the one run command used in the presentation (deliverable 10) · reviewer: elsayed |
-| T-AH-22 | [Must] D4 · On ahmed's machine with the F: data (WSL: `sudo mkdir -p /mnt/f && sudo mount -t drvfs F: /mnt/f`), on the latest `feat/ml`: (1) `uv run --locked --offline python -m src.pipeline.team_run --full`, then `uv run --locked --offline python -m src.pipeline.full_repro`; (2) regenerate and commit `data/BACKTEST_CURRENT.md` (with the frozen-clock result), `docs/deliverables/quality-report.md`, `data/FULL_TRACK_A_REPRODUCIBILITY.json` (manifest hash, run id, git revision), `data/R1_REPORT.md`, the current model metrics and EW reports; (3) confirm the separation and no_names gates on the real `kpi_values`; (4) run the v2 Stage 1 evaluation of `data/EW_PROTOCOL_V2.md` (check `sha256sum -c EW_PROTOCOL_V2.sha256` first; set `candidates.variant: v2` and `candidates.no_height_ablation: true`; v1 results stay labelled v1); (5) send the numbers, not the data, to the team · `data/*`, `docs/deliverables/quality-report.md`, `data/V2_MODEL_*`, `data/EW_REPORT_V2.md` · depends: coder fixes for review-03 committed, v2 protocol commit 8a16575 · reviewer: elsayed |
 
 ### Verina: Track B
 
@@ -81,7 +79,7 @@ The descriptions below preserve the current board requirements; an unchecked tas
 
 | Owner / scope | Implemented IDs | Recorded review accepted |
 | --- | --- | --- |
-| Ahmed: Track A | T-AH-01, T-AH-02, T-AH-03, T-AH-04, T-AH-05, T-AH-06, T-AH-07, T-AH-08, T-AH-09, T-AH-10, T-AH-11, T-AH-12, T-AH-13, T-AH-15, T-AH-16, T-AH-20, T-AH-21 | T-AH-01, T-AH-02, T-AH-03, T-AH-04, T-AH-05, T-AH-06, T-AH-07, T-AH-08, T-AH-09, T-AH-10, T-AH-11, T-AH-12, T-AH-16, T-AH-20, T-AH-21 |
+| Ahmed: Track A | T-AH-01, T-AH-02, T-AH-03, T-AH-04, T-AH-05, T-AH-06, T-AH-07, T-AH-08, T-AH-09, T-AH-10, T-AH-11, T-AH-12, T-AH-13, T-AH-14, T-AH-15, T-AH-16, T-AH-20, T-AH-21, T-AH-22 | T-AH-01, T-AH-02, T-AH-03, T-AH-04, T-AH-05, T-AH-06, T-AH-07, T-AH-08, T-AH-09, T-AH-10, T-AH-11, T-AH-12, T-AH-16, T-AH-20, T-AH-21 |
 | Verina: Track B | T-VE-01, T-VE-02, T-VE-03, T-VE-04, T-VE-05, T-VE-06, T-VE-07, T-VE-08, T-VE-09, T-VE-10, T-VE-11, T-VE-12, T-VE-13, T-VE-14 | None recorded |
 | Elsayed: AI and scenarios | T-EL-01, T-EL-02, T-EL-03, T-EL-04, T-EL-05, T-EL-07, T-EL-09, T-EL-10, T-EL-11, T-EL-14 | None recorded |
 | Salma: value and delivery | T-SA-04 | None recorded |
