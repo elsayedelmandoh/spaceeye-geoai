@@ -19,10 +19,10 @@ Speaker note: a committee cannot visit everything every cycle, so the question i
 
 ## Slide 3. Data
 
-- 1,009 of 1,026 documented facts passed independent review; 17 removed; 0 invented. [verify in T-SA-08 against the current dataset contract]
+- 1,009 of 1,026 documented facts passed independent review; 0 invented. This is the figure stated in the spec (section 12), not a recount: the installed data has no facts register, and the dashboard's data-trust screen shows the same documented figure. [verify with the data owner]
 - Origin key on every number: 🟢 real, 🔵 derived, 🟠 generated.
 - Real: satellite series, statements, laws. Generated: finance, supervisor reports, meters, complaints (only ACUD holds the real ones).
-- Source: `data/DATASET_CONTRACT.md`.
+- Source: `docs/requirements/01-specs.md` (section 12); `data/DATASET_CONTRACT.md` for the tables.
 
 ## Slide 4. Seeing construction from space
 
@@ -66,8 +66,8 @@ Speaker note: a committee cannot visit everything every cycle, so the question i
   - boosting, satellite features 4 of 4; boosting, combined features 1 of 4
 - Baseline: random top-4 list, 2,000 draws, mean 0.335, 95% interval 0.000 to 0.750.
 - Reading: with 4 cases the methods cannot be separated, and combining ACUD-style data did not clearly help. Scores are diagnostic and do not show real-world accuracy.
-- Complaints classifier: capability demo on generated texts. [take numbers from `docs/deliverables/complaints_metrics.csv` before quoting any]
-- Source: `data/EW_REPORT_CURRENT.md`.
+- Complaints classifier: the keyword baseline beat the trained TF-IDF logistic model on all three evaluation sets (accuracy 0.733 vs 0.300 on the 30-text check set; 0.800 vs 0.720 on the 100-text training feed; 0.683 vs 0.221 on the benchmark set). Accuracy on texts we wrote does not prove accuracy on real complaints. [confirm the number of texts in each set and their origin before quoting]
+- Source: `docs/deliverables/complaints_metrics.csv`.
 
 ## Slide 8b. The twin: one what-if scenario
 
@@ -86,12 +86,15 @@ Speaker note: a committee cannot visit everything every cycle, so the question i
 
 ## Slide 10. Risks and responsible use
 
-- A priority level says whom to visit first. It is not a verdict on a developer, and no compound is called distressed.
-- K3 relies on developer statements, which are real but not independent measurements.
-- Generated data is never mixed with real data; Track B is marked and hidden from the map.
+- A priority level says whom to visit first. It is not a finding of misconduct, legal distress, contractual breach or a verified fine, and no automatic sanction follows from it.
+- Missing evidence stays unknown; it is never read as a negative finding.
+- K3 relies on developer statements, which are real but not independent measurements. Satellite coverage can affect projects differently.
+- Generated data is never mixed with real data; Track B is marked and hidden from the map. It shows nothing about real-world accuracy or fairness.
 - Small samples (6 real cases, 4 test cases): counts only, no percentages.
+- Masking of complaint text does not prove that every real name is removed; real free text needs a further review before any provider receives it. No external AI call is enabled.
+- Law 151/2020 is referenced by the team board; its interpretation needs the data custodian's review. This is not legal advice.
 - The committee decides; every visit result is recorded to build real ground truth.
-- [align with `docs/deliverables/responsible-ai.md` before the final version]
+- Source: `docs/deliverables/responsible-ai.md`.
 
 ## Slide 11. What we ask from ACUD and next step
 

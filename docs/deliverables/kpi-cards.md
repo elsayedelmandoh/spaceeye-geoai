@@ -64,6 +64,7 @@ K2 counts consecutive latest quarters with A below its threshold, **only after c
 | Tags               | TODO                                |
 
 K3 is measured from the **first** announced handover date. Later promises never reset it. It uses the nearest month (days / 30.44). K3 > 24 gives level 1, K3 = 13-24 gives level 2, K3 = 1-12 gives level 3. The developer announced the date; it is not an independent measurement.
+The data table also holds display-only assumed dates (marked "assumption", with their basis) that fill missing schedule dates. They never replace a published date and never set a level.
 
 ## Card K4: Assessability
 
@@ -102,6 +103,7 @@ K4 needs at least 6 Dynamic World images in the quarter plus a boundary with a r
 | Tags               | TODO                                     |
 
 K5 is illustrative policy screening, **not an assessed legal fine**. It never sets a priority level. K5 uses calendar months. Illustrative assumptions (from `configs/data.yaml`, `assumption: true`): monthly rate 1% of assumed land value, land price EGP 2,500-12,000 per m², allocation lag 6-18 months. EGP amounts exist only on generated data (Track B) and are not actual fines or verified losses.
+Compounds without a published delivery date show an empty K5 with a stated reason; a separate display-only assumed K5 (marked "assumption") may be shown beside it. It is never a real K5 value and never sets a level.
 
 ## Card K6: Never-started clock
 
@@ -121,6 +123,7 @@ K5 is illustrative policy screening, **not an assessed legal fine**. It never se
 | Tags               | TODO                           |
 
 K6 counts months without a **confirmed observed start**, measured from the first published launch or promise. It is not proof that no construction took place. If any quarter since the launch/promise is not assessable, K6 is unknown, and unknown never raises a level. K6 > 24 gives level 1, K6 = 13-24 gives level 2.
+The table also has a K6 status column: it says whether K6 has a value, does not apply because construction was observed to start, or is unknown because satellite observation was interrupted.
 
 ## KPI tree
 
