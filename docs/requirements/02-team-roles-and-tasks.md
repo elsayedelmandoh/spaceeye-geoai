@@ -285,16 +285,20 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-E
   * Review accepted (ahmed).
 
 * [x] **T-NA-03** [Must] D3 · Screen 2 compound file: DW and A curves, height (to 2024), announced markers, first announced date, vegetation, two Wayback images, K2-K6, lineage line (origin, run_id), inspection file button; Track B: binary probabilities + K5 in EGP (🟠) · depends: T-AH-16, T-VE-10 · reviewer: ahmed **Implemented; review pending.**
-  * Evidence: `app.py` `screen_compound_file` and its panels (commit 47fca5e; Track B K5 from `app_data/ml/ml_dataset.parquet`, commit 937479c). A Streamlit `AppTest` smoke run on Track A and Track B raised no exception, but it shows only "Waiting for real/kpi_values.parquet" because the prepared real data is not in this checkout, so the curves, images and lineage were not checked on data. Screens 3 to 5 are still `Skeleton page` stubs in `app.py`.
+  * Evidence: `app.py` `screen_compound_file` and its panels (commit 47fca5e; Track B K5 from `app_data/ml/ml_dataset.parquet`, commit 937479c). Verified on the v7 release data installed into a fresh local root (`setup_review`, 323 files): Track A renders 12 compounds with no exception; compound C01 shows level 4 (labelled "Routine" in `app.py`), K2 = 0 quarters, K3 = 0 months and K6 = unknown, which match `real/kpi_values.parquet` for 2026Q3. Not verified on data: the DW and A curves, the Wayback images, the lineage caption and the inspection file button. Track B shows "Waiting for ml/predictions.parquet" and "Waiting for ml/ml_dataset.parquet" because those files are not in the installed root. Screens 4 and 5 are still `Skeleton page` stubs in `app.py`.
   * [ ] Review accepted (record reviewer, date and PR after actual review).
 
 * [x] **T-NA-04** [Must] D3 · `ops_visits` form: code, date, result (progressing / stalled / complete / not done), note; saved to `app_data/ops_visits.csv` · reviewer: verina **Done; review accepted.**
   * Evidence: `src/dashboard/ops_visits.py` (`render_ops_visits_form`, appends entries safely to `app_data/ops_visits.csv`). Integrated into `app.py`.
   * Review accepted (verina).
 
-* [ ] **T-NA-05** [Must] D3 · Screen 3 would it have warned: Track A frozen-clock table (1 of 6 and why); Track B per-class recall, macro-F1, recall@N vs random, B1-B5 per compound · depends: T-AH-10, T-VE-12 · reviewer: elsayed
+* [x] **T-NA-05** [Must] D3 · Screen 3 would it have warned: Track A frozen-clock table (1 of 6 and why); Track B per-class recall, macro-F1, recall@N vs random, B1-B5 per compound · depends: T-AH-10, T-VE-12 · reviewer: elsayed **Implemented; review pending.**
+  * Evidence: `app.py` `screen_backtest`, `render_backtest_cases` and the Track B metrics and B-signal renderers (commits 89cadfc and 3139d7a, branch `feat/ml`). A Streamlit `AppTest` run renders Track A with no exception: the six committed backtest cases from `releases/ready-data/backtest/cases.csv` and two summary metrics. Track B renders with no exception; its metrics come from `app_data/ml/metrics.csv`, which was not compared with the source. The B1-B5 per-compound part was not checked on data.
+  * [ ] Review accepted (record reviewer, date and PR after actual review).
 
-* [ ] **T-NA-06** [Must] D3 · Screen 4 data trust: gates, coverage, not assessable, 1,009/1,026 facts, colour key 🟢🔵🟠 · depends: T-AH-11 · reviewer: ahmed
+* [x] **T-NA-06** [Must] D3 · Screen 4 data trust: gates, coverage, not assessable, 1,009/1,026 facts, colour key 🟢🔵🟠 · depends: T-AH-11 · reviewer: ahmed **Implemented; review pending.**
+  * Evidence: `app.py` `screen_data_trust` and its helpers (commit ec70a7b, merged as c481307 "T-NA-06 Screen 4 data trust (#50)"). A Streamlit `AppTest` run on the v7 data renders both tracks with no exception: 9 of 10 quality gates passed, 12 of 12 compounds assessable, 0 not assessable. The "1,009 of 1,026 facts" tile is the documented spec figure, not a recount: the installed data has no facts register, so `load_facts_count` falls back to the constant and says so.
+  * [ ] Review accepted (record reviewer, date and PR after actual review).
 
 * [ ] **T-NA-07** [Must] D4 · Screen 5 what if (twin): pick S1-S3, show which compounds change level and why; generated (🟠, banner, no map) · depends: T-VE-14 · reviewer: elsayed
 
@@ -302,7 +306,9 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-E
 
 * [ ] **T-NA-09** [Should] D4 · `no_names` gate also scans dashboard exports; Arabic RTL renders correctly · reviewer: ahmed
 
-* [ ] **T-NA-10** [Must] D5 · User guide (how the committee uses screens 1, 2 and the visit form) · `docs/deliverables/user-guide.md` · reviewer: salma
+* [x] **T-NA-10** [Must] D5 · User guide (how the committee uses screens 1, 2 and the visit form) · `docs/deliverables/user-guide.md` · reviewer: salma **Implemented; review pending.**
+  * Evidence: [user guide](../deliverables/user-guide.md) covers Screens 1 to 3 and the visit form, with Screens 4 and 5 marked as not built yet. Priority words match `app.py`; every behaviour statement was traced to a function in `app.py` or `src/dashboard/ops_visits.py`.
+  * [ ] Review accepted (record reviewer, date and PR after actual review).
 ---
 
 ## 8. salma: KPIs, value, governance, presentation
