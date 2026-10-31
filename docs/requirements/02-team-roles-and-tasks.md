@@ -284,7 +284,9 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-E
   * Evidence: `app.py` (`render_map_slot`, `render_cycle_list`, `load_boundaries`, `load_latest_kpis`). PR merged to main.
   * Review accepted (ahmed).
 
-* [ ] **T-NA-03** [Must] D3 · Screen 2 compound file: DW and A curves, height (to 2024), announced markers, first announced date, vegetation, two Wayback images, K2-K6, lineage line (origin, run_id), inspection file button; Track B: binary probabilities + K5 in EGP (🟠) · depends: T-AH-16, T-VE-10 · reviewer: ahmed
+* [x] **T-NA-03** [Must] D3 · Screen 2 compound file: DW and A curves, height (to 2024), announced markers, first announced date, vegetation, two Wayback images, K2-K6, lineage line (origin, run_id), inspection file button; Track B: binary probabilities + K5 in EGP (🟠) · depends: T-AH-16, T-VE-10 · reviewer: ahmed **Implemented; review pending.**
+  * Evidence: `app.py` `screen_compound_file` and its panels (commit 47fca5e; Track B K5 from `app_data/ml/ml_dataset.parquet`, commit 937479c). A Streamlit `AppTest` smoke run on Track A and Track B raised no exception, but it shows only "Waiting for real/kpi_values.parquet" because the prepared real data is not in this checkout, so the curves, images and lineage were not checked on data. Screens 3 to 5 are still `Skeleton page` stubs in `app.py`.
+  * [ ] Review accepted (record reviewer, date and PR after actual review).
 
 * [x] **T-NA-04** [Must] D3 · `ops_visits` form: code, date, result (progressing / stalled / complete / not done), note; saved to `app_data/ops_visits.csv` · reviewer: verina **Done; review accepted.**
   * Evidence: `src/dashboard/ops_visits.py` (`render_ops_visits_form`, appends entries safely to `app_data/ops_visits.csv`). Integrated into `app.py`.
@@ -307,19 +309,21 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-E
 
 Goal: every number in the docs and slides has a source or an origin mark and matches `kpi_values`; the story is honest (backtest failed, shown with the reason).
 
-- [ ] **T-SA-01** [Must] D1 · Compass signed (use-case canvas, 8 checks); ask the instructor rubric + presentation length · `docs/requirements/05-project-compass.md` · reviewer: ahmed
-- [ ] **T-SA-02** [Must] D2 · KPI cards (10 fields + 2 tags, A K2 K3 K4 K5 K6) + KPI tree + levels table (deliverable 1), schema of `kpi_reference.csv` · `configs/kpis.yaml` + `docs/deliverables/kpi-cards.md` · reviewer: ahmed
-- [ ] **T-SA-03** [Must] D3 · Value in EGP, 3 settings, no double counting (§12 formula) · `configs/cost_assumptions.yaml` + "Under these assumptions, from X to Y million EGP per year" · reviewer: elsayed
+- [ ] **T-SA-01** [Must] D1 · Compass signed (use-case canvas, 8 checks); ask the instructor rubric + presentation length · `docs/requirements/05-project-compass.md` · reviewer: ahmed **Open; the compass file is a sign-off worksheet and no instructor sign-off is recorded in it.**
+- [ ] **T-SA-02** [Must] D2 · KPI cards (10 fields + 2 tags, A K2 K3 K4 K5 K6) + KPI tree + levels table (deliverable 1), schema of `kpi_reference.csv` · `configs/kpis.yaml` + `docs/deliverables/kpi-cards.md` · reviewer: ahmed **Partial; the 2 tags are `TODO` in both files, and `kpi_reference.csv` is not in the repo.**
+- [ ] **T-SA-03** [Must] D3 · Value in EGP, 3 settings, no double counting (§12 formula) · `configs/cost_assumptions.yaml` + "Under these assumptions, from X to Y million EGP per year" · reviewer: elsayed **Partial; operating cost, missed cases and late-detection cost are PLACEHOLDER values in `configs/cost_assumptions.yaml`, and the reviewer's values are needed.**
 - [x] **T-SA-04** [Must] D3 · Governance cards for the real and generated tables (owner, origin, refresh, who sees what) · `docs/deliverables/governance-cards.md` · reviewer: elsayed **Implemented; review pending.**
   - Evidence: [implementation/output](../deliverables/governance-cards.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [ ] **T-SA-05** [Must] D4 · Decision memo, one page Arabic + one page English, same facts and order (deliverable 8) · `docs/deliverables/decision-memo.md` · reviewer: verina
+- [x] **T-SA-05** [Must] D4 · Decision memo, one page Arabic + one page English, same facts and order (deliverable 8) · `docs/deliverables/decision-memo.md` · reviewer: verina **Implemented; review pending.**
+  - Evidence: [decision memo](../deliverables/decision-memo.md) has an English and an Arabic section, each citing its source files. Page length and the same-order check were not verified.
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [ ] **T-SA-06** [Must] D4 · Slides 1-11 (§12): backtest slide is the only place real names may appear; slide 8 always quotes the denominator, the baseline, the scope and "generated data" · `docs/deliverables/01-presentation.md` + deck · reviewer: all
 - [ ] **T-SA-07** [Must] D4 · Wording audit of every doc, slide and screen against §3 allowed/forbidden table ("priority level" not "risk level", no "distressed" on a real compound, no completion %) · checklist in PR · reviewer: verina
 - [ ] **T-SA-08** [Must] D4 · Number audit: every number on slides and memo traced to `kpi_values`, `EW_REPORT.md` or `ai_verification_log` · reviewer: ahmed
 - [ ] **T-SA-09** [Must] D5 · Expected questions sheet (§12) with one-line answers · reviewer: elsayed
 - [ ] **T-SA-10** [Must] D5 · Final submission checklist: 13 deliverables (§11) ready, "done when" list (§14) ticked · reviewer: all
-- [ ] **T-SA-11** [Should] D2 · Update `docs/requirements/04-timeline.md` with today's program day and this board's D-days · reviewer: ahmed
+- [ ] **T-SA-11** [Should] D2 · Update `docs/requirements/04-timeline.md` with today's program day and this board's D-days · reviewer: ahmed **Open; the timeline file says the program day is unconfirmed and it still reads "as of 28 October 2026".**
 - [ ] **T-SA-12** [Could] D3 · Blind labeller for the finishing test (T-AH-17): label ~50 held-out compound-images without seeing the model output · reviewer: ahmed
 
 ---
