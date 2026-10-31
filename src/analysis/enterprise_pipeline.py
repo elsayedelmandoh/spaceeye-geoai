@@ -72,7 +72,7 @@ def build_and_evaluate_enterprise_model(base_dir: Path):
     exclude = {
         "code", "developer_code", "quarter", "month", "q_date",
         "y_outcome_6m", "label_distress_next_6m", "label_censored", 
-        "already_completed_at_cutoff", "K6"
+        "already_completed_at_cutoff", "K6", "synthetic_label"
     }
     features = [c for c in df.columns if c not in exclude and not c.startswith("label_")]
     
