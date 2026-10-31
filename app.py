@@ -217,22 +217,45 @@ def inject_css() -> None:
             letter-spacing: 0.12em; text-transform: uppercase; margin: 1.2rem 0 0.55rem 0;
         }}
 
+        /* ضمان تساوي ارتفاع جميع الكاردز بنسبة 100% */
+        [data-testid="stHorizontalBlock"] > div {{
+            display: flex;
+            flex-direction: column;
+        }}
         [data-testid="stVerticalBlockBorderWrapper"] {{
             background: linear-gradient(180deg, {p['surface']} 0%, {p['bg_alt']} 100%);
             border: 1px solid {p['border']} !important;
             border-radius: 16px;
-            padding: 0.35rem 0.5rem;
+            padding: 0.5rem 0.7rem;
             box-shadow: 0 8px 24px rgba(0,0,0,0.28);
+            height: 100% !important;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }}
 
-        [data-testid="stMetric"] {{ padding: 0.2rem 0.3rem; }}
-        [data-testid="stMetricLabel"] p {{
-            color: {p['muted']} !important; font-size: 0.78rem; font-weight: 600;
-            letter-spacing: 0.06em; text-transform: uppercase;
+        [data-testid="stMetric"] {{
+            padding: 0.1rem 0.2rem;
+            overflow: visible;
         }}
-        [data-testid="stMetricValue"] {{
+        [data-testid="stMetricLabel"] p {{
+            color: {p['muted']} !important;
+            font-size: 0.72rem !important;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            white-space: normal !important;
+            word-break: break-word !important;
+        }}
+        [data-testid="stMetricValue"] div {{
             font-family: 'JetBrains Mono', ui-monospace, monospace;
-            font-weight: 600; color: {p['text']};
+            font-weight: 700;
+            color: {p['text']};
+            font-size: clamp(1.1rem, 1.5vw, 1.5rem) !important;
+            white-space: normal !important;
+            word-break: break-word !important;
+            line-height: 1.25 !important;
+            overflow-wrap: break-word !important;
         }}
 
         [data-testid="stAlert"] {{
