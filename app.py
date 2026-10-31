@@ -105,7 +105,7 @@ def enforce_no_names(df: pd.DataFrame, source: str) -> pd.DataFrame:
 
 
 @st.cache_data(show_spinner=False)
-def _read_file(path_str: str) -> pd.DataFrame:
+def _read_file_cached(path_str: str, mtime_ns: int) -> pd.DataFrame:
     path = Path(path_str)
     suffix = path.suffix.lower()
     if suffix == ".parquet":
@@ -115,6 +115,12 @@ def _read_file(path_str: str) -> pd.DataFrame:
     if suffix == ".json":
         return pd.read_json(path)
     raise ValueError(f"Unsupported file type: {suffix}")
+
+
+def _read_file(path_str: str) -> pd.DataFrame:
+    """Cached read. The file's modification time is part of the cache key, so a new
+    hand-off (e.g. a fresh kpi_values.parquet) is picked up without restarting the app."""
+    return _read_file_cached(path_str, Path(path_str).stat().st_mtime_ns)
 
 
 def load_table(rel_path: str, track: Track) -> pd.DataFrame | None:
@@ -379,7 +385,7 @@ def _hex_to_rgba(hex_color: str, alpha: int = 175) -> list[int]:
 
 
 @st.cache_data(show_spinner=False)
-def _read_boundaries(path_str: str) -> tuple[dict, list[str]]:
+def _read_boundaries(path_str: str, mtime_ns: int = 0) -> tuple[dict, list[str]]:
     data = json.loads(Path(path_str).read_text(encoding="utf-8"))
     features, bad_codes = [], []
     for feat in data.get("features", []):
@@ -400,7 +406,7 @@ def load_boundaries() -> dict | None:
     path = APP_DATA / "real" / "compound_boundaries.geojson"
     if not path.exists():
         return None
-    geojson, bad_codes = _read_boundaries(str(path))
+    geojson, bad_codes = _read_boundaries(str(path), path.stat().st_mtime_ns)
     if bad_codes:
         st.error(
             f"no_names gate: compound_boundaries.geojson has {len(bad_codes)} "
@@ -970,7 +976,7 @@ def _yes_no(flag: bool | None) -> str:
 
 
 @st.cache_data(show_spinner=False)
-def _read_json(path_str: str) -> object:
+def _read_json(path_str: str, mtime_ns: int = 0) -> object:
     return json.loads(Path(path_str).read_text(encoding="utf-8"))
 
 
@@ -981,7 +987,7 @@ def load_backtest_summary() -> dict | None:
     if not path.exists():
         return None
     try:
-        data = _read_json(str(path))
+        data = _read_json(str(path), path.stat().st_mtime_ns)
     except (OSError, ValueError):
         return None
     return data if isinstance(data, dict) else None
@@ -1244,7 +1250,400 @@ def render_b_signals(track: Track) -> None:
         st.caption(f"{ORIGIN_GENERATED} generated · {len(table)} compound(s) · as of {asof} · "
                    "B1, B2, B3, B5 raise the level to at least 2 when triggered; "
                    "B4 is context only. Missing stays 'unknown', never 'No'.")
+
+
+# --------------------------------------------------------------------------- #
+# Screen 4 data (T-NA-06): gates, coverage, facts counter, colour key
+# --------------------------------------------------------------------------- #
+
+QUALITY_LOG_FILES = (
+    "releases/ready-data/review/real/quality_checks_log.parquet",
+    "ready-data/review/real/quality_checks_log.parquet",
+    "review/real/quality_checks_log.parquet",
+    "real/quality_checks_log.parquet",
+    "real/quality_checks_log.csv",
+)  # contract: ahmed -> nada
+COMPOUNDS_FILE = "real/compounds.parquet"                                                # contract: ahmed -> nada
+FACTS_FILES = ("real/facts_register.parquet", "real/facts_register.csv",
+               "real/facts.parquet", "real/facts.csv")                                   # ASSUMED (not in the contract)
+DOCUMENTED_FACTS = (1009, 1026)  # 01-specs section 12 (slide 3). Fallback only: used when no facts register file exists
+
+# The 10 quality gates (01-specs section 8): key, dimension, rule, owner role, if it fails.
+GATES = (
+    ("source", "Accuracy", "Every fact has a record_id and an accepted verdict", "R2", "Fix: excluded"),
+    ("completeness", "Completeness", "At least 6 Dynamic World images in the quarter", "R3", "Flag: not assessable"),
+    ("validity", "Validity", "Probabilities 0-1, counts ≥ 0, levels 1-4, valid dates", "R1", "Stop"),
+    ("uniqueness", "Uniqueness", "(compound, quarter) and (compound, year) are unique", "R1", "Stop"),
+    ("consistency", "Consistency", "Every code is in the register; row counts equal after joins", "R1", "Stop"),
+    ("freshness", "Freshness", "Last quarter at most 1 quarter before computation", "R3", "Flag: stale"),
+    ("separation", "Consistency", "No generated column in a real table; every column has an origin", "R1", "Stop"),
+    ("data_or_city", "Accuracy", "More than 30% of compounds switch to 'no activity' in one quarter", "R4", "Flag and review"),
+    ("stuck_series", "Accuracy", "Same value 4 quarters in a row", "R3", "Flag and review"),
+    ("no_names", "Privacy", "No compound or developer name in any output file", "R1", "Stop"),
+)
+
+_PASS = {"pass", "passed", "ok", "true", "1", "1.0", "yes"}
+_FLAG = {"flag", "flagged", "warn", "warning", "stale", "review"}
+_FAIL = {"fail", "failed", "false", "0", "0.0", "no", "stop", "stopped", "error"}
+STATUS_WORD = {"Pass": "✅ Pass", "Flag": "⚠️ Flag", "Fail": "⛔ Fail", "unknown": "❔ not in log"}
+
+# Dashboard-side audit: which stored tables are checked, and what must never appear in a real one.
+AUDIT_REAL_FILES = (KPI_FILE, COMPOUNDS_FILE, "real/statements.parquet", "real/sat_yearly.parquet",
+                    "real/sat_quarterly.parquet", "real/quality_checks_log.parquet")
+AUDIT_GENERATED_FILES = (PREDICTIONS_FILE, METRICS_FILE, B_SIGNALS_FILE,
+                         "sim/fin_monthly.parquet", "sim/complaints.parquet")
+GENERATED_COLUMN_HINTS = {  # columns that exist only in generated tables (spec sections 2, 5, 9)
+    "p_distressed", "p_not_distressed", "k5_egp", "cover_balance_egp", "cover_required_egp",
+    "planned_pct", "reported_pct", "land_months_late", "complaints", "kwh", "meters_active",
+}
+
+
+def _safe(label: str, fn, *args, default=None):
+    """Run a loader; if a stored file is corrupt, say so and keep the screen alive.
+    (st.stop() is not an Exception, so the no-names gate still stops the app.)"""
+    try:
+        return fn(*args)
+    except Exception as exc:
+        st.warning(f"{label}: could not be read ({type(exc).__name__}).")
+        return default
+
+
+def _norm(text: object) -> str:
+    return re.sub(r"[^a-z0-9]+", "_", str(text).lower()).strip("_")
+
+
+def _gate_status(value: object) -> str:
+    text = str(value).strip().lower()
+    if text in _PASS:
+        return "Pass"
+    if text in _FLAG:
+        return "Flag"
+    if text in _FAIL:
+        return "Fail"
+    return "unknown"
+
+
+def load_quality_log() -> pd.DataFrame | None:
+    """Read the quality checks log from relative paths or directly from the project root."""
+    possible_paths = [
+        Path("releases/ready-data/review/real/quality_checks_log.parquet"),
+        Path("ready-data/review/real/quality_checks_log.parquet"),
+        Path("review/real/quality_checks_log.parquet"),
+        APP_DATA / "real/quality_checks_log.parquet",
+        APP_DATA / "quality_checks_log.parquet",
+    ]
+    for path in possible_paths:
+        if path.exists():
+            try:
+                return pd.read_parquet(path)
+            except Exception:
+                pass
+    return None
+
+
+def gate_results(log: pd.DataFrame | None) -> dict[str, tuple[str, str]]:
+    """{gate key: (Pass | Flag | Fail | unknown, impact/detail text)}; the latest row wins."""
+    results: dict[str, tuple[str, str]] = {}
+    if log is None:
+        return results
+    g_col = _find_col(log, ("gate", "check", "check_id", "gate_name", "check_name", "test"))
+    s_col = _find_col(log, ("status", "result", "verdict", "outcome", "passed", "state"))
+    if g_col is None or s_col is None:
+        return results
+    d_col = _find_col(log, ("impact_on_indicator", "impact", "detail", "details", "message", "note"))
+    t_col = _find_col(log, ("computed_at", "checked_at", "timestamp"))
+    ordered = log.sort_values(t_col) if t_col else log
+    for _, row in ordered.iterrows():
+        name = _norm(row[g_col])
+        key = next((k for k, *_ in GATES if name == k or k in name), None)
+        if key:
+            detail = "" if d_col is None or _missing(row[d_col]) else str(row[d_col])
+            results[key] = (_gate_status(row[s_col]), detail)
+    return results
+
+
+def load_facts_count() -> tuple[int, int, str, bool]:
+    """(accepted, documented, source label, read from a stored file?).
+    Reads a facts register when one exists; otherwise falls back to the figure
+    documented in the spec, and says so. Nothing is invented."""
+    register = _load_first(FACTS_FILES)
+    if register is not None and not register.empty:
+        v_col = _find_col(register, ("verdict", "status", "review_verdict"))
+        id_col = _find_col(register, ("record_id",))
+        if v_col:
+            accepted = (register[v_col].astype(str).str.strip().str.lower()
+                        .isin({"accepted", "accept", "ok", "verified", "true", "1"}))
+            if id_col:
+                accepted &= register[id_col].notna()
+            return int(accepted.sum()), len(register), "facts register", True
+    return DOCUMENTED_FACTS[0], DOCUMENTED_FACTS[1], "01-specs §12, not recomputed", False
+
+
+def compute_coverage() -> dict | None:
+    """Assessable vs not assessable, per quarter and now, from the stored kpi_values."""
+    kpis = load_table(KPI_FILE, TRACK_A)
+    if kpis is None or kpis.empty or not {"code", "quarter"} <= set(kpis.columns):
+        return None
+    k4_col = _find_col(kpis, ("k4", "k4_assessable", "assessable"))
+    frame = kpis.copy()
+    frame["quarter"] = frame["quarter"].astype(str)
+    if k4_col:
+        frame["_ok"] = frame[k4_col].map(_as_bool)  # True / False / None (unknown)
+    elif "level" in frame.columns:  # fallback: no K4 column, infer from the level
+        frame["_ok"] = frame["level"].notna().map(bool)
+    else:
+        return None
+    asof = frame["quarter"].max()
+    latest = frame[frame["quarter"] == asof]
+    per_quarter = (frame.groupby("quarter")
+                   .agg(total=("code", "nunique"),
+                        assessable=("_ok", lambda s: int(sum(1 for x in s if x is True))))
+                   .reset_index())
+    codes = set(latest["code"].astype(str))
+    geo = load_boundaries()
+    boundary_codes = None if geo is None else {f["properties"]["code"] for f in geo["features"]}
+    return {
+        "asof": asof, "used_k4": k4_col is not None, "per_quarter": per_quarter,
+        "total": len(latest),
+        "ok": sum(1 for x in latest["_ok"] if x is True),
+        "not_codes": sorted(latest.loc[[x is False for x in latest["_ok"]], "code"].astype(str)),
+        "unknown": sum(1 for x in latest["_ok"] if x is None),
+        "with_boundary": None if boundary_codes is None else len(codes & boundary_codes),
+    }
+
+
+def _audit_file(rel: str, track: Track) -> dict | None:
+    """Non-stopping audit of one stored table (the live gate in load_table stops instead)."""
+    # تحديد المسارات المحتملة للملف (سواء داخل app_data أو في مسارات الـ releases الخارجية)
+    possible_paths = [
+        APP_DATA / rel,
+        Path(rel),
+        Path("releases/ready-data/review") / rel,
+        Path("ready-data/review") / rel,
+    ]
+    
+    path = None
+    for p in possible_paths:
+        if p.exists():
+            path = p
+            break
+
+    if path is None or path.suffix.lower() not in (".csv", ".parquet"):
+        return None
         
+    generated = is_generated_path(rel)
+    if generated and not track.generated:
+        return None  # separation: never opened in Track A
+        
+    df = _read_file(str(path))
+    name_cols = [c for c in df.columns if str(c).lower() in FORBIDDEN_COLUMNS]
+    bad = 0
+    for col in df.columns:
+        if str(col).lower() in CODE_COLUMNS:
+            values = df[col].dropna().astype(str)
+            bad += int((~values.str.match(CODE_PATTERN)).sum())
+    stray = []
+    if not generated:
+        stray = sorted(c for c in df.columns if str(c).lower() in GENERATED_COLUMN_HINTS)
+        origin = _find_col(df, ("origin",))
+        if origin and df[origin].astype(str).str.lower().str.contains("generated").any():
+            stray.append("origin = generated")
+    ok = bad == 0 and not stray
+    return {"File": rel, "Zone": f"{ORIGIN_GENERATED} generated" if generated else "real / derived",
+            "Name-like columns dropped": len(name_cols), "Non-code values": bad,
+            "Generated content in a real table": ", ".join(stray) if stray else "none",
+            "Result": "✅ Pass" if ok else "⛔ Fail"}
+
+
+def separation_guard_holds() -> bool:
+    """Live self-test: opening a generated table as Track A must be refused."""
+    try:
+        load_table(PREDICTIONS_FILE, TRACK_A)
+    except PermissionError:
+        return True
+    return False
+
+
+# ---- screen 4 renderers ----------------------------------------------------- #
+
+def render_trust_tiles(cov: dict | None, results: dict, log: pd.DataFrame | None,
+                       facts: tuple[int, int, str, bool]) -> None:
+    section_title("📊", "Trust at a glance")
+    tiles = st.columns(4)
+
+    with tiles[0]:
+        if not results:
+            metric_tile("Quality gates", "unknown", "",
+                        "waiting for real/quality_checks_log (hand-off from ahmed, D3)",
+                        "n/a", ORIGIN_DERIVED)
+        else:
+            n_pass = sum(1 for s, _ in results.values() if s == "Pass")
+            n_flag = sum(1 for s, _ in results.values() if s == "Flag")
+            n_fail = sum(1 for s, _ in results.values() if s == "Fail")
+            run_col = _find_col(log, ("run_id",)) if log is not None else None
+            run = str(log[run_col].iloc[-1]) if run_col else "stored log"
+            metric_tile("Quality gates passed", f"{n_pass} of {len(GATES)}", "",
+                        f"{len(results)} reported · {n_flag} flagged · {n_fail} failed",
+                        run, ORIGIN_DERIVED)
+
+    with tiles[1]:
+        if cov is None:
+            metric_tile("Assessable", "unknown", "", "waiting for real/kpi_values.parquet",
+                        "n/a", ORIGIN_DERIVED)
+        else:
+            metric_tile("Assessable compounds", f"{cov['ok']} of {cov['total']}", "",
+                        "K4 passed: at least 6 images and a reviewed boundary",
+                        cov["asof"], ORIGIN_DERIVED)
+
+    with tiles[2]:
+        if cov is None:
+            metric_tile("Not assessable", "unknown", "", "waiting for real/kpi_values.parquet",
+                        "n/a", ORIGIN_DERIVED)
+        else:
+            extra = f" · {cov['unknown']} unknown" if cov["unknown"] else ""
+            metric_tile("Not assessable compounds", f"{len(cov['not_codes'])} of {cov['total']}", "",
+                        f"K4 failed: fix location/images first{extra}", cov["asof"], ORIGIN_DERIVED)
+
+    with tiles[3]:
+        accepted, documented, source, _ = facts
+        metric_tile("Facts verified", f"{accepted:,} of {documented:,}", "",
+                    f"documented facts with a record_id and an accepted verdict · "
+                    f"{documented - accepted:,} excluded", source, ORIGIN_REAL)
+
+    if not facts[3]:
+        st.caption("ℹ️ Facts counter: no facts register file found in app_data/real/, so the "
+                   "figure documented in 01-specs §12 is shown (not recomputed). It switches to "
+                   "the stored register automatically once one exists.")
+
+
+def render_gates_table(results: dict, log: pd.DataFrame | None) -> None:
+    section_title("🚦", "Quality gates")
+    rows = []
+    for key, dimension, rule, owner, on_fail in GATES:
+        status, detail = results.get(key, ("unknown", ""))
+        rows.append({"Gate": key, "Dimension": dimension, "Rule": rule, "Owner": owner,
+                     "If it fails": on_fail, "Result": STATUS_WORD[status], "Impact on indicator": detail})
+    table = pd.DataFrame(rows)
+    if not results:
+        table = table.drop(columns=["Impact on indicator"])
+    with st.container(border=True):
+        if log is None:
+            st.info("Waiting for real/quality_checks_log (hand-off from ahmed, D3): "
+                    "the gates and rules are listed, results appear once the log exists.")
+        st.dataframe(table, use_container_width=True, hide_index=True, column_config={
+            "Gate": st.column_config.TextColumn(width="small"),
+            "Dimension": st.column_config.TextColumn(width="small"),
+            "Rule": st.column_config.TextColumn(width="large"),
+            "Owner": st.column_config.TextColumn(width="small"),
+            "If it fails": st.column_config.TextColumn(width="medium"),
+            "Result": st.column_config.TextColumn(width="small"),
+            "Impact on indicator": st.column_config.TextColumn(width="medium"),
+        })
+        st.caption(f"{ORIGIN_DERIVED} derived from the stored quality log · owners are roles · "
+                   "'not in log' = the pipeline has not reported that gate yet")
+
+
+def render_coverage(cov: dict | None) -> None:
+    section_title("🛰️", "Coverage and not assessable")
+    with st.container(border=True):
+        if cov is None:
+            st.info("Waiting for real/kpi_values.parquet (needs code, quarter and K4 or level).")
+            return
+
+        per_q = cov["per_quarter"]
+        top = int(per_q["total"].max())
+        chart = alt.Chart(per_q).mark_bar(color="#38BDF8").encode(
+            x=alt.X("quarter:N", sort=list(per_q["quarter"]), title=None,
+                    axis=alt.Axis(labelAngle=-45)),
+            y=alt.Y("assessable:Q", title=f"assessable compounds (of {top})",
+                    scale=alt.Scale(domain=[0, top])),  # axis starts at 0 and ends at the total
+            tooltip=["quarter", "assessable", "total"],
+        )
+        st.altair_chart(chart.properties(height=220), use_container_width=True)
+        st.caption(f"{ORIGIN_DERIVED} derived · each bar = compounds assessable in that quarter, "
+                   "out of the compounds on file that quarter · a change in coverage is shown, "
+                   "never hidden")
+
+        if cov["not_codes"]:
+            codes = ", ".join(f"`{c}`" for c in cov["not_codes"])
+            st.markdown(f"**Not assessable in {cov['asof']}:** {codes} · "
+                        f"{len(cov['not_codes'])} of {cov['total']} compounds. "
+                        "Action: fix location/images first. They stay grey on the map.")
+        else:
+            st.markdown(f"**All {cov['total']} compounds are assessable in {cov['asof']}.**")
+        if cov["unknown"]:
+            st.caption(f"{cov['unknown']} compound(s) have no K4 value: counted as unknown, "
+                       "never as assessable.")
+        if cov["with_boundary"] is not None:
+            st.caption(f"Reviewed boundary on file for {cov['with_boundary']} of "
+                       f"{cov['total']} compounds.")
+        if not cov["used_k4"]:
+            st.caption("K4 column not found: assessability is inferred from the level (a missing "
+                       "level counts as not assessable).")
+
+
+def render_dashboard_audit(track: Track) -> None:
+    section_title("🔒", "Enforced by this dashboard")
+    rows, missing = [], 0
+    for rel in (*AUDIT_REAL_FILES, *(AUDIT_GENERATED_FILES if track.generated else ())):
+        row = _safe(rel, _audit_file, rel, track)
+        if row is None:
+            missing += 1
+        else:
+            rows.append(row)
+    guard = separation_guard_holds()
+
+    with st.container(border=True):
+        st.markdown(
+            f"**no_names** · name-like columns are dropped on load and a non-code value in a code "
+            f"column stops the screen ({len(FORBIDDEN_COLUMNS)} name-like column names watched).  \n"
+            f"**separation** · opening a generated table as Track A is refused: "
+            f"{'✅ confirmed just now' if guard else '⛔ NOT refused: fix load_table'}. "
+            f"Generated tables load only in Track B, under the orange banner, tagged {ORIGIN_GENERATED}.")
+        if rows:
+            table = pd.DataFrame(rows)
+            st.dataframe(table, use_container_width=True, hide_index=True)
+            failed = int((table["Result"] != "✅ Pass").sum())
+            st.caption(f"{len(rows)} stored table(s) checked now · {failed} with a finding"
+                       + (f" · {missing} not on file yet" if missing else ""))
+        else:
+            st.info("No stored tables found yet to audit.")
+        if not track.generated:
+            st.caption("Generated tables are not opened in Track A, so they are not audited here.")
+
+
+def render_colour_key() -> None:
+    section_title("🎨", "Colour key and trust")
+    cards = (
+        (ORIGIN_REAL, "Real", "as published",
+         "Published statements, registers and public records, used as published with their source.",
+         "Highest trust. Each fact carries a record_id; still read the date it was published."),
+        (ORIGIN_DERIVED, "Derived", "computed from real data",
+         "Numbers worked out from real data by a stated rule: activity score A, K2, K4, K6, "
+         "priority levels, the height estimate.",
+         "As good as its inputs. Read the 'as of' quarter and the gaps; unknown stays unknown."),
+        (ORIGIN_GENERATED, "Generated", "stand-in for ACUD data",
+         "Simulated finance, complaints, classifier probabilities and scenarios. "
+         "'Synthetic - for training only'.",
+         "For training and what-if only. Track B only, never on the map, never a statement "
+         "about a real compound."),
+    )
+    cols = st.columns(3)
+    for col, (icon, name, short, what, trust) in zip(cols, cards):
+        with col, st.container(border=True):
+            st.markdown(f"### {icon} {name}")
+            st.caption(short)
+            st.markdown(what)
+            st.markdown(f"**How far to trust.** {trust}")
+    with st.container(border=True):
+        st.markdown(
+            f"**Trust order:** {ORIGIN_REAL} real → {ORIGIN_DERIVED} derived → {ORIGIN_GENERATED} "
+            "generated. A figure that mixes origins carries the least trusted tag: K5 is "
+            f"{ORIGIN_DERIVED} in months and {ORIGIN_GENERATED} in EGP.  \n"
+            "**Reading rules:** a level is always written as a word (colour is never the only cue) · "
+            "'unknown' is never shown as 0 · counts are 'n of m' · every tile shows its "
+            "'as of' quarter and origin.")
+
 
 # --------------------------------------------------------------------------- #
 # Screens
@@ -1324,12 +1723,17 @@ def screen_backtest(track: Track) -> None:
 
 def screen_data_trust(track: Track) -> None:
     page_header("🛡️", "Data trust", "How far can each number be trusted?")
-    with st.container(border=True):
-        st.markdown(
-            f"**Colour key** &nbsp; {ORIGIN_REAL} real · {ORIGIN_DERIVED} derived · "
-            f"{ORIGIN_GENERATED} generated"
-        )
-    st.info("Skeleton page.")
+    log = _safe("quality_checks_log", load_quality_log)
+    results = gate_results(log)
+    cov = _safe("kpi_values", compute_coverage)
+    facts = _safe("facts register", load_facts_count,
+                  default=(*DOCUMENTED_FACTS, "01-specs §12, not recomputed", False))
+
+    render_trust_tiles(cov, results, log, facts)
+    render_gates_table(results, log)
+    render_coverage(cov)
+    render_dashboard_audit(track)
+    render_colour_key()
 
 
 def screen_what_if(track: Track) -> None:
