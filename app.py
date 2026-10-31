@@ -902,6 +902,351 @@ def render_track_b_extras(code: str, track: Track) -> None:
 
 
 # --------------------------------------------------------------------------- #
+# Screen 3 data (T-NA-05): real-case backtest (Track A) + model metrics (Track B)
+# --------------------------------------------------------------------------- #
+
+BACKTEST_CASES_FILE = "releases/ready-data/backtest/cases.csv"        # Updated path
+BACKTEST_SUMMARY_FILE = "releases/ready-data/backtest/summary.json"   # Updated path
+METRICS_FILE = "ml/metrics.csv"                   # contract: elsayed -> nada (D3), generated
+B_SIGNALS_FILE = "ml/ml_dataset.parquet"          # ASSUMED home of the stored B1-B5 columns
+
+EARLY_WARNING_MONTHS = 6     # spec section 0: level 1-2 at least 6 months before the delay was public
+SUCCESS_TARGET_DEFAULT = 5   # spec section 0; used only if summary.json carries no target
+
+# Column / key aliases updated to match cases.csv structure
+CASE_ALIASES = {
+    "code": ("code", "compound_code", "case"),
+    "outcome": ("outcome", "outcome_type", "event_type", "event", "first_deadline"),
+    "event_date": ("event_date", "outcome_date", "public_date", "delay_public_date", "first_deadline"),
+    "level": ("level_reached", "first_level", "best_level", "level_at_cutoff", "level", "level_at_freeze"),
+    "months_early": ("months_early", "lead_months", "lead_time_months", "months_before", "after_start_months_before"),
+    "warned": ("warned_early", "warned", "early_warning", "hit", "after_start"),
+    "what": ("what_happened", "happened", "what", "literal"),
+    "why": ("why", "why_explanation", "reason", "driver"),
+    "next": ("what_next", "next_step", "next"),
+    "competing": ("competing_explanation", "rejected_explanation", "competing"),
+    "competing_n": ("competing_number", "rejected_number", "evidence_number"),
+}
+SUMMARY_ALIASES = {
+    "warned": ("warned_early", "n_warned", "warned", "hits"),
+    "total": ("n_cases", "cases", "total", "n_total", "n"),
+    "frozen": ("warned_frozen", "warned_at_frozen_cutoff", "frozen_cutoff", "n_warned_frozen"),
+    "target": ("target", "success_target", "target_cases"),
+    "asof": ("asof", "as_of", "as_of_quarter", "run_id"),
+}
+DENOMINATOR_COLUMNS = ("n", "denominator", "support", "n_test", "n_rows", "of")
+
+
+def _find_col(df: pd.DataFrame, aliases: tuple[str, ...]) -> str | None:
+    lower = {str(c).lower(): c for c in df.columns}
+    return next((lower[a] for a in aliases if a in lower), None)
+
+
+def _as_bool(value: object) -> bool | None:
+    """True / False / None (unknown). Missing never becomes False."""
+    if _missing(value):
+        return None
+    text = str(value).strip().lower()
+    if text in {"1", "true", "yes", "y", "warned"}:
+        return True
+    if text in {"0", "false", "no", "n"}:
+        return False
+    try:  # 1.0 / 0.0 (a flag column that also holds missing values becomes float)
+        number = float(text)
+    except ValueError:
+        return None
+    return True if number == 1 else (False if number == 0 else None)
+
+
+def _as_int(value: object) -> int | None:
+    try:
+        return None if _missing(value) else int(float(value))
+    except (TypeError, ValueError):
+        return None
+
+
+def _yes_no(flag: bool | None) -> str:
+    return "unknown" if flag is None else ("Yes" if flag else "No")
+
+
+@st.cache_data(show_spinner=False)
+def _read_json(path_str: str) -> object:
+    return json.loads(Path(path_str).read_text(encoding="utf-8"))
+
+
+def load_backtest_summary() -> dict | None:
+    path = APP_DATA.parent / BACKTEST_SUMMARY_FILE if not Path(BACKTEST_SUMMARY_FILE).exists() else Path(BACKTEST_SUMMARY_FILE)
+    if not path.exists():
+        path = Path(BACKTEST_SUMMARY_FILE)
+    if not path.exists():
+        return None
+    try:
+        data = _read_json(str(path))
+    except (OSError, ValueError):
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def _summary_value(summary: dict | None, aliases: tuple[str, ...]) -> object:
+    """First matching key, searching nested objects too. Only numbers/labels are read:
+    the raw JSON is never printed, so nothing unexpected can reach the screen."""
+    queue = [summary] if summary else []
+    while queue:
+        node = queue.pop(0)
+        for key, val in node.items():
+            if str(key).lower() in aliases and not isinstance(val, (dict, list)):
+                return val
+        queue += [v for v in node.values() if isinstance(v, dict)]
+    return None
+
+
+def _level_text(value: object) -> str:
+    if _missing(value):
+        return "unknown"
+    try:
+        return level_word(int(float(value)))
+    except (TypeError, ValueError):
+        return str(value)  # already a word such as "Inspect now"
+
+
+def _tag_numeric_headers(df: pd.DataFrame) -> pd.DataFrame:
+    """Orange tag on the headers of numeric columns of a generated table."""
+    return df.rename(columns={c: f"{c} {ORIGIN_GENERATED}" for c in df.columns
+                              if pd.api.types.is_numeric_dtype(df[c])})
+
+
+# ---- Track A: frozen-clock table -------------------------------------------- #
+
+def render_backtest_cases() -> None:
+    path = Path(BACKTEST_CASES_FILE)
+    if not path.exists():
+        path = APP_DATA.parent / BACKTEST_CASES_FILE
+    
+    cases = enforce_no_names(_read_file(str(path)), BACKTEST_CASES_FILE) if path.exists() else None
+    summary = load_backtest_summary()
+    if cases is None or cases.empty:
+        st.info("Waiting for releases/ready-data/backtest/cases.csv.")
+        return
+
+    col = {field: _find_col(cases, names) for field, names in CASE_ALIASES.items()}
+    flags = ([_as_bool(v) for v in cases[col["warned"]]] if col["warned"] else [None] * len(cases))
+
+    total = _as_int(_summary_value(summary, SUMMARY_ALIASES["total"])) or len(cases)
+    warned = _as_int(_summary_value(summary, SUMMARY_ALIASES["warned"]))
+    if warned is None and col["warned"]:
+        warned = sum(1 for f in flags if f)
+    frozen = _as_int(_summary_value(summary, SUMMARY_ALIASES["frozen"]))
+    target = _as_int(_summary_value(summary, SUMMARY_ALIASES["target"])) or SUCCESS_TARGET_DEFAULT
+    asof = str(_summary_value(summary, SUMMARY_ALIASES["asof"]) or "stored run")
+    met = None if warned is None else warned >= target
+
+    section_title("🧊", "Frozen-clock backtest (real public cases)")
+    tiles = st.columns(3 if frozen is not None else 2)
+    with tiles[0]:
+        metric_tile("Warned early", "unknown" if warned is None else f"{warned} of {total}",
+                    "" if warned is None else "cases",
+                    f"level 1-2 at least {EARLY_WARNING_MONTHS} months before the delay was public",
+                    asof, ORIGIN_DERIVED)
+    with tiles[1]:
+        metric_tile("Success criterion",
+                    "unknown" if met is None else ("Met" if met else "Not met"), "",
+                    f"needs {target} of {total} cases · fixed before any computation",
+                    asof, ORIGIN_DERIVED)
+    if frozen is not None:
+        with tiles[2]:
+            metric_tile("At the frozen cutoff", f"{frozen} of {total}", "cases",
+                        "using only data published before each quarter", asof, ORIGIN_DERIVED)
+
+    # Per-case table: one row per case, level as a word, yes/no in words
+    table = pd.DataFrame({"Case": cases[col["code"]].astype(str) if col["code"]
+                          else [f"Case {i + 1}" for i in range(len(cases))]})
+    for field, heading in (("outcome", "Outcome"), ("event_date", "Event date")):
+        if col[field]:
+            table[heading] = cases[col[field]].astype(str)
+    if col["level"]:
+        table["Level reached"] = cases[col["level"]].map(_level_text)
+    if col["months_early"]:
+        table["Months early"] = cases[col["months_early"]].map(lambda v: _fmt(v, 0))
+    table["Warned early"] = [_yes_no(f) for f in flags]
+
+    with st.container(border=True):
+        st.dataframe(table, use_container_width=True, hide_index=True)
+        st.caption(f"{ORIGIN_DERIVED} derived from real public cases · counts only, no percentages "
+                   f"(small sample) · 'early' = level 1-2 at least {EARLY_WARNING_MONTHS} months "
+                   "before the delay became public")
+
+    # Why: per-case reasoning (what happened / why / what next / rejected explanation)
+    section_title("🔎", "Why, case by case")
+    for i, (_, r) in enumerate(cases.iterrows()):
+        label = table.iloc[i]["Case"]
+        with st.expander(f"{label} · warned early: {_yes_no(flags[i])}"):
+            shown = False
+            for field, heading in (("what", "What happened"), ("why", "Why"),
+                                   ("next", "What next")):
+                if col[field] and not _missing(r[col[field]]):
+                    st.markdown(f"**{heading}.** {r[col[field]]}")
+                    shown = True
+            if col["competing"] and not _missing(r[col["competing"]]):
+                number = ""
+                if col["competing_n"] and not _missing(r[col["competing_n"]]):
+                    number = f" ({r[col['competing_n']]})"
+                st.markdown(f"**Competing explanation, rejected.** {r[col['competing']]}{number}")
+                shown = True
+            if not shown:
+                st.caption("No explanation text in cases.csv for this case yet.")
+
+    if met is False:
+        with st.container(border=True):
+            st.markdown(
+                "**What it means.** Satellites tell 'building or not' well, but the saved rule did "
+                "not raise early alerts in this small set of cases. Early warning of delay needs "
+                "ACUD's data (supervisor reports, contractual dates, meters, escrow). The counts "
+                "alone do not show why a delay happened.")
+
+
+# ---- Track B: model metrics + B1-B5 ----------------------------------------- #
+
+def render_model_metrics(track: Track) -> None:
+    section_title("📐", "Binary classifier on generated data")
+    metrics = load_table(METRICS_FILE, track)  # generated: loaded only in Track B
+    if metrics is None or metrics.empty:
+        st.info("Waiting for ml/metrics.csv (hand-off from elsayed, D3).")
+        return
+
+    m_col = _find_col(metrics, ("metric", "metric_name", "measure", "metric_key"))
+    v_col = _find_col(metrics, ("value", "score", "result"))
+    if m_col is None or v_col is None:
+        st.warning("ml/metrics.csv has no 'metric' / 'value' columns: showing the raw table.")
+        st.dataframe(_tag_numeric_headers(metrics), use_container_width=True, hide_index=True)
+        return
+
+    metrics = metrics.copy()
+    metrics[v_col] = pd.to_numeric(metrics[v_col], errors="coerce").round(2)
+    text = metrics[m_col].astype(str).str.lower()
+    
+    # Safe blob conversion preventing float/type aggregation issues
+    blob = metrics.astype(str).fillna("").agg(lambda x: " ".join(x.astype(str)), axis=1).str.lower()
+    
+    # Updated filters matching metrics.csv structure (macro_f1_binary, distressed_recall_at_4, class_recall)
+    is_macro = text.str.contains("macro|f1", regex=True)
+    is_at_n = text.str.contains(r"@|_at_|recall_at|at_\d", regex=True)
+    is_class = (text.str.contains("recall|class") & ~is_at_n & ~is_macro) | (text == "class_recall")
+    is_random = blob.str.contains("random") | text.str.contains("random")
+
+    def block(title: str, rows: pd.DataFrame, empty_msg: str) -> None:
+        with st.container(border=True):
+            st.markdown(f"**{title}**")
+            if rows.empty:
+                st.info(empty_msg)
+            else:
+                st.dataframe(_tag_numeric_headers(rows), use_container_width=True, hide_index=True)
+
+    block("Per-class recall", metrics[is_class],
+          "No per-class recall rows found in ml/metrics.csv.")
+    block("Macro-F1 (two classes)", metrics[is_macro],
+          "No macro-F1 rows found in ml/metrics.csv.")
+
+    at_n = metrics[is_at_n | (is_random & text.str.contains("recall"))].copy()
+    block("Recall@N for 'distressed' vs random ranking", at_n,
+          "No recall@N rows found in ml/metrics.csv.")
+    if not at_n.empty:
+        group_cols = [c for c in at_n.columns if c not in (m_col, v_col)
+                      and not pd.api.types.is_numeric_dtype(at_n[c])
+                      and c.lower() not in DENOMINATOR_COLUMNS]
+        at_n["compared"] = (at_n[group_cols].astype(str).agg(" · ".join, axis=1)
+                            if group_cols else "model")
+        at_n.loc[is_random.loc[at_n.index], "compared"] = "random ranking"
+        enc = dict(x=alt.X("compared:N", title=None,
+                           axis=alt.Axis(labelAngle=-20, labelLimit=240)),
+                   y=alt.Y(f"{v_col}:Q", title="recall (0-1)", scale=alt.Scale(domain=[0, 1])),
+                   color=alt.Color(f"{m_col}:N", title=None, legend=alt.Legend(orient="bottom")),
+                   tooltip=["compared", m_col, alt.Tooltip(f"{v_col}:Q", format=".2f")])
+        try:
+            chart = alt.Chart(at_n).mark_bar().encode(xOffset=f"{m_col}:N", **enc)
+        except Exception:  # older Altair without xOffset
+            chart = alt.Chart(at_n).mark_bar().encode(**enc)
+        with st.container(border=True):
+            st.altair_chart(chart.properties(height=260), use_container_width=True)
+
+    if _find_col(metrics, DENOMINATOR_COLUMNS) is None:
+        st.warning("No denominator column (n) in ml/metrics.csv: every metric must show its n.")
+    st.caption(f"{ORIGIN_GENERATED} Generated data: a diagnostic of the generator and model "
+               "workflow, not real-world accuracy. The test split has very few 'distressed' rows, "
+               "so one row can move a recall value by a large step: differences of one row are "
+               "noise. Always compare with the random baseline and read the denominators.")
+
+
+def render_b_signals(track: Track) -> None:
+    section_title("🧾", "B1-B5 signals per compound")
+    data = load_table(B_SIGNALS_FILE, track)  # generated: loaded only in Track B
+    if data is None or not {"code", "quarter"} <= set(data.columns):
+        st.info(f"Waiting for {B_SIGNALS_FILE} (B1-B5 columns).")
+        return
+
+    # خريطة البحث تشمل الأسماء المختصرة والأسماء الكاملة الموجودة في ملف الـ dataset
+    labels = {
+        1: "B1 escrow cover", 
+        2: "B2 land arrears", 
+        3: "B3 complaint rate",
+        4: "B4 occupancy gap (context only)", 
+        5: "B5 plan gap"
+    }
+    
+    # الكلمات المفتاحية البديلة لكل مؤشر في الملف
+    keywords = {
+        1: ["b1", "escrow"],
+        2: ["b2", "arrear"],
+        3: ["b3", "complaint"],
+        4: ["b4", "occupancy"],
+        5: ["b5", "plan"]
+    }
+
+    found = {}
+    for n, label in labels.items():
+        match = None
+        # البحث بالكلمات المفتاحية المرنة
+        for col in data.columns:
+            col_lower = str(col).lower()
+            if any(kw in col_lower for kw in keywords[n]):
+                match = col
+                break
+        if match:
+            found[label] = match
+
+    if not found:
+        st.info(f"No B1-B5 columns found in {B_SIGNALS_FILE}.")
+        return
+
+    asof = str(data["quarter"].max())
+    latest = data[data["quarter"] == data["quarter"].max()].sort_values("code")
+    table = pd.DataFrame({"Code": latest["code"].astype(str).values})
+    
+    for label, source in found.items():
+        values = latest[source]
+        flags = [_as_bool(v) for v in values]
+        known = values.dropna()
+        name = str(source).lower()
+        looks_like_amount = any(w in name for w in ("month", "pct", "pts", "point", "egp",
+                                                    "kwh", "rate", "ratio", "count"))
+        is_flag = (not known.empty and known.isin([0, 1, True, False]).all()
+                   and (values.dtype == bool or any(w in name for w in ("flag", "trigger", "hit"))
+                        or not looks_like_amount))
+        if is_flag:
+            word = "Gap" if label.startswith("B4") else "Triggered"
+            table[f"{label} {ORIGIN_GENERATED}"] = [
+                "unknown" if f is None else (word if f else "No") for f in flags]
+        else:
+            digits = 0 if (known % 1 == 0).all() else 1
+            table[f"{label} {ORIGIN_GENERATED}"] = [_fmt(v, digits) for v in values]
+
+    with st.container(border=True):
+        st.dataframe(table, use_container_width=True, hide_index=True)
+        st.caption(f"{ORIGIN_GENERATED} generated · {len(table)} compound(s) · as of {asof} · "
+                   "B1, B2, B3, B5 raise the level to at least 2 when triggered; "
+                   "B4 is context only. Missing stays 'unknown', never 'No'.")
+        
+
+# --------------------------------------------------------------------------- #
 # Screens
 # --------------------------------------------------------------------------- #
 
@@ -969,7 +1314,12 @@ def screen_compound_file(track: Track) -> None:
 
 def screen_backtest(track: Track) -> None:
     page_header("⏱️", "Would it have warned?", "Backtest and early-warning evidence.")
-    st.info("Skeleton page.")
+    if not track.generated:
+        render_backtest_cases()  # Track A: real public cases, frozen clock
+        return
+    st.info("Real-case backtest (frozen clock): switch to Track A in the sidebar.")
+    render_model_metrics(track)  # Track B: generated data only
+    render_b_signals(track)
 
 
 def screen_data_trust(track: Track) -> None:
