@@ -22,34 +22,17 @@ def test_latest_predictions_keeps_every_method_of_the_latest_quarter():
     assert table.loc["C01", "a"] == 0.1
 
 
-def test_s3_view_reports_list_changes_not_level_changes():
+def test_capacity_view_reports_list_changes_not_level_changes():
     raw = pd.DataFrame({
         "quarter": ["2026Q2", "2026Q3", "2026Q3", "2026Q3"],
         "code": ["C03", "C03", "C12", "C18"],
-        "level": [3, 3, 3, 1],
-        "baseline_selected": [True, True, False, True],
+        "level": [3, 3, 3.0, 1],
         "selected": [False, False, True, True],
         "selection_changed": [True, True, True, False],
-        "reason": ["", "", "", ""],
+        "reason_ar": ["", "المستوى 2: رصد نشاط بناء (درجة النشاط 0.58)؛ تجاوز أول موعد تسليم معلن (2024-12-31) بمقدار 21 شهر؛ عدد الصور خلال الربع 27.", None, ""],
     })
-    view, label = app.whatif_view(raw, "S3")
+    view, label = app.whatif_view(raw)
     assert label == "2026Q3"
-    assert list(view["change"]) == ["leaves the list", "joins the list", "unchanged"]
-    assert app.count_changed_rows(raw) == 3
-
-
-def test_s1_view_compares_track_b_levels_and_lists():
-    raw = pd.DataFrame({
-        "month": ["2026-09", "2026-09"],
-        "code": ["C01", "C02"],
-        "baseline_hypothetical_level": [2.0, None],
-        "hypothetical_level": [1.0, None],
-        "baseline_selected": [False, False],
-        "selected": [False, False],
-        "level_changed": [True, False],
-        "selection_changed": [False, False],
-        "reason": ["x", None],
-    })
-    view, _ = app.whatif_view(raw, "S1")
-    assert list(view["change"]) == ["changes", "unchanged"]
-    assert view.loc[1, "level in scenario (Track B)"] == "unknown"
+    assert list(view["change"]) == ["leaves", "joins", "unchanged"]
+    assert list(view["level"]) == [3, 3, 1]
+    assert view.loc[0, "reason"] == "رصد نشاط بناء، تجاوز أول موعد تسليم معلن (2024-12-31) بمقدار 21 شهر"

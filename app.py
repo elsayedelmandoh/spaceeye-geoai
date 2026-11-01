@@ -62,9 +62,8 @@ TRACKS = {t.label: t for t in (TRACK_A, TRACK_B)}  # Track A first = default
 SCREENS = [
     "1 · Priority map",
     "2 · Compound file",
-    "3 · Would it have warned?",
-    "4 · What it gives",
-    "5 · What if? (twin)",
+    "3 · What it gives",
+    "4 · Fewer or more visits",
 ]
 
 # --------------------------------------------------------------------------- #
@@ -184,11 +183,6 @@ def section_title(icon: str, text: str) -> None:
     st.markdown(f'<div class="se-section">{text}</div>', unsafe_allow_html=True)
 
 
-def finding(text: str) -> None:
-    """The screen's main finding in one plain sentence, built from the stored data."""
-    st.markdown(f'<div class="se-finding">{text}</div>', unsafe_allow_html=True)
-
-
 def how_to_read(points: list[str]) -> None:
     """Short reading guide, folded so it does not compete with the data."""
     with st.expander("How to read this screen"):
@@ -213,8 +207,6 @@ def inject_css() -> None:
         .se-header {{ margin: 0 0 1.1rem 0; }}
         .se-title {{ font-size: 1.85rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; }}
         .se-sub {{ color: {p['muted']}; font-size: 1rem; margin-top: 0.3rem; }}
-        .se-finding {{ font-size: 1.15rem; line-height: 1.5; margin: 0 0 1.1rem 0; max-width: 75ch; }}
-        .se-finding b {{ font-weight: 600; color: {p['accent']}; }}
         .se-section {{ font-size: 1rem; font-weight: 600; margin: 1.6rem 0 0.5rem 0; }}
 
         [data-testid="stVerticalBlockBorderWrapper"] {{
@@ -794,19 +786,11 @@ def render_track_b_extras(code: str, track: Track) -> None:
 
 
 # --------------------------------------------------------------------------- #
-# Screen 3 data (T-NA-05): real-case backtest (Track A) + model metrics (Track B)
+# Screen 3 data: what the committee gains
 # --------------------------------------------------------------------------- #
 
 # Frozen-clock backtest of the v7 release (one row per public case, with its explanation).
 BACKTEST_DIR = "current/backtest"
-METRICS_FILE = "docs/CURRENT_MODEL_METRICS.csv"
-MODEL_METADATA_FILE = "docs/CURRENT_MODEL_METADATA.json"
-
-
-
-def _find_col(df: pd.DataFrame, aliases: tuple[str, ...]) -> str | None:
-    lower = {str(c).lower(): c for c in df.columns}
-    return next((lower[a] for a in aliases if a in lower), None)
 
 
 def _as_bool(value: object) -> bool | None:
@@ -824,172 +808,6 @@ def _as_bool(value: object) -> bool | None:
         return None
     return True if number == 1 else (False if number == 0 else None)
 
-
-def _as_int(value: object) -> int | None:
-    try:
-        return None if _missing(value) else int(float(value))
-    except (TypeError, ValueError):
-        return None
-
-
-def _yes_no(flag: bool | None) -> str:
-    return "unknown" if flag is None else ("Yes" if flag else "No")
-
-
-@st.cache_data(show_spinner=False)
-def _read_json(path_str: str, mtime_ns: int = 0) -> object:
-    return json.loads(Path(path_str).read_text(encoding="utf-8"))
-
-
-def load_ready_json(rel_path: str) -> dict | None:
-    path = READY_DATA / rel_path
-    if not path.exists():
-        return None
-    data = _read_json(str(path), path.stat().st_mtime_ns)
-    return data if isinstance(data, dict) else None
-
-
-def _tag_numeric_headers(df: pd.DataFrame) -> pd.DataFrame:
-    """Orange tag on the headers of numeric columns of a generated table."""
-    return df.rename(columns={c: f"{c} {ORIGIN_GENERATED}" for c in df.columns
-                              if pd.api.types.is_numeric_dtype(df[c])})
-
-
-# ---- Track A: frozen-clock table -------------------------------------------- #
-
-def render_backtest_cases() -> None:
-    path = READY_DATA / BACKTEST_DIR / "cases_explained.csv"
-    summary = load_ready_json(f"{BACKTEST_DIR}/summary.json")
-    if not path.exists() or summary is None:
-        st.info(f"Waiting for {BACKTEST_DIR}/cases_explained.csv and summary.json of the v7 release "
-                "(run python -m src.pipeline.setup_review).")
-        return
-    cases = enforce_no_names(_read_file(str(path)), "cases_explained.csv")
-    total = summary["n_cases"]
-    after_start = summary["after_start_reading"]["n"]
-    point_in_time = summary["point_in_time_reading"]["n"]
-    met = summary["after_start_reading"]["met"]
-
-    finding(f"<b>The rule warned early in {after_start} of {total} public cases</b> (after construction "
-            f"start), and in {point_in_time} of {total} on the freeze date itself. The success criterion "
-            f"was {'met' if met else 'not met'}: {html.escape(summary['criterion'])}.")
-    how_to_read([
-        ("Each case is a real public R7 delay. The clock was frozen before the delay was known, and "
-        "only data published by then was used."),
-        ("'Warned after start' asks whether level 1 or 2 appeared at least 6 months before the first "
-        "announced handover date."),
-        "Open a case below for what happened, what the rule saw and the explanation that was tested and rejected.",
-    ])
-    section_title("🧊", "Frozen-clock backtest (real public cases)")
-    tiles = st.columns(3)
-    with tiles[0]:
-        metric_tile("Warned after construction start", f"{after_start} of {total}", "cases",
-                    "level 1-2 at least 6 months before the first announced handover date "
-                    "(main reading)", "frozen clock", ORIGIN_DERIVED)
-    with tiles[1]:
-        metric_tile("Warned at the freeze date", f"{point_in_time} of {total}", "cases",
-                    "level 1-2 on the freeze date itself, using only data published by then",
-                    "frozen clock", ORIGIN_DERIVED)
-    with tiles[2]:
-        metric_tile("Success criterion", "Met" if met else "Not met", "",
-                    f"{summary['criterion']} · fixed before any computation, not lowered",
-                    "frozen clock", ORIGIN_DERIVED)
-
-    table = pd.DataFrame({
-        "Case": cases["code"].astype(str),
-        "First announced handover": cases["first_deadline"].astype(str),
-        "First level 1-2 alert": cases["first_alert_quarter"].fillna("none").astype(str),
-        "Months before handover": cases["after_start_months_before"].map(lambda v: _fmt(v, 0)),
-        "Warned after start": cases["after_start"].map(lambda v: _yes_no(_as_bool(v))),
-        "Level at freeze date": cases["level_at_freeze"].map(_level_text),
-        "Warned at freeze date": cases["point_in_time"].map(lambda v: _yes_no(_as_bool(v))),
-    })
-    with st.container(border=True):
-        st.dataframe(table, use_container_width=True, hide_index=True)
-        st.caption(f"{ORIGIN_DERIVED} derived from real public cases · counts only, no percentages "
-                   "(small sample) · a later alert is not proof that the rule predicts delays")
-
-    section_title("🔎", "Why, case by case")
-    for _, r in cases.iterrows():
-        with st.expander(f"{r['code']} · warned after start: {_yes_no(_as_bool(r['after_start']))}"):
-            for column, heading in (("what_happened", "What happened"), ("this_case", "What the rule saw"),
-                                    ("why", "Rule reading"), ("what_next", "What next")):
-                if not _missing(r[column]):
-                    st.markdown(f"**{heading}.** {r[column]}")
-            if not _missing(r["competing_explanation"]):
-                st.markdown(f"**Competing explanation.** {r['competing_explanation']} "
-                            f"{'' if _missing(r['numeric_check']) else r['numeric_check']}")
-
-    if not met:
-        with st.container(border=True):
-            st.markdown(
-                "**What it means.** The rule catches stalls and passed dates. In the missed cases the "
-                "sites looked active, so there was no stall to catch: the rule does not measure pace "
-                "against the plan. Early warning of delay needs ACUD's data (supervisor reports, "
-                "contractual dates, meters, escrow). The counts alone do not show why a delay happened.")
-
-
-# ---- Track B: model metrics + B1-B5 ----------------------------------------- #
-
-def render_model_metrics(track: Track) -> None:
-    section_title("📐", "Binary classifier on generated data")
-    metrics = load_table(METRICS_FILE, track, READY_DATA)  # generated: loaded only in Track B
-    if metrics is None or metrics.empty:
-        st.info(f"Waiting for {METRICS_FILE} of the v7 release (run python -m src.pipeline.setup_review).")
-        return
-    test = metrics[metrics["view"] == "time_test"].copy()
-    test["n of m"] = [f"{_fmt(n)} of {_fmt(m)}" for n, m in zip(test["numerator"], test["denominator"])]
-    test["value"] = test["value"].round(2)
-
-    left, right = st.columns(2)
-    with left, st.container(border=True):
-        st.markdown("**Recall per class (time test)**")
-        recall = test[test["metric"] == "class_recall"].pivot(index="method", columns="class", values="n of m")
-        st.dataframe(tag_generated_columns(recall.reset_index(), skip=("method",)),
-                     use_container_width=True, hide_index=True)
-    with right, st.container(border=True):
-        st.markdown("**Macro-F1, two classes (time test)**")
-        f1 = test[test["metric"] == "macro_f1_binary"][["method", "value", "denominator"]]
-        f1 = f1.rename(columns={"value": "macro-F1", "denominator": "test rows"})
-        st.dataframe(tag_generated_columns(f1, skip=("method",)), use_container_width=True, hide_index=True)
-
-    at_4 = test[test["metric"] == "distressed_recall_at_4"][["method", "value", "n of m"]]
-    random = (load_ready_json(MODEL_METADATA_FILE) or {}).get("random_at_4")
-    if random:
-        at_4 = pd.concat([at_4, pd.DataFrame([{
-            "method": "random ranking (mean)", "value": round(random["mean"], 2),
-            "n of m": f"{random['draws']:,} draws, range {random['low']:.2f}-{random['high']:.2f}"}])])
-    with st.container(border=True):
-        st.markdown("**Recall@4 for 'distressed' versus a random ranking (time test)**")
-        chart = alt.Chart(at_4).mark_bar().encode(
-            x=alt.X("value:Q", title="share of the distressed rows found in the top 4",
-                    scale=alt.Scale(domain=[0, 1])),
-            y=alt.Y("method:N", title=None, sort="-x"),
-            color=alt.condition(alt.datum.method == "random ranking (mean)",
-                                alt.value(PALETTE["muted"]), alt.value(PALETTE["accent_b"])),
-            tooltip=["method", alt.Tooltip("value:Q", format=".2f"), "n of m"],
-        )
-        st.altair_chart(chart.properties(height=230), use_container_width=True)
-        st.dataframe(tag_generated_columns(at_4, skip=("method",)), use_container_width=True, hide_index=True)
-
-    holdout = metrics[(metrics["view"] == "developer_holdout") & (metrics["metric"] == "class_recall")
-                      & (metrics["class"] == "distressed")]
-    if not holdout.empty and (holdout["denominator"] == 0).all():
-        st.caption("Developer holdout: it holds no 'distressed' row, so recall for that class is undefined there.")
-    st.caption(f"{ORIGIN_GENERATED} Generated data: a diagnostic of the generator and model "
-               "workflow, not real-world accuracy. The time test holds very few 'distressed' rows, "
-               "so one row moves a recall value by a large step. Read the n of m.")
-
-
-def render_b_signals(track: Track) -> None:
-    section_title("🧾", "B1-B5 signals per compound")
-    st.info("The v7 release does not store the B1-B5 trigger flags per compound, so they are not "
-            "shown here. The model reads their generated inputs; see the training dictionary.")
-
-
-# --------------------------------------------------------------------------- #
-# Screen 4 data: what the committee gains
-# --------------------------------------------------------------------------- #
 
 OUTCOME_WORDS = {
     "partial_delivery_late_completion_postponed": "part of it was delivered late and completion was postponed",
@@ -1131,16 +949,6 @@ def screen_compound_file(track: Track) -> None:
     render_ops_visits_form(codes, code)
 
 
-def screen_backtest(track: Track) -> None:
-    page_header("⏱️", "Would it have warned?", "Backtest and early-warning evidence.")
-    if not track.generated:
-        render_backtest_cases()  # Track A: real public cases, frozen clock
-        return
-    st.info("Real-case backtest (frozen clock): switch to Track A in the sidebar.")
-    render_model_metrics(track)  # Track B: generated data only
-    render_b_signals(track)
-
-
 def screen_value(track: Track) -> None:
     latest = load_latest_kpis()
     if latest is None:
@@ -1151,170 +959,74 @@ def screen_value(track: Track) -> None:
 
 
 # --------------------------------------------------------------------------- #
-# Screen 5: What if? (twin)  -- T-NA-07
+# Screen 4: fewer or more visits per cycle
 #
-# Reads the stored v7 what-if hand-off (never recomputes):
-#   ready-data/what_if/<S1|S2|S3>/who_moved_and_why.csv  (data/SCENARIO_CONTRACT_CURRENT.md)
-# S1/S2: one row per compound and simulated month; the Track B hypothetical level and the
-#        capacity-4 selection, baseline versus shock.
-# S3:    one row per compound, quarter and capacity variant (2 or 6 versus 4); selection only,
-#        levels never change.
+# Reads the stored v7 capacity scenario (never recomputes):
+#   ready-data/what_if/S3/who_moved_and_why.csv  (data/SCENARIO_CONTRACT_CURRENT.md)
+# One row per compound, quarter and capacity variant (2 or 6 versus 4); selection only,
+# levels never change.
 # --------------------------------------------------------------------------- #
 
-WHATIF_SCENARIOS = ("S1", "S2", "S3")
-SCENARIO_NOTES = {
-    "S1": "Cost shock · +30% on the imported cost component (FX-cost proxy)",
-    "S2": "Collections drop · buyer payments −25% for six months",
-    "S3": "Inspection capacity · 2 or 6 visits instead of 4 (re-rank only)",
-}
-LEVEL_NUMBER = {word.lower(): n for n, (word, _) in LEVELS.items()}   # word -> 1..4 (1 = most urgent)
+CAPACITY_FILE = "what_if/S3/who_moved_and_why.csv"
+CAPACITY_VARIANTS = {"capacity_minus_2": "لو عندك زيارتين بس", "capacity_plus_2": "لو عندك 6 زيارات"}
 
 
-def _level_text(value: object) -> str:
-    """A level always as a word. Unknown stays 'unknown' (never 0)."""
-    if _missing(value) or str(value).strip() == "":
-        return "unknown"
-    text = str(value).strip()
-    if text.lower() in LEVEL_NUMBER:
-        return next(w for w, _ in LEVELS.values() if w.lower() == text.lower())
-    try:
-        number = int(float(text))
-    except ValueError:
-        return text
-    return level_word(number) if number in LEVELS else "unknown"
+def short_reason_ar(text: object) -> str:
+    """An Arabic level reason without the level prefix, the activity score or the image count."""
+    if _missing(text):
+        return ""
+    body = re.sub(r"\s*\(درجة النشاط [^)]*\)", "", str(text).split(": ", 1)[-1])
+    clauses = [c.strip(" .") for c in body.split("؛") if c.strip(" .") and not c.strip().startswith("عدد الصور")]
+    return "، ".join(clauses)
 
 
-def _in_list(flag: object) -> str:
-    return "on the list" if _as_bool(flag) else "not on the list"
-
-
-def whatif_view(raw: pd.DataFrame, scenario: str) -> tuple[pd.DataFrame, str]:
-    """The latest period of one scenario: one row per compound, baseline versus scenario."""
-    period = "quarter" if scenario == "S3" else "month"
-    label = str(raw[period].max())
-    latest = raw[raw[period].astype(str) == label]
-    view = pd.DataFrame({"code": latest["code"].astype(str)})
-    if scenario == "S3":
-        view["level"] = latest["level"].map(_level_text)
-        view["baseline list"] = latest["baseline_selected"].map(_in_list)
-        view["list in scenario"] = latest["selected"].map(_in_list)
-        view["change"] = [("joins the list" if _as_bool(s) else "leaves the list") if _as_bool(c) else "unchanged"
-                          for s, c in zip(latest["selected"], latest["selection_changed"])]
-    else:
-        # Track B hypothetical levels (generated finance), not the real Track A levels of screen 1.
-        view["baseline level (Track B)"] = latest["baseline_hypothetical_level"].map(_level_text)
-        view["level in scenario (Track B)"] = latest["hypothetical_level"].map(_level_text)
-        view["baseline list"] = latest["baseline_selected"].map(_in_list)
-        view["list in scenario"] = latest["selected"].map(_in_list)
-        changed = [bool(_as_bool(lv)) or bool(_as_bool(sel))
-                   for lv, sel in zip(latest["level_changed"], latest["selection_changed"])]
-        view["change"] = ["changes" if c else "unchanged" for c in changed]
-    view["reason"] = latest["reason"].fillna("").astype(str)
+def whatif_view(raw: pd.DataFrame) -> tuple[pd.DataFrame, str]:
+    """The latest quarter of one capacity variant: one row per compound, baseline versus scenario."""
+    label = str(raw["quarter"].max())
+    latest = raw[raw["quarter"].astype(str) == label]
+    view = pd.DataFrame({"code": latest["code"].astype(str), "level": latest["level"].map(level_number)})
+    view["change"] = [("joins" if _as_bool(s) else "leaves") if _as_bool(c) else "unchanged"
+                      for s, c in zip(latest["selected"], latest["selection_changed"])]
+    view["reason"] = latest["reason_ar"].map(short_reason_ar)
     return view.reset_index(drop=True), label
 
 
-def count_changed_rows(raw: pd.DataFrame) -> int:
-    """Rows over the whole history whose level or list position differs from the baseline."""
-    flags = [raw["selection_changed"]] + ([raw["level_changed"]] if "level_changed" in raw.columns else [])
-    return sum(1 for values in zip(*flags) if any(_as_bool(v) for v in values))
-
-
-def render_scenario_picker() -> tuple[str, str | None]:
-    section_title("🎛️", "Choose a scenario")
+def render_capacity_variant(raw: pd.DataFrame, variant: str) -> None:
+    view, label = whatif_view(raw[raw["scenario_id"] == variant])
+    moved = view[view["change"] != "unchanged"]
     with st.container(border=True):
-        chosen = st.radio("Scenario", WHATIF_SCENARIOS, horizontal=True, key="whatif_scenario",
-                          format_func=lambda s: f"{s} · {SCENARIO_NOTES[s].split(' · ')[0]}",
-                          label_visibility="collapsed")
-        capacity = None
-        if chosen == "S3":
-            capacity = st.radio("Visits per cycle", ("capacity_minus_2", "capacity_plus_2"), horizontal=True,
-                                key="whatif_capacity",
-                                format_func=lambda c: "2 visits" if c.endswith("minus_2") else "6 visits")
-        st.caption(f"{ORIGIN_GENERATED} {SCENARIO_NOTES[chosen]} · hypothetical, "
-                   "the base run is never overwritten")
-    return chosen, capacity
-
-
-def render_whatif_tiles(raw: pd.DataFrame, view: pd.DataFrame, scenario: str, label: str) -> None:
-    period_word = "quarter" if scenario == "S3" else "month"
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        metric_tile("Compounds that change", f"{int((view['change'] != 'unchanged').sum())} of {len(view)}", "",
-                    "join or leave the cycle list; levels never change in S3" if scenario == "S3"
-                    else "level or cycle list, versus the baseline", label, ORIGIN_GENERATED)
-    with c2:
-        metric_tile(f"Changes over every {period_word}", f"{count_changed_rows(raw)} of {len(raw)}", "",
-                    f"compound-{period_word} rows that differ from the baseline", "whole history",
-                    ORIGIN_GENERATED)
-    with c3:
-        metric_tile("On the list in the scenario", f"{int((view['list in scenario'] == 'on the list').sum())} "
-                    f"of {len(view)}", "", "compounds selected for visits", label, ORIGIN_GENERATED)
-
-
-def render_whatif_moved(view: pd.DataFrame) -> None:
-    section_title("🔀", "Who changes, and why")
-    with st.container(border=True):
-        changed = view[view["change"] != "unchanged"]
-        if changed.empty:
-            st.info("No compound changes level or list position in this scenario: the shock moves the "
-                    "generated finances, but not across a rule threshold.")
-            return
-        rows = []
-        for _, r in changed.iterrows():
-            colour = "#2E7D4F" if r["change"] == "leaves the list" else "#A8102C"
-            rows.append(
+        st.markdown(f"**{CAPACITY_VARIANTS[variant]}**")
+        if moved.empty:
+            st.markdown("القائمة ما بتتغيرش.")
+        for _, r in moved.iterrows():
+            colour = "#A8102C" if r["change"] == "leaves" else "#2E7D4F"
+            verb = "يطلع من القائمة" if r["change"] == "leaves" else "يدخل القائمة"
+            st.markdown(
                 f'<div class="se-move"><span style="color:{colour};font-weight:700">'
-                f'{html.escape(r["code"])}</span> · {html.escape(r["change"])}'
-                f'<div dir="auto" class="se-move-why">{html.escape(r["reason"])}</div></div>')
-        st.markdown("".join(rows), unsafe_allow_html=True)
+                f'<bdi>{html.escape(r["code"])}</bdi> {verb}</span> · المستوى <bdi>{r["level"]}</bdi>'
+                f'<div class="se-move-why">{html.escape(r["reason"])}</div></div>', unsafe_allow_html=True)
+        st.caption(f"الربع {label}")
 
 
 def screen_what_if(track: Track) -> None:
-    page_header("🧪", "What if?", "Compound-level twin: who would change if conditions changed?")
+    page_header("", "لو عدد الزيارات اتغير", "مين يدخل القائمة ومين يطلع لو عندك زيارات أقل أو أكتر من 4.")
     if not track.generated:
-        st.warning("Scenarios use generated data. Switch to Track B in the sidebar to open them.")
+        st.warning("الشاشة دي بتقرا ملفات السيناريو، وهي متاحة في Track B من القائمة الجانبية.")
         return
-    # No map on this screen by design: generated numbers never sit on the real map.
-
-    scenario, capacity = render_scenario_picker()
-    rel = f"what_if/{scenario}/who_moved_and_why.csv"
-    raw = _safe(rel, load_table, rel, track, READY_DATA)
+    raw = _safe(CAPACITY_FILE, load_table, CAPACITY_FILE, track, READY_DATA)
     if raw is None or raw.empty:
-        st.info(f"Scenario {scenario} is not installed: ready-data/{rel} is missing. "
-                "Run python -m src.pipeline.setup_review.")
+        st.info(f"Waiting for ready-data/{CAPACITY_FILE} (run python -m src.pipeline.setup_review).")
         return
-    if capacity:
-        raw = raw[raw["scenario_id"] == capacity]
-
-    view, label = whatif_view(raw, scenario)
-    moved = view[view["change"] != "unchanged"]
-    finding(f"<b>{len(moved)} of {len(view)} compounds change in {scenario}</b> ({label})"
-            + (": " + ", ".join(f"{c} {w}" for c, w in zip(moved["code"], moved["change"])) if len(moved) else
-               ". The shock moves the generated finances, but no compound crosses a rule threshold")
-            + ". Generated data: this shows sensitivity, not a forecast.")
-    how_to_read([
-        ("S1 and S2 shock the generated finances and re-apply the Track B rule; compare each level with "
-        "its own baseline, not with the real levels of screen 1."),
-        "S3 keeps every level and only changes how many compounds fit in one cycle (2 or 6 instead of 4).",
-        "Nothing here is observed: no new satellite image or field visit enters a scenario.",
-    ])
-    render_whatif_tiles(raw, view, scenario, label)
-    render_whatif_moved(view)
-    section_title("📋", f"All compounds in {label}")
-    with st.container(border=True):
-        st.dataframe(view, use_container_width=True, hide_index=True)
-        st.download_button("⬇️ Download this view (CSV)", data=view.to_csv(index=False).encode("utf-8-sig"),
-                           file_name=f"what_if_{scenario}_{label}.csv", mime="text/csv", key="whatif_download")
-    st.caption(f"{ORIGIN_GENERATED} {BANNER_TEXT}. Hypothetical interventions on generated data: they show "
-               f"who would change in priority, not what will happen. Full history in ready-data/{rel}.")
+    for column, variant in zip(st.columns(2), CAPACITY_VARIANTS):
+        with column:
+            render_capacity_variant(raw, variant)
 
 
 SCREEN_FUNCTIONS = {
     SCREENS[0]: screen_priority_map,
     SCREENS[1]: screen_compound_file,
-    SCREENS[2]: screen_backtest,
-    SCREENS[3]: screen_value,
-    SCREENS[4]: screen_what_if,
+    SCREENS[2]: screen_value,
+    SCREENS[3]: screen_what_if,
 }
 
 
