@@ -536,7 +536,7 @@ def visit_table(latest_df: pd.DataFrame, cycle: pd.DataFrame) -> pd.DataFrame:
     })
 
 
-def render_visit_list(latest: tuple[pd.DataFrame, str] | None) -> None:
+def render_visit_list(latest: tuple[pd.DataFrame, str] | None, track: Track) -> None:
     section_title("📋", "Visit list")
     if latest is None:
         st.info("Waiting for real/kpi_values.parquet.")
@@ -552,11 +552,15 @@ def render_visit_list(latest: tuple[pd.DataFrame, str] | None) -> None:
     st.dataframe(visit_table(latest_df, cycle), hide_index=True, use_container_width=True,
                  column_config={"Why": st.column_config.TextColumn("Why", width="large")})
 
-    files = [(code, find_inspection_file(code, asof)) for code in sorted(latest_df["code"].astype(str))]
-    files = [(code, path) for code, path in files if path is not None]
+    # The inspection files quote simulated buyer complaints, so only the generated track serves them.
+    files = []
+    if track.generated:
+        found = ((code, find_inspection_file(code, asof)) for code in sorted(latest_df["code"].astype(str)))
+        files = [(code, path) for code, path in found if path is not None]
     buttons = st.columns(len(files) + 1)
     for column, (code, path) in zip(buttons, files):
-        column.download_button(f"📄 {code} inspection file", data=path.read_bytes(), file_name=path.name,
+        column.download_button(f"{ORIGIN_GENERATED} {code} inspection file (includes generated figures)",
+                               data=path.read_bytes(), file_name=path.name,
                                mime="text/html", key=f"visit_file_{code}")
     export = cycle.rename(columns={"level_word": "level"})
     buttons[-1].download_button(
@@ -852,8 +856,8 @@ def render_inspection_button(code: str, asof: str) -> None:
         st.caption(f"No inspection file stored for {code} in {asof}. Stored files cover: "
                    f"{', '.join(stored) if stored else 'none'}.")
         return
-    st.download_button("📄 Open inspection file (Arabic HTML)", data=path.read_bytes(),
-                       file_name=path.name, mime="text/html", key=f"insp_{code}")
+    st.download_button(f"{ORIGIN_GENERATED} Open inspection file (Arabic HTML, includes generated figures)",
+                       data=path.read_bytes(), file_name=path.name, mime="text/html", key=f"insp_{code}")
 
 
 def last_recorded_visit(code: str) -> dict | None:
@@ -980,7 +984,7 @@ def screen_priority_map(track: Track) -> None:
         promises = load_promises_ahead(*latest)
         render_summary_tiles(*latest, promises)
     render_map_slot(track, latest)
-    render_visit_list(latest)
+    render_visit_list(latest, track)
     if latest is not None:
         render_changes(latest[1])
         render_promises_ahead(promises)
@@ -1027,7 +1031,8 @@ def screen_compound_file(track: Track) -> None:
         render_stage_strip(code)
         render_images(code)
         render_claims(code, ann, asof)
-        render_inspection_button(code, asof)
+        if track.generated:
+            render_inspection_button(code, asof)
 
         section_title("📝", "Visit form")
         render_ops_visits_form(codes, code)
