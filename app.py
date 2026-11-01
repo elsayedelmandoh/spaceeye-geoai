@@ -5,6 +5,7 @@ Run with:  streamlit run app.py
 
 from __future__ import annotations
 
+import html
 import json
 import os
 import re
@@ -82,8 +83,14 @@ PALETTE = {
 # Stored-file access (no live computation) + no-names gate
 # --------------------------------------------------------------------------- #
 
+# Generated hand-off folders that sit under real/ (the v7 release): what-if results and the
+# S1..S3 scenario tables. They are generated, so Track A must refuse them too.
+GENERATED_PATH_RE = re.compile(r"(^|/)(what_if/|(tables|csv)/current/S\d\.)")
+
+
 def is_generated_path(rel_path: str) -> bool:
-    return rel_path.replace("\\", "/").startswith(GENERATED_PREFIXES)
+    path = rel_path.replace("\\", "/")
+    return path.startswith(GENERATED_PREFIXES) or bool(GENERATED_PATH_RE.search(path))
 
 
 def enforce_no_names(df: pd.DataFrame, source: str) -> pd.DataFrame:
@@ -1736,6 +1743,215 @@ def screen_data_trust(track: Track) -> None:
     render_colour_key()
 
 
+# --------------------------------------------------------------------------- #
+# Screen 5: What if? (twin)  -- T-NA-07
+#
+# Reads the stored v7 what-if hand-off (never recomputes):
+#   real/SpaceEye_R7_READY_DATA_2026-10-31_v7/what_if/<S1|S2|S3>/who_moved_and_why.csv
+#   real/SpaceEye_R7_READY_DATA_2026-10-31_v7/tables/current/<S>.parquet  (csv/current/<S>.csv as fallback)
+#
+# ASSUMPTIONS (change in one place):
+#   * The columns of who_moved_and_why.csv are not documented here, so they are found by
+#     tolerant aliases (WHATIF_ALIASES). Whatever the file holds is also shown unchanged
+#     in the full table, so nothing is hidden if an alias misses.
+#   * If a newer release folder (..._v8) is dropped in, the newest SpaceEye_R7_READY_DATA_*
+#     folder that holds the file is used.
+#   * Both folders are generated content. is_generated_path() treats them as generated,
+#     so Track A refuses them even though they sit under real/.
+#   * Scenario names come from the spec (section 9): S1 dollar shock, S2 collections drop,
+#     S3 inspection capacity N ± 2 (re-rank only).
+# --------------------------------------------------------------------------- #
+
+WHATIF_RELEASE = "real/SpaceEye_R7_READY_DATA_2026-10-31_v7"
+WHATIF_RELEASE_GLOB = "real/SpaceEye_R7_READY_DATA_*"
+WHATIF_SCENARIOS = ("S1", "S2", "S3")
+SCENARIO_NOTES = {
+    "S1": "Dollar shock · USD/EGP +30%",
+    "S2": "Collections drop · buyer payments −25% for 6 months",
+    "S3": "Inspection capacity · N ± 2 (re-rank only, no generator re-run)",
+}
+WHATIF_ALIASES = {
+    "code": ("code", "compound_code", "compound"),
+    "before": ("level_base", "base_level", "baseline_level", "level_baseline", "level_before",
+               "before_level", "before", "from_level", "level_from", "old_level", "level"),
+    "after": ("level_scenario", "scenario_level", "level_after", "after_level", "after",
+              "to_level", "level_to", "new_level"),
+    "moved": ("selection_changed", "moved", "changed", "level_changed", "moves", "did_move"),  # <-- التعديل هنا
+    "reason": ("reason", "why", "reason_text", "reason_en", "reason_ar", "explanation"),
+}
+LEVEL_NUMBER = {word.lower(): n for n, (word, _) in LEVELS.items()}   # word -> 1..4 (1 = most urgent)
+MAX_MOVED_CARDS = 25
+
+
+def _whatif_rel(scenario: str, tail: str) -> str | None:
+    """Path (relative to the data folder) of a stored what-if file, newest release first."""
+    candidates = [f"{WHATIF_RELEASE}/{tail.format(s=scenario)}"]
+    releases = sorted(p.name for p in (APP_DATA / "real").glob("SpaceEye_R7_READY_DATA_*") if p.is_dir()) \
+        if (APP_DATA / "real").exists() else []
+    candidates += [f"real/{name}/{tail.format(s=scenario)}" for name in reversed(releases)]
+    return next((c for c in candidates if (APP_DATA / c).exists()), None)
+
+
+def _whatif_load(scenario: str, track: Track) -> dict:
+    """All stored pieces for one scenario. Each load is isolated (one bad file never blanks the screen)."""
+    out: dict = {"moved": None, "moved_rel": None, "table": None, "table_rel": None}
+    rel = _whatif_rel(scenario, "what_if/{s}/who_moved_and_why.csv")
+    if rel:
+        out["moved_rel"] = rel
+        out["moved"] = _safe(f"what_if/{scenario}/who_moved_and_why.csv", load_table, rel, track)
+    for tail in ("tables/current/{s}.parquet", "csv/current/{s}.csv"):
+        rel = _whatif_rel(scenario, tail)
+        if rel:
+            out["table_rel"] = rel
+            out["table"] = _safe(f"{tail.format(s=scenario)}", load_table, rel, track)
+            if out["table"] is not None:
+                break
+    return out
+
+
+def _level_text(value: object) -> str:
+    """A level always as a word. Unknown stays 'unknown' (never 0)."""
+    if _missing(value) or str(value).strip() == "":
+        return "unknown"
+    text = str(value).strip()
+    if text.lower() in LEVEL_NUMBER:
+        return next(w for w, _ in LEVELS.values() if w.lower() == text.lower())
+    try:
+        number = int(float(text))
+    except ValueError:
+        return text
+    return level_word(number) if number in LEVELS else "unknown"
+
+
+def _level_number(word: str) -> int | None:
+    return LEVEL_NUMBER.get(word.lower())
+
+
+def _tagged_table(df: pd.DataFrame) -> pd.DataFrame:
+    return _tag_numeric_headers(df)
+
+
+def _prepare_moved(raw: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """Standard view of who_moved_and_why: code, before, in scenario, change, reason."""
+    cols = {k: _find_col(raw, a) for k, a in WHATIF_ALIASES.items()}
+    view = pd.DataFrame({"code": raw[cols["code"]].astype(str)}) if cols["code"] else pd.DataFrame(index=raw.index)
+    if cols["before"]:
+        view["before"] = raw[cols["before"]].map(_level_text)
+    if cols["after"]:
+        view["in scenario"] = raw[cols["after"]].map(_level_text)
+
+    def change(i: int) -> str:
+        if cols["before"] and cols["after"]:
+            b, a = view.iloc[i]["before"], view.iloc[i]["in scenario"]
+            nb, na = _level_number(b), _level_number(a)
+            if nb is None or na is None:
+                return "unknown"
+            return "moves up" if na < nb else ("moves down" if na > nb else "unchanged")
+        if cols["moved"]:
+            flag = _as_bool(raw.iloc[i][cols["moved"]])
+            return "unknown" if flag is None else ("changes level" if flag else "unchanged")
+        return "listed as moved"   # the file only lists compounds that moved
+
+    view["change"] = [change(i) for i in range(len(raw))]
+    view["reason"] = raw[cols["reason"]].fillna("").astype(str) if cols["reason"] else ""
+    return view, cols
+
+
+def _render_whatif_waiting(scenario: str) -> None:
+    st.info(
+        f"Scenario {scenario} results are not stored yet. Waiting for "
+        f"`{WHATIF_RELEASE}/what_if/{scenario}/who_moved_and_why.csv`. "
+        "The screen fills in by itself once the file is in the data folder."
+    )
+    with st.container(border=True):
+        st.markdown("#### 👀 Preview: what this screen will show")
+        st.caption(f"{ORIGIN_GENERATED} expected shape (empty preview, no numbers invented)")
+        st.dataframe(pd.DataFrame({"code": pd.Series(dtype="object"), "before": pd.Series(dtype="object"),
+                                   "in scenario": pd.Series(dtype="object"),
+                                   "change": pd.Series(dtype="object"), "reason": pd.Series(dtype="object")}),
+                     use_container_width=True, hide_index=True)
+
+
+def render_scenario_picker() -> str:
+    section_title("🎛️", "Choose a scenario")
+    with st.container(border=True):
+        chosen = st.radio("Scenario", WHATIF_SCENARIOS, horizontal=True, key="whatif_scenario",
+                          label_visibility="collapsed")
+        st.caption(f"{ORIGIN_GENERATED} {SCENARIO_NOTES.get(chosen, '')} · hypothetical, "
+                   "the base run is never overwritten")
+    return chosen
+
+
+def render_whatif_tiles(view: pd.DataFrame, total: int | None, asof: str) -> None:
+    changed = view[view["change"].isin(["moves up", "moves down", "changes level", "listed as moved"])]
+    n, up, down = len(changed), int((view["change"] == "moves up").sum()), int((view["change"] == "moves down").sum())
+    unknown = int((view["change"] == "unknown").sum())
+    of = f"{n} of {total}" if total else f"{n}"
+    with_reason = int((changed["reason"].str.strip() != "").sum())
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        metric_tile("Change level", of, "", "compounds whose level changes"
+                    + (f" · {unknown} unknown" if unknown else "") + ("" if total else " · total not stored"),
+                    asof, ORIGIN_GENERATED)
+    directed = bool(view["change"].isin(["moves up", "moves down", "unchanged"]).any())
+    with c2:
+        metric_tile("Move up", f"{up} of {n}" if directed else "unknown", "",
+                    "more urgent than in the base run" if directed else "direction not in the stored file",
+                    asof, ORIGIN_GENERATED)
+    with c3:
+        metric_tile("Move down", f"{down} of {n}" if directed else "unknown", "",
+                    "less urgent than in the base run" if directed else "direction not in the stored file",
+                    asof, ORIGIN_GENERATED)
+    with c4:
+        metric_tile("With a reason", f"{with_reason} of {n}", "", "changed compounds that carry a reason",
+                    asof, ORIGIN_GENERATED)
+
+
+def render_whatif_moved(view: pd.DataFrame) -> None:
+    section_title("🔀", "Who changes level, and why")
+    with st.container(border=True):
+        changed = view[view["change"].isin(["moves up", "moves down", "changes level", "listed as moved"])]
+        if changed.empty:
+            st.info("No compound changes level in this scenario.")
+            return
+        arrow = {"moves up": "▲", "moves down": "▼"}
+        color = {"moves up": "#F87171", "moves down": "#34D399"}   # up = more urgent = red
+        rows = []
+        for _, r in changed.head(MAX_MOVED_CARDS).iterrows():
+            path = (f'{html.escape(r["before"])} → <b>{html.escape(r["in scenario"])}</b>'
+                    if "before" in r and "in scenario" in r else html.escape(r["change"]))
+            why = html.escape(r["reason"]) if r["reason"].strip() else '<i style="color:#8A9BB8">no reason stored</i>'
+            c = color.get(r["change"], PALETTE["muted"])
+            rows.append(
+                f'<div style="padding:10px 0;border-bottom:1px solid {PALETTE["border"]}">'
+                f'<span style="color:{c};font-weight:700">{arrow.get(r["change"], "●")} '
+                f'{html.escape(str(r.get("code", "")))}</span> &nbsp;·&nbsp; {path}'
+                f'<div dir="auto" style="color:{PALETTE["muted"]};margin-top:4px">{why}</div></div>')
+        st.markdown("".join(rows), unsafe_allow_html=True)
+        extra = len(changed) - MAX_MOVED_CARDS
+        st.caption(f"{ORIGIN_GENERATED} ▲ moves up = more urgent to inspect · ▼ moves down = less urgent"
+                   + (f" · {extra} more in the table below" if extra > 0 else ""))
+
+
+def render_whatif_table(raw: pd.DataFrame, view: pd.DataFrame, scenario: str) -> None:
+    section_title("📋", "Full table as stored")
+    with st.container(border=True):
+        st.dataframe(_tagged_table(raw), use_container_width=True, hide_index=True)
+        st.caption(f"{ORIGIN_GENERATED} every column of who_moved_and_why.csv for {scenario}, unchanged")
+        st.download_button("⬇️ Download this scenario (CSV)",
+                           data=view.to_csv(index=False).encode("utf-8-sig"),
+                           file_name=f"who_moved_{scenario}.csv", mime="text/csv", key="whatif_download")
+
+
+def render_whatif_result_table(table: pd.DataFrame | None, scenario: str) -> None:
+    if table is None:
+        return
+    with st.expander(f"Scenario {scenario} result table ({len(table):,} rows)"):
+        st.dataframe(_tagged_table(table.head(500)), use_container_width=True, hide_index=True)
+        st.caption(f"{ORIGIN_GENERATED} stored result of the scenario run"
+                   + (" · first 500 rows shown" if len(table) > 500 else ""))
+
+
 def screen_what_if(track: Track) -> None:
     page_header("🧪", "What if?", "Compound-level twin: who moves up if conditions change?")
     if not track.generated:
@@ -1743,7 +1959,43 @@ def screen_what_if(track: Track) -> None:
             "Scenarios use generated data. Switch to Track B in the sidebar to open them."
         )
         return
-    st.info("Skeleton page.")
+    # No map on this screen by design: generated numbers never sit on the real map.
+
+    scenario = render_scenario_picker()
+    stored = _whatif_load(scenario, track)
+    raw = stored["moved"]
+    if raw is None:
+        _render_whatif_waiting(scenario)
+        render_whatif_result_table(stored["table"], scenario)
+        return
+    if raw.empty:
+        st.info(f"Scenario {scenario}: who_moved_and_why.csv is stored but has no rows.")
+        return
+
+    view, cols = _prepare_moved(raw)
+    if not cols["code"]:
+        st.warning("who_moved_and_why.csv has no compound code column, so it cannot be shown by compound.")
+        render_whatif_table(raw, view, scenario)
+        return
+    if not (cols["before"] and cols["after"] or cols["moved"]):
+        st.caption("Level before/after columns were not recognised: every row is treated as a compound that moved.")
+
+    table = stored["table"]
+    total = None
+    if table is not None:
+        code_col = _find_col(table, WHATIF_ALIASES["code"])
+        total = int(table[code_col].nunique()) if code_col else None
+    elif cols["before"] and cols["after"]:
+        total = len(view)
+    asof = _find_col(raw, ("as_of", "asof", "quarter", "cutoff"))
+    asof_text = str(raw[asof].dropna().astype(str).max()) if asof and raw[asof].notna().any() else "unknown"
+
+    render_whatif_tiles(view, total, asof_text)
+    render_whatif_moved(view)
+    render_whatif_table(raw, view, scenario)
+    render_whatif_result_table(table, scenario)
+    st.caption(f"{ORIGIN_GENERATED} {BANNER_TEXT}. Hypothetical interventions on generated data: "
+               "they show who would move up in priority, not what will happen.")
 
 
 SCREEN_FUNCTIONS = {
