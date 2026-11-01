@@ -28,13 +28,6 @@ PROMISE_WORDS = {
 }
 PROGRESS_WORDS = {"exact": "", "over": "over ", "about": "about "}
 
-# The stored reasons are Arabic; these keep their counted nouns and dates readable.
-ARABIC_MONTHS = ("يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر",
-                 "أكتوبر", "نوفمبر", "ديسمبر")
-COUNT_NOUNS = {"شهر": ("أشهر", "شهرًا"), "ربع": ("أرباع", "ربعًا")}
-DUALS = {"شهر": "شهرين", "ربع": "ربعين"}
-
-
 def is_missing(value: object) -> bool:
     return value is None or bool(pd.isna(value))
 
@@ -51,34 +44,6 @@ def month_text(value: object) -> str:
     return f"{MONTHS[stamp.month - 1]} {stamp.year}"
 
 
-def month_ar(value: object) -> str:
-    stamp = pd.Timestamp(value)
-    return f"{ARABIC_MONTHS[stamp.month - 1]} {stamp.year}"
-
-
-def count_ar(n: int, noun: str) -> str:
-    """Arabic counted noun after a digit: 3-10 take the plural, 11-99 the accusative singular."""
-    few, many = COUNT_NOUNS[noun]
-    rest = n % 100
-    return few if 3 <= rest <= 10 else many if rest >= 11 else noun
-
-
-def count_phrase(n: int, noun: str) -> str:
-    """A count inside running text: one and two are said in words, as Arabic does."""
-    return f"{noun} واحد" if n == 1 else DUALS[noun] if n == 2 else f"{n} {count_ar(n, noun)}"
-
-
-def short_reason_ar(text: object) -> str:
-    """An Arabic level reason without the level prefix, the activity score or the image count."""
-    if is_missing(text):
-        return ""
-    body = re.sub(r"\s*\(درجة النشاط [^)]*\)", "", str(text).split(": ", 1)[-1])
-    body = re.sub(r"(\d+) (شهر|ربع)(?=\s|؛|$|\.)", lambda m: count_phrase(int(m[1]), m[2]), body)
-    body = re.sub(r"\((\d{4}-\d{2}-\d{2})\)", lambda m: f"({month_ar(m[1])})", body)
-    clauses = [c.strip(" .") for c in body.split("؛") if c.strip(" .") and not c.strip().startswith("عدد الصور")]
-    return "، ".join(clauses)
-
-
 def cycle_changes(kpis: pd.DataFrame, asof: str) -> dict | None:
     """Who joined and who left the visit list since the previous quarter, with the level before and now."""
     quarters = sorted(q for q in kpis["quarter"].astype(str).unique() if q < asof)
@@ -89,7 +54,7 @@ def cycle_changes(kpis: pd.DataFrame, asof: str) -> dict | None:
 
     def moved(codes: set[str]) -> list[dict]:
         return [{"code": c, "was": level_number(before["level"].get(c)), "now": level_number(now["level"].get(c)),
-                 "why": short_reason_ar(now["reason_ar"].get(c))} for c in sorted(codes)]
+                 "why": short_reason(now["reason"].get(c))} for c in sorted(codes)]
     return {"prev": quarters[-1], "joined": moved(on_now - on_before), "left": moved(on_before - on_now)}
 
 
@@ -237,6 +202,16 @@ def _flag(value: object) -> bool:
     return not is_missing(value) and bool(value)
 
 
+def short_reason(text: object) -> str:
+    """A stored English level reason without the level prefix, the activity score or the image count."""
+    if is_missing(text):
+        return ""
+    body = re.sub(r"\s*\(activity score [^)]*\)", "", str(text).split(": ", 1)[-1])
+    body = re.sub(r"(\d+) quarter\(s\)", lambda m: f"{m[1]} quarter{'' if m[1] == '1' else 's'}", body)
+    clauses = [c.strip(" .") for c in body.split(";") if c.strip(" .") and not c.strip().startswith("observation")]
+    return "; ".join(clauses)
+
+
 def what_space_saw(why: object) -> str:
     """The stored English reason without its level prefix and the 'observation complete' clause."""
     clauses = [c.strip(" .") for c in str(why).split(": ", 1)[-1].split(";")]
@@ -276,7 +251,7 @@ def flagged_early(latest: pd.DataFrame) -> list[dict]:
     on_list = latest[latest["cycle_rank"].notna()].sort_values("cycle_rank")
     early = on_list[on_list["k3_first_deadline"].isna()
                     | ((on_list["K3"].fillna(0) == 0) & ~on_list["may_be_complete"].map(_flag))]
-    return [{"code": str(r["code"]), "level": level_number(r["level"]), "why": short_reason_ar(r["reason_ar"])}
+    return [{"code": str(r["code"]), "level": level_number(r["level"]), "why": short_reason(r["reason"])}
             for _, r in early.iterrows()]
 
 

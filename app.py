@@ -370,7 +370,7 @@ def build_cycle_list(latest_df: pd.DataFrame) -> pd.DataFrame:
     if "K6_status" in df.columns:  # an empty K6 has a stated reason; show it instead of a blank
         df["K6"] = [("does not apply" if status == "not_applicable_started" else "unknown") if _missing(k6)
                     else str(int(k6)) for k6, status in zip(df["K6"], df["K6_status"])]
-    wanted =("cycle_rank", "code", "level_word", "reason_ar", "K2", "K3", "K6")
+    wanted =("cycle_rank", "code", "level_word", "reason", "K2", "K3", "K6")
     return df[[c for c in wanted if c in df.columns]].reset_index(drop=True)
 
 
@@ -511,9 +511,10 @@ def render_summary_tiles(latest_df: pd.DataFrame, asof: str, promises: list[dict
     fined = months[months > 0]
     tiles = st.columns(4)
     with tiles[0]:
-        metric_tile("To visit this cycle", len(cycle), "compounds", f"of {len(latest_df)}", asof, ORIGIN_DERIVED)
+        metric_tile("To visit this cycle", len(cycle), "compound" if len(cycle) == 1 else "compounds", f"of {len(latest_df)}", asof, ORIGIN_DERIVED)
     with tiles[1]:
-        metric_tile("At level 1", int((latest_df["level"] == 1).sum()), "compounds", "inspect now", asof,
+        metric_tile("At level 1", int((latest_df["level"] == 1).sum()),
+                    "compound" if int((latest_df["level"] == 1).sum()) == 1 else "compounds", "inspect now", asof,
                     ORIGIN_DERIVED)
     with tiles[2]:
         metric_tile("Fine-eligible months", int(round(fined.sum())), "months",
@@ -531,7 +532,7 @@ def visit_table(latest_df: pd.DataFrame, cycle: pd.DataFrame) -> pd.DataFrame:
         "Compound": rows.index,
         "Level": rows["level"].map(level_word).to_numpy(),
         "Suggested action": [insights.suggested_action(r)[0] for _, r in rows.iterrows()],
-        "Why": rows["reason_ar"].map(insights.short_reason_ar).to_numpy(),
+        "Why": rows["reason"].map(insights.short_reason).to_numpy(),
     })
 
 
@@ -739,7 +740,7 @@ def render_curves(code: str, history: pd.DataFrame | None, ann: pd.DataFrame | N
             color=alt.Color("series:N", title=None,
                             scale=alt.Scale(domain=list(SERIES_COLORS),
                                             range=list(SERIES_COLORS.values())),
-                            legend=alt.Legend(orient="bottom")),
+                            legend=alt.Legend(orient="bottom", labelLimit=0)),
             tooltip=["quarter", "series", alt.Tooltip("value:Q", format=".2f")],
         )
         chart = lines
@@ -786,13 +787,14 @@ def render_stage_strip(code: str) -> None:
             return
         mine["meaning"] = mine["stage"].map(STAGE_WORDS)
         chart = alt.Chart(mine).mark_rect(stroke=PALETTE["bg"], strokeWidth=2).encode(
-            x=alt.X("year:O", title=None),
+            x=alt.X("year:O", title=None, axis=alt.Axis(labelAngle=0)),
+            y=alt.value(0), y2=alt.value(34),
             color=alt.Color("meaning:N", title=None, legend=alt.Legend(orient="bottom"),
                             scale=alt.Scale(domain=list(STAGE_WORDS.values()),
                                             range=["#8A7A5C", PALETTE["accent"], "#46A758"])),
             tooltip=["year", "stage", "meaning", "stage_source"],
         )
-        st.altair_chart(chart.properties(height=70), use_container_width=True)
+        st.altair_chart(chart.properties(height=100), use_container_width=True)
         start = mine.loc[mine["stage"] != "S0", "year"]
         st.caption(f"Construction first seen in {int(start.min()) if not start.empty else 'no year yet'}.")
 
@@ -891,13 +893,15 @@ def render_level_history(code: str) -> None:
     mine["Level"] = mine["level"].map(level_word)
     words, colours = level_scale()
     chart = alt.Chart(mine).mark_rect(stroke=PALETTE["bg"], strokeWidth=2).encode(
-        x=alt.X("quarter:O", title=None, sort=sorted(mine["quarter"].unique())),
+        x=alt.X("quarter:O", title=None, sort=sorted(mine["quarter"].unique()), axis=alt.Axis(labelAngle=0, labelExpr="indexof(datum.value, 'Q1') > 0 ? slice(datum.value, 0, 4) : ''")),
         color=alt.Color("Level:N", title=None, legend=alt.Legend(orient="bottom"),
                         scale=alt.Scale(domain=words, range=colours)),
+        y=alt.value(0), y2=alt.value(34),  # a fixed-height band: no y field to stretch
         tooltip=["quarter", "Level"],
     )
     with st.container(border=True):
-        st.altair_chart(chart.properties(height=60), use_container_width=True)
+        # Streamlit sizes the whole chart (axis and legend included) to this height.
+        st.altair_chart(chart.properties(height=100), use_container_width=True)
 
 
 def stage_of_year(code: str) -> dict[int, str]:
@@ -1013,9 +1017,9 @@ def screen_compound_file(track: Track) -> None:
         if row is None:
             st.warning(f"{code} has no KPI row for {asof}: shown as not assessable.")
         render_compound_header(row, code)
-        reason = None if row is None else insights.short_reason_ar(row.get("reason_ar"))
+        reason = None if row is None else insights.short_reason(row.get("reason"))
         if not _missing(reason) and str(reason).strip():
-            st.markdown(f'<div class="se-rtl"><b>السبب:</b> {html.escape(str(reason))}</div>', unsafe_allow_html=True)
+            st.markdown(f'<b>Why:</b> {html.escape(str(reason))}', unsafe_allow_html=True)
 
         render_kpi_tiles(row, asof)
         render_level_history(code)
@@ -1034,7 +1038,7 @@ def screen_compound_file(track: Track) -> None:
 # --------------------------------------------------------------------------- #
 
 BACKTEST_CASES = "current/backtest/cases_explained.csv"
-LEVEL_CHART_HEIGHT_PER_COMPOUND = 26
+LEVEL_CHART_HEIGHT_PER_COMPOUND = 30
 
 
 def open_compound_file(code: str) -> None:
@@ -1083,7 +1087,7 @@ def render_flagged_early(rows: list[dict]) -> None:
             code_col, level_col, why_col, open_col = st.columns([1, 2, 6, 2])
             code_col.markdown(f"**{row['code']}**")
             level_col.markdown(level_text(row["level"]))
-            why_col.markdown(f'<div class="se-rtl">{html.escape(row["why"])}</div>', unsafe_allow_html=True)
+            why_col.markdown(html.escape(row["why"]))
             with open_col:
                 open_button(row["code"], "early")
 
@@ -1156,7 +1160,7 @@ def render_late_promises(outcomes: pd.DataFrame) -> None:
         x="median:Q")
     words = insights.NUMBER_WORDS[len(table)] if len(table) < len(insights.NUMBER_WORDS) else str(len(table))
     with st.container(border=True):
-        finding(f"{words} R7 compounds handed over {table['months'].min()}-{table['months'].max()} months after "
+        finding(f"{words} R7 compounds began handing over {table['months'].min()}-{table['months'].max()} months after "
                 f"the promised date (median {median:g}).")
         st.altair_chart((bars + labels + rule).properties(height=34 * len(table)), use_container_width=True)
         kinds = outcomes.set_index("code")["outcome_type"]
@@ -1207,8 +1211,8 @@ def render_district_levels() -> None:
     order = insights.codes_by_current_level(history)
     words, colours = level_scale()
     chart = alt.Chart(history).mark_rect(stroke=PALETTE["bg"], strokeWidth=1).encode(
-        x=alt.X("quarter:O", title=None, axis=alt.Axis(labelAngle=-90)),
-        y=alt.Y("code:N", sort=order, title=None),
+        x=alt.X("quarter:O", title=None, axis=alt.Axis(labelAngle=0, labelExpr="indexof(datum.value, 'Q1') > 0 ? slice(datum.value, 0, 4) : ''")),
+        y=alt.Y("code:N", sort=order, title=None, axis=alt.Axis(labelOverlap=False)),
         color=alt.Color("Level:N", title=None, legend=alt.Legend(orient="bottom"),
                         scale=alt.Scale(domain=words, range=colours)),
         tooltip=["code", "quarter", "Level"])
@@ -1253,19 +1257,25 @@ CAPACITY_FILE = "what_if/S3/who_moved_and_why.csv"
 CAPACITY_VARIANTS = {"capacity_minus_2": "2 visits instead of 4", "capacity_plus_2": "6 visits instead of 4"}
 
 
-def whatif_view(raw: pd.DataFrame) -> tuple[pd.DataFrame, str]:
-    """The latest quarter of one capacity variant: one row per compound, baseline versus scenario."""
+def whatif_view(raw: pd.DataFrame, reasons: dict[str, str] | None = None) -> tuple[pd.DataFrame, str]:
+    """The latest quarter of one capacity variant: one row per compound, baseline versus scenario,
+    with each compound's stored English level reason for that quarter."""
     label = str(raw["quarter"].max())
     latest = raw[raw["quarter"].astype(str) == label]
     view = pd.DataFrame({"code": latest["code"].astype(str)})
     view["change"] = [("joins the list" if _as_bool(s) else "leaves the list") if _as_bool(c) else "unchanged"
                       for s, c in zip(latest["selected"], latest["selection_changed"])]
-    view["reason"] = latest["reason_ar"].map(insights.short_reason_ar)
+    view["reason"] = view["code"].map(reasons or {}).fillna("").map(insights.short_reason)
     return view.reset_index(drop=True), label
 
 
 def render_capacity_variant(raw: pd.DataFrame, variant: str) -> None:
-    view, label = whatif_view(raw[raw["scenario_id"] == variant])
+    part = raw[raw["scenario_id"] == variant]
+    kpis = load_table(KPI_FILE, TRACK_A)
+    quarter = str(part["quarter"].max())
+    reasons = {} if kpis is None else dict(
+        zip(kpis.loc[kpis["quarter"].astype(str) == quarter, "code"], kpis.loc[kpis["quarter"].astype(str) == quarter, "reason"]))
+    view, label = whatif_view(part, reasons)
     moved = view[view["change"] != "unchanged"]
     with st.container(border=True):
         st.markdown(f"**{CAPACITY_VARIANTS[variant]}**")
@@ -1276,7 +1286,7 @@ def render_capacity_variant(raw: pd.DataFrame, variant: str) -> None:
             st.markdown(
                 f'<div class="se-move"><span style="color:{colour};font-weight:700">'
                 f'{html.escape(r["code"])}</span> · {html.escape(r["change"])}'
-                f'<div dir="auto" class="se-move-why">{html.escape(r["reason"])}</div></div>',
+                f'<div class="se-move-why">{html.escape(r["reason"])}</div></div>',
                 unsafe_allow_html=True)
         st.caption(f"{label}")
 

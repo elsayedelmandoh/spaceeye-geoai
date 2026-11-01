@@ -11,7 +11,7 @@ def test_cycle_changes_name_who_joined_and_who_left_since_the_previous_quarter()
         "quarter": ["2026Q2"] * 3 + ["2026Q3"] * 3,
         "level": [3, 1, 1, 2, 4, 1],
         "cycle_rank": [None, 2, 1, 2, None, 1],
-        "reason_ar": [""] * 6,
+        "reason": [""] * 6,
     })
     changes = insights.cycle_changes(kpis, "2026Q3")
     assert changes["prev"] == "2026Q2"
@@ -20,7 +20,7 @@ def test_cycle_changes_name_who_joined_and_who_left_since_the_previous_quarter()
 
 
 def test_cycle_changes_is_none_for_the_first_quarter():
-    kpis = pd.DataFrame({"code": ["C07"], "quarter": ["2026Q1"], "level": [3], "cycle_rank": [1], "reason_ar": [""]})
+    kpis = pd.DataFrame({"code": ["C07"], "quarter": ["2026Q1"], "level": [3], "cycle_rank": [1], "reason": [""]})
     assert insights.cycle_changes(kpis, "2026Q1") is None
 
 
@@ -54,13 +54,6 @@ def test_claim_text_covers_progress_and_promises():
                              "2023-06-01": "2021-10-01", "2023-07-31": "2021-12-31"})
     assert insights.claim_text(phase) == "promised phase 1 handover Oct-Dec 2021"
     assert insights.claim_text(promise.replace({"2023-07-31": None})) == "promised handover with no date"
-
-
-def test_arabic_counted_nouns_follow_the_number():
-    assert [insights.count_ar(n, "شهر") for n in (1, 2, 3, 10, 11, 57, 100, 106)] == [
-        "شهر", "شهر", "أشهر", "أشهر", "شهرًا", "شهرًا", "شهر", "أشهر"]
-    reason = "المستوى 3: لم يرصد نشاط بناء منذ 6 ربع (درجة النشاط 0.24)؛ يوجد إعلان تسليم منشور"
-    assert insights.short_reason_ar(reason) == "لم يرصد نشاط بناء منذ 6 أرباع، يوجد إعلان تسليم منشور"
 
 
 def _statements() -> pd.DataFrame:
@@ -205,7 +198,7 @@ def test_flagged_early_keeps_listed_compounds_with_no_date_passed():
         "code": ["C18", "C07", "C14", "C03", "C21"], "level": [1, 2, 2, 3, 3], "cycle_rank": [1, 2, 3, 4, None],
         "K3": [57, 0, 21, 0, 0],
         "k3_first_deadline": ["2021-12-31", None, "2024-12-31", None, "2023-12-31"],
-        "may_be_complete": [False, False, False, False, True], "reason_ar": [""] * 5,
+        "may_be_complete": [False, False, False, False, True], "reason": [""] * 5,
     })
     flagged = insights.flagged_early(latest)
     assert [r["code"] for r in flagged] == ["C07", "C03"]
@@ -277,3 +270,10 @@ def test_level_counts_cover_baseline_and_scenario_including_not_assessable():
     pairs = {(r["case"], None if pd.isna(r["level"]) else r["level"]): r["compounds"] for _, r in counts.iterrows()}
     assert pairs == {("Baseline", 2.0): 1, ("Baseline", 4.0): 1, ("Baseline", None): 1,
                      ("Scenario", 1.0): 1, ("Scenario", 4.0): 1, ("Scenario", None): 1}
+
+
+def test_short_reason_drops_the_level_prefix_score_and_observation_clause():
+    reason = ("Level 1: building activity detected (activity score 0.53); first announced handover date (Dec 2021) "
+              "passed by 57 months; observation complete (27 images in the quarter).")
+    assert insights.short_reason(reason) == (
+        "building activity detected; first announced handover date (Dec 2021) passed by 57 months")
