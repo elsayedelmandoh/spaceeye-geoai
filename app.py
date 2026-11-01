@@ -33,7 +33,6 @@ READY_DATA = APP_DATA.parent / "ready-data"
 
 BANNER_TEXT = "Synthetic - for training only"
 
-ORIGIN_REAL = "🟢"       # real, as published
 ORIGIN_DERIVED = "🔵"    # derived from real data
 ORIGIN_GENERATED = "🟠"  # generated (stand-in for ACUD data)
 
@@ -64,7 +63,7 @@ SCREENS = [
     "1 · Priority map",
     "2 · Compound file",
     "3 · Would it have warned?",
-    "4 · Data trust",
+    "4 · What it gives",
     "5 · What if? (twin)",
 ]
 
@@ -382,9 +381,7 @@ def latest_heights() -> dict[str, tuple[float, int]]:
     return {r["code"]: (float(r[COL_HEIGHT]), int(r[COL_YEAR])) for _, r in last.iterrows()}
 
 
-WAYBACK_CREDIT = ("Esri World Imagery Wayback: each print carries its own release and imagery credits. "
-                  "Cyan line = reviewed working boundary, not a legal survey. Judged by eye: the frames "
-                  "help plan the visit, they are not a measurement.")
+WAYBACK_CREDIT = "Imagery: Esri World Imagery Wayback, credits printed under each picture."
 
 
 def level_number(level: object) -> int | None:
@@ -448,18 +445,20 @@ def priority_payload(track: Track, latest: tuple[pd.DataFrame, str]) -> dict:
     mapped = None if track.generated else map_payload(latest_df, cycle)
     if mapped:
         payload.update(mapped, map=True, map_note=(
-            f"Derived from public data · as of {asof} · Tilt 3D raises each compound by its mean building "
+            "Tilt 3D raises each compound by its mean building "
             f"height (Google Open Buildings, latest year to {MAX_HEIGHT_YEAR}), drawn "
             f"{MAP_HEIGHT_EXAGGERATION}× taller"))
     return payload
 
 
-def open_compound_file() -> None:
-    """Screen 1 asked for a compound file: switch screens before the sidebar is drawn again."""
-    code = (st.session_state.get("front_priority") or {}).get("open")
-    if code:
-        st.session_state["compound_code"] = code
-        st.session_state["screen"] = SCREENS[1]
+def open_compound_file_from(key: str):
+    """A front-end screen asked for a compound file: switch screens before the sidebar is drawn again."""
+    def callback() -> None:
+        code = (st.session_state.get(key) or {}).get("open")
+        if code:
+            st.session_state["compound_code"] = code
+            st.session_state["screen"] = SCREENS[1]
+    return callback
 
 
 def render_cycle_list(latest: tuple[pd.DataFrame, str] | None) -> None:
@@ -516,10 +515,6 @@ COL_A, COL_DW = "activity_prob", "built_prob_mean"
 COL_HEIGHT, COL_VEG, COL_YEAR = "height_mean_m", "veg_share", "year"
 MAX_HEIGHT_YEAR = 2024
 VEG_COMPLETE_THRESHOLD = 0.10
-
-# Every K is computed from real inputs (K3 from a published date), so all are derived.
-K_ORIGIN = {"A": ORIGIN_DERIVED, "K2": ORIGIN_DERIVED, "K3": ORIGIN_DERIVED,
-            "K4": ORIGIN_DERIVED, "K5": ORIGIN_DERIVED, "K6": ORIGIN_DERIVED}
 
 
 def _missing(value: object) -> bool:
@@ -581,15 +576,6 @@ def find_inspection_file(code: str, asof: str) -> Path | None:
 
 # ---- screen 2 renderers ----------------------------------------------------- #
 
-def render_lineage(row: pd.Series | None, asof: str) -> None:
-    if row is None:
-        return
-    parts = [f"origin {row.get('origin', 'n/a')}", f"run_id {row.get('run_id', 'n/a')}"]
-    if "computed_at" in row.index and not _missing(row["computed_at"]):
-        parts.append(f"computed {row['computed_at']}")
-    st.caption("🧬 Lineage · " + " · ".join(parts) + f" · as of {asof}")
-
-
 STAGE_TABLE = REPO_DIR / "data" / "experiments" / "42_r7_stage_table" / "r7_stage_table.csv"
 STAGE_WORDS = {"S0": "land or ground works", "S1": "under construction", "S2": "complete"}
 
@@ -626,7 +612,7 @@ def render_context_charts(code: str) -> None:
                             tooltip=[COL_YEAR, alt.Tooltip(COL_HEIGHT, format=".1f"), "kind"],
                         ).properties(height=240),
                         use_container_width=True)
-                st.caption(f"{ORIGIN_DERIVED} estimate · approved context through {MAX_HEIGHT_YEAR}")
+                st.caption(f"Latest year shown: {MAX_HEIGHT_YEAR}")
 
     with right, st.container(border=True):
         st.markdown("**Vegetation share (Sentinel-2)**")
@@ -649,7 +635,7 @@ def render_context_charts(code: str) -> None:
                     rule = alt.Chart(pd.DataFrame({"y": [VEG_COMPLETE_THRESHOLD]})).mark_rule(
                         color=PALETTE["muted"], strokeDash=[4, 4]).encode(y="y:Q")
                     st.altair_chart((line + rule).properties(height=240), use_container_width=True)
-                st.caption(f"{ORIGIN_DERIVED} derived · dashed line = {VEG_COMPLETE_THRESHOLD:.2f}")
+                st.caption(f"Dashed line = {VEG_COMPLETE_THRESHOLD:.2f}")
 
 
 def space_frames(code: str) -> list[tuple[str, Path]]:
@@ -718,10 +704,8 @@ def compound_payload(code: str, row: pd.Series | None, history: pd.DataFrame | N
         stages = [{"year": int(r["year"]), "stage": r["stage"], "word": STAGE_WORDS.get(r["stage"], r["stage"])}
                   for _, r in mine.iterrows()]
         start = mine.loc[mine["stage"] != "S0", "year"]
-        stage_note = (f"Derived · construction first seen in "
-                      f"{int(start.min()) if not start.empty else 'no year yet'} · stages labelled by an AI rater "
-                      "from Wayback figures, without a site visit · years without a figure use the satellite and "
-                      "radar layer, which never marks a compound complete")
+        stage_note = (f"Construction first seen in {int(start.min())}." if not start.empty
+                      else "No construction seen yet.")
     reason = get("reason_ar")
     return {
         "screen": "compound", "code": code, "asof": asof,
@@ -729,8 +713,7 @@ def compound_payload(code: str, row: pd.Series | None, history: pd.DataFrame | N
         "reason_ar": None if _missing(reason) or not str(reason).strip() else str(reason),
         "frames": frames_payload(code), "credit": WAYBACK_CREDIT, "clocks": clocks,
         "quarters": quarters, "statements": statements, "deadline": marker,
-        "chart_note": "Derived · gaps = quarters that could not be assessed · the first handover date is the "
-                      "date K3 counts from",
+        "chart_note": None,
         "stages": stages, "stage_words": [{"stage": k, "word": v} for k, v in STAGE_WORDS.items()],
         "stage_note": stage_note,
         "stage_missing": "The stage table (data/experiments/42_r7_stage_table) is not in this checkout.",
@@ -750,7 +733,6 @@ def render_context_table(row: pd.Series | None) -> None:
         "Indicator": ["A activity score", "K4 assessable", "K5 fine-eligible months"],
         "Value": [_fmt(get(COL_A), 2), k4_text, k5_text],
         "Unit": ["probability 0-1", "yes/no (≥ 6 images)", "months (screening, not a fine)"],
-        "Origin": [K_ORIGIN["A"], K_ORIGIN["K4"], K_ORIGIN["K5"]],
     })
     section_title("", "Context: shown, but it does not set the level")
     st.dataframe(context, use_container_width=True, hide_index=True)
@@ -1006,41 +988,13 @@ def render_b_signals(track: Track) -> None:
 
 
 # --------------------------------------------------------------------------- #
-# Screen 4 data (T-NA-06): gates, coverage, facts counter, colour key
+# Screen 4 data: what the committee gains
 # --------------------------------------------------------------------------- #
 
-COMPOUNDS_FILE = "real/compounds.parquet"                                                # contract: ahmed -> nada
-STATEMENTS_FILE = "real/statements.parquet"  # published developer statements, one fact per row
-
-# The 10 quality gates of 01-specs section 8 plus the vegetation pull check the pipeline logs:
-# key, dimension, rule, owner role, if it fails.
-GATES = (
-    ("source", "Accuracy", "Every fact has a record_id and an accepted verdict", "R2", "Fix: excluded"),
-    ("completeness", "Completeness", "At least 6 Dynamic World images in the quarter", "R3", "Flag: not assessable"),
-    ("validity", "Validity", "Probabilities 0-1, counts ≥ 0, levels 1-4, valid dates", "R1", "Stop"),
-    ("uniqueness", "Uniqueness", "(compound, quarter) and (compound, year) are unique", "R1", "Stop"),
-    ("consistency", "Consistency", "Every code is in the register; row counts equal after joins", "R1", "Stop"),
-    ("freshness", "Freshness", "Last quarter at most 1 quarter before computation", "R3", "Flag: stale"),
-    ("separation", "Consistency", "No generated column in a real table; every column has an origin", "R1", "Stop"),
-    ("data_or_city", "Accuracy", "More than 30% of compounds switch to 'no activity' in one quarter", "R4", "Flag and review"),
-    ("stuck_series", "Accuracy", "Same value 4 quarters in a row", "R3", "Flag and review"),
-    ("veg_pull_check", "Accuracy", "Pulled vegetation share equals the audited file (max diff 0.02)",
-     "R3", "Flag"),
-    ("no_names", "Privacy", "No compound or developer name in any output file", "R1", "Stop"),
-)
-
-_PASS = {"pass", "passed", "ok", "true", "1", "1.0", "yes"}
-_FLAG = {"flag", "flagged", "warn", "warning", "stale", "review"}
-_FAIL = {"fail", "failed", "false", "0", "0.0", "no", "stop", "stopped", "error"}
-STATUS_WORD = {"Pass": "✅ Pass", "Flag": "⚠️ Flag", "Fail": "⛔ Fail", "unknown": "❔ not in log"}
-
-# Dashboard-side audit: which stored tables are checked, and what must never appear in a real one.
-AUDIT_REAL_FILES = (KPI_FILE, COMPOUNDS_FILE, "real/statements.parquet", "real/sat_yearly.parquet",
-                    "real/sat_quarterly.parquet", "real/quality_checks_log.parquet")
-AUDIT_GENERATED_FILES = (PREDICTIONS_FILE, METRICS_FILE, K5_EGP_FILE)
-GENERATED_COLUMN_HINTS = {  # columns that exist only in generated tables (spec sections 2, 5, 9)
-    "p_distressed", "p_not_distressed", "k5_egp", "cover_balance_egp", "cover_required_egp",
-    "planned_pct", "reported_pct", "land_months_late", "complaints", "kwh", "meters_active",
+OUTCOME_WORDS = {
+    "partial_delivery_late_completion_postponed": "part of it was delivered late and completion was postponed",
+    "postponed_twice_not_yet_delivered": "the handover was postponed twice and is not yet delivered",
+    "delivered_late": "it was delivered late",
 }
 
 
@@ -1054,310 +1008,56 @@ def _safe(label: str, fn, *args, default=None):
         return default
 
 
-def _norm(text: object) -> str:
-    return re.sub(r"[^a-z0-9]+", "_", str(text).lower()).strip("_")
-
-
-def _gate_status(value: object) -> str:
-    text = str(value).strip().lower()
-    if text in _PASS:
-        return "Pass"
-    if text in _FLAG:
-        return "Flag"
-    if text in _FAIL:
-        return "Fail"
-    return "unknown"
-
-
-def load_quality_log() -> pd.DataFrame | None:
-    """The quality log installed by setup_review, else the copy committed with the release."""
-    for path in (APP_DATA / "real/quality_checks_log.parquet",
-                 REPO_DIR / "releases/ready-data/review/real/quality_checks_log.parquet"):
-        if path.exists():
-            return pd.read_parquet(path)
-    return None
-
-
-def gate_results(log: pd.DataFrame | None) -> dict[str, tuple[str, str]]:
-    """{gate key: (Pass | Flag | Fail | unknown, impact/detail text)}; the latest row wins."""
-    results: dict[str, tuple[str, str]] = {}
-    if log is None:
-        return results
-    g_col = _find_col(log, ("gate", "check", "check_id", "gate_name", "check_name", "test"))
-    s_col = _find_col(log, ("status", "result", "verdict", "outcome", "passed", "state"))
-    if g_col is None or s_col is None:
-        return results
-    d_col = _find_col(log, ("impact_on_indicator", "impact", "detail", "details", "message", "note"))
-    t_col = _find_col(log, ("computed_at", "checked_at", "timestamp"))
-    ordered = log.sort_values(t_col) if t_col else log
-    for _, row in ordered.iterrows():
-        name = _norm(row[g_col])
-        key = next((k for k, *_ in GATES if name == k or k in name), None)
-        if key:
-            detail = "" if d_col is None or _missing(row[d_col]) else str(row[d_col])
-            results[key] = (_gate_status(row[s_col]), detail)
-    return results
-
-
-def load_facts_count() -> tuple[int, int] | None:
-    """(statements with a record_id and a review verdict, all statements) from the stored table."""
-    statements = load_table(STATEMENTS_FILE, TRACK_A)
-    if statements is None or not {"record_id", "verdict"} <= set(statements.columns):
+def warning_example() -> dict | None:
+    """The public late case the rule flagged earliest after construction started (frozen-clock backtest)."""
+    path = READY_DATA / BACKTEST_DIR / "cases_explained.csv"
+    if not path.exists():
         return None
-    reviewed = statements["record_id"].notna() & statements["verdict"].notna()
-    return int(reviewed.sum()), len(statements)
-
-
-def compute_coverage() -> dict | None:
-    """Assessable vs not assessable, per quarter and now, from the stored kpi_values."""
-    kpis = load_table(KPI_FILE, TRACK_A)
-    if kpis is None or kpis.empty or not {"code", "quarter"} <= set(kpis.columns):
+    cases = enforce_no_names(_read_file(str(path)), "cases_explained.csv")
+    hits = cases[cases["after_start"].map(_as_bool).fillna(False).astype(bool)]
+    if hits.empty:
         return None
-    k4_col = _find_col(kpis, ("k4", "k4_assessable", "assessable"))
-    frame = kpis.copy()
-    frame["quarter"] = frame["quarter"].astype(str)
-    if k4_col:
-        frame["_ok"] = frame[k4_col].map(_as_bool)  # True / False / None (unknown)
-    elif "level" in frame.columns:  # fallback: no K4 column, infer from the level
-        frame["_ok"] = frame["level"].notna().map(bool)
-    else:
-        return None
-    asof = frame["quarter"].max()
-    latest = frame[frame["quarter"] == asof]
-    per_quarter = (frame.groupby("quarter")
-                   .agg(total=("code", "nunique"),
-                        assessable=("_ok", lambda s: int(sum(1 for x in s if x is True))))
-                   .reset_index())
-    codes = set(latest["code"].astype(str))
-    geo = load_boundaries()
-    boundary_codes = None if geo is None else {f["properties"]["code"] for f in geo["features"]}
+    case = hits.sort_values("after_start_months_before", ascending=False).iloc[0]
+    code, alert = str(case["code"]), str(case["first_alert_quarter"])
+    outcome, _, rest = str(case["what_happened"]).partition(";")
+    reported = rest.split("outcome date", 1)[-1].split(";")[0].strip() if "outcome date" in rest else ""
+    frames = space_frames(code)
+    alert_start = str(pd.Period(alert, "Q").start_time.date())
+    after_alert = [f for f in frames if f[0] >= alert_start]
+    shown = [after_alert[0], frames[-1]] if after_alert and after_alert[0] != frames[-1] else frames[-1:]
     return {
-        "asof": asof, "used_k4": k4_col is not None, "per_quarter": per_quarter,
-        "total": len(latest),
-        "ok": sum(1 for x in latest["_ok"] if x is True),
-        "not_codes": sorted(latest.loc[[x is False for x in latest["_ok"]], "code"].astype(str)),
-        "unknown": sum(1 for x in latest["_ok"] if x is None),
-        "with_boundary": None if boundary_codes is None else len(codes & boundary_codes),
+        "code": code, "alert": alert, "months": int(case["after_start_months_before"]),
+        "deadline": f"{pd.Timestamp(case['first_deadline']):%b %Y}",
+        "why": str(case["why"]).split(": ", 1)[-1].split("; observation")[0],
+        "outcome": OUTCOME_WORDS.get(outcome.strip(), outcome.strip().replace("_", " ")),
+        "reported": f"{pd.Timestamp(reported):%b %Y}" if reported else "",
+        "frames": [{"date": d, "src": front.frame_uri(p, width=640), "foot": front.frame_uri(p, "foot", width=640)}
+                   for d, p in shown],
     }
 
 
-def _audit_file(rel: str, track: Track) -> dict | None:
-    """Non-stopping audit of one stored table (the live gate in load_table stops instead)."""
-    path = next((root / rel for root in (APP_DATA, READY_DATA) if (root / rel).exists()), None)
-    if path is None or path.suffix.lower() not in (".csv", ".parquet"):
-        return None
+def value_payload(latest: tuple[pd.DataFrame, str]) -> dict:
+    latest_df, asof = latest
+    cycle = build_cycle_list(latest_df)
+    on_list = latest_df[latest_df["code"].isin(cycle["code"])].set_index("code").loc[list(cycle["code"])]
+    early = on_list[on_list["k3_first_deadline"].isna() | (on_list["K3"].fillna(0) == 0)]
+    now = [{"code": code, "level": level_number(r["level"]), "level_word": level_word(r["level"]),
+            "why": short_reason(r)} for code, r in early.iterrows()]
 
-    generated = is_generated_path(rel)
-    if generated and not track.generated:
-        return None  # separation: never opened in Track A
-        
-    df = _read_file(str(path))
-    name_cols = [c for c in df.columns if str(c).lower() in FORBIDDEN_COLUMNS]
-    bad = 0
-    for col in df.columns:
-        if str(col).lower() in CODE_COLUMNS:
-            values = df[col].dropna().astype(str)
-            bad += int((~values.str.match(CODE_PATTERN)).sum())
-    stray = []
-    if not generated:
-        stray = sorted(c for c in df.columns if str(c).lower() in GENERATED_COLUMN_HINTS)
-        origin = _find_col(df, ("origin",))
-        if origin and df[origin].astype(str).str.lower().str.contains("generated").any():
-            stray.append("origin = generated")
-    ok = bad == 0 and not stray
-    return {"File": rel, "Zone": f"{ORIGIN_GENERATED} generated" if generated else "real / derived",
-            "Name-like columns dropped": len(name_cols), "Non-code values": bad,
-            "Generated content in a real table": ", ".join(stray) if stray else "none",
-            "Result": "✅ Pass" if ok else "⛔ Fail"}
+    fines = latest_df.dropna(subset=["K5_months"]).sort_values("K5_months", ascending=False)
+    fine_rows = [{"code": c, "months": int(m)} for c, m in zip(fines["code"], fines["K5_months"])]
 
-
-def separation_guard_holds() -> bool:
-    """Live self-test: opening a generated table as Track A must be refused."""
-    try:
-        load_table(PREDICTIONS_FILE, TRACK_A)
-    except PermissionError:
-        return True
-    return False
-
-
-# ---- screen 4 renderers ----------------------------------------------------- #
-
-def render_trust_tiles(cov: dict | None, results: dict, log: pd.DataFrame | None,
-                       facts: tuple[int, int] | None) -> None:
-    section_title("📊", "Trust at a glance")
-    tiles = st.columns(4)
-
-    with tiles[0]:
-        if not results:
-            metric_tile("Quality gates", "unknown", "",
-                        "waiting for real/quality_checks_log (hand-off from ahmed, D3)",
-                        "n/a", ORIGIN_DERIVED)
-        else:
-            n_pass = sum(1 for s, _ in results.values() if s == "Pass")
-            n_flag = sum(1 for s, _ in results.values() if s == "Flag")
-            n_fail = sum(1 for s, _ in results.values() if s == "Fail")
-            run_col = _find_col(log, ("run_id",)) if log is not None else None
-            run = str(log[run_col].iloc[-1]) if run_col else "stored log"
-            metric_tile("Quality gates passed", f"{n_pass} of {len(GATES)}", "",
-                        f"{len(results)} reported · {n_flag} flagged · {n_fail} failed",
-                        run, ORIGIN_DERIVED)
-
-    with tiles[1]:
-        if cov is None:
-            metric_tile("Assessable", "unknown", "", "waiting for real/kpi_values.parquet",
-                        "n/a", ORIGIN_DERIVED)
-        else:
-            metric_tile("Assessable compounds", f"{cov['ok']} of {cov['total']}", "",
-                        "K4 passed: at least 6 images and a reviewed boundary",
-                        cov["asof"], ORIGIN_DERIVED)
-
-    with tiles[2]:
-        if cov is None:
-            metric_tile("Not assessable", "unknown", "", "waiting for real/kpi_values.parquet",
-                        "n/a", ORIGIN_DERIVED)
-        else:
-            extra = f" · {cov['unknown']} unknown" if cov["unknown"] else ""
-            metric_tile("Not assessable compounds", f"{len(cov['not_codes'])} of {cov['total']}", "",
-                        f"K4 failed: fix location/images first{extra}", cov["asof"], ORIGIN_DERIVED)
-
-    with tiles[3]:
-        if facts is None:
-            metric_tile("Reviewed statements", "unknown", "", f"waiting for {STATEMENTS_FILE}",
-                        "n/a", ORIGIN_REAL)
-        else:
-            reviewed, total = facts
-            metric_tile("Reviewed statements", f"{reviewed:,} of {total:,}", "",
-                        f"published statements with a record_id and a review verdict · "
-                        f"{total - reviewed:,} without a verdict", "stored table", ORIGIN_REAL)
-
-
-def render_gates_table(results: dict, log: pd.DataFrame | None) -> None:
-    section_title("🚦", "Quality gates")
-    rows = []
-    for key, dimension, rule, owner, on_fail in GATES:
-        status, detail = results.get(key, ("unknown", ""))
-        rows.append({"Gate": key, "Dimension": dimension, "Rule": rule, "Owner": owner,
-                     "If it fails": on_fail, "Result": STATUS_WORD[status], "Impact on indicator": detail})
-    table = pd.DataFrame(rows)
-    if not results:
-        table = table.drop(columns=["Impact on indicator"])
-    with st.container(border=True):
-        if log is None:
-            st.info("Waiting for real/quality_checks_log (hand-off from ahmed, D3): "
-                    "the gates and rules are listed, results appear once the log exists.")
-        st.dataframe(table, use_container_width=True, hide_index=True, column_config={
-            "Gate": st.column_config.TextColumn(width="small"),
-            "Dimension": st.column_config.TextColumn(width="small"),
-            "Rule": st.column_config.TextColumn(width="large"),
-            "Owner": st.column_config.TextColumn(width="small"),
-            "If it fails": st.column_config.TextColumn(width="medium"),
-            "Result": st.column_config.TextColumn(width="small"),
-            "Impact on indicator": st.column_config.TextColumn(width="medium"),
-        })
-        st.caption(f"{ORIGIN_DERIVED} derived from the stored quality log · owners are roles · "
-                   "'not in log' = the pipeline has not reported that gate yet")
-
-
-def render_coverage(cov: dict | None) -> None:
-    section_title("🛰️", "Coverage and not assessable")
-    with st.container(border=True):
-        if cov is None:
-            st.info("Waiting for real/kpi_values.parquet (needs code, quarter and K4 or level).")
-            return
-
-        per_q = cov["per_quarter"]
-        top = int(per_q["total"].max())
-        chart = alt.Chart(per_q).mark_bar(color="#2B59C3").encode(
-            x=alt.X("quarter:N", sort=list(per_q["quarter"]), title=None,
-                    axis=alt.Axis(labelAngle=-45)),
-            y=alt.Y("assessable:Q", title=f"assessable compounds (of {top})",
-                    scale=alt.Scale(domain=[0, top])),  # axis starts at 0 and ends at the total
-            tooltip=["quarter", "assessable", "total"],
-        )
-        st.altair_chart(chart.properties(height=220), use_container_width=True)
-        st.caption(f"{ORIGIN_DERIVED} derived · each bar = compounds assessable in that quarter, "
-                   "out of the compounds on file that quarter · a change in coverage is shown, "
-                   "never hidden")
-
-        if cov["not_codes"]:
-            codes = ", ".join(f"`{c}`" for c in cov["not_codes"])
-            st.markdown(f"**Not assessable in {cov['asof']}:** {codes} · "
-                        f"{len(cov['not_codes'])} of {cov['total']} compounds. "
-                        "Action: fix location/images first. They stay grey on the map.")
-        else:
-            st.markdown(f"**All {cov['total']} compounds are assessable in {cov['asof']}.**")
-        if cov["unknown"]:
-            st.caption(f"{cov['unknown']} compound(s) have no K4 value: counted as unknown, "
-                       "never as assessable.")
-        if cov["with_boundary"] is not None:
-            st.caption(f"Reviewed boundary on file for {cov['with_boundary']} of "
-                       f"{cov['total']} compounds.")
-        if not cov["used_k4"]:
-            st.caption("K4 column not found: assessability is inferred from the level (a missing "
-                       "level counts as not assessable).")
-
-
-def render_dashboard_audit(track: Track) -> None:
-    section_title("🔒", "Enforced by this dashboard")
-    rows, missing = [], 0
-    for rel in (*AUDIT_REAL_FILES, *(AUDIT_GENERATED_FILES if track.generated else ())):
-        row = _safe(rel, _audit_file, rel, track)
-        if row is None:
-            missing += 1
-        else:
-            rows.append(row)
-    guard = separation_guard_holds()
-
-    with st.container(border=True):
-        st.markdown(
-            f"**no_names** · name-like columns are dropped on load and a non-code value in a code "
-            f"column stops the screen ({len(FORBIDDEN_COLUMNS)} name-like column names watched).  \n"
-            f"**separation** · opening a generated table as Track A is refused: "
-            f"{'✅ confirmed just now' if guard else '⛔ NOT refused: fix load_table'}. "
-            f"Generated tables load only in Track B, under the orange banner, tagged {ORIGIN_GENERATED}.")
-        if rows:
-            table = pd.DataFrame(rows)
-            st.dataframe(table, use_container_width=True, hide_index=True)
-            failed = int((table["Result"] != "✅ Pass").sum())
-            st.caption(f"{len(rows)} stored table(s) checked now · {failed} with a finding"
-                       + (f" · {missing} not on file yet" if missing else ""))
-        else:
-            st.info("No stored tables found yet to audit.")
-        if not track.generated:
-            st.caption("Generated tables are not opened in Track A, so they are not audited here.")
-
-
-def render_colour_key() -> None:
-    section_title("🎨", "Colour key and trust")
-    cards = (
-        (ORIGIN_REAL, "Real", "as published",
-         "Published statements, registers and public records, used as published with their source.",
-         "Highest trust. Each fact carries a record_id; still read the date it was published."),
-        (ORIGIN_DERIVED, "Derived", "computed from real data",
-         ("Numbers worked out from real data by a stated rule: activity score A, K2, K4, K6, "
-         "priority levels, the height estimate."),
-         "As good as its inputs. Read the 'as of' quarter and the gaps; unknown stays unknown."),
-        (ORIGIN_GENERATED, "Generated", "stand-in for ACUD data",
-         ("Simulated finance, complaints, classifier probabilities and scenarios. "
-         "'Synthetic - for training only'."),
-         ("For training and what-if only. Track B only, never on the map, never a statement "
-         "about a real compound.")),
-    )
-    cols = st.columns(3)
-    for col, (icon, name, short, what, trust) in zip(cols, cards):
-        with col, st.container(border=True):
-            st.markdown(f"### {icon} {name}")
-            st.caption(short)
-            st.markdown(what)
-            st.markdown(f"**How far to trust.** {trust}")
-    with st.container(border=True):
-        st.markdown(
-            f"**Trust order:** {ORIGIN_REAL} real → {ORIGIN_DERIVED} derived → {ORIGIN_GENERATED} "
-            "generated. A figure that mixes origins carries the least trusted tag: K5 is "
-            f"{ORIGIN_DERIVED} in months and {ORIGIN_GENERATED} in EGP.  \n"
-            "**Reading rules:** a level is always written as a word (colour is never the only cue) · "
-            "'unknown' is never shown as 0 · counts are 'n of m' · every tile shows its "
-            "'as of' quarter and origin.")
+    watch = None
+    sat = load_table("real/sat_quarterly.parquet", TRACK_A)
+    if sat is not None and {"code", "quarter", "n_images"} <= set(sat.columns):
+        sat = sat[sat["code"].isin(latest_df["code"])]
+        grid = sat.pivot_table(index="code", columns="quarter", values="n_images", aggfunc="sum")
+        watch = {"codes": list(grid.index), "quarters": [str(q) for q in grid.columns],
+                 "values": [[None if pd.isna(v) else int(v) for v in row] for row in grid.to_numpy()],
+                 "images": int(sat["n_images"].sum())}
+    return {"screen": "value", "asof": asof, "total": len(latest_df), "visits": len(cycle),
+            "example": warning_example(), "now": now,
+            "fines": fine_rows, "fine_months": sum(r["months"] for r in fine_rows), "watch": watch}
 
 
 # --------------------------------------------------------------------------- #
@@ -1370,7 +1070,7 @@ def screen_priority_map(track: Track) -> None:
         page_header("", "Priority map", "Whom should the committee visit first?")
         st.info("Waiting for real/kpi_values.parquet.")
         return
-    front.mount(priority_payload(track, latest), key="front_priority", on_open=open_compound_file)
+    front.mount(priority_payload(track, latest), key="front_priority", on_open=open_compound_file_from("front_priority"))
     how_to_read([
         "The list is the visit order. Pick a compound to see it from space; the dates under the picture flip it from the oldest to the latest capture.",
         ("The level is the worst of three clocks: K2 quarters without building activity, K3 months "
@@ -1420,11 +1120,9 @@ def screen_compound_file(track: Track) -> None:
         "Drag across the picture to compare two capture dates; the two lists under it choose the dates.",
         "The three clocks set the level; the table below shows context that never sets it.",
         "The curve shows building activity per quarter; the small marks on its top edge are quarters with a published developer statement.",
-        "The pictures are judged by eye: they help plan the visit, they are not a measurement.",
         "Record the visit result at the bottom: real visit results are the ground truth this system still lacks.",
     ])
     render_context_table(row)
-    render_lineage(row, asof)
     render_context_charts(code)
     render_inspection_button(code, asof)
     render_track_b_extras(code, track)
@@ -1443,29 +1141,13 @@ def screen_backtest(track: Track) -> None:
     render_b_signals(track)
 
 
-def screen_data_trust(track: Track) -> None:
-    page_header("🛡️", "Data trust", "How far can each number be trusted?")
-    log = _safe("quality_checks_log", load_quality_log)
-    results = gate_results(log)
-    cov = _safe("kpi_values", compute_coverage)
-    facts = _safe("statements", load_facts_count)
-
-    if cov is not None and results:
-        n_pass = sum(1 for status, _ in results.values() if status == "Pass")
-        n_flag = sum(1 for status, _ in results.values() if status == "Flag")
-        finding(f"<b>{cov['ok']} of {cov['total']} compounds can be assessed in {cov['asof']}</b>. "
-                f"{n_pass} of {len(GATES)} quality gates passed and {n_flag} raised a flag for review.")
-    how_to_read([
-        ("Green numbers are published as they are, blue numbers are computed from them by a stated rule, "
-        "orange numbers are generated for training only."),
-        "A quality gate stops the run or flags it. A flag means a person should look, not that the data is wrong.",
-        "A compound without enough images gets no level and stays grey on the map.",
-    ])
-    render_trust_tiles(cov, results, log, facts)
-    render_gates_table(results, log)
-    render_coverage(cov)
-    render_dashboard_audit(track)
-    render_colour_key()
+def screen_value(track: Track) -> None:
+    latest = load_latest_kpis()
+    if latest is None:
+        page_header("", "What it gives", "What SpaceEye adds to the inspection cycle.")
+        st.info("Waiting for real/kpi_values.parquet.")
+        return
+    front.mount(value_payload(latest), key="front_value", on_open=open_compound_file_from("front_value"))
 
 
 # --------------------------------------------------------------------------- #
@@ -1631,7 +1313,7 @@ SCREEN_FUNCTIONS = {
     SCREENS[0]: screen_priority_map,
     SCREENS[1]: screen_compound_file,
     SCREENS[2]: screen_backtest,
-    SCREENS[3]: screen_data_trust,
+    SCREENS[3]: screen_value,
     SCREENS[4]: screen_what_if,
 }
 
@@ -1674,13 +1356,6 @@ def render_sidebar() -> tuple[Track, str]:
             unsafe_allow_html=True,
         )
         st.sidebar.caption("Generated numbers tagged · map hidden")
-    else:
-        st.sidebar.markdown(
-            f'<span class="se-pill se-pill-a">{ORIGIN_REAL} REAL · {ORIGIN_DERIVED} DERIVED</span>',
-            unsafe_allow_html=True,
-        )
-        st.sidebar.caption("Public and derived data only")
-    st.sidebar.caption("🔒 Codes only: no compound or developer names.")
     return track, screen
 
 

@@ -191,3 +191,34 @@
 .lt th, .lt td { padding: 3px 12px 3px 0; text-align: left; border-bottom: 1px solid var(--rule-2); font-weight: 400; }
 .lt th { color: var(--ink-3); }
 .lt-empty { padding: 18px 0; color: var(--ink-2); font-size: 14px; }
+
+/* Screen 4: three benefits, each in its own form (story with prints, ranked bars, watch grid). */
+.lt-band { padding: 26px 0 30px; border-top: 1px solid var(--rule); }
+.lt-band:first-of-type { border-top: 0; padding-top: 4px; }
+.lt-band-title { font-size: 22px; font-weight: 600; letter-spacing: -0.015em; margin: 0 0 6px; text-wrap: balance; }
+.lt-band .lt-sub { margin: 0 0 16px; }
+.lt-story p { margin: 0 0 10px; max-width: 62ch; color: var(--ink-2); }
+.lt-story .lt-lead { font-size: 18px; line-height: 1.5; color: var(--ink); }
+.lt-story .lt-lead b { color: var(--sel); font-weight: 600; }
+.lt-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.lt-pair figure { margin: 0; }
+.lt-pair-img { display: block; width: 100%; aspect-ratio: 1024 / 768; object-fit: cover; }
+.lt-h3 { font-size: 15px; font-weight: 600; margin: 22px 0 6px; }
+.lt-now { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+.lt-now li { display: grid; grid-template-columns: 3.2em auto 1fr; gap: 2px 12px; align-items: baseline; padding: 10px 0; border-bottom: 1px solid var(--rule); }
+.lt-now .code { font-size: 17px; font-weight: 600; }
+.lt-now .why { grid-column: 2 / 4; font-size: 14px; color: var(--ink-2); }
+.lt-now .lt-link { grid-column: 2 / 4; justify-self: start; font-size: 14px; }
+.lt-now .lt-level { grid-column: 2 / 4; }
+.lt-bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; max-width: 760px; }
+.lt-bars li { display: grid; grid-template-columns: 3.2em minmax(0, 1fr) 6.5em; gap: 12px; align-items: center; }
+.lt-bars .code { font-weight: 600; }
+.lt-bars .track { height: 18px; }
+.lt-bars .bar { display: block; height: 18px; background: var(--series-a); border-radius: 0 4px 4px 0; min-width: 2px; }
+.lt-bars .val { font-size: 14px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.lt-heat { display: grid; gap: 2px; align-items: center; }
+.lt-heat .row { font-size: 13px; font-weight: 600; }
+.lt-heat .cell { height: 16px; border-radius: 2px; }
+.lt-heat .yr { font-size: 11px; color: var(--ink-3); white-space: nowrap; overflow: visible; font-variant-numeric: tabular-nums; }
+.lt-grid-story { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); }
+@media (max-width: 980px) { .lt-grid-story { grid-template-columns: 1fr; } }

@@ -437,7 +437,7 @@ function activityChart(data) {
     el("table", {}, el("thead", {}, el("tr", {}, el("th", { text: "Quarter" }), el("th", { text: "A" }), el("th", { text: "DW built" }))),
       el("tbody", {}, rows.map((r) => el("tr", {}, el("td", { text: r.q }),
         el("td", { text: r.a === null ? "n/a" : r.a.toFixed(2) }), el("td", { text: r.dw === null ? "n/a" : r.dw.toFixed(2) }))))));
-  return el("div", {}, keys, box, el("p", { class: "lt-note", text: data.chart_note }), table);
+  return el("div", {}, keys, box, data.chart_note ? el("p", { class: "lt-note", text: data.chart_note }) : null, table);
 }
 
 function stageBand(data) {
@@ -453,6 +453,72 @@ function stageBand(data) {
   return el("div", {}, band, keys, el("p", { class: "lt-note", text: data.stage_note }));
 }
 
+// ---------------------------------------------------------------- screen 4 --
+
+function renderValue(root, data, ctx) {
+  root.append(el("header", { class: "lt-head" },
+    el("h1", {}, "What SpaceEye gives the committee"),
+    el("p", { class: "lt-sub" }, el("span", { text: `${data.total} R7 compounds` }), el("span", { text: `as of ${data.asof}` }))));
+
+  const ex = data.example;
+  if (ex || data.now.length) {
+    const story = ex ? el("div", { class: "lt-story" },
+      el("p", { class: "lt-lead" }, `In ${ex.alert}, SpaceEye would have flagged `, el("b", { text: ex.code }),
+        `, ${ex.months} months before its first handover date (${ex.deadline}).`),
+      el("p", {}, `What it saw from space: ${ex.why}.`),
+      el("p", {}, `What happened${ex.reported ? ` (reported ${ex.reported})` : ""}: ${ex.outcome}.`)) : null;
+    const prints = ex ? el("div", { class: "lt-pair" }, ex.frames.map((f, i) => el("figure", { class: "lt-mat" },
+      el("img", { class: "lt-pair-img", src: f.src, alt: `${ex.code} from space, captured ${f.date}` }),
+      f.foot ? el("img", { class: "lt-foot", src: f.foot, alt: `Credits printed on the ${f.date} frame` }) : null,
+      el("figcaption", { class: "lt-label" }, el("strong", { text: f.date }),
+        el("span", { text: i === 0 && ex.frames.length > 1 ? "soon after the first warning" : "latest capture" }))))) : null;
+    const nowList = data.now.length ? el("div", {},
+      el("h3", { class: "lt-h3", text: "Flagged now, before any handover date has passed" }),
+      el("ul", { class: "lt-now" }, data.now.map((n) => el("li", {},
+        el("span", { class: "code", text: n.code }), level(n.level, n.level_word),
+        el("span", { class: "why", text: n.why }),
+        el("button", { class: "lt-link", type: "button", onclick: () => ctx.open(n.code) }, `Open the ${n.code} file`))))) : null;
+    root.append(el("section", { class: "lt-band" },
+      el("h2", { class: "lt-band-title", text: "It warns before the date passes" }),
+      el("div", { class: "lt-grid lt-grid-story" }, el("div", {}, story, nowList), prints)));
+  }
+
+  if (data.fines.length) {
+    const max = Math.max(...data.fines.map((f) => f.months));
+    root.append(el("section", { class: "lt-band" },
+      el("h2", { class: "lt-band-title" }, `${data.fine_months} months of delay may carry a fine`),
+      el("p", { class: "lt-sub", text: `${data.fines.length} compounds, counted from published handover dates; the contract decides the fine.` }),
+      el("ol", { class: "lt-bars", "aria-label": "Months of delay that may carry a fine, by compound" },
+        data.fines.map((f) => el("li", {},
+          el("span", { class: "code", text: f.code }),
+          el("span", { class: "track" }, el("span", { class: "bar", style: `width:${(f.months / max) * 100}%` })),
+          el("span", { class: "val", text: `${f.months} months` }))))));
+  }
+
+  const w = data.watch;
+  if (w) {
+    const all = w.values.flat().filter((v) => v !== null);
+    const top = Math.max(...all, 1);
+    const cells = el("div", { class: "lt-heat", style: `grid-template-columns: 3.2em repeat(${w.quarters.length}, minmax(0, 1fr))` });
+    w.codes.forEach((code, r) => {
+      cells.append(el("span", { class: "row", text: code }));
+      w.values[r].forEach((v, c) => cells.append(el("span", {
+        class: "cell", title: `${code} · ${w.quarters[c]} · ${v === null ? "no images" : `${v} images`}`,
+        style: v === null ? "background: var(--rule-2)" : `background: rgba(0, 124, 137, ${(0.12 + 0.88 * (v / top)).toFixed(2)})`,
+      })));
+    });
+    cells.append(el("span"));
+    w.quarters.forEach((q) => cells.append(el("span", { class: "yr", text: q.endsWith("Q1") && Number(q.slice(2, 4)) % 2 === 0 ? q.slice(0, 4) : "" })));
+    root.append(el("section", { class: "lt-band" },
+      el("h2", { class: "lt-band-title" }, `${w.images.toLocaleString("en-US")} satellite images, every compound, every quarter`),
+      el("p", { class: "lt-sub", text: `${w.codes.length} compounds watched from ${w.quarters[0]} to ${w.quarters[w.quarters.length - 1]}, and the visit list names ${data.visits} of them this cycle.` }),
+      cells,
+      el("ul", { class: "lt-keys", style: "margin-top:10px" },
+        el("li", {}, el("i", { class: "sq", style: "--c: rgba(0, 124, 137, 0.15)" }), "few images"),
+        el("li", {}, el("i", { class: "sq", style: "--c: rgb(0, 124, 137)" }), `${top} images in a quarter`))));
+  }
+}
+
 // ---------------------------------------------------------------- entry --
 
 export default function (component) {
@@ -464,6 +530,7 @@ export default function (component) {
   if (!data) return undefined;
   const ctx = { parentElement, open: (code) => setTriggerValue("open", code) };
   if (data.screen === "priority") return renderPriority(root, data, ctx);
+  if (data.screen === "value") { renderValue(root, data, ctx); return undefined; }
   renderCompound(root, data);
   return undefined;
 }
