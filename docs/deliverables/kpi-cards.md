@@ -44,7 +44,7 @@ A is the probability that the compound is building this quarter. It does not mea
 | Origin             | 🔵 derived                                                        |
 | Tags               | TODO                                                              |
 
-K2 counts consecutive latest quarters with A below its threshold, **only after construction started**. K2 ≥ 4 gives level 1, K2 = 2-3 gives level 2, K2 = 1 gives level 3. Unknown never raises a level.
+K2 counts consecutive latest quarters with A below its threshold, **only after construction started**. A compound counts as started after 4 active quarters in a row, or once a launch or delivery event is published. K2 ≥ 4 gives level 1, K2 = 2-3 gives level 2, K2 = 1 gives level 3. Unknown never raises a level.
 
 ## Card K3: Handover clock
 
@@ -63,7 +63,7 @@ K2 counts consecutive latest quarters with A below its threshold, **only after c
 | Origin             | 🟢 real                             |
 | Tags               | TODO                                |
 
-K3 is measured from the **first** announced handover date. Later promises never reset it. It uses the nearest month (days / 30.44). K3 > 24 gives level 1, K3 = 13-24 gives level 2, K3 = 1-12 gives level 3. The developer announced the date; it is not an independent measurement.
+K3 is measured from the **first** announced handover date. Later promises never move that start date; K3 is 0 once a handover is published. It uses the nearest month (days / 30.44). K3 > 24 gives level 1, K3 = 13-24 gives level 2, K3 = 1-12 gives level 3. The developer announced the date; it is not an independent measurement.
 The data table also holds display-only assumed dates (marked "assumption", with their basis) that fill missing schedule dates. They never replace a published date and never set a level.
 
 ## Card K4: Assessability
@@ -135,7 +135,7 @@ The table also has a K6 status column: it says whether K6 has a value, does not 
 
 ## Priority levels
 
-The priority level is the **worst** applicable level among K2, K3 and K6, with no weights. K2 counts only after construction started. The term is "priority level" (whom to visit first), never "risk level".
+The priority level is the **worst** applicable level among K2, K3 and K6, with no weights. K2 counts only after construction started (4 active quarters in a row, or a published launch or delivery event). The "may be complete" cap (below) then limits the level to 3. The term is "priority level" (whom to visit first), never "risk level".
 
 | Level                | Condition                                                 | Action                                            |
 | -------------------- | --------------------------------------------------------- | ------------------------------------------------- |
@@ -158,7 +158,7 @@ Unknown values never raise a level.
 
 ## "May be complete" cap
 
-If a handover is announced, or vegetation share is >= 0.10, the level is capped at 3 and the flag **May be complete - confirm on site** is added. This is a flag for on-site confirmation, not proof of completion and not a completion prediction.
+If a handover is announced, or vegetation share is >= 0.10, the level is capped at 3 and the flag **May be complete - confirm on site** is added. In 2026Q3 the cap sets 3 of the 12 levels: C03 and C12 (K2 = 6) and C21 (K2 = 2), all at level 3. This is a flag for on-site confirmation, not proof of completion and not a completion prediction.
 
 ## Cycle selection
 
@@ -186,7 +186,7 @@ Six R7 public cases, source: [BACKTEST_CURRENT.md](../../data/BACKTEST_CURRENT.m
 - Point-in-time reading: **0 of 6**.
 - The original criterion (5 cases, fixed before computation) was not reduced and was **not achieved**.
 
-For the numeric alternative check, all six cases had 14-22 assessable quarters before the frozen cutoff, which rejects "too few images" as the explanation. This does not rule out coverage effects within those quarters. Warning detection is not causal proof. Counts only, no percentages.
+For the numeric alternative check, the six cases had 3-12 assessable quarters before the frozen cutoff (10, 9, 12, 6, 10 and 3; the cases span 14-22 quarters in total before it), which rejects "too few images" as the explanation. This does not rule out coverage effects within those quarters. Warning detection is not causal proof. Counts only, no percentages.
 
 ## Limitations
 

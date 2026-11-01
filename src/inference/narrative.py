@@ -16,6 +16,7 @@ from src.inference.ai_config import (
     load_ai_config,
     require_approved,
 )
+from src.inference.verifier import forbidden_terms, stated_value_mismatches
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SYSTEM_PROMPT_PATH = REPO_ROOT / "prompts" / "system" / "inspection_agent.md"
@@ -23,7 +24,6 @@ PARAGRAPH_TEMPLATE_PATH = REPO_ROOT / "prompts" / "templates" / "inspection_para
 QUESTIONS_TEMPLATE_PATH = REPO_ROOT / "prompts" / "templates" / "visit_questions.md"
 
 _LOGGER = logging.getLogger(__name__)
-_FORBIDDEN_WORDS = ("distressed", "risk level", "high-risk", "completion %")
 _DIGIT_TOKEN_RE = re.compile(r"[^\W_]+(?:[-._:/][^\W_]+)*")
 _QUESTION_PREFIX_RE = re.compile(r"^(?:[-*•‣▪◦]\s*|\(?\d+[.)]\s*)")
 
@@ -113,6 +113,7 @@ class _PromptContext:
     paragraph: str
     questions: str
     allowed_tokens: set[str]
+    kpis: dict
 
 
 class GeminiClient:
@@ -179,20 +180,21 @@ def _parse_questions(text: str) -> list[str] | None:
     return questions if len(questions) == 3 else None
 
 
-def _validate_text(text: str, allowed_tokens: set[str]) -> str | None:
+def _validate_text(text: str, prompts: _PromptContext) -> str | None:
     """Return a rejection reason when text violates the evidence boundary."""
-    normalized = text.casefold()
-    if any(word in normalized for word in _FORBIDDEN_WORDS):
+    if forbidden_terms(text):
         return "forbidden wording"
 
-    if _digit_tokens(text) - allowed_tokens:
+    if _digit_tokens(text) - prompts.allowed_tokens:
         return "unsupported number, date, or code token"
+    if stated_value_mismatches(text, prompts.kpis):
+        return "stated level or KPI value differs from its source field"
     return None
 
 
-def _require_valid_text(text: str, allowed_tokens: set[str]) -> None:
+def _require_valid_text(text: str, prompts: _PromptContext) -> None:
     """Reject generated text that exceeds the attached evidence."""
-    rejection = _validate_text(text, allowed_tokens)
+    rejection = _validate_text(text, prompts)
     if rejection is not None:
         raise _DraftFailure(rejection)
 
@@ -257,6 +259,7 @@ def _prompt_context(inputs: _Inputs) -> _PromptContext:
         paragraph=paragraph,
         questions=questions,
         allowed_tokens=allowed_tokens,
+        kpis=kpis,
     )
 
 
@@ -265,7 +268,7 @@ def _draft_paragraph(provider: _ProviderContext, prompts: _PromptContext) -> str
     paragraph = provider.generate(prompts.paragraph).strip()
     if not paragraph:
         raise _DraftFailure("empty paragraph")
-    _require_valid_text(paragraph, prompts.allowed_tokens)
+    _require_valid_text(paragraph, prompts)
     return paragraph
 
 
@@ -275,7 +278,7 @@ def _draft_questions(provider: _ProviderContext, prompts: _PromptContext) -> lis
     if questions is None:
         raise _DraftFailure("invalid question count")
     for question in questions:
-        _require_valid_text(question, prompts.allowed_tokens)
+        _require_valid_text(question, prompts)
     return questions
 
 

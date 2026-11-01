@@ -18,7 +18,8 @@ Following rigorous spatial and temporal data verification, the following data ch
 
 ### A) Exclusion of Obsolete Height Data (Google Open Buildings 2.5D Temporal)
 * **Problem:** Google Open Buildings height estimates terminate at the end of **2023** and are no longer maintained. Subsequent shadow-based height extraction attempts in desert terrain exhibited unacceptable noise and error margins.
-* **Decision:** **Completely drop building height as a predictive feature.** Training a model intended to operate up to 2026 on a feature that abruptly ends in 2023 introduces systematic missingness (NaNs), rendering the pipeline unviable for real-time production.
+* **Note (current code):** this decision was not carried out. `height_mean_m` is a declared feature in `data/CURRENT_MODEL_METADATA.json` and a column of the Track B dataset, so the model does use height.
+* **Decision (as first written):** **Completely drop building height as a predictive feature.** Training a model intended to operate up to 2026 on a feature that abruptly ends in 2023 introduces systematic missingness (NaNs), rendering the pipeline unviable for real-time production.
 
 ### B) Exclusion of Raw Image Semantic Segmentation
 * **Problem:** Downloading terabytes of raw satellite tiles to run end-to-end semantic segmentation models (e.g., U-Net, Mask R-CNN) every 5 days incurs prohibitive compute overhead while suffering from satellite orbit drift and sun angle variations.
@@ -70,7 +71,7 @@ Therefore, the pipeline strictly standardizes on 4 discrete, human-interpretable
 
 ## 4. Time-Series Methodology & Stationarity Testing
 
-The task is structured as an **Entity-Level Multi-Variate Time Series** (33 virtual twins × 45 months, from January 2023 to September 2026):
+The task is structured as an **Entity-Level Multi-Variate Time Series** (as first written: 33 virtual twins × 45 months, January 2023 to September 2026; the current dataset is 12 compounds × 15 quarters, 2023Q1 to 2026Q3, 180 rows):
 
 1. **Seasonality Mitigation (Seasonal Differencing):**
    * Optical desert surface reflectance exhibits periodic fluctuations in Q2 due to solar angle shifts and atmospheric dust.
@@ -83,7 +84,7 @@ The task is structured as an **Entity-Level Multi-Variate Time Series** (33 virt
    * Apply the **Augmented Dickey-Fuller (ADF) test** to ensure velocity series achieve stationarity ($p\text{-value} < 0.05$), eliminating spurious correlations.
 3. **Lag Order Determination (PACF Analysis):**
    * Compute the Partial Autocorrelation Function (PACF) between Escrow liquidity drawdowns and subsequent physical construction slowdowns.
-   * PACF empirically establishes the operational lag (typically a 2- to 3-month window between financial default and physical site freezing), directly informing lag-feature engineering.
+   * Unsupported: no PACF analysis exists in the repo, so the claimed 2- to 3-month lag between financial default and physical site freezing is not a finding and must not be quoted.
 
 ---
 

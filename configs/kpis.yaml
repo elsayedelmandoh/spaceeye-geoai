@@ -46,7 +46,7 @@ kpis:
       leading_lagging: Leading
       international_axis: Urban planning
     thresholds_numeric: { l1_min: 4, l2_min: 2 } # 2-3 -> level 2, 1 -> level 3
-    note: Counted only after construction started. Unknown never raises a level.
+    note: Counted only after construction started (4 active quarters in a row, or a published launch or delivery event). Unknown never raises a level.
 
   K3:
     name: Handover clock
@@ -65,7 +65,7 @@ kpis:
       leading_lagging: Lagging
       international_axis: Housing
     thresholds_numeric: { l1_gt: 24, l2_min: 13 } # 13-24 -> level 2, 1-12 -> level 3
-    note: Measured from the FIRST announced handover date; later promises never reset it. Nearest month (days / 30.44).
+    note: Measured from the FIRST announced handover date; later promises never move it. 0 once a handover is published. Nearest month (days / 30.44).
 
   K4:
     name: Assessability
@@ -129,7 +129,7 @@ kpis:
     note: Months without a confirmed observed start. Unknown if any quarter since the launch/promise is not assessable, and unknown never raises a level. Nearest month (days / 30.44).
 
 priority:
-  rule: Worst applicable level among K2, K3 and K6, no weights. K2 counts only after construction started.
+  rule: Worst applicable level among K2, K3 and K6, no weights. K2 counts only after construction started (4 active quarters in a row, or a published launch or delivery event).
   levels:
     1:
       label: Inspect now

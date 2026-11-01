@@ -113,13 +113,13 @@ A visit entry does not change the stored priority level.
 
 > Read aloud: “After the visit, I will enter the code, date, result, and note. Saving adds a new row and keeps the earlier visit entries.”
 
-## Screen 4 — Not built yet
+## Screen 4: Data trust
 
-This screen will show how far each number can be trusted.
+This screen shows how far each number can be trusted: the quality gates, data coverage and the reviewed statements.
 
-## Screen 5 — Not built yet
+## Screen 5: What-if
 
-This screen will show a compound-level what-if view: who moves up if conditions change.
+This screen shows generated (Track B) what-if scenarios. S1 and S2 show Track B hypothetical levels and the cycle list against the baseline. S3 shows who is on the list at 2 or 6 visits instead of 4. Everything on it is marked Synthetic - for training only.
 
 ## If something looks wrong
 
