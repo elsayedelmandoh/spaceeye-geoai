@@ -146,3 +146,8 @@ def test_suggested_action_escalates_at_the_proposed_thresholds():
     assert insights.suggested_action(_row(level=3, K5_months=40))[0] == "Document review"
     action, why = insights.suggested_action(_row(level=1, K3=57))
     assert action == "Written warning" and "57 months" in why
+
+
+def test_a_compound_that_may_be_handed_over_is_confirmed_before_any_warning():
+    row = pd.Series({"level": 3, "K2": 6, "K3": 0, "K5_months": 4, "may_be_complete": np.bool_(True)})
+    assert insights.suggested_action(row)[0] == "Confirm handover on site"

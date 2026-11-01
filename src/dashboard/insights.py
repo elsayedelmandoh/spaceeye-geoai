@@ -202,6 +202,9 @@ def suggested_action(row: pd.Series) -> tuple[str, str]:
         return "No action", "Not assessable this quarter."
     if level in (1, 2) and _at_least(k5, FINE_REVIEW_K5_MONTHS):
         return "Fine review", f"{int(k5)} fine-eligible months (proposal: {FINE_REVIEW_K5_MONTHS})."
+    # A compound that may already be handed over is confirmed first: its quiet site is no stall.
+    if level in (3, 4) and not is_missing(row.get("may_be_complete")) and bool(row.get("may_be_complete")):
+        return ("Confirm handover on site", "The handover was announced and the compound may be complete.")             if level == 3 else ("Monitor", "Routine level; the compound may be complete.")
     if _at_least(k3, WARNING_K3_MONTHS):
         return "Written warning", f"{int(k3)} months past the first announced date (proposal: {WARNING_K3_MONTHS})."
     if _at_least(k2, WARNING_K2_QUARTERS):
@@ -209,8 +212,6 @@ def suggested_action(row: pd.Series) -> tuple[str, str]:
     if level == 4:
         return "Monitor", "Routine level."
     if level == 3:
-        if not is_missing(row.get("may_be_complete")) and bool(row.get("may_be_complete")):
-            return "Confirm handover on site", "The handover date passed and the compound may be complete."
         return "Document review", "Check the file before spending a visit."
     if level == 2:
         return "Visit this cycle", "On the visit list this quarter."
