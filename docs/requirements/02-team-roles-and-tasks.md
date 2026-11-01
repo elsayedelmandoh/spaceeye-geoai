@@ -264,7 +264,7 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-E
   - Evidence: [implementation/output](../../data/SCENARIO_CONTRACT_CURRENT.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [ ] **T-EL-12** [Could] D4 · S4 material cost +40%, S5 grace 12 → 6 months · reviewer: nada
-- [ ] **T-EL-13** [Could] D4 · FPMI and SAF tests on generated data, conditions written before the run, logged in `team_ideas.md` · reviewer: ahmed
+- [x] **T-EL-13** [Could] D4 · FPMI and SAF tests on generated data, conditions written before the run, logged in `team_ideas.md` · reviewer: ahmed **Closed 1 November 2026 without a run, by reviewer decision.** Both indices were rejected in the team-ideas review (`team_ideas.md`): FPMI multiplies two quantities with different units, so it has no clear meaning and any threshold would be invented; SAF counts the cost shock twice, because remaining cost is already priced after the shock. The finance data are fully generated, and the S1/S2 cost and collections shocks change no level or selection, so a test on them would say nothing about real compounds. The R7 scope rests on satellite and schedule signals, not developer finance.
 - [x] **T-EL-14** [Must] D4 · Code freeze for Track B; one command builds Track B after `run_all` · reviewer: ahmed **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/BINARY_SCOPE_DECISION.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
