@@ -165,3 +165,91 @@ def test_timeline_frames_are_sorted_by_date_and_skip_other_files(tmp_path):
 
 def test_timeline_frames_of_an_unknown_compound_are_empty(tmp_path):
     assert insights.timeline_frames("C99", tmp_path) == []
+
+WHY = ("Level 1: no building activity for 6 quarter(s) (activity score 0.30); first announced handover date "
+       "(Dec 2023) is still ahead; observation complete (19 images in the quarter).")
+
+
+def test_what_space_saw_drops_the_level_prefix_and_the_observation_clause():
+    assert insights.what_space_saw(WHY) == ("No building activity for 6 quarters (activity score 0.30); "
+                                            "first announced handover date (Dec 2023) is still ahead")
+
+
+def test_warning_case_picks_the_earliest_warning_after_start_and_words_the_outcome():
+    cases = pd.DataFrame({
+        "code": ["C14", "C21"], "after_start": [False, True], "after_start_months_before": [np.nan, 39.0],
+        "first_alert_quarter": [None, "2020Q3"], "first_deadline": ["2024-12-31", "2023-12-31"], "why": ["", WHY],
+        "what_happened": ["delivered_late; outcome date 2024-09-24",
+                          "partial_delivery_late_completion_postponed; outcome date 2026-01-29; first published 2026-01-29"],
+    })
+    case = insights.warning_case(cases)
+    assert (case["code"], case["alert"], case["months"], case["deadline"]) == ("C21", "2020Q3", 39, "Dec 2023")
+    assert case["outcome"] == "partly handed over late, completion postponed"
+    assert case["reported"] == "Jan 2026"
+    assert insights.warning_case(cases.assign(after_start=False)) is None
+
+
+def test_frame_pair_is_the_chosen_frame_and_the_latest():
+    frames = [{"date": "2019-01-01"}, {"date": "2021-04-09"}, {"date": "2025-07-23"}]
+    index = insights.first_frame_after(frames, pd.Timestamp("2020-09-30"))
+    assert index == 1
+    assert [f["date"] for f in insights.frame_pair(frames, index)] == ["2021-04-09", "2025-07-23"]
+    assert [f["date"] for f in insights.frame_pair(frames, 2)] == ["2025-07-23"]
+    assert insights.first_frame_after(frames, pd.Timestamp("2026-01-01")) is None
+    assert [f["date"] for f in insights.frame_pair(frames, None)] == ["2025-07-23"]
+    assert insights.frame_pair([], None) == []
+
+
+def test_flagged_early_keeps_listed_compounds_with_no_date_passed():
+    latest = pd.DataFrame({
+        "code": ["C18", "C07", "C14", "C03", "C21"], "level": [1, 2, 2, 3, 3], "cycle_rank": [1, 2, 3, 4, None],
+        "K3": [57, 0, 21, 0, 0],
+        "k3_first_deadline": ["2021-12-31", None, "2024-12-31", None, "2023-12-31"],
+        "may_be_complete": [False, False, False, False, True], "reason_ar": [""] * 5,
+    })
+    flagged = insights.flagged_early(latest)
+    assert [r["code"] for r in flagged] == ["C07", "C03"]
+    assert flagged[0]["level"] == 2
+
+
+def test_strongest_claim_is_the_largest_k3_among_compounds_with_confirmed_claims():
+    latest = pd.DataFrame({"code": ["C18", "C14", "C99"], "K3": [57, 21, 90],
+                           "k3_first_deadline": ["2021-12-31", "2024-12-31", "2020-01-31"]})
+    statements = pd.DataFrame({
+        "code": ["C18", "C18", "C14", "C99"], "verdict": ["CONFIRMED", "CONFIRMED", "CONFIRMED", "REJECTED"],
+        "published_date": ["2021-07-26", "2022-05-25", "2022-03-16", "2021-01-01"]})
+    claim = insights.strongest_claim(latest, statements, "2026Q3")
+    assert (claim["code"], claim["k3"], claim["deadline"]) == ("C18", 57, "Dec 2021")
+    assert claim["last_claim"] == pd.Timestamp("2022-05-25")
+
+
+def test_homes_waiting_counts_real_units_only_for_compounds_with_fine_months():
+    compounds = pd.DataFrame({"code": ["C02", "C10", "C01", "C12"], "units": [1750, 800, 1917, 300],
+                              "units_origin": ["real", "real", "generated", "real"]})
+    latest = pd.DataFrame({"code": ["C02", "C10", "C01", "C12"], "level": [4, 4, 4, 3],
+                           "K5_months": [11, 21, 5, np.nan]})
+    waiting = insights.homes_waiting(compounds, latest)
+    assert [(r["code"], r["units"], r["k5"]) for r in waiting["rows"]] == [("C02", 1750, 11), ("C10", 800, 21)]
+    assert (waiting["homes"], waiting["compounds"]) == (2550, 2)
+
+
+def test_late_delays_sort_longest_first_and_list_cases_with_no_value():
+    outcomes = pd.DataFrame({"code": ["C14", "C02", "C10", "C21"],
+                             "delay_months_vs_promise": [np.nan, 18.0, 33.0, 25.0]})
+    delays = insights.late_delays(outcomes)
+    assert [(r["code"], r["months"]) for r in delays["rows"]] == [("C10", 33), ("C21", 25), ("C02", 18)]
+    assert delays["median"] == 25.0
+    assert delays["pending"] == ["C14"]
+
+
+def test_fine_months_total_and_order():
+    latest = pd.DataFrame({"code": ["C18", "C01", "C10"], "K5_months": [45, np.nan, 21]})
+    fines = insights.fine_months(latest)
+    assert [(r["code"], r["months"]) for r in fines["rows"]] == [("C18", 45), ("C10", 21)]
+    assert (fines["total"], fines["compounds"]) == (66, 2)
+
+
+def test_codes_by_current_level_put_urgent_first_and_not_assessable_last():
+    history = pd.DataFrame({"code": ["C01", "C02", "C03"] * 2, "quarter": ["2026Q2"] * 3 + ["2026Q3"] * 3,
+                            "level": [1.0, 1.0, 1.0, 4.0, np.nan, 2.0]})
+    assert insights.codes_by_current_level(history) == ["C03", "C01", "C02"]

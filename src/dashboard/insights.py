@@ -224,3 +224,101 @@ def suggested_action(row: pd.Series) -> tuple[str, str]:
     if level == 2:
         return "Visit this cycle", "On the visit list this quarter."
     return "Visit now", "Highest priority this quarter."
+
+OUTCOME_WORDS = {
+    "partial_delivery_late_completion_postponed": "partly handed over late, completion postponed",
+    "postponed_twice_not_yet_delivered": "handover postponed twice, not yet delivered",
+    "delivered_late": "handed over late",
+}
+NUMBER_WORDS = ("No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten")
+
+
+def _flag(value: object) -> bool:
+    return not is_missing(value) and bool(value)
+
+
+def what_space_saw(why: object) -> str:
+    """The stored English reason without its level prefix and the 'observation complete' clause."""
+    clauses = [c.strip(" .") for c in str(why).split(": ", 1)[-1].split(";")]
+    text = "; ".join(c for c in clauses if c and not c.startswith("observation complete"))
+    text = re.sub(r"(\d+) quarter\(s\)", lambda m: f"{m[1]} quarter{'' if m[1] == '1' else 's'}", text)
+    return text[:1].upper() + text[1:]
+
+
+def warning_case(cases: pd.DataFrame) -> dict | None:
+    """The public late case flagged earliest after construction started, from the frozen-clock backtest."""
+    hits = cases[cases["after_start"].map(_flag)]
+    if hits.empty:
+        return None
+    case = hits.sort_values("after_start_months_before", ascending=False).iloc[0]
+    outcome, _, rest = str(case["what_happened"]).partition(";")
+    reported = re.search(r"outcome date (\d{4}-\d{2}-\d{2})", rest)
+    return {"code": str(case["code"]), "alert": str(case["first_alert_quarter"]),
+            "months": int(case["after_start_months_before"]), "deadline": month_text(case["first_deadline"]),
+            "saw": what_space_saw(case["why"]),
+            "outcome": OUTCOME_WORDS.get(outcome.strip(), outcome.strip().replace("_", " ")),
+            "reported": month_text(reported[1]) if reported else ""}
+
+
+def first_frame_after(frames: list[dict], when: pd.Timestamp) -> int | None:
+    return next((i for i, f in enumerate(frames) if pd.Timestamp(f["date"]) > when), None)
+
+
+def frame_pair(frames: list[dict], index: int | None) -> list[dict]:
+    """The frame at `index` and the latest one; just the latest when there is no index or they coincide."""
+    if not frames:
+        return []
+    return [frames[index], frames[-1]] if index is not None and index != len(frames) - 1 else frames[-1:]
+
+
+def flagged_early(latest: pd.DataFrame) -> list[dict]:
+    """Visit-list compounds flagged with no handover date passed: none announced, or still ahead."""
+    on_list = latest[latest["cycle_rank"].notna()].sort_values("cycle_rank")
+    early = on_list[on_list["k3_first_deadline"].isna()
+                    | ((on_list["K3"].fillna(0) == 0) & ~on_list["may_be_complete"].map(_flag))]
+    return [{"code": str(r["code"]), "level": level_number(r["level"]), "why": short_reason_ar(r["reason_ar"])}
+            for _, r in early.iterrows()]
+
+
+def strongest_claim(latest: pd.DataFrame, statements: pd.DataFrame, asof: str) -> dict | None:
+    """The compound furthest past its first announced date among those with confirmed public claims."""
+    confirmed = _confirmed(statements, asof)
+    pool = latest[latest["code"].isin(confirmed["code"]) & latest["K3"].notna()]
+    if pool.empty:
+        return None
+    row = pool.sort_values("K3", ascending=False).iloc[0]
+    code = str(row["code"])
+    last = pd.to_datetime(confirmed.loc[confirmed["code"] == code, "published_date"]).max()
+    return {"code": code, "k3": int(row["K3"]), "deadline": month_text(row["k3_first_deadline"]), "last_claim": last}
+
+
+def homes_waiting(compounds: pd.DataFrame, latest: pd.DataFrame) -> dict:
+    """Real unit counts of compounds with fine-eligible months; generated unit counts are left out."""
+    real = compounds.loc[compounds["units_origin"] == "real", ["code", "units"]]
+    rows = real.merge(latest[["code", "level", "K5_months"]], on="code")
+    rows = rows[rows["K5_months"] > 0].sort_values(["units", "code"], ascending=[False, True])
+    items = [{"code": str(r["code"]), "units": int(r["units"]), "k5": int(r["K5_months"]),
+              "level": level_number(r["level"])} for _, r in rows.iterrows()]
+    return {"rows": items, "homes": sum(i["units"] for i in items), "compounds": len(items)}
+
+
+def late_delays(outcomes: pd.DataFrame) -> dict:
+    """Months each public case ran past its original promise, longest first, and the cases with no value yet."""
+    known = outcomes.dropna(subset=["delay_months_vs_promise"]).sort_values(
+        ["delay_months_vs_promise", "code"], ascending=[False, True])
+    rows = [{"code": str(c), "months": int(m)} for c, m in zip(known["code"], known["delay_months_vs_promise"])]
+    return {"rows": rows, "median": float(known["delay_months_vs_promise"].median()),
+            "pending": sorted(outcomes.loc[outcomes["delay_months_vs_promise"].isna(), "code"].astype(str))}
+
+
+def fine_months(latest: pd.DataFrame) -> dict:
+    """Fine-eligible months per compound, most first; the contract decides whether a fine applies."""
+    rows = latest[latest["K5_months"] > 0].sort_values(["K5_months", "code"], ascending=[False, True])
+    items = [{"code": str(c), "months": int(m)} for c, m in zip(rows["code"], rows["K5_months"])]
+    return {"rows": items, "total": sum(i["months"] for i in items), "compounds": len(items)}
+
+
+def codes_by_current_level(history: pd.DataFrame) -> list[str]:
+    """Compound codes with the most urgent current level first; not assessable last."""
+    now = history[history["quarter"] == history["quarter"].max()].set_index("code")["level"].fillna(9)
+    return sorted(history["code"].unique(), key=lambda c: (now.get(c, 9), c))

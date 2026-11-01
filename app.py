@@ -64,7 +64,8 @@ TRACKS = {t.label: t for t in (TRACK_A, TRACK_B)}  # Track A first = default
 SCREENS = [
     "1 · Priority map",
     "2 · Compound file",
-    "3 · Fewer or more visits",
+    "3 · District view",
+    "4 · Scenarios",
 ]
 
 # --------------------------------------------------------------------------- #
@@ -874,6 +875,12 @@ def render_compound_header(row: pd.Series | None, code: str) -> None:
     st.caption("The action is a suggestion; the committee decides.")
 
 
+def level_scale() -> tuple[list[str], list[str]]:
+    """Level words and their colours for charts, not assessable last."""
+    return ([*(word for word, _ in LEVELS.values()), NOT_ASSESSABLE[0]],
+            [*(colour for _, colour in LEVELS.values()), NOT_ASSESSABLE[1]])
+
+
 def render_level_history(code: str) -> None:
     section_title("🗓️", "Level history")
     kpis = load_table(KPI_FILE, TRACK_A)
@@ -882,8 +889,7 @@ def render_level_history(code: str) -> None:
     history = insights.level_history(kpis)
     mine = history[history["code"] == code].copy()
     mine["Level"] = mine["level"].map(level_word)
-    words = [*(word for word, _ in LEVELS.values()), NOT_ASSESSABLE[0]]
-    colours = [*(colour for _, colour in LEVELS.values()), NOT_ASSESSABLE[1]]
+    words, colours = level_scale()
     chart = alt.Chart(mine).mark_rect(stroke=PALETTE["bg"], strokeWidth=2).encode(
         x=alt.X("quarter:O", title=None, sort=sorted(mine["quarter"].unique())),
         color=alt.Color("Level:N", title=None, legend=alt.Legend(orient="bottom"),
@@ -923,15 +929,7 @@ def render_claims(code: str, ann: pd.DataFrame | None, asof: str) -> None:
     if not rows:
         st.info(f"No confirmed developer claim for {code}.")
         return
-    table = pd.DataFrame({
-        "Published": [r["said"] for r in rows],
-        "Claim": [r["claim"] for r in rows],
-        "Promised year": [_due_text(r["due"]) for r in rows],
-        "Nearest capture": ["none within a year" if r["capture"] is None else
-                            f"{r['capture']['date']}: {r['capture']['stage'] or 'stage not on file'}"
-                            for r in rows],
-    })
-    st.dataframe(table, hide_index=True, use_container_width=True)
+    st.dataframe(claims_table(rows), hide_index=True, use_container_width=True)
 
 
 def _find_col(df: pd.DataFrame, aliases: tuple[str, ...]) -> str | None:
@@ -1032,7 +1030,218 @@ def screen_compound_file(track: Track) -> None:
 
 
 # --------------------------------------------------------------------------- #
-# Screen 3: fewer or more visits per cycle
+# Screen 3: district view (what the system gives the committee)
+# --------------------------------------------------------------------------- #
+
+BACKTEST_CASES = "current/backtest/cases_explained.csv"
+LEVEL_CHART_HEIGHT_PER_COMPOUND = 26
+
+
+def open_compound_file(code: str) -> None:
+    st.session_state["compound_code"] = code
+    st.session_state["screen"] = SCREENS[1]
+
+
+def open_button(code: str, section: str, label: str = "") -> None:
+    st.button(label or f"Open {code}", key=f"open_{section}_{code}", on_click=open_compound_file, args=(code,))
+
+
+def level_text(level: int | None) -> str:
+    return NOT_ASSESSABLE[0] if level is None else f"Level {level} · {level_word(level)}"
+
+
+def render_frame_row(frames: list[dict], stages: dict[int, str], captions: list[str]) -> None:
+    for column, frame, caption in zip(st.columns(max(len(frames), 2)), frames, captions):
+        with column:
+            render_frame(frame, stages, f"{caption} · ")
+
+
+def render_early_warning(case: dict | None) -> None:
+    section_title("⏰", "It warns before the date passes")
+    if case is None:
+        st.info("No public late case in the backtest was flagged after construction started.")
+        return
+    code = case["code"]
+    frames, stages = space_frames(code), stage_of_year(code)
+    pair = insights.frame_pair(frames, insights.first_frame_after(frames, pd.Period(case["alert"], "Q").end_time))
+    with st.container(border=True):
+        finding(f"<b>{code}</b> was first flagged in {case['alert']}, {case['months']} months before its first "
+                f"handover date ({case['deadline']}).")
+        st.markdown(f"**What space saw.** {html.escape(case['saw'])}.")
+        reported = f", reported {case['reported']}" if case["reported"] else ""
+        st.markdown(f"**What happened.** {html.escape(case['outcome'].capitalize())}{reported}.")
+        render_frame_row(pair, stages, ["First capture after the alert", "Latest"][-len(pair):])
+
+
+def render_flagged_early(rows: list[dict]) -> None:
+    section_title("🚩", "Flagged now, before any handover date passed")
+    with st.container(border=True):
+        if not rows:
+            st.markdown("No compound on the visit list is flagged before a handover date.")
+            return
+        for row in rows:
+            code_col, level_col, why_col, open_col = st.columns([1, 2, 6, 2])
+            code_col.markdown(f"**{row['code']}**")
+            level_col.markdown(level_text(row["level"]))
+            why_col.markdown(f'<div class="se-rtl">{html.escape(row["why"])}</div>', unsafe_allow_html=True)
+            with open_col:
+                open_button(row["code"], "early")
+
+
+def claims_table(rows: list[dict]) -> pd.DataFrame:
+    return pd.DataFrame({
+        "Published": [r["said"] for r in rows],
+        "Claim": [r["claim"] for r in rows],
+        "Promised year": [_due_text(r["due"]) for r in rows],
+        "Nearest capture": ["none within a year" if r["capture"] is None else
+                            f"{r['capture']['date']}: {r['capture']['stage'] or 'stage not on file'}"
+                            for r in rows],
+    })
+
+
+def render_strongest_claim(latest_df: pd.DataFrame, asof: str) -> None:
+    section_title("📣", "The developer said, space saw")
+    statements = load_table("real/statements.parquet", TRACK_A)
+    claim = None if statements is None else insights.strongest_claim(latest_df, statements, asof)
+    if claim is None:
+        st.info("No compound has a confirmed developer claim.")
+        return
+    code = claim["code"]
+    frames, stages = space_frames(code), stage_of_year(code)
+    rows = insights.promise_rows(statements[statements["code"] == code], frames, stages, asof)
+    pair = insights.frame_pair(frames, insights.nearest_frame(frames, claim["last_claim"]))
+    with st.container(border=True):
+        finding(f"<b>{code}</b>: as of {asof}, {claim['k3']} months past the first announced handover date "
+                f"({claim['deadline']}).")
+        st.dataframe(claims_table(rows), hide_index=True, use_container_width=True)
+        render_frame_row(pair, stages, ["Nearest to the last claim", "Latest"][-len(pair):])
+
+
+def render_homes_waiting(compounds: pd.DataFrame, latest_df: pd.DataFrame) -> None:
+    section_title("🏠", "Homes waiting")
+    waiting = insights.homes_waiting(compounds, latest_df)
+    if not waiting["rows"]:
+        st.info("No compound with a published unit count has fine-eligible months.")
+        return
+    words, colours = level_scale()
+    table = pd.DataFrame(waiting["rows"])
+    table["Level"] = table["level"].map(level_word)
+    table["label"] = table["k5"].astype(str) + " months"
+    base = alt.Chart(table).encode(y=alt.Y("code:N", sort=list(table["code"]), title=None),
+                                   x=alt.X("units:Q", title="Homes (published unit count)"))
+    bars = base.mark_bar().encode(
+        color=alt.Color("Level:N", title=None, legend=alt.Legend(orient="bottom"),
+                        scale=alt.Scale(domain=words, range=colours)),
+        tooltip=["code", "units", "k5", "Level"])
+    labels = base.mark_text(align="left", dx=4, color=PALETTE["text"]).encode(text="label:N")
+    with st.container(border=True):
+        finding(f"<b>{waiting['homes']:,} homes</b> in {waiting['compounds']} compounds wait with fine-eligible months.")
+        st.altair_chart((bars + labels).properties(height=34 * waiting["compounds"]), use_container_width=True)
+        st.caption("Label = fine-eligible months of the compound.")
+
+
+def render_late_promises(outcomes: pd.DataFrame) -> None:
+    section_title("⌛", "How late R7 promises ran")
+    delays = insights.late_delays(outcomes)
+    if not delays["rows"]:
+        st.info("No public case has a delay on file.")
+        return
+    table = pd.DataFrame(delays["rows"])
+    median = delays["median"]
+    base = alt.Chart(table).encode(y=alt.Y("code:N", sort=list(table["code"]), title=None))
+    bars = base.mark_bar(color=PALETTE["accent"]).encode(x=alt.X("months:Q", title="Months after the promised date"),
+                                                         tooltip=["code", "months"])
+    labels = base.mark_text(align="left", dx=4, color=PALETTE["text"]).encode(x="months:Q", text="months:Q")
+    rule = alt.Chart(pd.DataFrame({"median": [median]})).mark_rule(color=PALETTE["text"], strokeDash=[4, 4]).encode(
+        x="median:Q")
+    words = insights.NUMBER_WORDS[len(table)] if len(table) < len(insights.NUMBER_WORDS) else str(len(table))
+    with st.container(border=True):
+        finding(f"{words} R7 compounds handed over {table['months'].min()}-{table['months'].max()} months after "
+                f"the promised date (median {median:g}).")
+        st.altair_chart((bars + labels + rule).properties(height=34 * len(table)), use_container_width=True)
+        kinds = outcomes.set_index("code")["outcome_type"]
+        for code in delays["pending"]:
+            st.markdown(f"**{code}**: {insights.OUTCOME_WORDS.get(kinds[code], kinds[code].replace('_', ' '))}.")
+        st.caption("Dashed line = median.")
+
+
+def render_fine_months(latest_df: pd.DataFrame) -> None:
+    section_title("⚖️", "Fine-eligible months")
+    fines = insights.fine_months(latest_df)
+    if not fines["rows"]:
+        st.info("No compound has fine-eligible months.")
+        return
+    table = pd.DataFrame(fines["rows"])
+    chart = alt.Chart(table).mark_bar(color=PALETTE["accent"]).encode(
+        x=alt.X("code:N", sort=list(table["code"]), title=None, axis=alt.Axis(labelAngle=0)),
+        y=alt.Y("months:Q", title="Fine-eligible months"), tooltip=["code", "months"])
+    with st.container(border=True):
+        finding(f"<b>{fines['total']} fine-eligible months</b> over {fines['compounds']} compounds today.")
+        st.altair_chart(chart.properties(height=220), use_container_width=True)
+        st.caption("The contract decides the fine.")
+
+
+def render_developer_groups(compounds: pd.DataFrame, latest_df: pd.DataFrame) -> None:
+    section_title("🏢", "Developers with several compounds")
+    groups = insights.developer_groups(compounds, latest_df)
+    if not groups:
+        st.info("No developer has more than one compound.")
+        return
+    width = max(len(g["compounds"]) for g in groups)
+    with st.container(border=True):
+        for group in groups:
+            cells = st.columns([1] + [2] * width)
+            cells[0].markdown(f"**{group['developer']}**")
+            for cell, item in zip(cells[1:], group["compounds"]):
+                with cell:
+                    open_button(item["code"], f"dev{group['developer']}", f"{item['code']} · {level_text(item['level'])}")
+
+
+def render_district_levels() -> None:
+    section_title("🗓️", "Level history, all compounds")
+    kpis = load_table(KPI_FILE, TRACK_A)
+    if kpis is None:
+        return
+    history = insights.level_history(kpis)
+    history["Level"] = history["level"].map(level_word)
+    order = insights.codes_by_current_level(history)
+    words, colours = level_scale()
+    chart = alt.Chart(history).mark_rect(stroke=PALETTE["bg"], strokeWidth=1).encode(
+        x=alt.X("quarter:O", title=None, axis=alt.Axis(labelAngle=-90)),
+        y=alt.Y("code:N", sort=order, title=None),
+        color=alt.Color("Level:N", title=None, legend=alt.Legend(orient="bottom"),
+                        scale=alt.Scale(domain=words, range=colours)),
+        tooltip=["code", "quarter", "Level"])
+    with st.container(border=True):
+        st.altair_chart(chart.properties(height=LEVEL_CHART_HEIGHT_PER_COMPOUND * len(order)),
+                        use_container_width=True)
+
+
+def screen_district(track: Track) -> None:
+    page_header("🏘️", "District view", "What does the system give the committee?")
+    latest = load_latest_kpis()
+    if latest is None:
+        st.info("Waiting for real/kpi_values.parquet.")
+        return
+    latest_df, asof = latest
+    cases = _safe(BACKTEST_CASES, load_table, BACKTEST_CASES, TRACK_A, READY_DATA)
+    compounds = load_table("real/compounds.parquet", TRACK_A)
+    outcomes = load_table("real/eval_outcomes.parquet", TRACK_A)
+    render_early_warning(None if cases is None else insights.warning_case(cases))
+    render_flagged_early(insights.flagged_early(latest_df))
+    render_strongest_claim(latest_df, asof)
+    if compounds is not None:
+        render_homes_waiting(compounds, latest_df)
+    if outcomes is not None:
+        render_late_promises(outcomes)
+    render_fine_months(latest_df)
+    if compounds is not None:
+        render_developer_groups(compounds, latest_df)
+    render_district_levels()
+
+
+# --------------------------------------------------------------------------- #
+# Screen 4: fewer or more visits per cycle
 #
 # Reads the stored v7 capacity scenario (never recomputes):
 #   ready-data/what_if/S3/who_moved_and_why.csv  (data/SCENARIO_CONTRACT_CURRENT.md)
@@ -1090,7 +1299,8 @@ def screen_what_if(track: Track) -> None:
 SCREEN_FUNCTIONS = {
     SCREENS[0]: screen_priority_map,
     SCREENS[1]: screen_compound_file,
-    SCREENS[2]: screen_what_if,
+    SCREENS[2]: screen_district,
+    SCREENS[3]: screen_what_if,
 }
 
 
