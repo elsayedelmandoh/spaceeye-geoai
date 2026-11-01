@@ -151,3 +151,17 @@ def test_suggested_action_escalates_at_the_proposed_thresholds():
 def test_a_compound_that_may_be_handed_over_is_confirmed_before_any_warning():
     row = pd.Series({"level": 3, "K2": 6, "K3": 0, "K5_months": 4, "may_be_complete": np.bool_(True)})
     assert insights.suggested_action(row)[0] == "Confirm handover on site"
+
+
+def test_timeline_frames_are_sorted_by_date_and_skip_other_files(tmp_path):
+    folder = tmp_path / "C01"
+    folder.mkdir()
+    for name in ("C01_02_2019-10-06.jpg", "C01_01_2016-11-08.jpg", "C01_timeline.jpg", "C01_03_2021-04-09.png"):
+        (folder / name).write_bytes(b"")
+    frames = insights.timeline_frames("C01", tmp_path)
+    assert [date for date, _ in frames] == ["2016-11-08", "2019-10-06"]
+    assert frames[0][1].name == "C01_01_2016-11-08.jpg"
+
+
+def test_timeline_frames_of_an_unknown_compound_are_empty(tmp_path):
+    assert insights.timeline_frames("C99", tmp_path) == []

@@ -6,6 +6,7 @@ The screens in app.py only render what these return, so every number can be unit
 from __future__ import annotations
 
 import re
+from pathlib import Path
 
 import pandas as pd
 
@@ -146,6 +147,13 @@ def developer_groups(compounds: pd.DataFrame, latest: pd.DataFrame) -> list[dict
                        key=lambda i: (i["level"] or 9, i["code"]))
         groups.append({"developer": str(developer), "compounds": items})
     return sorted(groups, key=lambda g: (g["compounds"][0]["level"] or 9, -len(g["compounds"]), g["developer"]))
+
+
+def timeline_frames(code: str, root: Path) -> list[tuple[str, Path]]:
+    """The dated Wayback captures of one compound, oldest first, as (date, image path)."""
+    pattern = re.compile(rf"{re.escape(code)}_\d+_(\d{{4}}-\d{{2}}-\d{{2}})\.jpg")
+    hits = [(m[1], path) for path in (root / code).glob(f"{code}_*.jpg") if (m := pattern.fullmatch(path.name))]
+    return sorted(hits)
 
 
 def nearest_frame(frames: list[dict], when: pd.Timestamp) -> int | None:

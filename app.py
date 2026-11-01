@@ -669,31 +669,6 @@ def load_announcements(code: str, asof: str) -> pd.DataFrame | None:
     return df.sort_values("published_date").reset_index(drop=True)
 
 
-def load_images(code: str) -> dict[str, tuple[Path, str]]:
-    """Before/after Wayback pair: the installed runtime pair (app_data/images) first, then the
-    figures committed in the repo (data/imagery/figures). Capture dates come from each folder's index."""
-    found: dict[str, tuple[Path, str]] = {}
-    for folder, index_name in ((APP_DATA / "images", "images.csv"), (IMAGERY_DIR / "figures", "index.csv")):
-        index_path = folder / index_name
-        index = pd.read_csv(index_path) if index_path.exists() else None
-        role_col = None if index is None else _find_col(index, ("role", "image_type"))
-        for kind in ("before", "after"):
-            path = folder / f"{code}_{kind}.jpg"
-            if kind in found or not path.exists():
-                continue
-            captured, credit = "capture date n/a", "Esri World Imagery Wayback"
-            if index is not None and role_col and "code" in index.columns:
-                hit = index[(index["code"].astype(str) == code) & (index[role_col] == kind)]
-                if not hit.empty:
-                    row = hit.iloc[0]
-                    if not _missing(row.get("capture_date")):
-                        captured = f"captured {row['capture_date']}"
-                    if not _missing(row.get("attribution")):
-                        credit = str(row["attribution"])
-            found[kind] = (path, f"{kind.capitalize()} · {captured} · {credit}")
-    return found
-
-
 def find_inspection_file(code: str, asof: str) -> Path | None:
     for files_dir in FILES_DIRS:
         for pattern in (f"{code}_{asof}.html", f"{code}_{asof}_*.html"):
@@ -821,21 +796,48 @@ def render_stage_strip(code: str) -> None:
         st.caption(f"Construction first seen in {int(start.min()) if not start.empty else 'no year yet'}.")
 
 
+def frame_stage(frame: dict, stages: dict[int, str]) -> str:
+    return stages.get(int(frame["date"][:4]), "stage not on file")
+
+
+def render_frame(frame: dict, stages: dict[int, str], caption: str = "") -> None:
+    st.image(str(frame["path"]), caption=f"{caption}{frame['date']} · {frame_stage(frame, stages)}",
+             use_container_width=True)
+
+
+def render_frame_compare(code: str, frames: list[dict], stages: dict[int, str]) -> None:
+    dates = [f["date"] for f in frames]
+    pickers = st.columns(2)
+    chosen = [pickers[0].selectbox("Compare: from", dates, index=0, key=f"cmp_from_{code}"),
+              pickers[1].selectbox("Compare: to", dates, index=len(dates) - 1, key=f"cmp_to_{code}")]
+    for column, date in zip(st.columns(2), chosen):
+        with column:
+            render_frame(frames[dates.index(date)], stages)
+
+
 def render_images(code: str) -> None:
-    section_title("🛰️", "Wayback images")
-    images = load_images(code)
+    section_title("🛰️", "Wayback timeline")
+    frames, stages = space_frames(code), stage_of_year(code)
     with st.container(border=True):
-        if not images:
-            st.info(f"No Wayback before/after pair for {code} in app_data/images or data/imagery/figures.")
+        if not frames:
+            st.info(f"No Wayback timeline for {code} in data/imagery/figures/timeline.")
             return
-        cols = st.columns(2)
-        for col, kind in zip(cols, ("before", "after")):
-            with col:
-                if kind in images:
-                    path, caption = images[kind]
-                    st.image(str(path), caption=caption, use_container_width=True)
-                else:
-                    st.info(f"No '{kind}' image for {code} yet.")
+        dates = [f["date"] for f in frames]
+        date = st.select_slider("Capture date", options=dates, value=dates[-1], key=f"timeline_{code}")
+        shown = frames[dates.index(date)]
+        big, side = st.columns([3, 1])
+        with big:
+            st.image(str(shown["path"]), use_container_width=True)
+        with side:
+            st.metric("Captured", date)
+            st.metric(f"Stage in {date[:4]}", frame_stage(shown, stages))
+            st.caption(f"{dates.index(date) + 1} of {len(frames)} captures")
+        for column, frame in zip(st.columns(len(frames)), frames):
+            with column:
+                st.image(str(frame["path"]), caption=("● " if frame is shown else "") + frame["date"],
+                         use_container_width=True)
+        st.markdown("**Compare two captures**")
+        render_frame_compare(code, frames, stages)
 
 
 def render_inspection_button(code: str, asof: str) -> None:
@@ -901,10 +903,9 @@ def stage_of_year(code: str) -> dict[int, str]:
 
 
 def space_frames(code: str) -> list[dict]:
-    """The curated single-capture Wayback frames of one compound, oldest first, as {date} dicts."""
-    folder = IMAGERY_DIR / "figures" / "compare" / code
-    dates = (path.stem.rsplit("_", 1)[-1] for path in sorted(folder.glob(f"{code}_*_*.jpg")))
-    return [{"date": date} for date in dates if re.fullmatch(r"\d{4}-\d{2}-\d{2}", date)]
+    """The dated Wayback captures of one compound, oldest first, as {date, path} dicts."""
+    frames = insights.timeline_frames(code, IMAGERY_DIR / "figures" / "timeline")
+    return [{"date": date, "path": path} for date, path in frames]
 
 
 def _due_text(due: dict | None) -> str:
@@ -926,7 +927,7 @@ def render_claims(code: str, ann: pd.DataFrame | None, asof: str) -> None:
         "Published": [r["said"] for r in rows],
         "Claim": [r["claim"] for r in rows],
         "Promised year": [_due_text(r["due"]) for r in rows],
-        "Nearest picture": ["none within a year" if r["capture"] is None else
+        "Nearest capture": ["none within a year" if r["capture"] is None else
                             f"{r['capture']['date']}: {r['capture']['stage'] or 'stage not on file'}"
                             for r in rows],
     })
