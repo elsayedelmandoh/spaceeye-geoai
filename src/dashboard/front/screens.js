@@ -41,6 +41,16 @@ function countAr(n, one, few, many) {
 const months = (n) => `${n} ${countAr(n, "شهر", "أشهر", "شهرًا")}`;
 const code = (c) => el("bdi", { text: c });
 
+// The stored inspection file opens in a new tab, ready to print; if the tab is blocked it downloads.
+function fileButton(file, label, cls = "lt-link") {
+  if (!file) return null;
+  return el("button", { class: cls, type: "button", onclick: () => {
+    const url = URL.createObjectURL(new Blob([file.html], { type: "text/html;charset=utf-8" }));
+    if (!window.open(url, "_blank")) el("a", { href: url, download: file.name }).click();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  } }, label);
+}
+
 function level(levelNumber, word) {
   const v = LEVEL_VAR[levelNumber];
   return el("span", { class: "lt-level", style: v ? `--c: var(${v})` : null }, el("i"), word);
@@ -128,7 +138,8 @@ function renderPriority(root, data, ctx) {
     onclick: () => select(item.code),
   }, el("span", { class: "rank", text: item.rank }), el("bdi", { class: "code", text: item.code }),
      level(item.level, item.level_word), el("span", { class: "why", text: item.why })));
-  const list = el("ol", { class: "lt-visits", "aria-label": "ترتيب الزيارات" }, rows.map((r) => el("li", {}, r)));
+  const list = el("ol", { class: "lt-visits", "aria-label": "ترتيب الزيارات" }, rows.map((r, i) => el("li", {}, r,
+    fileButton(cycle[i].file, ["ملف التفتيش لـ ", code(cycle[i].code)], "lt-link lt-row-file"))));
   const side = el("aside", { class: "lt-side" }, el("h2", { text: "ترتيب الزيارات" }), list);
   if (data.waiting > 0) {
     side.append(el("p", { class: "lt-wait", text: `و${data.waiting} كمباوند كمان مستنيين الدورة الجاية.` }));
@@ -268,7 +279,8 @@ function flatten(coords) {
 
 function renderCompound(root, data) {
   root.append(el("header", { class: "lt-head" },
-    el("h1", {}, data.code, level(data.level, data.level_word)),
+    el("div", { class: "lt-head-row" }, el("h1", {}, data.code, level(data.level, data.level_word)),
+      fileButton(data.file, "اطبع ملف الزيارة", "lt-print-btn")),
     data.reason_ar ? el("p", { class: "lt-reason", text: data.reason_ar }) : null,
     el("p", { class: "lt-sub" }, el("span", {}, "بيانات ", code(data.asof)))));
 

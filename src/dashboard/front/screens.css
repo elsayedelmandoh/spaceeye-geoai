@@ -102,6 +102,16 @@
 .lt-visits button[aria-pressed="true"] .rank { background: var(--sel); border-color: var(--sel); color: #fff; }
 .lt-visits .code { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
 .lt-visits .why { grid-column: 2 / 4; font-size: 14px; color: var(--ink-2); line-height: 1.4; }
+.lt-visits .lt-row-file, .lt-visits .lt-row-file:hover {
+  display: inline-block; width: auto; padding: 0 0 10px; margin-inline-start: 50px; margin-top: -4px;
+  font-size: 13px; background: none;
+}
+.lt-head-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 20px; }
+.lt-print-btn {
+  border: 0; border-radius: 3px; padding: 8px 16px; background: var(--sel); color: #fff !important; font-weight: 500;
+  cursor: pointer; transition: background-color 160ms ease-out;
+}
+.lt-print-btn:hover { background: #00636d; }
 .lt-wait { margin: -14px 0 18px; font-size: 13px; color: var(--ink-3); }
 
 /* Level: a coloured dot beside ink text (colour never carries the meaning alone). */

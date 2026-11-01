@@ -417,7 +417,7 @@ def priority_payload(track: Track, latest: tuple[pd.DataFrame, str]) -> dict:
         row = latest_df[latest_df["code"] == item["code"]].iloc[0]
         items.append({"rank": len(items) + 1, "code": item["code"], "level": level_number(row["level"]),
                       "level_word": level_word(row["level"]), "why": short_reason_ar(row.get("reason_ar")),
-                      "frames": frames_payload(item["code"])})
+                      "frames": frames_payload(item["code"]), "file": inspection_payload(item["code"], asof)})
     eligible = int(latest_df["level"].isin([1, 2, 3]).sum())
     payload = {"screen": "priority", "asof": asof, "total": len(latest_df), "cycle": items,
                "waiting": max(eligible - len(items), 0), "credit": WAYBACK_CREDIT, "map": False}
@@ -509,11 +509,17 @@ def load_announcements(code: str, asof: str) -> pd.DataFrame | None:
 
 def find_inspection_file(code: str, asof: str) -> Path | None:
     for files_dir in FILES_DIRS:
-        for pattern in (f"{code}_{asof}.html", f"{code}_{asof}_*.html", f"{code}_*.html"):
+        for pattern in (f"{code}_{asof}.html", f"{code}_{asof}_*.html"):
             matches = sorted(files_dir.glob(pattern))
             if matches:
                 return matches[-1]
     return None
+
+
+def inspection_payload(code: str, asof: str) -> dict | None:
+    """The stored Arabic inspection file of this quarter, sent whole so the page can open and print it."""
+    path = find_inspection_file(code, asof)
+    return None if path is None else {"name": path.name, "html": path.read_text(encoding="utf-8")}
 
 
 # ---- screen 2 renderers ----------------------------------------------------- #
@@ -597,27 +603,14 @@ def compound_payload(code: str, row: pd.Series | None, history: pd.DataFrame | N
         "screen": "compound", "code": code, "asof": asof,
         "level": level_number(get("level")), "level_word": level_word(get("level")),
         "reason_ar": reason or None,
-        "frames": frames_payload(code), "credit": WAYBACK_CREDIT, "clocks": clocks,
+        "frames": frames_payload(code), "file": inspection_payload(code, asof), "credit": WAYBACK_CREDIT,
+        "clocks": clocks,
         "quarters": quarters, "statements": statements, "deadline": marker,
         "chart_note": None,
         "stages": stages, "stage_words": [{"stage": k, "word": v} for k, v in STAGE_WORDS.items()],
         "stage_note": stage_note,
         "stage_missing": "جدول المراحل مش موجود في النسخة دي.",
     }
-
-
-def render_inspection_button(code: str, asof: str) -> None:
-    section_title("📄", "Inspection file")
-    path = find_inspection_file(code, asof)
-    if path is None:
-        stored = sorted({p.name.split("_")[0] for d in FILES_DIRS for p in d.glob("C*_*.html")})
-        st.button("📄 Inspection file (Arabic)", disabled=True, key=f"insp_{code}")
-        st.caption(f"No inspection file stored for {code}. Stored files cover: "
-                   f"{', '.join(stored) if stored else 'none'}.")
-        return
-    st.download_button("📄 Open inspection file (Arabic HTML)", data=path.read_bytes(),
-                       file_name=path.name, mime="text/html", key=f"insp_{code}")
-    st.caption("Drafted by AI from stored facts and reviewed before committee use.")
 
 
 # --------------------------------------------------------------------------- #
@@ -761,7 +754,6 @@ def screen_compound_file(track: Track) -> None:
         st.warning(f"مفيش بيانات لـ {code} في {asof}، فهو معروض كـ مش قابل للتقييم.")
     front.mount(compound_payload(code, row, load_kpi_history(code), load_announcements(code, asof), asof),
                 key="front_compound")
-    render_inspection_button(code, asof)
 
     section_title("", "نتيجة الزيارة")
     render_ops_visits_form(codes, code)
