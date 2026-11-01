@@ -322,3 +322,27 @@ def codes_by_current_level(history: pd.DataFrame) -> list[str]:
     """Compound codes with the most urgent current level first; not assessable last."""
     now = history[history["quarter"] == history["quarter"].max()].set_index("code")["level"].fillna(9)
     return sorted(history["code"].unique(), key=lambda c: (now.get(c, 9), c))
+
+
+def scenario_view(raw: pd.DataFrame) -> tuple[pd.DataFrame, str]:
+    """The latest month of one finance scenario: baseline versus scenario level and list membership."""
+    month = str(raw["month"].max())
+    latest = raw[raw["month"].astype(str) == month]
+    view = pd.DataFrame({
+        "code": latest["code"].astype(str).to_numpy(),
+        "baseline_level": latest["baseline_hypothetical_level"].map(level_number).astype("float64").to_numpy(),
+        "level": latest["hypothetical_level"].map(level_number).astype("float64").to_numpy(),
+        "baseline_listed": latest["baseline_selected"].map(_flag).to_numpy(),
+        "listed": latest["selected"].map(_flag).to_numpy(),
+        "reason": latest["reason"].fillna("").astype(str).to_numpy(),
+    })
+    same_level = (view["baseline_level"] == view["level"]) | (view["baseline_level"].isna() & view["level"].isna())
+    view["changed"] = ~same_level | (view["baseline_listed"] != view["listed"])
+    return view, month
+
+
+def level_counts(view: pd.DataFrame) -> pd.DataFrame:
+    """How many compounds sit at each hypothetical level (NaN = not assessable), baseline and scenario."""
+    both = pd.concat([pd.DataFrame({"case": case, "level": view[column]})
+                      for case, column in (("Baseline", "baseline_level"), ("Scenario", "level"))])
+    return both.groupby(["case", "level"], dropna=False).size().rename("compounds").reset_index()

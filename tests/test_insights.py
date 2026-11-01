@@ -253,3 +253,27 @@ def test_codes_by_current_level_put_urgent_first_and_not_assessable_last():
     history = pd.DataFrame({"code": ["C01", "C02", "C03"] * 2, "quarter": ["2026Q2"] * 3 + ["2026Q3"] * 3,
                             "level": [1.0, 1.0, 1.0, 4.0, np.nan, 2.0]})
     assert insights.codes_by_current_level(history) == ["C03", "C01", "C02"]
+
+
+def _scenario_raw() -> pd.DataFrame:
+    return pd.DataFrame({
+        "month": ["2026-08", "2026-09", "2026-09", "2026-09"], "code": ["C01", "C01", "C02", "C03"],
+        "baseline_hypothetical_level": [2.0, 2.0, 4.0, np.nan], "hypothetical_level": [2.0, 1.0, 4.0, np.nan],
+        "baseline_selected": [False, False, False, False], "selected": [False, True, False, False],
+        "reason": [None, "gap 20pp", "gap 3pp", None],
+    })
+
+
+def test_scenario_view_marks_who_changed_level_or_list_in_the_latest_month():
+    view, month = insights.scenario_view(_scenario_raw())
+    assert month == "2026-09"
+    assert list(view["code"]) == ["C01", "C02", "C03"]
+    assert list(view["changed"]) == [True, False, False]
+    assert view.loc[0, "reason"] == "gap 20pp"
+
+
+def test_level_counts_cover_baseline_and_scenario_including_not_assessable():
+    counts = insights.level_counts(insights.scenario_view(_scenario_raw())[0])
+    pairs = {(r["case"], None if pd.isna(r["level"]) else r["level"]): r["compounds"] for _, r in counts.iterrows()}
+    assert pairs == {("Baseline", 2.0): 1, ("Baseline", 4.0): 1, ("Baseline", None): 1,
+                     ("Scenario", 1.0): 1, ("Scenario", 4.0): 1, ("Scenario", None): 1}

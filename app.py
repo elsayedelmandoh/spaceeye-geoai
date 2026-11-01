@@ -1281,19 +1281,81 @@ def render_capacity_variant(raw: pd.DataFrame, variant: str) -> None:
         st.caption(f"{label}")
 
 
+SCENARIO_TABS = {"S1": "S1 · Cost shock", "S2": "S2 · Collections drop", "S3": "S3 · Capacity"}
+SCENARIO_NOTES = {"S1": "Imported cost +30%.", "S2": "Collections -25% for six months."}
+
+
+def hypothetical_text(level: float) -> str:
+    return level_text(None if pd.isna(level) else int(level))
+
+
+def render_scenario_moves(view: pd.DataFrame) -> None:
+    moved = view[view["changed"]]
+    if moved.empty:
+        st.markdown("Nobody crosses a threshold: no compound changes level or list position.")
+        return
+    for _, r in moved.iterrows():
+        change = f"{hypothetical_text(r['baseline_level'])} to {hypothetical_text(r['level'])}"
+        if r["baseline_listed"] != r["listed"]:
+            change += ", joins the list" if r["listed"] else ", leaves the list"
+        st.markdown(
+            f'<div class="se-move"><span style="color:{PALETTE["accent_b"]};font-weight:700">'
+            f'{html.escape(r["code"])}</span> · {html.escape(change)}'
+            f'<div dir="auto" class="se-move-why">{html.escape(r["reason"])}</div></div>',
+            unsafe_allow_html=True)
+
+
+def render_scenario_levels(view: pd.DataFrame) -> None:
+    counts = insights.level_counts(view)
+    counts["Level"] = counts["level"].map(level_word)
+    words, _ = level_scale()
+    chart = alt.Chart(counts).mark_bar().encode(
+        x=alt.X("Level:N", sort=words, title=None, axis=alt.Axis(labelAngle=0)),
+        xOffset=alt.XOffset("case:N", sort=["Baseline", "Scenario"]),
+        y=alt.Y("compounds:Q", title="Compounds", axis=alt.Axis(tickMinStep=1)),
+        color=alt.Color("case:N", title=None, legend=alt.Legend(orient="bottom"),
+                        scale=alt.Scale(domain=["Baseline", "Scenario"], range=[PALETTE["muted"], PALETTE["accent_b"]])),
+        tooltip=["case", "Level", "compounds"])
+    st.altair_chart(chart.properties(height=200), use_container_width=True)
+
+
+def render_finance_scenario(scenario: str, track: Track) -> None:
+    rel = f"what_if/{scenario}/who_moved_and_why.csv"
+    raw = _safe(rel, load_table, rel, track, READY_DATA)
+    if raw is None or raw.empty:
+        st.info(f"Waiting for ready-data/{rel}. Run python -m src.pipeline.setup_review.")
+        return
+    view, month = insights.scenario_view(raw)
+    with st.container(border=True):
+        st.caption(f"{ORIGIN_GENERATED} Generated · {SCENARIO_NOTES[scenario]} · {month}")
+        render_scenario_moves(view)
+        render_scenario_levels(view)
+        st.dataframe(pd.DataFrame({
+            "Compound": view["code"],
+            "Baseline level": view["baseline_level"].map(hypothetical_text),
+            "Scenario level": view["level"].map(hypothetical_text),
+            "Baseline list": view["baseline_listed"].map({True: "on the list", False: "off the list"}),
+            "Scenario list": view["listed"].map({True: "on the list", False: "off the list"}),
+        }), hide_index=True, use_container_width=True)
+
+
 def screen_what_if(track: Track) -> None:
-    page_header("🧪", "Fewer or more visits",
-                "Who joins or leaves the cycle list with 2 or 6 visits instead of 4?")
+    page_header("🧪", "Scenarios", "Who would change if costs, collections or visit capacity changed?")
     if not track.generated:
         st.warning("Scenarios use generated data. Switch to Track B in the sidebar to open them.")
         return
-    raw = _safe(CAPACITY_FILE, load_table, CAPACITY_FILE, track, READY_DATA)
-    if raw is None or raw.empty:
-        st.info(f"Waiting for ready-data/{CAPACITY_FILE}. Run python -m src.pipeline.setup_review.")
-        return
-    for column, variant in zip(st.columns(2), CAPACITY_VARIANTS):
-        with column:
-            render_capacity_variant(raw, variant)
+    tabs = st.tabs(list(SCENARIO_TABS.values()))
+    for tab, scenario in zip(tabs[:2], ("S1", "S2")):
+        with tab:
+            render_finance_scenario(scenario, track)
+    with tabs[2]:
+        raw = _safe(CAPACITY_FILE, load_table, CAPACITY_FILE, track, READY_DATA)
+        if raw is None or raw.empty:
+            st.info(f"Waiting for ready-data/{CAPACITY_FILE}. Run python -m src.pipeline.setup_review.")
+            return
+        for column, variant in zip(st.columns(2), CAPACITY_VARIANTS):
+            with column:
+                render_capacity_variant(raw, variant)
 
 
 SCREEN_FUNCTIONS = {
