@@ -158,7 +158,7 @@ def _render_visits_card() -> None:
 
         st.dataframe(
             visits.iloc[::-1],  # newest first
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
             column_config={
                 "code": st.column_config.TextColumn("Code", width="small"),

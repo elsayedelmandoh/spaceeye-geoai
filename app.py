@@ -470,7 +470,7 @@ def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None) -> No
                 map_style="dark",
                 tooltip={"text": "{code}\n{level_word}\n{height_text}"},
             ),
-            use_container_width=True,
+            width="stretch",
         )
         legend = "".join(
             f'<span class="se-pill" style="border-color:{color};margin-right:0.4rem">'
@@ -549,7 +549,7 @@ def render_visit_list(latest: tuple[pd.DataFrame, str] | None, track: Track) -> 
         return
 
     st.caption("Suggested actions are proposals; the committee decides.")
-    st.dataframe(visit_table(latest_df, cycle), hide_index=True, use_container_width=True,
+    st.dataframe(visit_table(latest_df, cycle), hide_index=True, width="stretch",
                  column_config={"Why": st.column_config.TextColumn("Why", width="large")})
 
     # The inspection files quote simulated buyer complaints, so only the generated track serves them.
@@ -604,7 +604,7 @@ def render_promises_ahead(promises: list[dict]) -> None:
     st.caption("A visit before these dates can check the developer's own promise.")
     table = pd.DataFrame(promises).rename(
         columns={"code": "Compound", "claim": "Promise", "said": "Said in", "end": "Due by"})
-    st.dataframe(table, hide_index=True, use_container_width=True)
+    st.dataframe(table, hide_index=True, width="stretch")
 
 
 # --------------------------------------------------------------------------- #
@@ -760,7 +760,7 @@ def render_curves(code: str, history: pd.DataFrame | None, ann: pd.DataFrame | N
                     rules = alt.Chart(marks).mark_rule(color=MARKER_COLOR, strokeDash=[4, 4]).encode(
                         x=alt.X("quarter:N", sort=order), tooltip=["quarter", "label"])
                     chart = lines + rules
-        st.altair_chart(chart.properties(height=300), use_container_width=True)
+        st.altair_chart(chart.properties(height=300), width="stretch")
 
         # The same first deadline that K3 counts from (kpi_values.k3_first_deadline).
         first = None if row is None else row.get("k3_first_deadline")
@@ -798,7 +798,7 @@ def render_stage_strip(code: str) -> None:
                                             range=["#8A7A5C", PALETTE["accent"], "#46A758"])),
             tooltip=["year", "stage", "meaning", "stage_source"],
         )
-        st.altair_chart(chart.properties(height=100), use_container_width=True)
+        st.altair_chart(chart.properties(height=100), width="stretch")
         start = mine.loc[mine["stage"] != "S0", "year"]
         st.caption(f"Construction first seen in {int(start.min()) if not start.empty else 'no year yet'}.")
 
@@ -809,7 +809,7 @@ def frame_stage(frame: dict, stages: dict[int, str]) -> str:
 
 def render_frame(frame: dict, stages: dict[int, str], caption: str = "") -> None:
     st.image(str(frame["path"]), caption=f"{caption}{frame['date']} · {frame_stage(frame, stages)}",
-             use_container_width=True)
+             width="stretch")
 
 
 def render_frame_compare(code: str, frames: list[dict], stages: dict[int, str]) -> None:
@@ -834,15 +834,11 @@ def render_images(code: str) -> None:
         shown = frames[dates.index(date)]
         big, side = st.columns([3, 1])
         with big:
-            st.image(str(shown["path"]), use_container_width=True)
+            st.image(str(shown["path"]), width="stretch")
         with side:
             st.metric("Captured", date)
             st.metric(f"Stage in {date[:4]}", frame_stage(shown, stages))
             st.caption(f"{dates.index(date) + 1} of {len(frames)} captures")
-        for column, frame in zip(st.columns(len(frames)), frames):
-            with column:
-                st.image(str(frame["path"]), caption=("● " if frame is shown else "") + frame["date"],
-                         use_container_width=True)
         st.markdown("**Compare two captures**")
         render_frame_compare(code, frames, stages)
 
@@ -905,7 +901,7 @@ def render_level_history(code: str) -> None:
     )
     with st.container(border=True):
         # Streamlit sizes the whole chart (axis and legend included) to this height.
-        st.altair_chart(chart.properties(height=100), use_container_width=True)
+        st.altair_chart(chart.properties(height=100), width="stretch")
 
 
 def stage_of_year(code: str) -> dict[int, str]:
@@ -937,7 +933,7 @@ def render_claims(code: str, ann: pd.DataFrame | None, asof: str) -> None:
     if not rows:
         st.info(f"No confirmed developer claim for {code}.")
         return
-    st.dataframe(claims_table(rows), hide_index=True, use_container_width=True)
+    st.dataframe(claims_table(rows), hide_index=True, width="stretch")
 
 
 def _find_col(df: pd.DataFrame, aliases: tuple[str, ...]) -> str | None:
@@ -1008,8 +1004,10 @@ def screen_compound_file(track: Track) -> None:
                 default = codes.index(str(ranked.iloc[0]["code"]))
 
         pick, _ = st.columns([1, 2])
+        # A default index next to a value already in session state raises a Streamlit warning.
+        start = {} if "compound_code" in st.session_state else {"index": default}
         code = pick.selectbox(
-            "Compound", codes, index=default, key="compound_code",
+            "Compound", codes, key="compound_code", **start,
             format_func=lambda c: f"{c} · {level_word(levels.get(c))}",
         )
 
@@ -1126,7 +1124,7 @@ def render_strongest_claim(latest_df: pd.DataFrame, asof: str) -> None:
     with st.container(border=True):
         finding(f"<b>{code}</b>: as of {asof}, {claim['k3']} months past the first announced handover date "
                 f"({claim['deadline']}).")
-        st.dataframe(claims_table(rows), hide_index=True, use_container_width=True)
+        st.dataframe(claims_table(rows), hide_index=True, width="stretch")
         render_frame_row(pair, stages, ["Nearest to the last claim", "Latest"][-len(pair):])
 
 
@@ -1149,7 +1147,7 @@ def render_homes_waiting(compounds: pd.DataFrame, latest_df: pd.DataFrame) -> No
     labels = base.mark_text(align="left", dx=4, color=PALETTE["text"]).encode(text="label:N")
     with st.container(border=True):
         finding(f"<b>{waiting['homes']:,} homes</b> in {waiting['compounds']} compounds with fine-eligible months.")
-        st.altair_chart((bars + labels).properties(height=34 * waiting["compounds"]), use_container_width=True)
+        st.altair_chart((bars + labels).properties(height=34 * waiting["compounds"]), width="stretch")
         st.caption("Label = fine-eligible months of the compound.")
 
 
@@ -1171,7 +1169,7 @@ def render_late_promises(outcomes: pd.DataFrame) -> None:
     with st.container(border=True):
         finding(f"{words} R7 compounds began handing over {table['months'].min()}-{table['months'].max()} months after "
                 f"the promised date (median {median:g}).")
-        st.altair_chart((bars + labels + rule).properties(height=34 * len(table)), use_container_width=True)
+        st.altair_chart((bars + labels + rule).properties(height=34 * len(table)), width="stretch")
         kinds = outcomes.set_index("code")["outcome_type"]
         for code in delays["pending"]:
             st.markdown(f"**{code}**: {insights.outcome_text(kinds.get(code))}.")
@@ -1190,7 +1188,7 @@ def render_fine_months(latest_df: pd.DataFrame) -> None:
         y=alt.Y("months:Q", title="Fine-eligible months"), tooltip=["code", "months"])
     with st.container(border=True):
         finding(f"<b>{fines['total']} fine-eligible months</b> over {fines['compounds']} compounds today.")
-        st.altair_chart(chart.properties(height=220), use_container_width=True)
+        st.altair_chart(chart.properties(height=220), width="stretch")
         st.caption("The contract decides the fine.")
 
 
@@ -1227,7 +1225,7 @@ def render_district_levels() -> None:
         tooltip=["code", "quarter", "Level"])
     with st.container(border=True):
         st.altair_chart(chart.properties(height=LEVEL_CHART_HEIGHT_PER_COMPOUND * len(order)),
-                        use_container_width=True)
+                        width="stretch")
 
 
 def screen_district(track: Track) -> None:
@@ -1337,7 +1335,7 @@ def render_scenario_levels(view: pd.DataFrame) -> None:
                         scale=alt.Scale(domain=[insights.BASELINE_LABEL, "Scenario"],
                                         range=[PALETTE["muted"], PALETTE["accent_b"]])),
         tooltip=["case", "Level", "compounds"])
-    st.altair_chart(chart.properties(height=200), use_container_width=True)
+    st.altair_chart(chart.properties(height=200), width="stretch")
 
 
 def render_finance_scenario(scenario: str, track: Track) -> None:
