@@ -7,7 +7,7 @@ import re
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from datetime import date, datetime
-from decimal import Decimal, InvalidOperation
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
 
@@ -39,6 +39,12 @@ CAUSAL_WORDS_AR = (
     "لذلك",
     "ناتج عن",
     "يعود إلى",
+    "لأن",
+    "لأنه",
+    "لأنها",
+    "جراء",
+    "أدى إلى",
+    "أدت إلى",
 )
 
 _DIGIT_TRANSLATION = str.maketrans(
@@ -62,13 +68,64 @@ _TOKEN_PATTERN = re.compile(
     rf"|(?P<code>{_CODE_PATTERN})"
     rf"|(?P<number>{_NUMBER_PATTERN})"
 )
-_LEVEL_EN_PATTERN = re.compile(
-    r"\b(?:priority\s+)?level\b\s*(?:is|=|:)?\s*"
-    r"(?:[1-4]\b|one\b|two\b|three\b|four\b)",
+_LEVEL_WORDS = {
+    "one": 1,
+    "two": 2,
+    "three": 3,
+    "four": 4,
+    "الأولى": 1,
+    "الأول": 1,
+    "الثانية": 2,
+    "الثاني": 2,
+    "الثالثة": 3,
+    "الثالث": 3,
+    "الرابعة": 4,
+    "الرابع": 4,
+}
+_LEVEL_VALUE = (
+    r"(?P<level>[1-4](?!\.?\d)|(?:one|two|three|four)\b"
+    r"|الأولى|الأول|الثانية|الثاني|الثالثة|الثالث|الرابعة|الرابع)"
+)
+_LEVEL_PATTERNS = (
+    re.compile(rf"\b(?:priority\s+)?level\b\s*(?:is|=|:)?\s*{_LEVEL_VALUE}", re.IGNORECASE),
+    re.compile(rf"مستوى[^0-9]{{0,40}}?{_LEVEL_VALUE}"),
+)
+_NUM = r"\d+(?:\.\d+)?"
+_FIELD_GAP = r"[^\d\n.؛;]{0,25}?"
+_UNIT_NUM = rf"(?<![\w.,])(?P<num>{_NUM})(?P<gap>\s*\)?\s*)"
+_LABEL_PATTERN = re.compile(
+    rf"(?<![A-Za-z0-9_])(?P<label>K[2356])(?![A-Za-z0-9_])(?P<gap>{_FIELD_GAP})(?P<num>{_NUM})"
+)
+_ACTIVITY_PATTERN = re.compile(
+    rf"(?:درجة\s+النشاط|مؤشر\s+النشاط|activity(?:\s+score)?)(?P<gap>{_FIELD_GAP})(?P<num>{_NUM})",
     re.IGNORECASE,
 )
-_LEVEL_AR_PATTERN = re.compile(
-    r"مستوى[^0-9]{0,40}(?:[1-4]\b|الأولى|الثانية|الثالثة|الرابعة)"
+_QUARTERS_PATTERN = re.compile(rf"{_UNIT_NUM}(?:quarters?|أرباع|ارباع|ربع)", re.IGNORECASE)
+_MONTHS_PATTERN = re.compile(rf"{_UNIT_NUM}(?:months?|أشهر|اشهر|شهر)", re.IGNORECASE)
+# Source keys holding each KPI; contexts carry both the short and the long alias.
+_FIELD_KEYS = {
+    "K2": ("K2", "K2_stoppage_quarters"),
+    "K3": ("K3", "K3_delay_months"),
+    "K5": ("K5_months", "K5_fine_eligible_months"),
+    "K6": ("K6", "K6_unstarted_months"),
+    "activity": ("A", "activity_prob"),
+}
+_FORBIDDEN_PATTERNS = tuple(
+    re.compile(pattern, re.IGNORECASE)
+    for pattern in (
+        r"(?<!\w)distressed(?!\w)",
+        r"risk level",
+        r"high-risk",
+        r"completion\s*%",
+        r"(?<!\w)(?:ال)?متعثر\w*",
+        r"نسبة\s+(?:ال)?[إا]نجاز",
+        # "may be complete" is the data's own hedge; a bare claim of completion is not.
+        r"(?<!\w)(?<!قد يكون )(?<!قد تكون )(?:ال)?مكتمل[ةًا]*(?!\w)",
+    )
+)
+_NAMED_COMPOUND_PATTERN = re.compile(r"(?<!\w)(?:ال)?(?:مركب|كمبوند)\s+(?P<name>[^\s،.؛:()]+)")
+_COMPOUND_QUALIFIERS = frozenset(
+    {"في", "رمز", "برمز", "هذا", "هذه", "ذو", "الذي", "التابع", "الحالي", "قيد", "ضمن", "على", "من"}
 )
 _CAUSAL_PATTERNS = tuple(
     (
@@ -84,6 +141,7 @@ class _TextToken:
     token: str
     token_type: str
     number: Decimal | None = None
+    start: int = -1
 
 
 @dataclass(frozen=True)
@@ -94,12 +152,24 @@ class _Claim:
     note: str
 
 
+@dataclass(frozen=True)
+class _Binding:
+    """A stated value that must equal one named source field."""
+
+    label: str
+    token: str
+    stated: Decimal
+    allowed: frozenset[Decimal]
+    is_word: bool = False
+
+
 @dataclass
 class _SourceTokens:
     numbers: set[Decimal] = field(default_factory=set)
     dates: set[str] = field(default_factory=set)
     codes: set[str] = field(default_factory=set)
     levels: set[int] = field(default_factory=set)
+    record: Mapping[str, Any] | None = None
 
 
 def _normalise_digits(text: str) -> str:
@@ -127,12 +197,13 @@ def _extract_text_tokens(text: str) -> list[_TextToken]:
         raw_token = match.group(0)
         if match.lastgroup == "date":
             token = raw_token.upper() if "Q" in raw_token.upper() else raw_token
-            extracted.append(_TextToken(token, "date"))
+            extracted.append(_TextToken(token, "date", start=match.start()))
         elif match.lastgroup == "code":
-            extracted.append(_TextToken(raw_token.upper(), "code"))
+            extracted.append(_TextToken(raw_token.upper(), "code", start=match.start()))
         else:
             number = Decimal(raw_token.replace(",", ""))
-            extracted.append(_TextToken(_format_decimal(number), "number", number))
+            digit_start = match.start() + (raw_token[0] in "+-")
+            extracted.append(_TextToken(_format_decimal(number), "number", number, digit_start))
     return extracted
 
 
@@ -190,10 +261,131 @@ def _walk_source(node: Any, source_tokens: _SourceTokens) -> None:
         source_tokens.dates.add(node.isoformat())
 
 
+def _kpi_record(source: Any) -> Mapping[str, Any] | None:
+    """Return the current-quarter KPI mapping, never the earlier-quarter series."""
+    kpis = source.get("kpis") if isinstance(source, Mapping) else None
+    return kpis if isinstance(kpis, Mapping) else None
+
+
 def _collect_source_tokens(source: dict[str, Any] | list[Any]) -> _SourceTokens:
-    source_tokens = _SourceTokens()
+    source_tokens = _SourceTokens(record=_kpi_record(source))
     _walk_source(source, source_tokens)
     return source_tokens
+
+
+def _field_values(record: Mapping[str, Any], label: str) -> frozenset[Decimal] | None:
+    """Return the numeric values of one KPI, or None when the record lacks the field."""
+    keys = [key for key in _FIELD_KEYS[label] if key in record]
+    if not keys:
+        return None
+    values = {
+        number
+        for key in keys
+        if isinstance(record[key], (int, float, Decimal)) and not isinstance(record[key], bool)
+        if (number := _source_decimal(record[key])) is not None
+    }
+    return frozenset(values)
+
+
+def _union_values(record: Mapping[str, Any], labels: tuple[str, ...]) -> frozenset[Decimal] | None:
+    found = [values for label in labels if (values := _field_values(record, label)) is not None]
+    return frozenset().union(*found) if found else None
+
+
+def _matches_field(binding: _Binding) -> bool:
+    """Compare at the precision the text states, so 0.35 matches an activity of 0.3515."""
+    exponent = min(binding.stated.as_tuple().exponent, 0)
+    step = Decimal(1).scaleb(exponent)
+    return any(
+        value.quantize(step, rounding=ROUND_HALF_UP) == binding.stated
+        for value in binding.allowed
+    )
+
+
+def _level_value(stated: str) -> tuple[int, bool]:
+    """Return the level number and whether the text spelled it as a word."""
+    word = stated.casefold() if stated.isascii() else stated
+    if word in _LEVEL_WORDS:
+        return _LEVEL_WORDS[word], True
+    return int(stated), False
+
+
+def _bindings(text: str, record: Mapping[str, Any] | None) -> dict[int, _Binding]:
+    """Map the start of each number tied to a level, KPI label or unit to its field.
+
+    The nearest cue wins, so "K2 and activity 0.5" ties 0.5 to activity.
+    """
+    if record is None:
+        return {}
+    level = _normalise_level(record.get("level"))
+    allowed_for = {
+        "K2": _field_values(record, "K2"),
+        "K3": _field_values(record, "K3"),
+        "K5": _field_values(record, "K5"),
+        "K6": _field_values(record, "K6"),
+        "activity": _field_values(record, "activity"),
+        "level": None if level is None else frozenset({Decimal(level)}),
+        "quarters": _field_values(record, "K2"),
+        "months": _union_values(record, ("K3", "K5", "K6")),
+    }
+    candidates: list[tuple[int, int, str, str, Decimal, bool]] = []
+    for pattern, group_label in (
+        (_LABEL_PATTERN, None),
+        (_ACTIVITY_PATTERN, "activity"),
+        (_QUARTERS_PATTERN, "quarters"),
+        (_MONTHS_PATTERN, "months"),
+    ):
+        for match in pattern.finditer(text):
+            label = group_label or match.group("label")
+            gap = len(match.group("gap"))
+            candidates.append(
+                (match.start("num"), gap, label, match.group("num"), Decimal(match.group("num")), False)
+            )
+    for pattern in _LEVEL_PATTERNS:
+        for match in pattern.finditer(text):
+            value, is_word = _level_value(match.group("level"))
+            candidates.append(
+                (match.start("level"), 0, "level", match.group("level"), Decimal(value), is_word)
+            )
+    best: dict[int, tuple[int, _Binding]] = {}
+    for start, distance, label, token, stated, is_word in candidates:
+        allowed = allowed_for[label]
+        if allowed is None or (start in best and best[start][0] <= distance):
+            continue
+        best[start] = (distance, _Binding(label, token, stated, allowed, is_word))
+    return {start: binding for start, (_, binding) in best.items()}
+
+
+def _mismatch_note(binding: _Binding) -> str:
+    if not binding.allowed:
+        return f"{binding.label} is not available in source but text states {binding.token}"
+    source_values = ", ".join(_format_decimal(value) for value in sorted(binding.allowed))
+    return f"text states {binding.label} {binding.token}; source {binding.label} is {source_values}"
+
+
+def stated_value_mismatches(text: str, record: Mapping[str, Any] | None) -> list[tuple[str, str]]:
+    """Return (token, note) for each stated level or KPI value that differs from its field."""
+    bindings = _bindings(_normalise_digits(text), record)
+    return [
+        (binding.token, _mismatch_note(binding))
+        for binding in bindings.values()
+        if not _matches_field(binding)
+    ]
+
+
+def forbidden_terms(text: str) -> list[str]:
+    """Return forbidden wording found in English or Arabic text."""
+    return [match.group(0) for pattern in _FORBIDDEN_PATTERNS for match in pattern.finditer(text)]
+
+
+def named_compounds(text: str) -> list[str]:
+    """Return names written after the word compound; only C../D.. codes may identify one."""
+    return [
+        match.group("name")
+        for match in _NAMED_COMPOUND_PATTERN.finditer(text)
+        if match.group("name") not in _COMPOUND_QUALIFIERS
+        and not re.fullmatch(_CODE_PATTERN, match.group("name"))
+    ]
 
 
 def _near_source_note(number: Decimal, source_numbers: set[Decimal]) -> str:
@@ -213,7 +405,12 @@ def _near_source_note(number: Decimal, source_numbers: set[Decimal]) -> str:
 def _judge_token(
     token: _TextToken,
     source_tokens: _SourceTokens,
+    binding: _Binding | None = None,
 ) -> _Claim:
+    if binding is not None:
+        if _matches_field(binding):
+            return _Claim(token.token, token.token_type, "correct", "matched source value")
+        return _Claim(token.token, token.token_type, "wrong number", _mismatch_note(binding))
     if token.token_type == "number" and token.number in source_tokens.numbers:
         return _Claim(token.token, token.token_type, "correct", "matched source value")
     if token.token_type == "date" and token.token in source_tokens.dates:
@@ -242,14 +439,40 @@ def _extract_causal_words(text: str) -> list[tuple[int, str]]:
 
 def _states_level(text: str) -> bool:
     normalised_text = _normalise_digits(text)
-    return bool(
-        _LEVEL_EN_PATTERN.search(normalised_text)
-        or _LEVEL_AR_PATTERN.search(normalised_text)
-    )
+    return any(pattern.search(normalised_text) for pattern in _LEVEL_PATTERNS)
 
 
 def _token_claims(text: str, source_tokens: _SourceTokens) -> list[_Claim]:
-    return [_judge_token(token, source_tokens) for token in _extract_text_tokens(text)]
+    bindings = _bindings(_normalise_digits(text), source_tokens.record)
+    return [
+        _judge_token(
+            token,
+            source_tokens,
+            bindings.get(token.start) if token.token_type == "number" else None,
+        )
+        for token in _extract_text_tokens(text)
+    ]
+
+
+def _level_word_claims(text: str, source_tokens: _SourceTokens) -> list[_Claim]:
+    bindings = _bindings(_normalise_digits(text), source_tokens.record)
+    return [
+        _Claim(binding.token, "code", "wrong number", _mismatch_note(binding))
+        for binding in bindings.values()
+        if binding.is_word and not _matches_field(binding)
+    ]
+
+
+def _wording_claims(text: str) -> list[_Claim]:
+    claims = [
+        _Claim(term, "code", "unsupported claim", "forbidden wording")
+        for term in forbidden_terms(text)
+    ]
+    claims.extend(
+        _Claim(name, "code", "unsupported claim", "compound named without a code")
+        for name in named_compounds(text)
+    )
+    return claims
 
 
 def _causal_claims(text: str) -> list[_Claim]:
@@ -305,6 +528,8 @@ def verify_text(
 
     source_tokens = _collect_source_tokens(source)
     claims = _token_claims(text, source_tokens)
+    claims.extend(_level_word_claims(text, source_tokens))
+    claims.extend(_wording_claims(text))
     claims.extend(_causal_claims(text))
     missing_context = _missing_context_claim(text, source_tokens)
     if missing_context is not None:
