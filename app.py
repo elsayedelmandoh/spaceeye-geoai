@@ -224,6 +224,9 @@ def inject_css() -> None:
         .se-sub {{ color: {p['muted']}; font-size: 1rem; margin-top: 0.2rem; }}
         .se-finding {{ border-left: 4px solid {p['accent']}; background: {p['surface']};
                        padding: 0.8rem 1rem; margin: 0 0 1rem 0; font-size: 1.08rem; line-height: 1.55; }}
+        .se-card-head {{ display: flex; justify-content: space-between; align-items: center;
+                         gap: 0.4rem; margin-top: 0.3rem; }}
+        .se-card-why {{ color: {p['muted']}; font-size: 0.92rem; line-height: 1.45; margin-top: 0.35rem; }}
         .se-section {{ color: {p['text']}; font-size: 1.02rem; font-weight: 600; margin: 1.3rem 0 0.5rem 0; }}
 
         [data-testid="stHorizontalBlock"] > div {{ display: flex; flex-direction: column; }}
@@ -514,6 +517,32 @@ def cycle_headline(latest_df: pd.DataFrame, asof: str) -> str:
     rest = f" {waiting} more at levels 1-3 wait for the next cycle." if waiting > 0 else ""
     return (f"<b>Visit {', '.join(cycle['code'])} this cycle</b> ({len(cycle)} of {len(latest_df)} "
             f"compounds, {asof}). {cycle.iloc[0]['code']} comes first: {html.escape(why)}.{rest}")
+
+
+def render_cycle_cards(latest: tuple[pd.DataFrame, str] | None) -> None:
+    """The cycle list as four cards: the latest view from space, the level and the reason in one line."""
+    if latest is None:
+        return
+    latest_df, _ = latest
+    cycle = build_cycle_list(latest_df)
+    if cycle.empty:
+        return
+    section_title("📋", "This cycle's visits")
+    for col, (_, item) in zip(st.columns(len(cycle)), cycle.iterrows()):
+        row = latest_df[latest_df["code"] == item["code"]].iloc[0]
+        word, colour = _level_style(row["level"])
+        why = str(row.get("reason", "")).split(": ", 1)[-1].split("; observation")[0]
+        frames = space_frames(item["code"])
+        with col, st.container(border=True):
+            if frames:
+                st.image(str(frames[-1][1]), use_container_width=True)
+            st.markdown(
+                f'<div class="se-card-head"><b>{int(item["cycle_rank"])} · {item["code"]}</b>'
+                f'<span class="se-pill" style="border-color:{colour};color:{colour}">{word}</span></div>'
+                f'<div class="se-card-why">{html.escape(why)}</div>',
+                unsafe_allow_html=True)
+            if frames:
+                st.caption(f"Wayback capture {frames[-1][0]}")
 
 
 def render_cycle_list(latest: tuple[pd.DataFrame, str] | None) -> None:
@@ -1536,6 +1565,7 @@ def screen_priority_map(track: Track) -> None:
         "A compound that may be complete is capped at level 3 and must be confirmed on site.",
         "The cycle list takes up to 4 compounds from levels 1-3. The rule recommends; the committee decides.",
     ])
+    render_cycle_cards(latest)
     render_map_slot(track, latest)
     render_cycle_list(latest)
 
