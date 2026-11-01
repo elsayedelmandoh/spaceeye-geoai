@@ -39,6 +39,7 @@ function countAr(n, one, few, many) {
   return rest >= 3 && rest <= 10 ? few : rest >= 11 ? many : one;
 }
 const months = (n) => `${n} ${countAr(n, "شهر", "أشهر", "شهرًا")}`;
+const compounds = (n) => (n === 1 ? "كمباوند واحد" : n === 2 ? "كمباوندين" : `${n} ${countAr(n, "كمباوند", "كمباوندات", "كمباوند")}`);
 const code = (c) => el("bdi", { text: c });
 
 // The stored inspection file opens in a new tab, ready to print; if the tab is blocked it downloads.
@@ -47,7 +48,6 @@ function fileButton(file, label, cls = "lt-link") {
   return el("button", { class: cls, type: "button", onclick: () => {
     const url = URL.createObjectURL(new Blob([file.html], { type: "text/html;charset=utf-8" }));
     if (!window.open(url, "_blank")) el("a", { href: url, download: file.name }).click();
-    setTimeout(() => URL.revokeObjectURL(url), 60000);
   } }, label);
 }
 
@@ -142,7 +142,7 @@ function renderPriority(root, data, ctx) {
     fileButton(cycle[i].file, ["ملف التفتيش لـ ", code(cycle[i].code)], "lt-link lt-row-file"))));
   const side = el("aside", { class: "lt-side" }, el("h2", { text: "ترتيب الزيارات" }), list);
   if (data.waiting > 0) {
-    side.append(el("p", { class: "lt-wait", text: `و${data.waiting} كمباوند كمان مستنيين الدورة الجاية.` }));
+    side.append(el("p", { class: "lt-wait", text: `و${compounds(data.waiting)} كمان في انتظار الدورة الجاية.` }));
   }
   const credit = el("p", { class: "lt-credit", text: data.credit });
   root.append(el("div", { class: "lt-grid" }, el("div", {}, printSlot, credit), side));
@@ -289,6 +289,7 @@ function renderCompound(root, data) {
     el("p", { class: "lt-credit", text: data.credit }));
   const right = el("aside", { class: "lt-side" },
     el("h2", { text: "ليه في الأولوية دي" }), clocks(data.clocks),
+    el("h2", { text: "الغرامة" }), clocks([data.fine]),
     el("h2", { text: "نشاط البناء كل ربع" }), activityChart(data),
     el("h2", { class: "lt-section", text: "مرحلة الإنشاء كل سنة" }), stageBand(data));
   root.append(el("div", { class: "lt-grid" }, left, right));
@@ -372,7 +373,7 @@ function swipeBlock(data) {
         el("span", { text: "اسحب على الصورة عشان تقارن بين تاريخين" }))),
     range,
     el("div", { class: "lt-pickers" },
-      el("label", {}, "الشمال ", selBefore), el("label", {}, "اليمين ", selAfter)),
+      el("label", {}, "اليمين ", selAfter), el("label", {}, "الشمال ", selBefore)),
     feet);
 }
 
@@ -509,7 +510,7 @@ function renderValue(root, data, ctx) {
     const story = ex ? el("div", { class: "lt-story" },
       el("p", { class: "lt-lead" }, "في ", code(ex.alert), "، كان ", code("SpaceEye"), " هينبّه على ", el("b", {}, code(ex.code)),
         `، قبل أول موعد تسليم له (${ex.deadline}) بـ ${months(ex.months)}.`),
-      el("p", {}, `اللي اتشاف من الفضاء: ${ex.why}.`),
+      ex.why ? el("p", {}, `اللي اتشاف من الفضاء: ${ex.why}.`) : null,
       el("p", {}, `اللي حصل${ex.reported ? ` (اتنشر ${ex.reported})` : ""}: ${ex.outcome}.`)) : null;
     const prints = ex ? el("div", { class: "lt-pair" }, ex.frames.map((f, i) => el("figure", { class: "lt-mat" },
       el("img", { class: "lt-pair-img", src: f.src, alt: `${ex.code} من الفضاء، صورة ${f.date}` }),
@@ -529,17 +530,17 @@ function renderValue(root, data, ctx) {
 
   const pr = data.promise;
   if (pr) {
-    const progress = pr.claims.filter((c) => c.claim.startsWith("نسبة"));
+    const progress = pr.claims.filter((c) => c.kind === "progress");
     root.append(el("section", { class: "lt-band" },
       el("h2", { class: "lt-band-title", text: "المطور قال، والفضاء شاف" }),
       el("div", { class: "lt-grid lt-grid-story" },
         el("div", { class: "lt-story" },
           el("p", { class: "lt-lead" }, el("b", {}, code(pr.code)), progress.length
-            ? `: المطور قال ${progress.map((c) => `${c.claim.replace("نسبة التنفيذ ", "")} في ${c.said}`).join("، ثم ")}.`
+            ? `: المطور قال إن نسبة التنفيذ ${progress.map((c) => `${c.amount} في ${c.said}`).join("، ثم ")}.`
             : ": تصريحات المطور المنشورة."),
           el("ul", { class: "lt-claims" }, pr.claims.filter((c) => c.due).map((c) => el("li", {},
             `${c.claim} (اتنشر ${c.said}). `, c.due.passed ? `الفضاء سنة ${c.due.year}: ${c.due.stage || "غير مسجلة"}.` : "الموعد لسه ما جاش."))),
-          el("p", {}, `النهارده عدّى ${months(pr.k3)} على أول موعد تسليم معلن.`),
+          el("p", {}, `لحد ربع `, code(data.asof), ` عدّى ${months(pr.k3)} على أول موعد تسليم معلن.`),
           el("button", { class: "lt-link", type: "button", onclick: () => ctx.open(pr.code) }, "افتح ملف ", code(pr.code))),
         el("div", { class: "lt-pair" }, pr.frames.map((f) => el("figure", { class: "lt-mat" },
           el("img", { class: "lt-pair-img", src: f.src, alt: `${pr.code} من الفضاء، صورة ${f.date}` }),
@@ -552,7 +553,7 @@ function renderValue(root, data, ctx) {
     const max = Math.max(...data.fines.map((f) => f.months));
     root.append(el("section", { class: "lt-band" },
       el("h2", { class: "lt-band-title" }, `${months(data.fine_months)} تأخير ممكن تتحسب عليها غرامة`),
-      el("p", { class: "lt-sub", text: `في ${data.fines.length} كمباوندات، محسوبة من مواعيد التسليم المنشورة. العقد هو اللي بيحدد الغرامة.` }),
+      el("p", { class: "lt-sub", text: `في ${compounds(data.fines.length)}، محسوبة من مواعيد التسليم المنشورة. العقد هو اللي بيحدد الغرامة.` }),
       el("ol", { class: "lt-bars", "aria-label": "أشهر التأخير اللي ممكن تتحسب عليها غرامة، لكل كمباوند" },
         data.fines.map((f) => el("li", {},
           el("bdi", { class: "code", text: f.code }),

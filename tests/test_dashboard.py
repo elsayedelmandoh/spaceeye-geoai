@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 import app
@@ -34,6 +35,8 @@ def test_arabic_counted_nouns_follow_the_number():
 
 def test_developer_claims_read_as_short_arabic_facts():
     assert app.period_ar("2023-06-01", "2023-07-31") == "يونيو–يوليو 2023"
+    assert app.period_ar("2023-06-01", "2023-06-30") == "يونيو 2023"
+    assert app.period_ar("2022-12-01", "2023-02-28") == "ديسمبر 2022–فبراير 2023"
     assert app.period_ar("2025-01-01", "2025-12-31") == "سنة 2025"
     assert app.period_ar(None, "2024-12-31") == "لحد ديسمبر 2024"
     progress = pd.Series({"kind": "progress", "qualifier": "over", "value": 70.0, "subtype": "progress_pct"})
@@ -41,9 +44,24 @@ def test_developer_claims_read_as_short_arabic_facts():
                          "period_start": "2021-10-01", "period_end": "2021-12-31"})
     assert app.claim_text(progress) == "نسبة التنفيذ أكتر من 70%"
     assert app.claim_text(promise) == "وعد بتسليم المرحلة الأولى أكتوبر–ديسمبر 2021"
+    assert app.claim_text(promise.replace({"2021-12-31": None})) == \
+        "وعد بتسليم المرحلة الأولى من غير موعد محدد"
+
+
+def test_frozen_clock_reason_in_arabic_drops_nothing_silently():
+    assert app.why_ar("no building activity for 2 quarter(s) (activity score 0.30); "
+                      "observation complete (19 images in the quarter).") == "لم يُرصد نشاط بناء منذ ربعين"
+    assert app.why_ar("observation complete (19 images in the quarter).") is None
 
 
 def test_a_claim_is_paired_only_with_a_picture_from_within_a_year():
     frames = [{"date": "2016-12-17"}, {"date": "2022-06-13"}]
     assert app.nearest_frame(frames, pd.Timestamp("2021-07-26")) == 1
     assert app.nearest_frame(frames, pd.Timestamp("2019-06-03")) is None
+
+
+def test_passed_date_on_a_possibly_complete_compound_is_not_shown_as_zero_months():
+    row = pd.Series({"level": 3, "K2": 6, "K3": 0, "k3_first_deadline": pd.Timestamp("2022-12-31"),
+                     "may_be_complete": np.bool_(True), "K6": None, "K5_months": 4})
+    k3 = app.compound_payload("C12", row, None, None, "2026Q3")["clocks"][1]
+    assert k3["value"] is None and "محتاج تأكيد" in k3["text"]

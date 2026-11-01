@@ -350,6 +350,7 @@ def level_number(level: object) -> int | None:
 ARABIC_MONTHS = ("يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر",
                  "أكتوبر", "نوفمبر", "ديسمبر")
 COUNT_NOUNS = {"شهر": ("أشهر", "شهرًا"), "ربع": ("أرباع", "ربعًا")}
+DUALS = {"شهر": "شهرين", "ربع": "ربعين"}
 
 
 def month_ar(value: object) -> str:
@@ -364,12 +365,17 @@ def count_ar(n: int, noun: str) -> str:
     return few if 3 <= rest <= 10 else many if rest >= 11 else noun
 
 
+def count_phrase(n: int, noun: str) -> str:
+    """A count inside running text: one and two are said in words, as Arabic does."""
+    return f"{noun} واحد" if n == 1 else DUALS[noun] if n == 2 else f"{n} {count_ar(n, noun)}"
+
+
 def short_reason_ar(text: object) -> str:
     """An Arabic level reason without the level prefix, the activity score or the image count."""
     if _missing(text):
         return ""
     body = re.sub(r"\s*\(درجة النشاط [^)]*\)", "", str(text).split(": ", 1)[-1])
-    body = re.sub(r"(\d+) (شهر|ربع)(?=\s|؛|$|\.)", lambda m: f"{m[1]} {count_ar(int(m[1]), m[2])}", body)
+    body = re.sub(r"(\d+) (شهر|ربع)(?=\s|؛|$|\.)", lambda m: count_phrase(int(m[1]), m[2]), body)
     body = re.sub(r"\((\d{4}-\d{2}-\d{2})\)", lambda m: f"({month_ar(m[1])})", body)
     clauses = [c.strip(" .") for c in body.split("؛") if c.strip(" .") and not c.strip().startswith("عدد الصور")]
     return "، ".join(clauses)
@@ -469,10 +475,6 @@ def _missing(value: object) -> bool:
     return value is None or bool(pd.isna(value))
 
 
-def _fmt(value: object, digits: int = 0) -> str:
-    return "unknown" if _missing(value) else f"{float(value):,.{digits}f}"
-
-
 def _load_first(rel_paths: tuple[str, ...]) -> pd.DataFrame | None:
     for rel in rel_paths:
         df = load_table(rel, TRACK_A)
@@ -569,12 +571,14 @@ def compound_payload(code: str, row: pd.Series | None, history: pd.DataFrame | N
     clocks = [
         _clock("K2 توقف النشاط", "أرباع متتالية من غير نشاط بناء، بعد البداية", get("K2"), "ربع"),
         _clock("K3 عدّاد التسليم", "أشهر من أول موعد تسليم معلن", get("K3"), "شهر",
-               None if not _missing(deadline) else "مفيش موعد تسليم معلن"),
+               "مفيش موعد تسليم معلن" if _missing(deadline) else
+               "الموعد عدّى، وممكن يكون اتسلّم: محتاج تأكيد في الموقع"
+               if _as_bool(get("may_be_complete")) and get("K3") == 0 else None),
         _clock("K6 ما بدأش", "أشهر من الإطلاق أو الوعد من غير بداية إنشاء", get("K6"), "شهر", k6_text),
-        _clock("K5 أشهر ممكن تتحسب عليها غرامة", "العقد هو اللي بيحدد الغرامة", get("K5_months"), "شهر",
-               "مفيش موعد تسليم منشور" if _missing(get("K5_months")) and get("K5_status") == "no_published_deadline"
-               else None),
     ]
+    fine = _clock("K5 أشهر ممكن تتحسب عليها غرامة", "العقد هو اللي بيحدد الغرامة", get("K5_months"), "شهر",
+                  "مفيش موعد تسليم منشور" if _missing(get("K5_months")) and get("K5_status") == "no_published_deadline"
+                  else None)
     quarters = []
     if history is not None and not history.empty:
         for _, h in history.iterrows():
@@ -605,7 +609,7 @@ def compound_payload(code: str, row: pd.Series | None, history: pd.DataFrame | N
         "level": level_number(get("level")), "level_word": level_word(get("level")),
         "reason_ar": reason or None,
         "frames": frames, "file": inspection_payload(code, asof), "credit": WAYBACK_CREDIT,
-        "clocks": clocks,
+        "clocks": clocks, "fine": fine,
         "quarters": quarters, "statements": statements, "deadline": marker,
         "chart_note": None,
         "stages": stages, "stage_words": [{"stage": k, "word": v} for k, v in STAGE_WORDS.items()],
@@ -644,8 +648,13 @@ def period_ar(start: object, end: object) -> str:
 
 def claim_text(row: pd.Series) -> str:
     if row["kind"] == "progress":
-        return f"نسبة التنفيذ {PROGRESS_WORDS.get(row['qualifier'], '')}{float(row['value']):.0f}%"
-    return f"وعد ب{PROMISE_WORDS.get(row['subtype'], 'التسليم')} {period_ar(row['period_start'], row['period_end'])}"
+        return f"نسبة التنفيذ {progress_amount(row)}"
+    when = "من غير موعد محدد" if _missing(row["period_end"]) else period_ar(row["period_start"], row["period_end"])
+    return f"وعد ب{PROMISE_WORDS.get(row['subtype'], 'التسليم')} {when}"
+
+
+def progress_amount(row: pd.Series) -> str:
+    return f"{PROGRESS_WORDS.get(row['qualifier'], '')}{float(row['value']):.0f}%"
 
 
 def nearest_frame(frames: list[dict], when: pd.Timestamp) -> int | None:
@@ -666,7 +675,8 @@ def promise_rows(code: str, ann: pd.DataFrame | None, frames: list[dict], asof: 
         if r["kind"] == "promise" and not _missing(r["period_end"]):
             end = pd.Timestamp(r["period_end"])
             due = {"year": end.year, "passed": bool(end < now), "stage": stages.get(end.year) if end < now else None}
-        rows.append({"said": month_ar(said), "claim": claim_text(r), "stage": stages.get(said.year),
+        rows.append({"said": month_ar(said), "kind": r["kind"], "claim": claim_text(r),
+                     "amount": progress_amount(r) if r["kind"] == "progress" else None, "stage": stages.get(said.year),
                      "frame": nearest_frame(frames, said), "due": due})
     return rows
 
@@ -685,7 +695,7 @@ def promise_example(latest_df: pd.DataFrame, asof: str) -> dict | None:
         last = next((c for c in reversed(claims) if c["frame"] is not None), None)
         shown = [last["frame"], len(frames) - 1] if last and last["frame"] != len(frames) - 1 else [len(frames) - 1]
         return {"code": code, "k3": int(row["K3"]), "claims": claims,
-                "frames": [{**frames[i], "caption": "بعد آخر تصريح" if i != len(frames) - 1 else "آخر صورة"}
+                "frames": [{**frames[i], "caption": "أقرب صورة لآخر تصريح" if i != len(frames) - 1 else "آخر صورة"}
                            for i in shown]}
     return None
 
@@ -721,12 +731,12 @@ OUTCOME_WORDS = {
 }
 # The frozen-clock reasons are stored in English; their fixed clause patterns, in Arabic.
 WHY_PATTERNS = (
-    (r"no building activity for (\d+) quarter\(s\)", lambda m: f"لم يُرصد نشاط بناء منذ {m[1]} {count_ar(int(m[1]), 'ربع')}"),
+    (r"no building activity for (\d+) quarter\(s\)", lambda m: f"لم يُرصد نشاط بناء منذ {count_phrase(int(m[1]), 'ربع')}"),
     (r"building activity detected", lambda m: "رُصد نشاط بناء"),
     (r"first announced handover date \((\w+) (\d{4})\) is still ahead",
      lambda m: f"أول موعد تسليم معلن ({month_ar(f'{m[1]} {m[2]}')}) لم يحن بعد"),
     (r"no confirmed observed start for (\d+) months since the first known launch/promise",
-     lambda m: f"ولم تتأكد بداية إنشاء بعد {m[1]} {count_ar(int(m[1]), 'شهر')} من أول إطلاق أو وعد"),
+     lambda m: f"ولم تتأكد بداية إنشاء بعد {count_phrase(int(m[1]), 'شهر')} من أول إطلاق أو وعد"),
 )
 
 
@@ -738,7 +748,7 @@ def why_ar(text: str) -> str:
             if match:
                 clauses.append(words(match))
                 break
-    return "، ".join(clauses)
+    return "، ".join(clauses) or None
 
 
 def _safe(label: str, fn, *args, default=None):
