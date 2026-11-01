@@ -23,4 +23,10 @@ def test_capacity_view_reports_list_changes_not_level_changes():
     assert label == "2026Q3"
     assert list(view["change"]) == ["leaves", "joins", "unchanged"]
     assert list(view["level"]) == [3, 3, 1]
-    assert view.loc[0, "reason"] == "رصد نشاط بناء، تجاوز أول موعد تسليم معلن (2024-12-31) بمقدار 21 شهر"
+    assert view.loc[0, "reason"] == "رصد نشاط بناء، تجاوز أول موعد تسليم معلن (ديسمبر 2024) بمقدار 21 شهرًا"
+
+
+def test_arabic_counted_nouns_follow_the_number():
+    assert [app.count_ar(n, "شهر") for n in (1, 2, 3, 10, 11, 57, 100, 106)] == [
+        "شهر", "شهر", "أشهر", "أشهر", "شهرًا", "شهرًا", "شهر", "أشهر"]
+    assert app.short_reason_ar("المستوى 3: لم يرصد نشاط بناء منذ 6 ربع (درجة النشاط 0.24)؛ يوجد إعلان تسليم منشور") ==         "لم يرصد نشاط بناء منذ 6 أرباع، يوجد إعلان تسليم منشور"

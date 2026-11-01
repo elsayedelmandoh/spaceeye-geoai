@@ -30,7 +30,7 @@ APP_DATA = Path(os.environ.get("SPACEEYE_APP_DATA") or PIPELINE_APP_DATA)
 # The unpacked v7 release sits next to app_data (setup_review): what-if, backtest, model outputs.
 READY_DATA = APP_DATA.parent / "ready-data"
 
-BANNER_TEXT = "Synthetic - for training only"
+BANNER_TEXT = "بيانات مولّدة للتدريب فقط"
 
 ORIGIN_GENERATED = "🟠"  # generated (stand-in for ACUD data)
 
@@ -53,15 +53,15 @@ class Track:
     generated: bool
 
 
-TRACK_A = Track("A", "Track A: images", generated=False)
-TRACK_B = Track("B", "Track B: images + numbers (generated)", generated=True)
+TRACK_A = Track("A", "المسار أ: صور الأقمار", generated=False)
+TRACK_B = Track("B", "المسار ب: صور وأرقام مولّدة", generated=True)
 TRACKS = {t.label: t for t in (TRACK_A, TRACK_B)}  # Track A first = default
 
 SCREENS = [
-    "1 · Priority map",
-    "2 · Compound file",
-    "3 · What it gives",
-    "4 · Fewer or more visits",
+    "1 · أولوية الزيارات",
+    "2 · ملف الكمباوند",
+    "3 · الفايدة",
+    "4 · لو عدد الزيارات اتغير",
 ]
 
 # --------------------------------------------------------------------------- #
@@ -184,8 +184,8 @@ def inject_css() -> None:
             background: {p['surface']}; border: 1px solid {p['border']} !important; border-radius: 3px;
         }}
         [data-testid="stDataFrame"] {{ border: 1px solid {p['border']}; border-radius: 3px; }}
-        [dir="auto"], .se-rtl {{ unicode-bidi: plaintext; }}
-        .se-rtl {{ direction: rtl; text-align: right; font-size: 1.05rem; }}
+        [data-testid="stMain"], [data-testid="stSidebar"] {{ direction: rtl; }}
+        bdi {{ unicode-bidi: isolate; }}
 
         [data-testid="stSidebar"] {{ border-right: 1px solid {p['border']}; }}
         .se-brand-name {{ font-weight: 600; font-size: 1.2rem; letter-spacing: -0.01em; }}
@@ -229,12 +229,12 @@ def render_banner(track: Track) -> None:
 
 # Print tones for a light ground, checked with the dataviz palette validator (CVD and contrast).
 LEVELS: dict[int, tuple[str, str]] = {
-    1: ("Inspect now", "#A8102C"),
-    2: ("Inspect this cycle", "#E35D17"),
-    3: ("Document review", "#D1A80C"),
-    4: ("Routine", "#2E7D4F"),
+    1: ("زيارة فورية", "#A8102C"),
+    2: ("زيارة الدورة دي", "#E35D17"),
+    3: ("مراجعة مستندات", "#D1A80C"),
+    4: ("متابعة عادية", "#2E7D4F"),
 }
-NOT_ASSESSABLE: tuple[str, str] = ("Not assessable", "#8A8F8B")  # grey
+NOT_ASSESSABLE: tuple[str, str] = ("مش قابل للتقييم", "#8A8F8B")  # grey
 
 REQUIRED_KPI_COLUMNS = {"code", "quarter", "level"}
 
@@ -302,7 +302,7 @@ def build_cycle_list(latest_df: pd.DataFrame) -> pd.DataFrame:
     else:
         df = df[df["level"].isin([1, 2, 3])].sort_values(["level", "code"])
     if "K6_status" in df.columns:  # an empty K6 has a stated reason; show it instead of a blank
-        df["K6"] = [("does not apply" if status == "not_applicable_started" else "unknown") if _missing(k6)
+        df["K6"] = [("لا ينطبق" if status == "not_applicable_started" else "غير معروف") if _missing(k6)
                     else str(int(k6)) for k6, status in zip(df["K6"], df["K6_status"])]
     wanted =("cycle_rank", "code", "level_word", "reason_ar", "K2", "K3", "K6")
     return df[[c for c in wanted if c in df.columns]].reset_index(drop=True)
@@ -337,7 +337,7 @@ def latest_heights() -> dict[str, tuple[float, int]]:
     return {r["code"]: (float(r[COL_HEIGHT]), int(r[COL_YEAR])) for _, r in last.iterrows()}
 
 
-WAYBACK_CREDIT = "Imagery: Esri World Imagery Wayback, credits printed under each picture."
+WAYBACK_CREDIT = "الصور من Esri World Imagery Wayback، وبيانات كل صورة مطبوعة تحتها."
 
 
 def level_number(level: object) -> int | None:
@@ -347,8 +347,32 @@ def level_number(level: object) -> int | None:
         return None
 
 
-def short_reason(row: pd.Series) -> str:
-    return str(row.get("reason", "")).split(": ", 1)[-1].split("; observation")[0]
+ARABIC_MONTHS = ("يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر",
+                 "أكتوبر", "نوفمبر", "ديسمبر")
+COUNT_NOUNS = {"شهر": ("أشهر", "شهرًا"), "ربع": ("أرباع", "ربعًا")}
+
+
+def month_ar(value: object) -> str:
+    stamp = pd.Timestamp(value)
+    return f"{ARABIC_MONTHS[stamp.month - 1]} {stamp.year}"
+
+
+def count_ar(n: int, noun: str) -> str:
+    """Arabic counted noun after a digit: 3-10 take the plural, 11-99 the accusative singular."""
+    few, many = COUNT_NOUNS[noun]
+    rest = n % 100
+    return few if 3 <= rest <= 10 else many if rest >= 11 else noun
+
+
+def short_reason_ar(text: object) -> str:
+    """An Arabic level reason without the level prefix, the activity score or the image count."""
+    if _missing(text):
+        return ""
+    body = re.sub(r"\s*\(درجة النشاط [^)]*\)", "", str(text).split(": ", 1)[-1])
+    body = re.sub(r"(\d+) (شهر|ربع)(?=\s|؛|$|\.)", lambda m: f"{m[1]} {count_ar(int(m[1]), m[2])}", body)
+    body = re.sub(r"\((\d{4}-\d{2}-\d{2})\)", lambda m: f"({month_ar(m[1])})", body)
+    clauses = [c.strip(" .") for c in body.split("؛") if c.strip(" .") and not c.strip().startswith("عدد الصور")]
+    return "، ".join(clauses)
 
 
 def frames_payload(code: str) -> list[dict]:
@@ -376,7 +400,7 @@ def map_payload(latest_df: pd.DataFrame, cycle: pd.DataFrame) -> dict | None:
             "rank": ranks.get(code), "geometry": feat["geometry"],
             "center": [sum(x for x, _ in outline) / len(outline), sum(y for _, y in outline) / len(outline)],
             "height": height[0] if height else 0,
-            "height_text": f"mean height {height[0]:.0f} m ({height[1]})" if height else "no height on file",
+            "height_text": f"متوسط الارتفاع {height[0]:.0f} م ({height[1]})" if height else "مفيش ارتفاع مسجل",
         })
     shown = [c["level"] for c in compounds]
     legend = [{"level": n, "word": word, "count": shown.count(n)} for n, (word, _) in LEVELS.items()]
@@ -392,7 +416,7 @@ def priority_payload(track: Track, latest: tuple[pd.DataFrame, str]) -> dict:
     for _, item in cycle.iterrows():
         row = latest_df[latest_df["code"] == item["code"]].iloc[0]
         items.append({"rank": len(items) + 1, "code": item["code"], "level": level_number(row["level"]),
-                      "level_word": level_word(row["level"]), "why": short_reason(row),
+                      "level_word": level_word(row["level"]), "why": short_reason_ar(row.get("reason_ar")),
                       "frames": frames_payload(item["code"])})
     eligible = int(latest_df["level"].isin([1, 2, 3]).sum())
     payload = {"screen": "priority", "asof": asof, "total": len(latest_df), "cycle": items,
@@ -401,9 +425,8 @@ def priority_payload(track: Track, latest: tuple[pd.DataFrame, str]) -> dict:
     mapped = None if track.generated else map_payload(latest_df, cycle)
     if mapped:
         payload.update(mapped, map=True, map_note=(
-            "Tilt 3D raises each compound by its mean building "
-            f"height (Google Open Buildings, latest year to {MAX_HEIGHT_YEAR}), drawn "
-            f"{MAP_HEIGHT_EXAGGERATION}× taller"))
+            "عرض 3D بيرفع كل كمباوند بمتوسط ارتفاع مبانيه (Google Open Buildings، "
+            f"آخر سنة لحد {MAX_HEIGHT_YEAR})، مكبّر {MAP_HEIGHT_EXAGGERATION} مرات"))
     return payload
 
 
@@ -422,7 +445,7 @@ def render_cycle_download(latest: tuple[pd.DataFrame, str]) -> None:
     cycle = build_cycle_list(latest_df)
     if cycle.empty:
         return
-    st.download_button("⬇️ Download the visit list (CSV)",
+    st.download_button("حمّل قائمة الزيارات (CSV)",
                        data=cycle.rename(columns={"level_word": "level"}).to_csv(index=False).encode("utf-8-sig"),
                        file_name=f"cycle_list_{asof}.csv", mime="text/csv", key="cycle_download")
 
@@ -496,7 +519,7 @@ def find_inspection_file(code: str, asof: str) -> Path | None:
 # ---- screen 2 renderers ----------------------------------------------------- #
 
 STAGE_TABLE = REPO_DIR / "data" / "experiments" / "42_r7_stage_table" / "r7_stage_table.csv"
-STAGE_WORDS = {"S0": "land or ground works", "S1": "under construction", "S2": "complete"}
+STAGE_WORDS = {"S0": "أرض أو أعمال حفر", "S1": "تحت الإنشاء", "S2": "مكتمل"}
 
 
 def space_frames(code: str) -> list[tuple[str, Path]]:
@@ -521,8 +544,8 @@ def stage_of_year(code: str) -> dict[int, str]:
 
 def _clock(label: str, rule: str, value: object, unit: str, text: str | None = None) -> dict:
     if text is None and _missing(value):
-        text = "unknown"
-    return {"label": label, "rule": rule, "unit": unit,
+        text = "غير معروف"
+    return {"label": label, "rule": rule, "unit": None if text else count_ar(int(value), unit),
             "value": None if text else int(value), "text": text}
 
 
@@ -535,17 +558,15 @@ def compound_payload(code: str, row: pd.Series | None, history: pd.DataFrame | N
     """Screen 2 for the front end: frames to compare, the three clocks, the quarterly series, stages."""
     get = (lambda c: None) if row is None else row.get
     deadline = get("k3_first_deadline")
-    k6_text = "does not apply: construction start observed" if (
+    k6_text = "لا ينطبق: الإنشاء بدأ" if (
         _missing(get("K6")) and get("K6_status") == "not_applicable_started") else None
     clocks = [
-        _clock("K2 no activity", "quarters in a row, counted after the start", get("K2"), "quarters"),
-        _clock("K3 handover clock", "months since the first announced handover date", get("K3"), "months",
-               None if not _missing(deadline) else "no announced handover date"),
-        _clock("K6 never started", "months since launch or promise, no construction start", get("K6"), "months",
-               k6_text),
-        _clock("K5 fine-eligible months", "months a fine may apply to; the contract decides the fine",
-               get("K5_months"), "months",
-               "no published deadline" if _missing(get("K5_months")) and get("K5_status") == "no_published_deadline"
+        _clock("K2 توقف النشاط", "أرباع متتالية من غير نشاط بناء، بعد البداية", get("K2"), "ربع"),
+        _clock("K3 عدّاد التسليم", "أشهر من أول موعد تسليم معلن", get("K3"), "شهر",
+               None if not _missing(deadline) else "مفيش موعد تسليم معلن"),
+        _clock("K6 ما بدأش", "أشهر من الإطلاق أو الوعد من غير بداية إنشاء", get("K6"), "شهر", k6_text),
+        _clock("K5 أشهر ممكن تتحسب عليها غرامة", "العقد هو اللي بيحدد الغرامة", get("K5_months"), "شهر",
+               "مفيش موعد تسليم منشور" if _missing(get("K5_months")) and get("K5_status") == "no_published_deadline"
                else None),
     ]
     quarters = []
@@ -560,7 +581,7 @@ def compound_payload(code: str, row: pd.Series | None, history: pd.DataFrame | N
     marker = None
     if not _missing(deadline):
         first = pd.Timestamp(deadline)
-        marker = {"q": str(first.to_period("Q")), "label": f"{first:%b %Y}"}
+        marker = {"q": str(first.to_period("Q")), "label": month_ar(first)}
 
     stages, stage_note = [], None
     if STAGE_TABLE.exists():
@@ -569,19 +590,19 @@ def compound_payload(code: str, row: pd.Series | None, history: pd.DataFrame | N
         stages = [{"year": int(r["year"]), "stage": r["stage"], "word": STAGE_WORDS.get(r["stage"], r["stage"])}
                   for _, r in mine.iterrows()]
         start = mine.loc[mine["stage"] != "S0", "year"]
-        stage_note = (f"Construction first seen in {int(start.min())}." if not start.empty
-                      else "No construction seen yet.")
-    reason = get("reason_ar")
+        stage_note = (f"أول إنشاء ظهر سنة {int(start.min())}." if not start.empty
+                      else "لسه مفيش إنشاء ظاهر.")
+    reason = short_reason_ar(get("reason_ar"))
     return {
         "screen": "compound", "code": code, "asof": asof,
         "level": level_number(get("level")), "level_word": level_word(get("level")),
-        "reason_ar": None if _missing(reason) or not str(reason).strip() else str(reason),
+        "reason_ar": reason or None,
         "frames": frames_payload(code), "credit": WAYBACK_CREDIT, "clocks": clocks,
         "quarters": quarters, "statements": statements, "deadline": marker,
         "chart_note": None,
         "stages": stages, "stage_words": [{"stage": k, "word": v} for k, v in STAGE_WORDS.items()],
         "stage_note": stage_note,
-        "stage_missing": "The stage table (data/experiments/42_r7_stage_table) is not in this checkout.",
+        "stage_missing": "جدول المراحل مش موجود في النسخة دي.",
     }
 
 
@@ -624,10 +645,30 @@ def _as_bool(value: object) -> bool | None:
 
 
 OUTCOME_WORDS = {
-    "partial_delivery_late_completion_postponed": "part of it was delivered late and completion was postponed",
-    "postponed_twice_not_yet_delivered": "the handover was postponed twice and is not yet delivered",
-    "delivered_late": "it was delivered late",
+    "partial_delivery_late_completion_postponed": "جزء منه اتسلّم متأخر، والاستكمال اتأجل",
+    "postponed_twice_not_yet_delivered": "التسليم اتأجل مرتين ولسه ما اتسلمش",
+    "delivered_late": "اتسلّم متأخر",
 }
+# The frozen-clock reasons are stored in English; their fixed clause patterns, in Arabic.
+WHY_PATTERNS = (
+    (r"no building activity for (\d+) quarter\(s\)", lambda m: f"لم يُرصد نشاط بناء منذ {m[1]} {count_ar(int(m[1]), 'ربع')}"),
+    (r"building activity detected", lambda m: "رُصد نشاط بناء"),
+    (r"first announced handover date \((\w+) (\d{4})\) is still ahead",
+     lambda m: f"أول موعد تسليم معلن ({month_ar(f'{m[1]} {m[2]}')}) لم يحن بعد"),
+    (r"no confirmed observed start for (\d+) months since the first known launch/promise",
+     lambda m: f"ولم تتأكد بداية إنشاء بعد {m[1]} {count_ar(int(m[1]), 'شهر')} من أول إطلاق أو وعد"),
+)
+
+
+def why_ar(text: str) -> str:
+    clauses = []
+    for clause in text.split("; "):
+        for pattern, words in WHY_PATTERNS:
+            match = re.search(pattern, clause)
+            if match:
+                clauses.append(words(match))
+                break
+    return "، ".join(clauses)
 
 
 def _safe(label: str, fn, *args, default=None):
@@ -636,7 +677,7 @@ def _safe(label: str, fn, *args, default=None):
     try:
         return fn(*args)
     except Exception as exc:
-        st.warning(f"{label}: could not be read ({type(exc).__name__}).")
+        st.warning(f"الملف {label} ما اتقراش ({type(exc).__name__}).")
         return default
 
 
@@ -659,10 +700,10 @@ def warning_example() -> dict | None:
     shown = [after_alert[0], frames[-1]] if after_alert and after_alert[0] != frames[-1] else frames[-1:]
     return {
         "code": code, "alert": alert, "months": int(case["after_start_months_before"]),
-        "deadline": f"{pd.Timestamp(case['first_deadline']):%b %Y}",
-        "why": str(case["why"]).split(": ", 1)[-1].split("; observation")[0],
+        "deadline": month_ar(case["first_deadline"]),
+        "why": why_ar(str(case["why"]).split(": ", 1)[-1]),
         "outcome": OUTCOME_WORDS.get(outcome.strip(), outcome.strip().replace("_", " ")),
-        "reported": f"{pd.Timestamp(reported):%b %Y}" if reported else "",
+        "reported": month_ar(reported) if reported else "",
         "frames": [{"date": d, "src": front.frame_uri(p, width=640), "foot": front.frame_uri(p, "foot", width=640)}
                    for d, p in shown],
     }
@@ -674,7 +715,7 @@ def value_payload(latest: tuple[pd.DataFrame, str]) -> dict:
     on_list = latest_df[latest_df["code"].isin(cycle["code"])].set_index("code").loc[list(cycle["code"])]
     early = on_list[on_list["k3_first_deadline"].isna() | (on_list["K3"].fillna(0) == 0)]
     now = [{"code": code, "level": level_number(r["level"]), "level_word": level_word(r["level"]),
-            "why": short_reason(r)} for code, r in early.iterrows()]
+            "why": short_reason_ar(r.get("reason_ar"))} for code, r in early.iterrows()]
 
     fines = latest_df.dropna(subset=["K5_months"]).sort_values("K5_months", ascending=False)
     fine_rows = [{"code": c, "months": int(m)} for c, m in zip(fines["code"], fines["K5_months"])]
@@ -691,8 +732,8 @@ def value_payload(latest: tuple[pd.DataFrame, str]) -> dict:
 def screen_priority_map(track: Track) -> None:
     latest = load_latest_kpis()
     if latest is None:
-        page_header("", "Priority map", "Whom should the committee visit first?")
-        st.info("Waiting for real/kpi_values.parquet.")
+        page_header("", "أولوية الزيارات", "اللجنة تزور مين الأول؟")
+        st.info("في انتظار ملف real/kpi_values.parquet.")
         return
     front.mount(priority_payload(track, latest), key="front_priority", on_open=open_compound_file_from("front_priority"))
     render_cycle_download(latest)
@@ -701,8 +742,8 @@ def screen_priority_map(track: Track) -> None:
 def screen_compound_file(track: Track) -> None:
     latest = load_latest_kpis()
     if latest is None:
-        page_header("", "Compound file", "Why this one? Evidence behind the priority level.")
-        st.info("Waiting for real/kpi_values.parquet.")
+        page_header("", "ملف الكمباوند", "ليه الكمباوند ده؟")
+        st.info("في انتظار ملف real/kpi_values.parquet.")
         return
     latest_df, asof = latest
     codes = sorted(latest_df["code"].dropna().astype(str).unique())
@@ -712,25 +753,25 @@ def screen_compound_file(track: Track) -> None:
         st.session_state["compound_code"] = cycle["code"].iloc[0] if not cycle.empty else codes[0]
 
     pick, _ = st.columns([1, 3])
-    code = pick.selectbox("Compound", codes, key="compound_code",
+    code = pick.selectbox("الكمباوند", codes, key="compound_code",
                           format_func=lambda c: f"{c} · {level_word(levels.get(c))}")
     now = latest_df[latest_df["code"] == code]
     row = now.iloc[0] if not now.empty else None
     if row is None:
-        st.warning(f"{code} has no KPI row for {asof}: shown as not assessable.")
+        st.warning(f"مفيش بيانات لـ {code} في {asof}، فهو معروض كـ مش قابل للتقييم.")
     front.mount(compound_payload(code, row, load_kpi_history(code), load_announcements(code, asof), asof),
                 key="front_compound")
     render_inspection_button(code, asof)
 
-    section_title("", "Visit form")
+    section_title("", "نتيجة الزيارة")
     render_ops_visits_form(codes, code)
 
 
 def screen_value(track: Track) -> None:
     latest = load_latest_kpis()
     if latest is None:
-        page_header("", "What it gives", "What SpaceEye adds to the inspection cycle.")
-        st.info("Waiting for real/kpi_values.parquet.")
+        page_header("", "الفايدة", "SpaceEye بيضيف إيه لدورة التفتيش.")
+        st.info("في انتظار ملف real/kpi_values.parquet.")
         return
     front.mount(value_payload(latest), key="front_value", on_open=open_compound_file_from("front_value"))
 
@@ -746,15 +787,6 @@ def screen_value(track: Track) -> None:
 
 CAPACITY_FILE = "what_if/S3/who_moved_and_why.csv"
 CAPACITY_VARIANTS = {"capacity_minus_2": "لو عندك زيارتين بس", "capacity_plus_2": "لو عندك 6 زيارات"}
-
-
-def short_reason_ar(text: object) -> str:
-    """An Arabic level reason without the level prefix, the activity score or the image count."""
-    if _missing(text):
-        return ""
-    body = re.sub(r"\s*\(درجة النشاط [^)]*\)", "", str(text).split(": ", 1)[-1])
-    clauses = [c.strip(" .") for c in body.split("؛") if c.strip(" .") and not c.strip().startswith("عدد الصور")]
-    return "، ".join(clauses)
 
 
 def whatif_view(raw: pd.DataFrame) -> tuple[pd.DataFrame, str]:
@@ -788,11 +820,11 @@ def render_capacity_variant(raw: pd.DataFrame, variant: str) -> None:
 def screen_what_if(track: Track) -> None:
     page_header("", "لو عدد الزيارات اتغير", "مين يدخل القائمة ومين يطلع لو عندك زيارات أقل أو أكتر من 4.")
     if not track.generated:
-        st.warning("الشاشة دي بتقرا ملفات السيناريو، وهي متاحة في Track B من القائمة الجانبية.")
+        st.warning("الشاشة دي بتقرا ملفات السيناريو، وهي متاحة في المسار ب من القائمة الجانبية.")
         return
     raw = _safe(CAPACITY_FILE, load_table, CAPACITY_FILE, track, READY_DATA)
     if raw is None or raw.empty:
-        st.info(f"Waiting for ready-data/{CAPACITY_FILE} (run python -m src.pipeline.setup_review).")
+        st.info(f"في انتظار ملف ready-data/{CAPACITY_FILE}.")
         return
     for column, variant in zip(st.columns(2), CAPACITY_VARIANTS):
         with column:
@@ -816,35 +848,35 @@ def render_sidebar() -> tuple[Track, str]:
         """
         <div class="se-brand">
           <div class="se-brand-name">SpaceEye</div>
-          <div class="se-brand-sub">R7 observatory · New Administrative Capital</div>
+          <div class="se-brand-sub">مرصد R7 · العاصمة الإدارية الجديدة</div>
         </div>
         """,
         unsafe_allow_html=True,
     )
     st.sidebar.divider()
 
-    st.sidebar.markdown('<div class="se-side-label">Data track</div>', unsafe_allow_html=True)
+    st.sidebar.markdown('<div class="se-side-label">مسار البيانات</div>', unsafe_allow_html=True)
     label = st.sidebar.selectbox(
         "Track",
         options=list(TRACKS.keys()),
         index=0,
         key="track_label",
         label_visibility="collapsed",
-        help="Track A: public/derived data. Track B: adds generated ACUD-style data.",
+        help="المسار أ: بيانات عامة ومشتقة منها. المسار ب: بيضيف بيانات مولّدة شبه بيانات الشركة.",
     )
     track = TRACKS[label]
 
     st.sidebar.divider()
-    st.sidebar.markdown('<div class="se-side-label">Screens</div>', unsafe_allow_html=True)
+    st.sidebar.markdown('<div class="se-side-label">الشاشات</div>', unsafe_allow_html=True)
     screen = st.sidebar.radio("Screen", SCREENS, key="screen", label_visibility="collapsed")
 
     st.sidebar.divider()
     if track.generated:
         st.sidebar.markdown(
-            f'<span class="se-pill se-pill-b">{ORIGIN_GENERATED} GENERATED</span>',
+            f'<span class="se-pill se-pill-b">{ORIGIN_GENERATED} بيانات مولّدة للتدريب</span>',
             unsafe_allow_html=True,
         )
-        st.sidebar.caption("Generated numbers tagged · map hidden")
+        st.sidebar.caption("الخريطة مخفية في المسار ده")
     return track, screen
 
 

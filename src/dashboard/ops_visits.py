@@ -27,6 +27,7 @@ OPS_VISITS_PATH = APP_DATA / "ops_visits.csv"
 
 COLUMNS = ["code", "date", "result", "note"]
 RESULT_OPTIONS = ["progressing", "stalled", "complete", "not done"]
+RESULT_WORDS = {"progressing": "الشغل ماشي", "stalled": "متوقف", "complete": "مكتمل", "not done": "الزيارة ما تمتش"}
 
 # Project rule: codes only (C01, C12, D03 ...), never compound/developer names.
 CODE_PATTERN = re.compile(r"^[CD]\d{2,3}$")
@@ -44,9 +45,9 @@ def normalise_code(raw: str) -> str:
 def validate_code(code: str) -> str | None:
     """Return an error message, or None when the code is acceptable."""
     if not code:
-        return "Please enter a code before saving."
+        return "اختار كود الكمباوند قبل الحفظ."
     if not CODE_PATTERN.match(code):
-        return "Use a code such as C07 (codes only, no compound or developer names)."
+        return "استخدم كود زي C07 (أكواد بس، من غير أسماء كمباوندات أو مطورين)."
     return None
 
 
@@ -92,28 +93,28 @@ def _borderless_form(key: str):
 def _render_form_card(codes: list[str], default_code: str) -> None:
     """The input card. The code is picked from the monitored compounds, never typed."""
     with st.container(border=True):
-        st.markdown("#### 📝 Record a visit")
-        st.caption("Pick the compound code. Do not write compound or developer names in the note.")
+        st.markdown("#### سجّل نتيجة الزيارة")
+        st.caption("نتيجة الزيارة الحقيقية بتتسجل هنا. ما تكتبش أسماء كمباوندات أو مطورين في الملاحظة.")
 
         with _borderless_form("ops_visits_form"):
             # Row 1: code and date side by side
             col_code, col_date = st.columns(2)
-            code = col_code.selectbox("Code", codes, index=codes.index(default_code)
+            code = col_code.selectbox("الكود", codes, index=codes.index(default_code)
                                       if default_code in codes else 0)
-            visit_date = col_date.date_input("Date", value=date.today(), max_value=date.today())
+            visit_date = col_date.date_input("التاريخ", value=date.today(), max_value=date.today())
 
             # Row 2: result (half width, matches the column grid above)
             col_result, _ = st.columns(2)
-            result = col_result.selectbox("Result", RESULT_OPTIONS)
+            result = col_result.selectbox("النتيجة", RESULT_OPTIONS, format_func=RESULT_WORDS.get)
 
             # Row 3: free-text note, full width
             note = st.text_area(
-                "Note",
-                placeholder="Optional: what was seen on site.",
+                "ملاحظة",
+                placeholder="اختياري: اللي اتشاف في الموقع.",
                 height=110,
             )
 
-            submitted = st.form_submit_button("💾 Save visit", type="primary")
+            submitted = st.form_submit_button("احفظ الزيارة", type="primary")
 
     if not submitted:
         return
@@ -132,9 +133,9 @@ def _render_form_card(codes: list[str], default_code: str) -> None:
             "note": note.strip(),
         })
     except OSError as exc:  # e.g. file open in Excel, no write permission
-        st.error(f"Could not save the visit: {exc}")
+        st.error(f"الزيارة ما اتحفظتش: {exc}")
     else:
-        st.success(f"Visit saved for {code} ({result}, {visit_date.isoformat()}).")
+        st.success(f"اتحفظت زيارة {code} ({RESULT_WORDS[result]}، {visit_date.isoformat()}).")
 
 
 def _render_visits_card() -> None:
@@ -145,29 +146,29 @@ def _render_visits_card() -> None:
         return
 
     with st.container(border=True):
-        st.markdown("#### 🗒️ Recorded visits")
+        st.markdown("#### الزيارات المسجلة")
 
         total = len(visits)
         last_date = visits["date"].max() if "date" in visits.columns else "-"
         stalled = int((visits["result"] == "stalled").sum())
 
         m_total, m_last, m_stalled = st.columns(3)
-        m_total.metric("Total visits", total)
-        m_last.metric("Latest visit", last_date)
-        m_stalled.metric("Stalled", f"{stalled} of {total}")
+        m_total.metric("عدد الزيارات", total)
+        m_last.metric("آخر زيارة", last_date)
+        m_stalled.metric("متوقف", f"{stalled} من {total}")
 
         st.dataframe(
-            visits.iloc[::-1],  # newest first
+            visits.iloc[::-1].assign(result=lambda d: d["result"].map(RESULT_WORDS).fillna(d["result"])),  # newest first
             use_container_width=True,
             hide_index=True,
             column_config={
-                "code": st.column_config.TextColumn("Code", width="small"),
-                "date": st.column_config.TextColumn("Date", width="small"),
-                "result": st.column_config.TextColumn("Result", width="small"),
-                "note": st.column_config.TextColumn("Note", width="large"),
+                "code": st.column_config.TextColumn("الكود", width="small"),
+                "date": st.column_config.TextColumn("التاريخ", width="small"),
+                "result": st.column_config.TextColumn("النتيجة", width="small"),
+                "note": st.column_config.TextColumn("ملاحظة", width="large"),
             },
         )
-        st.caption(f"Stored in {OPS_VISITS_PATH.as_posix()}")
+        st.caption(f"محفوظة في {OPS_VISITS_PATH.as_posix()}")
 
 
 def render_ops_visits_form(codes: list[str], default_code: str) -> None:

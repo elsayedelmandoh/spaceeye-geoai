@@ -33,6 +33,14 @@ function svg(tag, attrs = {}) {
   return node;
 }
 
+// Arabic counted noun after a digit: 3-10 take the plural, 11-99 the accusative singular.
+function countAr(n, one, few, many) {
+  const rest = n % 100;
+  return rest >= 3 && rest <= 10 ? few : rest >= 11 ? many : one;
+}
+const months = (n) => `${n} ${countAr(n, "شهر", "أشهر", "شهرًا")}`;
+const code = (c) => el("bdi", { text: c });
+
 function level(levelNumber, word) {
   const v = LEVEL_VAR[levelNumber];
   return el("span", { class: "lt-level", style: v ? `--c: var(${v})` : null }, el("i"), word);
@@ -64,31 +72,31 @@ function printBlock(item, onOpen) {
     el("strong", { text: item.code }), date, stage,
     el("span", { class: "lt-open" },
       el("button", { class: "lt-link", type: "button", onclick: () => onOpen(item.code) },
-        `Open the ${item.code} file`)));
+        "افتح ملف ", code(item.code))));
   const buttons = frames.map((f, i) => el("button", {
     type: "button", "aria-pressed": "false",
-    "aria-label": `${item.code}, captured ${f.date}`,
+    "aria-label": `${item.code}، صورة ${f.date}`,
     onclick: () => show(i), onmouseenter: () => show(i),
   }, el("img", { src: f.src, alt: "" }), el("span", { class: "d", text: f.date }),
-     el("span", { class: "s", text: f.stage || "stage not on file" })));
+     el("span", { class: "s", text: f.stage || "المرحلة مش مسجلة" })));
 
   function show(i) {
     if (i === index && img.dataset.ready) return;
     index = i;
     img.dataset.ready = "1";
-    const next = el("img", { src: frames[i].src, alt: `${item.code} from space, captured ${frames[i].date}`, class: "is-next" });
+    const next = el("img", { src: frames[i].src, alt: `${item.code} من الفضاء، صورة ${frames[i].date}`, class: "is-next" });
     frame.append(next);
     requestAnimationFrame(() => next.classList.add("is-on"));
     setTimeout(() => { [...frame.querySelectorAll("img")].slice(0, -1).forEach((n) => n.remove()); }, 220);
     foot.hidden = !frames[i].foot;
-    if (frames[i].foot) { foot.src = frames[i].foot; foot.alt = `Credits printed on the ${frames[i].date} frame`; }
-    date.textContent = `captured ${frames[i].date}`;
+    if (frames[i].foot) { foot.src = frames[i].foot; foot.alt = `بيانات صورة ${frames[i].date}`; }
+    date.replaceChildren("صورة ", code(frames[i].date));
     stage.textContent = frames[i].stage || "";
     buttons.forEach((b, j) => b.setAttribute("aria-pressed", String(j === i)));
   }
 
   const strip = el("ol", {
-    class: "lt-strip", "aria-label": "Capture dates, oldest first",
+    class: "lt-strip", "aria-label": "تواريخ الصور، الأقدم الأول",
     onkeydown: (e) => {
       if (e.key === "ArrowRight" && index < frames.length - 1) { show(index + 1); buttons[index].focus(); }
       if (e.key === "ArrowLeft" && index > 0) { show(index - 1); buttons[index].focus(); }
@@ -106,12 +114,11 @@ function renderPriority(root, data, ctx) {
 
   const head = el("header", { class: "lt-head" },
     el("h1", {}, cycle.length
-      ? ["Visit ", el("b", { text: joinCodes(codes) }), " this cycle"]
-      : ["No compound needs a visit this cycle"]),
+      ? ["زور ", el("b", {}, joinCodes(codes)), " الدورة دي"]
+      : ["مفيش كمباوند محتاج زيارة الدورة دي"]),
     el("p", { class: "lt-sub" },
-      el("span", { text: `${cycle.length} of ${data.total} R7 compounds` }),
-      el("span", { text: `as of ${data.asof}` }),
-      el("span", { text: "the rule recommends, the committee decides" })));
+      el("span", {}, `${cycle.length} من ${data.total} كمباوند في `, code("R7")),
+      el("span", {}, "بيانات ", code(data.asof))));
   root.append(head);
   if (!cycle.length) return;
 
@@ -119,12 +126,12 @@ function renderPriority(root, data, ctx) {
   const rows = cycle.map((item) => el("button", {
     type: "button", "aria-pressed": "false",
     onclick: () => select(item.code),
-  }, el("span", { class: "rank", text: item.rank }), el("span", { class: "code", text: item.code }),
+  }, el("span", { class: "rank", text: item.rank }), el("bdi", { class: "code", text: item.code }),
      level(item.level, item.level_word), el("span", { class: "why", text: item.why })));
-  const list = el("ol", { class: "lt-visits", "aria-label": "Visit order" }, rows.map((r) => el("li", {}, r)));
-  const side = el("aside", { class: "lt-side" }, el("h2", { text: "Visit order" }), list);
+  const list = el("ol", { class: "lt-visits", "aria-label": "ترتيب الزيارات" }, rows.map((r) => el("li", {}, r)));
+  const side = el("aside", { class: "lt-side" }, el("h2", { text: "ترتيب الزيارات" }), list);
   if (data.waiting > 0) {
-    side.append(el("p", { class: "lt-wait", text: `${data.waiting} more at levels 1-3 wait for the next cycle.` }));
+    side.append(el("p", { class: "lt-wait", text: `و${data.waiting} كمباوند كمان مستنيين الدورة الجاية.` }));
   }
   const credit = el("p", { class: "lt-credit", text: data.credit });
   root.append(el("div", { class: "lt-grid" }, el("div", {}, printSlot, credit), side));
@@ -139,7 +146,7 @@ function renderPriority(root, data, ctx) {
     const item = cycle.find((c) => c.code === code);
     printSlot.replaceChildren(item.frames.length
       ? printBlock(item, ctx.open)
-      : el("p", { class: "lt-empty", text: `No curated Wayback frames for ${code} in data/imagery/figures/compare.` }));
+      : el("p", { class: "lt-empty", text: `مفيش صور Wayback مختارة لـ ${code}.` }));
     mapApi?.highlight(code);
   }
   select(selected);
@@ -147,19 +154,20 @@ function renderPriority(root, data, ctx) {
 }
 
 function joinCodes(codes) {
-  if (codes.length < 2) return codes.join("");
-  return `${codes.slice(0, -1).join(", ")} and ${codes[codes.length - 1]}`;
+  const parts = codes.map(code);
+  if (parts.length < 2) return parts;
+  return [...parts.slice(0, -1).flatMap((c, i) => (i ? ["، ", c] : [c])), " و", parts[parts.length - 1]];
 }
 
 function mapBlock(side, data, ctx, onPick) {
-  const holder = el("div", { class: "lt-map", role: "img", "aria-label": "Map of the 12 R7 compounds coloured by priority level" });
-  const tilt = el("button", { class: "lt-chip-btn", type: "button", "aria-pressed": "false", text: "Tilt 3D" });
+  const holder = el("div", { class: "lt-map", role: "img", "aria-label": "خريطة كمباوندات R7 ملوّنة حسب الأولوية" });
+  const tilt = el("button", { class: "lt-chip-btn", type: "button", "aria-pressed": "false", text: "عرض 3D" });
   const wrap = el("div", { class: "lt-map-wrap" }, holder,
     el("div", { class: "lt-map-tools" }, tilt),
     el("div", { class: "lt-map-attr", text: "Basemap: Esri, HERE, Garmin, © OpenStreetMap contributors" }));
   const legend = el("ul", { class: "lt-legend" },
     data.legend.map((l) => el("li", {}, level(l.level, `${l.word} · ${l.count}`))));
-  side.append(el("h2", { text: "Where they are" }), wrap, legend,
+  side.append(el("h2", { text: "أماكنهم" }), wrap, legend,
     el("p", { class: "lt-note", text: data.map_note }));
 
   let deckInstance = null;
@@ -225,8 +233,8 @@ function mapBlock(side, data, ctx, onPick) {
       getCursor: ({ isHovering }) => (isHovering ? "pointer" : "grab"),
       getTooltip: ({ object }) => object && {
         html: `<b>${object.properties.code}</b> · ${object.properties.level_word}<br>${object.properties.height_text}<br>` +
-          (object.properties.rank ? "Click to show it from space" : "Click to open its file"),
-        style: { background: "#1a1d1b", color: "#fff", fontFamily: "Readex Pro, sans-serif", fontSize: "12px",
+          (object.properties.rank ? "اضغط تشوفه من الفضاء" : "اضغط تفتح ملفه"),
+        style: { direction: "rtl", background: "#1a1d1b", color: "#fff", fontFamily: "Readex Pro, sans-serif", fontSize: "12px",
           padding: "6px 8px", borderRadius: "3px" },
       },
     });
@@ -243,7 +251,7 @@ function mapBlock(side, data, ctx, onPick) {
       });
     });
   }).catch(() => {
-    holder.replaceChildren(el("p", { class: "lt-empty", text: "The map needs an internet connection (deck.gl and map tiles)." }));
+    holder.replaceChildren(el("p", { class: "lt-empty", text: "الخريطة محتاجة اتصال بالإنترنت." }));
   });
 
   return {
@@ -261,17 +269,16 @@ function flatten(coords) {
 function renderCompound(root, data) {
   root.append(el("header", { class: "lt-head" },
     el("h1", {}, data.code, level(data.level, data.level_word)),
-    data.reason_ar ? el("p", { class: "lt-reason", dir: "rtl", lang: "ar", text: data.reason_ar }) : null,
-    el("p", { class: "lt-sub" }, el("span", { text: `as of ${data.asof}` }),
-      el("span", { text: "the level is the worst of the three clocks" }))));
+    data.reason_ar ? el("p", { class: "lt-reason", text: data.reason_ar }) : null,
+    el("p", { class: "lt-sub" }, el("span", {}, "بيانات ", code(data.asof)))));
 
   const left = el("div", {}, data.frames.length >= 2 ? swipeBlock(data) :
-    el("p", { class: "lt-empty", text: `Fewer than two curated Wayback frames for ${data.code}: nothing to compare.` }),
+    el("p", { class: "lt-empty", text: `أقل من صورتين Wayback لـ ${data.code}، فمفيش مقارنة.` }),
     el("p", { class: "lt-credit", text: data.credit }));
   const right = el("aside", { class: "lt-side" },
-    el("h2", { text: "The three clocks" }), clocks(data.clocks),
-    el("h2", { text: "Building activity per quarter" }), activityChart(data),
-    el("h2", { class: "lt-section", text: "Construction stage by year" }), stageBand(data));
+    el("h2", { text: "ليه في الأولوية دي" }), clocks(data.clocks),
+    el("h2", { text: "نشاط البناء كل ربع" }), activityChart(data),
+    el("h2", { class: "lt-section", text: "مرحلة الإنشاء كل سنة" }), stageBand(data));
   root.append(el("div", { class: "lt-grid" }, left, right));
 }
 
@@ -284,7 +291,7 @@ function swipeBlock(data) {
   const tagLeft = el("span", { class: "lt-tag left" });
   const tagRight = el("span", { class: "lt-tag right" });
   const frame = el("div", { class: "lt-frame", style: "--cut: 50%" }, imgBefore, imgAfter, el("div", { class: "lt-divider" }), tagLeft, tagRight);
-  const range = el("input", { class: "lt-range", type: "range", min: 0, max: 100, value: 50, "aria-label": "Move the divider between the two capture dates" });
+  const range = el("input", { class: "lt-range", type: "range", min: 0, max: 100, value: 50, "aria-label": "حرّك الفاصل بين الصورتين" });
   const cut = (pct) => { frame.style.setProperty("--cut", `${pct}%`); range.value = Math.round(pct); };
   range.addEventListener("input", () => cut(Number(range.value)));
   let dragging = false;
@@ -297,13 +304,13 @@ function swipeBlock(data) {
   frame.addEventListener("pointerup", () => { dragging = false; });
 
   const option = (f, i) => el("option", { value: i, text: f.stage ? `${f.date} · ${f.stage}` : f.date });
-  const selBefore = el("select", { "aria-label": "Left image date" }, frames.map(option));
-  const selAfter = el("select", { "aria-label": "Right image date" }, frames.map(option));
+  const selBefore = el("select", { "aria-label": "تاريخ الصورة الشمال" }, frames.map(option));
+  const selAfter = el("select", { "aria-label": "تاريخ الصورة اليمين" }, frames.map(option));
   function paint() {
     imgBefore.src = frames[before].src;
-    imgBefore.alt = `${data.code}, captured ${frames[before].date}`;
+    imgBefore.alt = `${data.code}، صورة ${frames[before].date}`;
     imgAfter.src = frames[after].src;
-    imgAfter.alt = `${data.code}, captured ${frames[after].date}`;
+    imgAfter.alt = `${data.code}، صورة ${frames[after].date}`;
     tagLeft.textContent = frames[before].date;
     tagRight.textContent = frames[after].date;
     selBefore.value = before;
@@ -315,9 +322,9 @@ function swipeBlock(data) {
 
   const feet = el("div", { class: "lt-feet" });
   function credits() {
-    feet.replaceChildren(...[["Left", before], ["Right", after]].filter(([, i]) => frames[i].foot).map(([side, i]) =>
-      el("div", {}, el("span", { text: `${side} · ${frames[i].date}` }),
-        el("img", { src: frames[i].foot, alt: `Credits printed on the ${frames[i].date} frame` }))));
+    feet.replaceChildren(...[["الشمال", before], ["اليمين", after]].filter(([, i]) => frames[i].foot).map(([side, i]) =>
+      el("div", {}, el("span", {}, `${side} · `, code(frames[i].date)),
+        el("img", { src: frames[i].foot, alt: `بيانات صورة ${frames[i].date}` }))));
   }
   selBefore.addEventListener("change", credits);
   selAfter.addEventListener("change", credits);
@@ -325,10 +332,10 @@ function swipeBlock(data) {
   return el("figure", { class: "lt-print lt-swipe" },
     el("div", { class: "lt-mat" }, frame,
       el("div", { class: "lt-label" }, el("strong", { text: data.code }),
-        el("span", { text: "drag across the picture to compare two capture dates" }))),
+        el("span", { text: "اسحب على الصورة عشان تقارن بين تاريخين" }))),
     range,
     el("div", { class: "lt-pickers" },
-      el("label", {}, "Left ", selBefore), el("label", {}, "Right ", selAfter)),
+      el("label", {}, "الشمال ", selBefore), el("label", {}, "اليمين ", selAfter)),
     feet);
 }
 
@@ -346,10 +353,10 @@ function activityChart(data) {
   const box = el("div", { class: "lt-chart" });
   const tip = el("div", { class: "lt-tip", hidden: true });
   const keys = el("ul", { class: "lt-keys" },
-    el("li", {}, el("i", { style: "--c: var(--series-a)" }), "Activity score A"),
-    el("li", {}, el("i", { style: "--c: var(--series-dw)" }), "Dynamic World built probability"),
-    data.statements.length ? el("li", {}, el("i", { class: "tri" }), "Developer statement published") : null);
-  if (!rows.length) return el("p", { class: "lt-empty", text: "No quarterly series on file." });
+    el("li", {}, el("i", { style: "--c: var(--series-a)" }), "درجة النشاط ", code("A")),
+    el("li", {}, el("i", { style: "--c: var(--series-dw)" }), "احتمال البناء ", code("Dynamic World")),
+    data.statements.length ? el("li", {}, el("i", { class: "tri" }), "المطور نشر تصريح") : null);
+  if (!rows.length) return el("p", { class: "lt-empty", text: "مفيش بيانات ربع سنوية." });
 
   const H = 210;
   const pad = { l: 30, r: 44, t: 18, b: 24 };
@@ -358,7 +365,7 @@ function activityChart(data) {
     const x = (i) => pad.l + (rows.length === 1 ? 0 : (i / (rows.length - 1)) * (W - pad.l - pad.r));
     const y = (v) => pad.t + (1 - v) * (H - pad.t - pad.b);
     const s = svg("svg", { viewBox: `0 0 ${W} ${H}`, height: H, role: "img",
-      "aria-label": `Activity score and Dynamic World built probability for ${data.code}, ${rows[0].q} to ${rows[rows.length - 1].q}` });
+      "aria-label": `درجة النشاط واحتمال البناء لـ ${data.code} من ${rows[0].q} لـ ${rows[rows.length - 1].q}` });
     for (const v of [0, 0.5, 1]) {
       s.append(svg("line", { x1: pad.l, x2: W - pad.r, y1: y(v), y2: y(v), stroke: "#e6e9e3", "stroke-width": 1 }));
       const t = svg("text", { x: pad.l - 6, y: y(v) + 4, "text-anchor": "end" }); t.textContent = v.toFixed(1); s.append(t);
@@ -380,7 +387,7 @@ function activityChart(data) {
       if (i >= 0) {
         s.append(svg("line", { x1: x(i), x2: x(i), y1: pad.t, y2: H - pad.b, stroke: "#1a1d1b", "stroke-width": 1 }));
         const t = svg("text", { x: x(i) + 5, y: H - pad.b - 6, class: "mark-label" });
-        t.textContent = `first handover date ${data.deadline.label}`; s.append(t);
+        t.textContent = `أول موعد تسليم ${data.deadline.label}`; s.append(t);
       }
     }
     for (const [key, color, name] of [["dw", "#b8860b", "DW"], ["a", "#2b59c3", "A"]]) {
@@ -415,10 +422,10 @@ function activityChart(data) {
         dot.setAttribute("visibility", v === null ? "hidden" : "visible");
         if (v !== null) { dot.setAttribute("cx", xi); dot.setAttribute("cy", y(v)); }
       }
-      const fmt = (v) => (v === null ? "not assessable" : v.toFixed(2));
+      const fmt = (v) => (v === null ? "غير متاح" : v.toFixed(2));
       tip.innerHTML = "";
       tip.append(el("b", { text: r.q }), ` · A ${fmt(r.a)} · DW ${fmt(r.dw)}`,
-        data.statements.includes(r.q) ? " · statement published" : "");
+        data.statements.includes(r.q) ? " · تصريح منشور" : "");
       tip.style.left = `${(xi / W) * 100}%`;
       tip.style.top = `${pad.t}px`;
       tip.hidden = false;
@@ -433,18 +440,18 @@ function activityChart(data) {
   observer.observe(box);
   requestAnimationFrame(draw);
 
-  const table = el("details", {}, el("summary", { text: "Values as a table" }),
-    el("table", {}, el("thead", {}, el("tr", {}, el("th", { text: "Quarter" }), el("th", { text: "A" }), el("th", { text: "DW built" }))),
+  const table = el("details", {}, el("summary", { text: "القيم في جدول" }),
+    el("table", {}, el("thead", {}, el("tr", {}, el("th", { text: "الربع" }), el("th", { text: "A" }), el("th", { text: "DW" }))),
       el("tbody", {}, rows.map((r) => el("tr", {}, el("td", { text: r.q }),
-        el("td", { text: r.a === null ? "n/a" : r.a.toFixed(2) }), el("td", { text: r.dw === null ? "n/a" : r.dw.toFixed(2) }))))));
+        el("td", { text: r.a === null ? "—" : r.a.toFixed(2) }), el("td", { text: r.dw === null ? "—" : r.dw.toFixed(2) }))))));
   return el("div", {}, keys, box, data.chart_note ? el("p", { class: "lt-note", text: data.chart_note }) : null, table);
 }
 
 function stageBand(data) {
   const stages = data.stages;
-  if (!stages.length) return el("p", { class: "lt-empty", text: data.stage_missing || "No stage rows on file." });
+  if (!stages.length) return el("p", { class: "lt-empty", text: data.stage_missing || "مفيش مراحل مسجلة." });
   const color = { S0: "var(--s0)", S1: "var(--s1)", S2: "var(--s2)" };
-  const band = el("div", { style: `display:grid;grid-template-columns:repeat(${stages.length},minmax(0,1fr));gap:2px` },
+  const band = el("div", { class: "lt-band-years", style: `display:grid;grid-template-columns:repeat(${stages.length},minmax(0,1fr));gap:2px` },
     stages.map((s) => el("div", { title: `${s.year}: ${s.word}` },
       el("div", { style: `height:22px;border-radius:2px;background:${color[s.stage] || "var(--l0)"}` }),
       el("div", { style: "font-size:11px;color:var(--ink-3);text-align:center;margin-top:3px;font-variant-numeric:tabular-nums", text: `'${String(s.year).slice(2)}` }))));
@@ -457,42 +464,42 @@ function stageBand(data) {
 
 function renderValue(root, data, ctx) {
   root.append(el("header", { class: "lt-head" },
-    el("h1", {}, "What SpaceEye gives the committee"),
-    el("p", { class: "lt-sub" }, el("span", { text: `${data.total} R7 compounds` }), el("span", { text: `as of ${data.asof}` }))));
+    el("h1", {}, code("SpaceEye"), " بيقدّم إيه للجنة"),
+    el("p", { class: "lt-sub" }, el("span", {}, `${data.total} كمباوند في `, code("R7")), el("span", {}, "بيانات ", code(data.asof)))));
 
   const ex = data.example;
   if (ex || data.now.length) {
     const story = ex ? el("div", { class: "lt-story" },
-      el("p", { class: "lt-lead" }, `In ${ex.alert}, SpaceEye would have flagged `, el("b", { text: ex.code }),
-        `, ${ex.months} months before its first handover date (${ex.deadline}).`),
-      el("p", {}, `What it saw from space: ${ex.why}.`),
-      el("p", {}, `What happened${ex.reported ? ` (reported ${ex.reported})` : ""}: ${ex.outcome}.`)) : null;
+      el("p", { class: "lt-lead" }, "في ", code(ex.alert), "، كان ", code("SpaceEye"), " هينبّه على ", el("b", {}, code(ex.code)),
+        `، قبل أول موعد تسليم له (${ex.deadline}) بـ ${months(ex.months)}.`),
+      el("p", {}, `اللي اتشاف من الفضاء: ${ex.why}.`),
+      el("p", {}, `اللي حصل${ex.reported ? ` (اتنشر ${ex.reported})` : ""}: ${ex.outcome}.`)) : null;
     const prints = ex ? el("div", { class: "lt-pair" }, ex.frames.map((f, i) => el("figure", { class: "lt-mat" },
-      el("img", { class: "lt-pair-img", src: f.src, alt: `${ex.code} from space, captured ${f.date}` }),
-      f.foot ? el("img", { class: "lt-foot", src: f.foot, alt: `Credits printed on the ${f.date} frame` }) : null,
+      el("img", { class: "lt-pair-img", src: f.src, alt: `${ex.code} من الفضاء، صورة ${f.date}` }),
+      f.foot ? el("img", { class: "lt-foot", src: f.foot, alt: `بيانات صورة ${f.date}` }) : null,
       el("figcaption", { class: "lt-label" }, el("strong", { text: f.date }),
-        el("span", { text: i === 0 && ex.frames.length > 1 ? "soon after the first warning" : "latest capture" }))))) : null;
+        el("span", { text: i === 0 && ex.frames.length > 1 ? "بعد أول تنبيه" : "آخر صورة" }))))) : null;
     const nowList = data.now.length ? el("div", {},
-      el("h3", { class: "lt-h3", text: "Flagged now, before any handover date has passed" }),
+      el("h3", { class: "lt-h3", text: "عليهم تنبيه دلوقتي، قبل ما أي موعد تسليم يعدّي" }),
       el("ul", { class: "lt-now" }, data.now.map((n) => el("li", {},
-        el("span", { class: "code", text: n.code }), level(n.level, n.level_word),
+        el("bdi", { class: "code", text: n.code }), level(n.level, n.level_word),
         el("span", { class: "why", text: n.why }),
-        el("button", { class: "lt-link", type: "button", onclick: () => ctx.open(n.code) }, `Open the ${n.code} file`))))) : null;
+        el("button", { class: "lt-link", type: "button", onclick: () => ctx.open(n.code) }, "افتح ملف ", code(n.code)))))) : null;
     root.append(el("section", { class: "lt-band" },
-      el("h2", { class: "lt-band-title", text: "It warns before the date passes" }),
+      el("h2", { class: "lt-band-title", text: "بينبّه قبل ما الميعاد يعدّي" }),
       el("div", { class: "lt-grid lt-grid-story" }, el("div", {}, story, nowList), prints)));
   }
 
   if (data.fines.length) {
     const max = Math.max(...data.fines.map((f) => f.months));
     root.append(el("section", { class: "lt-band" },
-      el("h2", { class: "lt-band-title" }, `${data.fine_months} months of delay may carry a fine`),
-      el("p", { class: "lt-sub", text: `${data.fines.length} compounds, counted from published handover dates; the contract decides the fine.` }),
-      el("ol", { class: "lt-bars", "aria-label": "Months of delay that may carry a fine, by compound" },
+      el("h2", { class: "lt-band-title" }, `${months(data.fine_months)} تأخير ممكن تتحسب عليها غرامة`),
+      el("p", { class: "lt-sub", text: `في ${data.fines.length} كمباوندات، محسوبة من مواعيد التسليم المنشورة. العقد هو اللي بيحدد الغرامة.` }),
+      el("ol", { class: "lt-bars", "aria-label": "أشهر التأخير اللي ممكن تتحسب عليها غرامة، لكل كمباوند" },
         data.fines.map((f) => el("li", {},
-          el("span", { class: "code", text: f.code }),
+          el("bdi", { class: "code", text: f.code }),
           el("span", { class: "track" }, el("span", { class: "bar", style: `width:${(f.months / max) * 100}%` })),
-          el("span", { class: "val", text: `${f.months} months` }))))));
+          el("span", { class: "val", text: months(f.months) }))))));
   }
 }
 
@@ -500,7 +507,7 @@ function renderValue(root, data, ctx) {
 
 export default function (component) {
   const { data, parentElement, setTriggerValue } = component;
-  const root = el("div", { class: "lt" });
+  const root = el("div", { class: "lt", dir: "rtl", lang: "ar" });
   const old = parentElement.querySelector(".lt");
   if (old) old.replaceWith(root);
   else parentElement.append(root);
