@@ -39,7 +39,6 @@ The descriptions below preserve the current board requirements; an unchecked tas
 | T-EL-06 | [Must] D4 · Arabic HTML/PDF output with footer "Drafted by AI, reviewed by [name]" + model + time; 5 stored files for the presentation (deliverable 11) · `app_data/files/` · depends: T-AH-15 · reviewer: salma |
 | T-EL-08 | [Should] D4 · Complaints classifier: 5 classes (delay, stoppage, payment, quality, other) vs keyword baseline; extra test on `complaints_30.csv`; state that texts we wrote do not prove real accuracy · reviewer: elsayed |
 | T-EL-12 | [Could] D4 · S4 material cost +40%, S5 grace 12 → 6 months · reviewer: nada |
-| T-EL-13 | [Could] D4 · FPMI and SAF tests on generated data, conditions written before the run, logged in `team_ideas.md` · reviewer: ahmed |
 
 ### Nada: dashboard
 
