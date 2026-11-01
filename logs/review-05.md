@@ -64,6 +64,8 @@ Method: each area was read in full and recounted with pandas, and the dashboard 
 | 3 | Every file named a reviewer and an AI model | no model call was made | "not reviewed yet" unless a reviewer is given; "deterministic template, no AI model" unless a model wrote the text |
 | 4 | Verifiers matched numbers against all numbers in the source and guarded English words only | a swapped level and a wrong K2 passed; Arabic "متعثر" and causal words passed | values checked against their own field; Arabic terms, causal words and non-code names flagged; failed drafts carry a do-not-use banner; tests added |
 
+Independent check of this branch (before push) found and fixed: a missing K2 crashed the report and read as "K2 = 0" (now "unknown"); a published handover read as "no handover date" (now "handover announced, K3 = 0 by rule"); ordinary Arabic words after "compound" were taken as names (a name is now a quoted word, a Latin proper noun or a definite Arabic noun); Arabic level words had no word end. Note: "27 images in the quarter" still appears in the dossiers because it is part of the stored level reason in `kpi_values` (`reason`, `reason_ar`), not template text.
+
 Regenerated values (2026Q3, as written in the files and recounted from `kpi_values`): C18 level 1, K2 0, K3 57, K5 45; C07 level 2, K2 2, K3 0, K5 no published deadline; C14 level 2, K2 0, K3 21, K5 9; C03 level 3, K2 6, K3 0, K5 no published deadline.
 
 Tests on this branch: `uv run --locked --offline pytest -q` gives 302 passed, 2 skipped, 4 failed; the 4 failures (`test_backtest_replay`, `test_portable_review`) need `releases/ready-data`, which was not present in the partial checkout used for this review.

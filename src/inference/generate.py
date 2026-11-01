@@ -30,11 +30,17 @@ def generate_fallback_grounded_brief(
     k5 = kpis["K5_fine_eligible_months"]
     first_deadline = facts.get("first_deadline")
 
-    if k2:
+    if k2 is None:
+        activity_text = f"عدد أرباع التوقف (K2) غير معروف، وبلغت درجة النشاط {activity:.2f}."
+    elif k2:
         activity_text = f"لم يُرصد نشاط بناء منذ {k2:g} ربع (K2)، وبلغت درجة النشاط {activity:.2f}."
     else:
         activity_text = f"لم تُسجَّل أرباع توقف (K2 = 0)، وبلغت درجة النشاط {activity:.2f}."
-    if k3:
+    if k3 is None:
+        delay_text = "مؤشر التأخير (K3) غير معروف."
+    elif kpis.get("handover_source") == "published first handover" and not k3:
+        delay_text = "التسليم معلن، ومؤشر التأخير K3 = 0 وفق القاعدة."
+    elif k3:
         delay_text = f"تجاوز أول موعد تسليم معلن ({first_deadline}) بمقدار {k3:g} شهراً (K3)."
     elif first_deadline:
         delay_text = f"لم يتجاوز موعد التسليم المعلن ({first_deadline}) (K3 = 0)."

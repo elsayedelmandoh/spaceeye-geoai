@@ -71,11 +71,17 @@ def generate_deterministic_report(
     cmp_count = complaints.get("total_count")
 
     activity_text = f"، ودرجة النشاط ({activity:.2f})" if activity is not None else ""
-    if k2:
+    if k2 is None:
+        activity_sentence = f"عدد أرباع التوقف (K2) غير معروف{activity_text}"
+    elif k2:
         activity_sentence = f"لم يُرصد نشاط بناء منذ ({k2:g}) ربع (K2){activity_text}"
     else:
         activity_sentence = f"لم تُسجَّل أرباع توقف (K2 = 0){activity_text}"
-    if first_deadline:
+    if k3 is None:
+        delay_sentence = "مؤشر التأخير (K3) غير معروف"
+    elif kpis.get("handover_source") == "published first handover" and not k3:
+        delay_sentence = "التسليم معلن، ومؤشر التأخير K3 = (0) وفق القاعدة"
+    elif first_deadline:
         delay_sentence = f"أما موعد التسليم الأول المنشور ({first_deadline})، فمؤشر التأخير K3 = ({k3:g}) شهراً"
     else:
         delay_sentence = f"لا يوجد موعد تسليم أول منشور في بيانات الأساس، ومؤشر التأخير K3 = ({k3:g}) شهراً"
@@ -382,11 +388,11 @@ def generate_deterministic_report(
 
         <div class="grid-stats">
             <div class="stat-card">
-                <div class="stat-val">{k2:g} أرباع</div>
+                <div class="stat-val">{"غير معروف" if k2 is None else f"{k2:g} أرباع"}</div>
                 <div class="stat-lbl">أرباع بلا نشاط بناء (K2)</div>
             </div>
             <div class="stat-card">
-                <div class="stat-val">{k3:g} شهر</div>
+                <div class="stat-val">{"غير معروف" if k3 is None else f"{k3:g} شهر"}</div>
                 <div class="stat-lbl">تأخير التسليم (K3)</div>
             </div>
             <div class="stat-card">

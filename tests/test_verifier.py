@@ -157,6 +157,10 @@ class TestFieldTiedChecks(unittest.TestCase):
         self.assertEqual(res["verdict"], VERDICT_UNSUPPORTED)
         self.assertTrue(any("named" in flag for flag in res["flags"]))
 
+    def test_ordinary_words_after_compound_are_not_names(self):
+        res = verify_inspection_text("ينقل الكمبوند تلقائياً إلى قائمة المتابعة.", self.context, "C01", "2026Q3")
+        self.assertFalse(any("named" in flag for flag in res["flags"]))
+
 
 if __name__ == "__main__":
     unittest.main()

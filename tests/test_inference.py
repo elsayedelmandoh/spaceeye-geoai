@@ -109,6 +109,22 @@ class TestInferencePipeline(unittest.TestCase):
         for invented in ("ركود", "صب خرساني", "توقف إنشائي", "تعثر"):
             self.assertNotIn(invented, html)
 
+    def test_missing_k2_and_k3_read_as_unknown(self):
+        ctx = _context(K2_stoppage_quarters=None, K3_delay_months=None)
+        html = generate_deterministic_report(ctx)
+        brief, _ = generate_fallback_grounded_brief(ctx)
+        for text in (html, brief):
+            self.assertIn("غير معروف", text)
+            self.assertNotIn("K2 = 0", text)
+
+    def test_published_handover_explains_k3_zero(self):
+        ctx = _context(K3_delay_months=0, handover_source="published first handover")
+        html = generate_deterministic_report(ctx)
+        brief, _ = generate_fallback_grounded_brief(ctx)
+        for text in (html, brief):
+            self.assertIn("التسليم معلن", text)
+            self.assertNotIn("لا يوجد موعد تسليم", text)
+
     def test_may_be_complete_reason_is_kept_and_not_replaced(self):
         ctx = _context(level=4, level_word_ar="الرابعة", reason_ar=REASON_MAY_BE_COMPLETE, may_be_complete=True)
         html = generate_deterministic_report(ctx)

@@ -84,7 +84,7 @@ _LEVEL_WORDS = {
 }
 _LEVEL_VALUE = (
     r"(?P<level>[1-4](?!\.?\d)|(?:one|two|three|four)\b"
-    r"|الأولى|الأول|الثانية|الثاني|الثالثة|الثالث|الرابعة|الرابع)"
+    r"|(?:الأولى|الأول|الثانية|الثاني|الثالثة|الثالث|الرابعة|الرابع)(?!\w))"
 )
 _LEVEL_PATTERNS = (
     re.compile(rf"\b(?:priority\s+)?level\b\s*(?:is|=|:)?\s*{_LEVEL_VALUE}", re.IGNORECASE),
@@ -123,9 +123,12 @@ _FORBIDDEN_PATTERNS = tuple(
         r"(?<!\w)(?<!قد يكون )(?<!قد تكون )(?:ال)?مكتمل[ةًا]*(?!\w)",
     )
 )
-_NAMED_COMPOUND_PATTERN = re.compile(r"(?<!\w)(?:ال)?(?:مركب|كمبوند)\s+(?P<name>[^\s،.؛:()]+)")
+# A name is a quoted word, a Latin proper noun, or a definite Arabic noun ("ال...") after "compound".
+# Adverbs and pronoun forms that follow it (e.g. "تلقائياً", "نفسه") are ordinary text, not names.
+_NAMED_COMPOUND_PATTERN = re.compile(
+    r"(?<!\w)(?:ال)?(?:مركب|كمبوند)\s+(?P<name>[«\"'][^»\"']+[»\"']|[A-Z][A-Za-z]+|ال[^\s،.؛:()]+)")
 _COMPOUND_QUALIFIERS = frozenset(
-    {"في", "رمز", "برمز", "هذا", "هذه", "ذو", "الذي", "التابع", "الحالي", "قيد", "ضمن", "على", "من"}
+    {"الذي", "التابع", "الحالي", "المذكور", "السكني", "نفسه", "المعني", "المستهدف"}
 )
 _CAUSAL_PATTERNS = tuple(
     (
