@@ -851,6 +851,52 @@ def render_context_charts(code: str) -> None:
                 st.caption(f"{ORIGIN_DERIVED} derived · dashed line = {VEG_COMPLETE_THRESHOLD:.2f}")
 
 
+def space_frames(code: str) -> list[tuple[str, Path]]:
+    """The curated single-capture Wayback frames of one compound, oldest first: same extent and zoom,
+    chosen for the presentation (data/imagery/figures/compare/<code>/<code>_<n>_<date>.jpg)."""
+    folder = IMAGERY_DIR / "figures" / "compare" / code
+    frames = []
+    for path in sorted(folder.glob(f"{code}_*_*.jpg")):
+        date = path.stem.rsplit("_", 1)[-1]
+        if re.fullmatch(r"\d{4}-\d{2}-\d{2}", date):
+            frames.append((date, path))
+    return frames
+
+
+def stage_of_year(code: str) -> dict[int, str]:
+    if not STAGE_TABLE.exists():
+        return {}
+    table = _read_file(str(STAGE_TABLE))
+    mine = table[table["code"] == code]
+    return {int(y): STAGE_WORDS.get(stage, stage) for y, stage in zip(mine["year"], mine["stage"])}
+
+
+def render_space_timeline(code: str) -> None:
+    """The compound seen from space: one large frame chosen on a date slider, and the strip of all frames."""
+    frames = space_frames(code)
+    if not frames:
+        render_images(code)
+        return
+    section_title("🛰️", "Seen from space")
+    stages = stage_of_year(code)
+    with st.container(border=True):
+        dates = [date for date, _ in frames]
+        chosen = st.select_slider("Capture date", options=dates, value=dates[-1], key=f"frame_{code}")
+        stage = stages.get(int(chosen[:4]))
+        big, grid = st.columns([3, 2])
+        big.image(str(dict(frames)[chosen]), use_container_width=True,
+                  caption=f"{code} · captured {chosen}" + (f" · {stage}" if stage else ""))
+        with grid:
+            for start in range(0, len(frames), 2):
+                for col, (date, frame) in zip(st.columns(2), frames[start:start + 2]):
+                    label = stages.get(int(date[:4]), "")
+                    col.image(str(frame), caption=date + (f" · {label}" if label else ""),
+                              use_container_width=True)
+        st.caption("Esri World Imagery Wayback, single-capture frames with the same extent and zoom; cyan line = "
+                   "reviewed working boundary, not a legal survey. Judged by eye: the images help plan the "
+                   "visit, they are not a measurement. Stage words come from the stage table below.")
+
+
 def render_images(code: str) -> None:
     section_title("🛰️", "Wayback images")
     images = load_images(code)
@@ -1547,12 +1593,12 @@ def screen_compound_file(track: Track) -> None:
         if not _missing(reason) and str(reason).strip():
             st.markdown(f'<div class="se-rtl"><b>السبب:</b> {html.escape(str(reason))}</div>', unsafe_allow_html=True)
 
+        render_space_timeline(code)
         render_kpi_tiles(row, asof)
         render_lineage(row, asof)
         render_curves(code, history, ann, row)
         render_stage_strip(code)
         render_context_charts(code)
-        render_images(code)
         render_inspection_button(code, asof)
         render_track_b_extras(code, track)
 
