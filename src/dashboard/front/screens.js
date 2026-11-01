@@ -292,6 +292,31 @@ function renderCompound(root, data) {
     el("h2", { text: "نشاط البناء كل ربع" }), activityChart(data),
     el("h2", { class: "lt-section", text: "مرحلة الإنشاء كل سنة" }), stageBand(data));
   root.append(el("div", { class: "lt-grid" }, left, right));
+  if (data.promises.length) {
+    root.append(el("section", { class: "lt-band" },
+      el("h2", { class: "lt-band-title", text: "المطور قال، والفضاء شاف" }),
+      el("p", { class: "lt-sub", text: "تصريحات المطور المنشورة، وجنب كل واحد أقرب صورة من الفضاء ومرحلة الإنشاء." }),
+      promiseList(data.promises, data.frames)));
+  }
+}
+
+// One row per published claim; the picture shows only when it differs from the row above.
+function promiseList(rows, frames) {
+  let shown = null;
+  return el("ol", { class: "lt-promises" }, rows.map((r) => {
+    const f = r.frame === null ? null : frames[r.frame];
+    const fresh = f && r.frame !== shown;
+    if (f) shown = r.frame;
+    const due = r.due ? el("p", { class: "lt-due" }, r.due.passed
+      ? `الموعد عدّى. الفضاء سنة ${r.due.year}: ${r.due.stage || "مفيش مرحلة مسجلة"}`
+      : `الموعد لسه ما جاش (${r.due.year}).`) : null;
+    return el("li", {},
+      el("span", { class: "lt-said", text: r.said }),
+      el("div", {}, el("p", { class: "lt-claim", text: r.claim }), due),
+      fresh ? el("figure", { class: "lt-thumb" }, el("img", { src: f.src, alt: `صورة ${f.date}` }),
+        el("figcaption", {}, code(f.date), f.stage ? ` · ${f.stage}` : ""))
+        : f ? el("span") : el("p", { class: "lt-thumb-note", text: `مفيش صورة قريبة. مرحلة السنة: ${r.stage || "غير مسجلة"}` }));
+  }));
 }
 
 function swipeBlock(data) {
@@ -500,6 +525,27 @@ function renderValue(root, data, ctx) {
     root.append(el("section", { class: "lt-band" },
       el("h2", { class: "lt-band-title", text: "بينبّه قبل ما الميعاد يعدّي" }),
       el("div", { class: "lt-grid lt-grid-story" }, el("div", {}, story, nowList), prints)));
+  }
+
+  const pr = data.promise;
+  if (pr) {
+    const progress = pr.claims.filter((c) => c.claim.startsWith("نسبة"));
+    root.append(el("section", { class: "lt-band" },
+      el("h2", { class: "lt-band-title", text: "المطور قال، والفضاء شاف" }),
+      el("div", { class: "lt-grid lt-grid-story" },
+        el("div", { class: "lt-story" },
+          el("p", { class: "lt-lead" }, el("b", {}, code(pr.code)), progress.length
+            ? `: المطور قال ${progress.map((c) => `${c.claim.replace("نسبة التنفيذ ", "")} في ${c.said}`).join("، ثم ")}.`
+            : ": تصريحات المطور المنشورة."),
+          el("ul", { class: "lt-claims" }, pr.claims.filter((c) => c.due).map((c) => el("li", {},
+            `${c.claim} (اتنشر ${c.said}). `, c.due.passed ? `الفضاء سنة ${c.due.year}: ${c.due.stage || "غير مسجلة"}.` : "الموعد لسه ما جاش."))),
+          el("p", {}, `النهارده عدّى ${months(pr.k3)} على أول موعد تسليم معلن.`),
+          el("button", { class: "lt-link", type: "button", onclick: () => ctx.open(pr.code) }, "افتح ملف ", code(pr.code))),
+        el("div", { class: "lt-pair" }, pr.frames.map((f) => el("figure", { class: "lt-mat" },
+          el("img", { class: "lt-pair-img", src: f.src, alt: `${pr.code} من الفضاء، صورة ${f.date}` }),
+          f.foot ? el("img", { class: "lt-foot", src: f.foot, alt: `بيانات صورة ${f.date}` }) : null,
+          el("figcaption", { class: "lt-label" }, el("strong", { text: f.date }),
+            el("span", { text: f.stage ? `${f.caption} · ${f.stage}` : f.caption }))))))));
   }
 
   if (data.fines.length) {

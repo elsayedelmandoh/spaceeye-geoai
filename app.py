@@ -599,18 +599,95 @@ def compound_payload(code: str, row: pd.Series | None, history: pd.DataFrame | N
         stage_note = (f"أول إنشاء ظهر سنة {int(start.min())}." if not start.empty
                       else "لسه مفيش إنشاء ظاهر.")
     reason = short_reason_ar(get("reason_ar"))
+    frames = frames_payload(code)
     return {
         "screen": "compound", "code": code, "asof": asof,
         "level": level_number(get("level")), "level_word": level_word(get("level")),
         "reason_ar": reason or None,
-        "frames": frames_payload(code), "file": inspection_payload(code, asof), "credit": WAYBACK_CREDIT,
+        "frames": frames, "file": inspection_payload(code, asof), "credit": WAYBACK_CREDIT,
         "clocks": clocks,
         "quarters": quarters, "statements": statements, "deadline": marker,
         "chart_note": None,
         "stages": stages, "stage_words": [{"stage": k, "word": v} for k, v in STAGE_WORDS.items()],
         "stage_note": stage_note,
         "stage_missing": "جدول المراحل مش موجود في النسخة دي.",
+        "promises": promise_rows(code, ann, frames, asof),
     }
+
+
+# ---- the developer said, space saw ------------------------------------------ #
+
+PROMISE_WORDS = {
+    "promised_delivery": "التسليم",
+    "promised_delivery_start": "بداية التسليم",
+    "promised_delivery_phase1": "تسليم المرحلة الأولى",
+    "promised_delivery_phase2": "تسليم المرحلة التانية",
+    "promised_completion": "الانتهاء من المشروع",
+}
+PROGRESS_WORDS = {"exact": "", "over": "أكتر من ", "about": "حوالي "}
+FRAME_NEAR_DAYS = 366  # a claim is paired with a picture only if one was captured within a year
+
+
+def period_ar(start: object, end: object) -> str:
+    """A promised period in words: one month, a calendar year, a month range, or 'by' an end date."""
+    end = pd.Timestamp(end)
+    if _missing(start):
+        return f"لحد {month_ar(end)}"
+    start = pd.Timestamp(start)
+    if start.month == 1 and end.month == 12 and start.year == end.year:
+        return f"سنة {end.year}"
+    if (start.year, start.month) == (end.year, end.month):
+        return month_ar(end)
+    first = ARABIC_MONTHS[start.month - 1] if start.year == end.year else month_ar(start)
+    return f"{first}–{month_ar(end)}"
+
+
+def claim_text(row: pd.Series) -> str:
+    if row["kind"] == "progress":
+        return f"نسبة التنفيذ {PROGRESS_WORDS.get(row['qualifier'], '')}{float(row['value']):.0f}%"
+    return f"وعد ب{PROMISE_WORDS.get(row['subtype'], 'التسليم')} {period_ar(row['period_start'], row['period_end'])}"
+
+
+def nearest_frame(frames: list[dict], when: pd.Timestamp) -> int | None:
+    gaps = [abs((pd.Timestamp(f["date"]) - when).days) for f in frames]
+    return None if not gaps or min(gaps) > FRAME_NEAR_DAYS else gaps.index(min(gaps))
+
+
+def promise_rows(code: str, ann: pd.DataFrame | None, frames: list[dict], asof: str) -> list[dict]:
+    """The developer's confirmed public claims, oldest first, each beside what space showed."""
+    if ann is None or ann.empty or "verdict" not in ann.columns:
+        return []
+    stages = stage_of_year(code)
+    now = pd.Period(asof, "Q").end_time
+    rows = []
+    for _, r in ann[ann["verdict"] == "CONFIRMED"].sort_values("published_date").iterrows():
+        said = pd.Timestamp(r["published_date"])
+        due = None
+        if r["kind"] == "promise" and not _missing(r["period_end"]):
+            end = pd.Timestamp(r["period_end"])
+            due = {"year": end.year, "passed": bool(end < now), "stage": stages.get(end.year) if end < now else None}
+        rows.append({"said": month_ar(said), "claim": claim_text(r), "stage": stages.get(said.year),
+                     "frame": nearest_frame(frames, said), "due": due})
+    return rows
+
+
+def promise_example(latest_df: pd.DataFrame, asof: str) -> dict | None:
+    """The compound whose first announced handover date passed longest ago (largest K3), among those
+    with confirmed developer claims: its claims and two pictures (nearest the last claim, latest)."""
+    for _, row in latest_df.sort_values("K3", ascending=False).iterrows():
+        if _missing(row["K3"]) or row["K3"] <= 0:
+            break
+        code = str(row["code"])
+        frames = frames_payload(code)
+        claims = promise_rows(code, load_announcements(code, asof), frames, asof)
+        if not claims or not frames:
+            continue
+        last = next((c for c in reversed(claims) if c["frame"] is not None), None)
+        shown = [last["frame"], len(frames) - 1] if last and last["frame"] != len(frames) - 1 else [len(frames) - 1]
+        return {"code": code, "k3": int(row["K3"]), "claims": claims,
+                "frames": [{**frames[i], "caption": "بعد آخر تصريح" if i != len(frames) - 1 else "آخر صورة"}
+                           for i in shown]}
+    return None
 
 
 # --------------------------------------------------------------------------- #
@@ -714,7 +791,7 @@ def value_payload(latest: tuple[pd.DataFrame, str]) -> dict:
     fine_rows = [{"code": c, "months": int(m)} for c, m in zip(fines["code"], fines["K5_months"])]
 
     return {"screen": "value", "asof": asof, "total": len(latest_df), "visits": len(cycle),
-            "example": warning_example(), "now": now,
+            "example": warning_example(), "now": now, "promise": promise_example(latest_df, asof),
             "fines": fine_rows, "fine_months": sum(r["months"] for r in fine_rows)}
 
 

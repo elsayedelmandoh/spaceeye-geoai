@@ -30,3 +30,20 @@ def test_arabic_counted_nouns_follow_the_number():
     assert [app.count_ar(n, "شهر") for n in (1, 2, 3, 10, 11, 57, 100, 106)] == [
         "شهر", "شهر", "أشهر", "أشهر", "شهرًا", "شهرًا", "شهر", "أشهر"]
     assert app.short_reason_ar("المستوى 3: لم يرصد نشاط بناء منذ 6 ربع (درجة النشاط 0.24)؛ يوجد إعلان تسليم منشور") ==         "لم يرصد نشاط بناء منذ 6 أرباع، يوجد إعلان تسليم منشور"
+
+
+def test_developer_claims_read_as_short_arabic_facts():
+    assert app.period_ar("2023-06-01", "2023-07-31") == "يونيو–يوليو 2023"
+    assert app.period_ar("2025-01-01", "2025-12-31") == "سنة 2025"
+    assert app.period_ar(None, "2024-12-31") == "لحد ديسمبر 2024"
+    progress = pd.Series({"kind": "progress", "qualifier": "over", "value": 70.0, "subtype": "progress_pct"})
+    promise = pd.Series({"kind": "promise", "subtype": "promised_delivery_phase1",
+                         "period_start": "2021-10-01", "period_end": "2021-12-31"})
+    assert app.claim_text(progress) == "نسبة التنفيذ أكتر من 70%"
+    assert app.claim_text(promise) == "وعد بتسليم المرحلة الأولى أكتوبر–ديسمبر 2021"
+
+
+def test_a_claim_is_paired_only_with_a_picture_from_within_a_year():
+    frames = [{"date": "2016-12-17"}, {"date": "2022-06-13"}]
+    assert app.nearest_frame(frames, pd.Timestamp("2021-07-26")) == 1
+    assert app.nearest_frame(frames, pd.Timestamp("2019-06-03")) is None
