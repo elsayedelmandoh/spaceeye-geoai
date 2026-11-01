@@ -12,7 +12,6 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-import altair as alt  # ships with Streamlit
 import pandas as pd
 import streamlit as st
 
@@ -33,7 +32,6 @@ READY_DATA = APP_DATA.parent / "ready-data"
 
 BANNER_TEXT = "Synthetic - for training only"
 
-ORIGIN_DERIVED = "🔵"    # derived from real data
 ORIGIN_GENERATED = "🟠"  # generated (stand-in for ACUD data)
 
 # Folders under app_data/ whose content is generated (separation rule).
@@ -147,29 +145,8 @@ def load_table(rel_path: str, track: Track, root: Path = APP_DATA) -> pd.DataFra
 
 
 # --------------------------------------------------------------------------- #
-# Presentation helpers (origin tags, banner, tiles)
+# Presentation helpers (headers, banner)
 # --------------------------------------------------------------------------- #
-
-def tag_generated(value: object) -> str:
-    """Every generated number carries the orange tag."""
-    return f"{value} {ORIGIN_GENERATED}"
-
-
-def tag_generated_columns(df: pd.DataFrame, skip: tuple[str, ...] = ("code", "quarter")) -> pd.DataFrame:
-    """Append the orange tag to the headers of a generated table."""
-    return df.rename(
-        columns={c: f"{c} {ORIGIN_GENERATED}" for c in df.columns if c not in skip}
-    )
-
-
-def metric_tile(label: str, value: object, unit: str, denominator: str,
-                as_of: str, origin: str) -> None:
-    """One KPI tile = value + unit + denominator + 'as of' + origin (section 9)."""
-    shown = tag_generated(value) if origin == ORIGIN_GENERATED else f"{value}"
-    with st.container(border=True):
-        st.metric(label=f"{origin} {label}", value=f"{shown} {unit}".strip())
-        st.caption(f"{denominator} · as of {as_of}")
-
 
 def page_header(icon: str, title: str, subtitle: str = "") -> None:
     """Screen title + the question the screen answers. Text only: emoji icons are not shown."""
@@ -181,12 +158,6 @@ def page_header(icon: str, title: str, subtitle: str = "") -> None:
 def section_title(icon: str, text: str) -> None:
     """Section label above cards (the emoji argument is kept for call sites but not shown)."""
     st.markdown(f'<div class="se-section">{text}</div>', unsafe_allow_html=True)
-
-
-def how_to_read(points: list[str]) -> None:
-    """Short reading guide, folded so it does not compete with the data."""
-    with st.expander("How to read this screen"):
-        st.markdown("\n".join(f"- {point}" for point in points))
 
 
 def inject_css() -> None:
@@ -211,13 +182,6 @@ def inject_css() -> None:
 
         [data-testid="stVerticalBlockBorderWrapper"] {{
             background: {p['surface']}; border: 1px solid {p['border']} !important; border-radius: 3px;
-        }}
-        [data-testid="stMetricLabel"] p {{
-            color: {p['muted']} !important; font-size: 0.86rem !important; white-space: normal !important;
-        }}
-        [data-testid="stMetricValue"] div {{
-            font-weight: 600; font-size: clamp(1.15rem, 1.6vw, 1.6rem) !important;
-            white-space: normal !important; line-height: 1.25 !important;
         }}
         [data-testid="stDataFrame"] {{ border: 1px solid {p['border']}; border-radius: 3px; }}
         [dir="auto"], .se-rtl {{ unicode-bidi: plaintext; }}
@@ -453,40 +417,14 @@ def open_compound_file_from(key: str):
     return callback
 
 
-def render_cycle_list(latest: tuple[pd.DataFrame, str] | None) -> None:
-    section_title("📋", "Cycle list")
-    if latest is None:
-        st.info("Waiting for real/kpi_values.parquet.")
-        return
-
+def render_cycle_download(latest: tuple[pd.DataFrame, str]) -> None:
     latest_df, asof = latest
     cycle = build_cycle_list(latest_df)
     if cycle.empty:
-        st.info(f"No compounds in the cycle list for {asof}.")
         return
-
-    export = cycle.rename(columns={"level_word": "level"})
-    with st.container(border=True):
-        st.dataframe(
-            export,
-            use_container_width=True,
-            hide_index=True,
-            column_config={
-                "cycle_rank": st.column_config.NumberColumn("Rank", width="small"),
-                "code": st.column_config.TextColumn("Code", width="small"),
-                "level": st.column_config.TextColumn("Priority level", width="medium"),
-                "reason_ar": st.column_config.TextColumn("السبب (Arabic reason)", width="large"),
-            },
-        )
-        left, right = st.columns([3, 1])
-        left.caption(f"{ORIGIN_DERIVED} derived · {len(export)} compound(s) · as of {asof}")
-        right.download_button(
-            "⬇️ Download CSV",
-            data=export.to_csv(index=False).encode("utf-8-sig"),
-            file_name=f"cycle_list_{asof}.csv",
-            mime="text/csv",
-            use_container_width=True,
-        )
+    st.download_button("⬇️ Download the visit list (CSV)",
+                       data=cycle.rename(columns={"level_word": "level"}).to_csv(index=False).encode("utf-8-sig"),
+                       file_name=f"cycle_list_{asof}.csv", mime="text/csv", key="cycle_download")
 
 
 # --------------------------------------------------------------------------- #
@@ -494,19 +432,14 @@ def render_cycle_list(latest: tuple[pd.DataFrame, str] | None) -> None:
 # --------------------------------------------------------------------------- #
 
 KPI_FILE = "real/kpi_values.parquet"
-CONTEXT_FILES = ("real/sat_yearly.parquet", "real/sat_quarterly.parquet")
 ANNOUNCE_FILES = ("real/statements.parquet",)
 # Inspection files: written by the pipeline into app_data, or the stored set committed in the repo.
 FILES_DIRS = (APP_DATA / "files", REPO_DIR / "app_data" / "files")
 IMAGERY_DIR = REPO_DIR / "data" / "imagery"
-# Current model outputs and the training export of the v7 release (under READY_DATA).
-PREDICTIONS_FILE = "tables/current/ml_current.parquet"
-K5_EGP_FILE, K5_EGP_COL = "training/ml_dataset_extended.parquet", "K5_egp"
 
 COL_A, COL_DW = "activity_prob", "built_prob_mean"
-COL_HEIGHT, COL_VEG, COL_YEAR = "height_mean_m", "veg_share", "year"
+COL_HEIGHT, COL_YEAR = "height_mean_m", "year"
 MAX_HEIGHT_YEAR = 2024
-VEG_COMPLETE_THRESHOLD = 0.10
 
 
 def _missing(value: object) -> bool:
@@ -523,12 +456,6 @@ def _load_first(rel_paths: tuple[str, ...]) -> pd.DataFrame | None:
         if df is not None:
             return df
     return None
-
-
-def _kpi_tile(label: str, value: object, unit: str, denominator: str,
-              as_of: str, origin: str, digits: int = 0) -> None:
-    shown = _fmt(value, digits)
-    metric_tile(label, shown, "" if shown == "unknown" else unit, denominator, as_of, origin)
 
 
 def load_kpi_history(code: str) -> pd.DataFrame | None:
@@ -570,64 +497,6 @@ def find_inspection_file(code: str, asof: str) -> Path | None:
 
 STAGE_TABLE = REPO_DIR / "data" / "experiments" / "42_r7_stage_table" / "r7_stage_table.csv"
 STAGE_WORDS = {"S0": "land or ground works", "S1": "under construction", "S2": "complete"}
-
-
-def render_context_charts(code: str) -> None:
-    section_title("🏗️", "Height and vegetation")
-    ctx = _load_first(CONTEXT_FILES)
-    left, right = st.columns(2)
-
-    with left, st.container(border=True):
-        st.markdown("**Mean building height (m)**")
-        if ctx is None or not {"code"} <= set(ctx.columns):
-            st.info("Waiting for annual context (height).")
-        else:
-            has_year = COL_YEAR in ctx.columns
-            has_height = COL_HEIGHT in ctx.columns
-            if not (has_year and has_height):
-                st.info("Height columns not found in context data.")
-            else:
-                h = ctx[(ctx["code"] == code) & (ctx[COL_YEAR] <= MAX_HEIGHT_YEAR)]
-                h = h[[COL_YEAR, COL_HEIGHT]].copy()
-                h["kind"] = h[COL_YEAR].map(lambda y: "estimate (v4)" if y == MAX_HEIGHT_YEAR else "observed")
-                if h[COL_HEIGHT].notna().sum() == 0:
-                    st.info("No height value for this compound.")
-                else:
-                    st.altair_chart(
-                        alt.Chart(h).mark_bar().encode(
-                            x=alt.X(f"{COL_YEAR}:O", title=None),
-                            y=alt.Y(f"{COL_HEIGHT}:Q", title="m"),
-                            opacity=alt.Opacity("kind:N", legend=alt.Legend(orient="bottom", title=None),
-                                                scale=alt.Scale(domain=["observed", "estimate (v4)"],
-                                                                range=[1.0, 0.5])),
-                            color=alt.value("#2B59C3"),
-                            tooltip=[COL_YEAR, alt.Tooltip(COL_HEIGHT, format=".1f"), "kind"],
-                        ).properties(height=240),
-                        use_container_width=True)
-                st.caption(f"Latest year shown: {MAX_HEIGHT_YEAR}")
-
-    with right, st.container(border=True):
-        st.markdown("**Vegetation share (Sentinel-2)**")
-        if ctx is None or not {"code"} <= set(ctx.columns):
-            st.info("Waiting for annual context (vegetation).")
-        else:
-            has_year = COL_YEAR in ctx.columns
-            has_veg = COL_VEG in ctx.columns
-            if not (has_year and has_veg):
-                st.info("Vegetation columns not found in context data.")
-            else:
-                v = ctx[ctx["code"] == code][[COL_YEAR, COL_VEG]]
-                if v[COL_VEG].notna().sum() == 0:
-                    st.info("No vegetation value for this compound.")
-                else:
-                    line = alt.Chart(v).mark_line(point=True, color="#2E7D4F").encode(
-                        x=alt.X(f"{COL_YEAR}:O", title=None),
-                        y=alt.Y(f"{COL_VEG}:Q", title="share 0-1", scale=alt.Scale(domain=[0, 1])),
-                        tooltip=[COL_YEAR, alt.Tooltip(COL_VEG, format=".2f")])
-                    rule = alt.Chart(pd.DataFrame({"y": [VEG_COMPLETE_THRESHOLD]})).mark_rule(
-                        color=PALETTE["muted"], strokeDash=[4, 4]).encode(y="y:Q")
-                    st.altair_chart((line + rule).properties(height=240), use_container_width=True)
-                st.caption(f"Dashed line = {VEG_COMPLETE_THRESHOLD:.2f}")
 
 
 def space_frames(code: str) -> list[tuple[str, Path]]:
@@ -674,6 +543,10 @@ def compound_payload(code: str, row: pd.Series | None, history: pd.DataFrame | N
                None if not _missing(deadline) else "no announced handover date"),
         _clock("K6 never started", "months since launch or promise, no construction start", get("K6"), "months",
                k6_text),
+        _clock("K5 fine-eligible months", "months a fine may apply to; the contract decides the fine",
+               get("K5_months"), "months",
+               "no published deadline" if _missing(get("K5_months")) and get("K5_status") == "no_published_deadline"
+               else None),
     ]
     quarters = []
     if history is not None and not history.empty:
@@ -712,24 +585,6 @@ def compound_payload(code: str, row: pd.Series | None, history: pd.DataFrame | N
     }
 
 
-def render_context_table(row: pd.Series | None) -> None:
-    """Indicators shown for context: they never set the level."""
-    get = (lambda c: None) if row is None else row.get
-    k4 = get("K4")
-    k5, k5_status = get("K5_months"), get("K5_status")
-    k5_text = (_fmt(k5, 0) if not _missing(k5) else
-               "no published deadline" if k5_status == "no_published_deadline" else "unknown")
-    k4_text = "unknown" if _missing(k4) else ("Yes" if k4 in (True, 1, "True", "Yes") else
-                                             "No" if k4 in (False, 0, "False", "No") else str(k4))
-    context = pd.DataFrame({
-        "Indicator": ["A activity score", "K4 assessable", "K5 fine-eligible months"],
-        "Value": [_fmt(get(COL_A), 2), k4_text, k5_text],
-        "Unit": ["probability 0-1", "yes/no (≥ 6 images)", "months (screening, not a fine)"],
-    })
-    section_title("", "Context: shown, but it does not set the level")
-    st.dataframe(context, use_container_width=True, hide_index=True)
-
-
 def render_inspection_button(code: str, asof: str) -> None:
     section_title("📄", "Inspection file")
     path = find_inspection_file(code, asof)
@@ -742,47 +597,6 @@ def render_inspection_button(code: str, asof: str) -> None:
     st.download_button("📄 Open inspection file (Arabic HTML)", data=path.read_bytes(),
                        file_name=path.name, mime="text/html", key=f"insp_{code}")
     st.caption("Drafted by AI from stored facts and reviewed before committee use.")
-
-
-def latest_predictions(preds: pd.DataFrame | None) -> pd.DataFrame | None:
-    """One row per compound and method for the latest quarter. The release stores four methods
-    and approves none as primary, so all four are shown side by side, never one picked silently."""
-    if preds is None or not {"code", "quarter", "method", "p_distressed"} <= set(preds.columns):
-        return None
-    latest = preds[preds["quarter"] == preds["quarter"].max()]
-    return latest.pivot_table(index="code", columns="method", values="p_distressed").round(2)
-
-
-def render_track_b_extras(code: str, track: Track) -> None:
-    if not track.generated:
-        return
-    section_title("🧠", "Generated-data model (Track B)")
-
-    preds = load_table(PREDICTIONS_FILE, track, READY_DATA)
-    table = latest_predictions(preds)
-    left, right = st.columns([2, 1])
-    with left, st.container(border=True):
-        st.markdown("**Probability of 'distressed' in the next 6 months, by method**")
-        if table is None or code not in table.index:
-            st.info(f"No stored prediction for {code} in {PREDICTIONS_FILE}.")
-        else:
-            row = table.loc[[code]].reset_index(drop=True)
-            st.dataframe(tag_generated_columns(row), use_container_width=True, hide_index=True)
-            st.caption(f"{ORIGIN_GENERATED} as of {preds['quarter'].max()} · four methods, none approved as primary · "
-                       "the rule, not these probabilities, selects the cycle list")
-
-    egp = load_table(K5_EGP_FILE, track, READY_DATA)
-    with right:
-        if egp is not None and {"code", "quarter", K5_EGP_COL} <= set(egp.columns):
-            mine = egp[egp["code"] == code].sort_values("quarter")
-            if not mine.empty:
-                last = mine.iloc[-1]
-                _kpi_tile("K5 illustrative exposure", last[K5_EGP_COL], "EGP",
-                          "K5 months × assumed rate × assumed land value; not a fine",
-                          str(last["quarter"]), ORIGIN_GENERATED)
-        else:
-            st.info(f"Waiting for {K5_EGP_FILE}.")
-    st.caption(f"{ORIGIN_GENERATED} Generated for training.")
 
 
 # --------------------------------------------------------------------------- #
@@ -865,17 +679,9 @@ def value_payload(latest: tuple[pd.DataFrame, str]) -> dict:
     fines = latest_df.dropna(subset=["K5_months"]).sort_values("K5_months", ascending=False)
     fine_rows = [{"code": c, "months": int(m)} for c, m in zip(fines["code"], fines["K5_months"])]
 
-    watch = None
-    sat = load_table("real/sat_quarterly.parquet", TRACK_A)
-    if sat is not None and {"code", "quarter", "n_images"} <= set(sat.columns):
-        sat = sat[sat["code"].isin(latest_df["code"])]
-        grid = sat.pivot_table(index="code", columns="quarter", values="n_images", aggfunc="sum")
-        watch = {"codes": list(grid.index), "quarters": [str(q) for q in grid.columns],
-                 "values": [[None if pd.isna(v) else int(v) for v in row] for row in grid.to_numpy()],
-                 "images": int(sat["n_images"].sum())}
     return {"screen": "value", "asof": asof, "total": len(latest_df), "visits": len(cycle),
             "example": warning_example(), "now": now,
-            "fines": fine_rows, "fine_months": sum(r["months"] for r in fine_rows), "watch": watch}
+            "fines": fine_rows, "fine_months": sum(r["months"] for r in fine_rows)}
 
 
 # --------------------------------------------------------------------------- #
@@ -889,27 +695,7 @@ def screen_priority_map(track: Track) -> None:
         st.info("Waiting for real/kpi_values.parquet.")
         return
     front.mount(priority_payload(track, latest), key="front_priority", on_open=open_compound_file_from("front_priority"))
-    how_to_read([
-        "The list is the visit order. Pick a compound to see it from space; the dates under the picture flip it from the oldest to the latest capture.",
-        ("The level is the worst of three clocks: K2 quarters without building activity, K3 months "
-         "past the first announced handover date, K6 months since launch without a confirmed start."),
-        "A compound that may be complete is capped at level 3 and must be confirmed on site.",
-        "The cycle list takes up to 4 compounds from levels 1-3. The rule recommends; the committee decides.",
-    ])
-    with st.expander("Cycle list as a table, with the Arabic reasons"):
-        render_cycle_list(latest)
-
-    if track.generated:
-        section_title("", "Classifier probabilities: 'distressed' in the next 6 months")
-        preds = load_table(PREDICTIONS_FILE, track, READY_DATA)
-        table = latest_predictions(preds)
-        if table is None:
-            st.info(f"Waiting for {PREDICTIONS_FILE}.")
-        else:
-            st.dataframe(tag_generated_columns(table.reset_index()), use_container_width=True, hide_index=True)
-            st.caption(f"{ORIGIN_GENERATED} as of {preds['quarter'].max()} · {len(table)} compounds · "
-                       "four methods, none approved as primary · the rule above, not these "
-                       "probabilities, selects the cycle list")
+    render_cycle_download(latest)
 
 
 def screen_compound_file(track: Track) -> None:
@@ -934,16 +720,7 @@ def screen_compound_file(track: Track) -> None:
         st.warning(f"{code} has no KPI row for {asof}: shown as not assessable.")
     front.mount(compound_payload(code, row, load_kpi_history(code), load_announcements(code, asof), asof),
                 key="front_compound")
-    how_to_read([
-        "Drag across the picture to compare two capture dates; the two lists under it choose the dates.",
-        "The three clocks set the level; the table below shows context that never sets it.",
-        "The curve shows building activity per quarter; the small marks on its top edge are quarters with a published developer statement.",
-        "Record the visit result at the bottom: real visit results are the ground truth this system still lacks.",
-    ])
-    render_context_table(row)
-    render_context_charts(code)
     render_inspection_button(code, asof)
-    render_track_b_extras(code, track)
 
     section_title("", "Visit form")
     render_ops_visits_form(codes, code)

@@ -10,18 +10,6 @@ def test_v7_generated_paths_are_refused_in_track_a():
     assert not app.is_generated_path("real/kpi_values.parquet")
 
 
-def test_latest_predictions_keeps_every_method_of_the_latest_quarter():
-    preds = pd.DataFrame({
-        "code": ["C01", "C01", "C01", "C01"],
-        "quarter": ["2026Q2", "2026Q3", "2026Q3", "2026Q3"],
-        "method": ["a", "a", "b", "c"],
-        "p_distressed": [0.9, 0.1, 0.2, 0.3],
-    })
-    table = app.latest_predictions(preds)
-    assert list(table.columns) == ["a", "b", "c"]
-    assert table.loc["C01", "a"] == 0.1
-
-
 def test_capacity_view_reports_list_changes_not_level_changes():
     raw = pd.DataFrame({
         "quarter": ["2026Q2", "2026Q3", "2026Q3", "2026Q3"],

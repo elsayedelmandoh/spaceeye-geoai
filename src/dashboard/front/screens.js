@@ -494,29 +494,6 @@ function renderValue(root, data, ctx) {
           el("span", { class: "track" }, el("span", { class: "bar", style: `width:${(f.months / max) * 100}%` })),
           el("span", { class: "val", text: `${f.months} months` }))))));
   }
-
-  const w = data.watch;
-  if (w) {
-    const all = w.values.flat().filter((v) => v !== null);
-    const top = Math.max(...all, 1);
-    const cells = el("div", { class: "lt-heat", style: `grid-template-columns: 3.2em repeat(${w.quarters.length}, minmax(0, 1fr))` });
-    w.codes.forEach((code, r) => {
-      cells.append(el("span", { class: "row", text: code }));
-      w.values[r].forEach((v, c) => cells.append(el("span", {
-        class: "cell", title: `${code} · ${w.quarters[c]} · ${v === null ? "no images" : `${v} images`}`,
-        style: v === null ? "background: var(--rule-2)" : `background: rgba(0, 124, 137, ${(0.12 + 0.88 * (v / top)).toFixed(2)})`,
-      })));
-    });
-    cells.append(el("span"));
-    w.quarters.forEach((q) => cells.append(el("span", { class: "yr", text: q.endsWith("Q1") && Number(q.slice(2, 4)) % 2 === 0 ? q.slice(0, 4) : "" })));
-    root.append(el("section", { class: "lt-band" },
-      el("h2", { class: "lt-band-title" }, `${w.images.toLocaleString("en-US")} satellite images, every compound, every quarter`),
-      el("p", { class: "lt-sub", text: `${w.codes.length} compounds watched from ${w.quarters[0]} to ${w.quarters[w.quarters.length - 1]}, and the visit list names ${data.visits} of them this cycle.` }),
-      cells,
-      el("ul", { class: "lt-keys", style: "margin-top:10px" },
-        el("li", {}, el("i", { class: "sq", style: "--c: rgba(0, 124, 137, 0.15)" }), "few images"),
-        el("li", {}, el("i", { class: "sq", style: "--c: rgb(0, 124, 137)" }), `${top} images in a quarter`))));
-  }
 }
 
 // ---------------------------------------------------------------- entry --
