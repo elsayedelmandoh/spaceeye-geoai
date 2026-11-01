@@ -423,7 +423,8 @@ def priority_payload(track: Track, latest: tuple[pd.DataFrame, str]) -> dict:
         row = latest_df[latest_df["code"] == item["code"]].iloc[0]
         items.append({"rank": len(items) + 1, "code": item["code"], "level": level_number(row["level"]),
                       "level_word": level_word(row["level"]), "why": short_reason_ar(row.get("reason_ar")),
-                      "frames": frames_payload(item["code"]), "file": inspection_payload(item["code"], asof)})
+                      "frames": frames_payload(item["code"]), # The stored files hold generated figures (simulated complaints): Track B only.
+                      "file": inspection_payload(item["code"], asof) if track.generated else None})
     eligible = int(latest_df["level"].isin([1, 2, 3]).sum())
     payload = {"screen": "priority", "asof": asof, "total": len(latest_df), "cycle": items,
                "waiting": max(eligible - len(items), 0), "credit": WAYBACK_CREDIT, "map": False,
@@ -899,8 +900,10 @@ def screen_compound_file(track: Track) -> None:
     row = now.iloc[0] if not now.empty else None
     if row is None:
         st.warning(f"مفيش بيانات لـ {code} في {asof}، فهو معروض كـ مش قابل للتقييم.")
-    front.mount(compound_payload(code, row, load_kpi_history(code), load_announcements(code, asof), asof),
-                key="front_compound")
+    payload = compound_payload(code, row, load_kpi_history(code), load_announcements(code, asof), asof)
+    if not track.generated:  # the stored files hold generated figures (simulated complaints)
+        payload["file"] = None
+    front.mount(payload, key="front_compound")
 
     section_title("", "نتيجة الزيارة")
     render_ops_visits_form(codes, code)
