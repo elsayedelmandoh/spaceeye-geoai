@@ -99,7 +99,8 @@ def meters(sig: Signals, st: Setup, tr: Truth, drv, rng: np.random.Generator) ->
     return act.astype(int), kwh, home_occ
 
 
-def acud(sig: Signals, st: Setup, tr: Truth, eco: Economy, rep: Reports, rng: np.random.Generator) -> tuple[np.ndarray, np.ndarray, list]:
+def acud(sig: Signals, st: Setup, tr: Truth, eco: Economy, rep: Reports, rng: np.random.Generator,
+         grace_months: float | None = None) -> tuple[np.ndarray, np.ndarray, list]:
     """warning_issued per month, status level per month, and the warning events (month, kind). ACUD only sees the reports, the meters, the ledgers and the dates."""
     warn, level, events = np.zeros(N, bool), np.array(["on_plan"] * N, dtype=object), []
     t_all = np.arange(N)
@@ -113,7 +114,8 @@ def acud(sig: Signals, st: Setup, tr: Truth, eco: Economy, rep: Reports, rng: np
     seen = (t_all >= max(st.plan_start, first_rep) + W["stall_months"]) & (cert < 90) & ~handed
     stalled3 = seen & (gain(W["stall_months"]) < 0.5)           # no reported progress for a review cycle
     stalled6 = seen & (gain(2 * W["stall_months"]) < 1.0)       # six months in a row
-    grace = next((t for t in range(N) if sig.k3[t] > W["complaint_grace_months"]), None)
+    grace_limit = W["complaint_grace_months"] if grace_months is None else grace_months
+    grace = next((t for t in range(N) if sig.k3[t] > grace_limit), None)
     last_warn, cur = None, "on_plan"
     for t in range(N):
         review = MONTHS[t].month in W["review_months"]
