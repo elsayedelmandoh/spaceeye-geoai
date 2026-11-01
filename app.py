@@ -18,7 +18,7 @@ import pydeck as pdk
 import streamlit as st
 
 from src.dashboard import insights
-from src.dashboard.ops_visits import render_ops_visits_form  # T-NA-04
+from src.dashboard.ops_visits import load_visits, render_ops_visits_form  # T-NA-04
 from src.pipeline.common import APP as PIPELINE_APP_DATA
 
 # --------------------------------------------------------------------------- #
@@ -260,6 +260,7 @@ def inject_css() -> None:
         .se-pill-b {{ color: {p['accent_b']}; border-color: {p['accent_b']}; }}
         .se-move {{ padding: 0.6rem 0; border-bottom: 1px solid {p['border']}; }}
         .se-move-why {{ color: {p['muted']}; margin-top: 0.25rem; }}
+        [data-testid="stMetricValue"], [data-testid="stMetricValue"] > div {{ white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.2; }}
         .synthetic-banner {{
             position: sticky; top: 0.5rem; z-index: 1000;
             display: flex; align-items: center; justify-content: center; gap: 0.6rem;
@@ -716,8 +717,13 @@ def render_kpi_tiles(row: pd.Series | None, asof: str) -> None:
         _kpi_tile("K2 no activity", get("K2"), "quarter(s)",
                   "counted after the start: 4 active quarters or a published launch", asof, K_ORIGIN["K2"])
     with tiles[2]:
-        _kpi_tile("K3 handover clock", get("K3"), "months",
-                  "since first announced handover date", asof, K_ORIGIN["K3"])
+        k3_text = None if row is None else insights.k3_text(row)
+        if k3_text:
+            metric_tile("K3 handover clock", k3_text, "", "since first announced handover date", asof,
+                        K_ORIGIN["K3"])
+        else:
+            _kpi_tile("K3 handover clock", get("K3"), "months",
+                      "since first announced handover date", asof, K_ORIGIN["K3"])
     with tiles[3]:
         if _missing(get("K6")) and get("K6_status") == "not_applicable_started":
             metric_tile("K6 never started", "does not apply", "",
@@ -836,14 +842,95 @@ def render_inspection_button(code: str, asof: str) -> None:
     section_title("📄", "Inspection file")
     path = find_inspection_file(code, asof)
     if path is None:
-        stored = sorted({p.name.split("_")[0] for d in FILES_DIRS for p in d.glob("C*_*.html")})
+        stored = sorted({p.name.split("_")[0] for d in FILES_DIRS for p in d.glob(f"C*_{asof}*.html")})
         st.button("📄 Inspection file (Arabic)", disabled=True, key=f"insp_{code}")
-        st.caption(f"No inspection file stored for {code}. Stored files cover: "
+        st.caption(f"No inspection file stored for {code} in {asof}. Stored files cover: "
                    f"{', '.join(stored) if stored else 'none'}.")
         return
     st.download_button("📄 Open inspection file (Arabic HTML)", data=path.read_bytes(),
                        file_name=path.name, mime="text/html", key=f"insp_{code}")
-    st.caption("Drafted by AI from stored facts and reviewed before committee use.")
+
+
+def last_recorded_visit(code: str) -> dict | None:
+    visits = load_visits()
+    if visits is None or visits.empty:
+        return None
+    mine = visits[visits["code"] == code].sort_values("date")
+    return None if mine.empty else {"date": str(mine.iloc[-1]["date"]), "result": str(mine.iloc[-1]["result"])}
+
+
+def render_compound_header(row: pd.Series | None, code: str) -> None:
+    """Level, suggested action and last recorded visit in one line."""
+    if row is None:
+        return
+    action, why = insights.suggested_action(row)
+    visit = last_recorded_visit(code)
+    seen = "no visit recorded yet" if visit is None else f"{visit['date']} ({html.escape(visit['result'])})"
+    number = insights.level_number(row.get("level"))
+    level = level_word(row.get("level")) if number is None else f"Level {number} · {level_word(number)}"
+    finding(f"<b>{level}.</b> Suggested action: <b>{action}</b>. {html.escape(why)} Last recorded visit: {seen}.")
+    st.caption("The action is a suggestion; the committee decides.")
+
+
+def render_level_history(code: str) -> None:
+    section_title("🗓️", "Level history")
+    kpis = load_table(KPI_FILE, TRACK_A)
+    if kpis is None:
+        return
+    history = insights.level_history(kpis)
+    mine = history[history["code"] == code].copy()
+    mine["Level"] = mine["level"].map(level_word)
+    words = [*(word for word, _ in LEVELS.values()), NOT_ASSESSABLE[0]]
+    colours = [*(colour for _, colour in LEVELS.values()), NOT_ASSESSABLE[1]]
+    chart = alt.Chart(mine).mark_rect(stroke=PALETTE["bg"], strokeWidth=2).encode(
+        x=alt.X("quarter:O", title=None, sort=sorted(mine["quarter"].unique())),
+        color=alt.Color("Level:N", title=None, legend=alt.Legend(orient="bottom"),
+                        scale=alt.Scale(domain=words, range=colours)),
+        tooltip=["quarter", "Level"],
+    )
+    with st.container(border=True):
+        st.altair_chart(chart.properties(height=60), use_container_width=True)
+
+
+def stage_of_year(code: str) -> dict[int, str]:
+    if not STAGE_TABLE.exists():
+        return {}
+    table = enforce_no_names(_read_file(str(STAGE_TABLE)), "r7_stage_table.csv")
+    mine = table[table["code"] == code]
+    return {int(y): STAGE_WORDS.get(stage, stage) for y, stage in zip(mine["year"], mine["stage"])}
+
+
+def space_frames(code: str) -> list[dict]:
+    """The curated single-capture Wayback frames of one compound, oldest first, as {date} dicts."""
+    folder = IMAGERY_DIR / "figures" / "compare" / code
+    dates = (path.stem.rsplit("_", 1)[-1] for path in sorted(folder.glob(f"{code}_*_*.jpg")))
+    return [{"date": date} for date in dates if re.fullmatch(r"\d{4}-\d{2}-\d{2}", date)]
+
+
+def _due_text(due: dict | None) -> str:
+    if due is None:
+        return ""
+    if not due["passed"]:
+        return f"{due['year']} still ahead"
+    return f"{due['year']} passed, space showed {due['stage']}" if due["stage"] else f"{due['year']} passed"
+
+
+def render_claims(code: str, ann: pd.DataFrame | None, asof: str) -> None:
+    section_title("📣", "Developer claims vs what space showed")
+    rows = [] if ann is None or ann.empty or "verdict" not in ann.columns else insights.promise_rows(
+        ann, space_frames(code), stage_of_year(code), asof)
+    if not rows:
+        st.info(f"No confirmed developer claim for {code}.")
+        return
+    table = pd.DataFrame({
+        "Published": [r["said"] for r in rows],
+        "Claim": [r["claim"] for r in rows],
+        "Promised year": [_due_text(r["due"]) for r in rows],
+        "Nearest picture": ["none within a year" if r["capture"] is None else
+                            f"{r['capture']['date']}: {r['capture']['stage'] or 'stage not on file'}"
+                            for r in rows],
+    })
+    st.dataframe(table, hide_index=True, use_container_width=True)
 
 
 def _find_col(df: pd.DataFrame, aliases: tuple[str, ...]) -> str | None:
@@ -926,14 +1013,17 @@ def screen_compound_file(track: Track) -> None:
 
         if row is None:
             st.warning(f"{code} has no KPI row for {asof}: shown as not assessable.")
+        render_compound_header(row, code)
         reason = None if row is None else insights.short_reason_ar(row.get("reason_ar"))
         if not _missing(reason) and str(reason).strip():
             st.markdown(f'<div class="se-rtl"><b>السبب:</b> {html.escape(str(reason))}</div>', unsafe_allow_html=True)
 
         render_kpi_tiles(row, asof)
+        render_level_history(code)
         render_curves(code, history, ann, row)
         render_stage_strip(code)
         render_images(code)
+        render_claims(code, ann, asof)
         render_inspection_button(code, asof)
 
         section_title("📝", "Visit form")
