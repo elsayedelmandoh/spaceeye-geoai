@@ -34,7 +34,7 @@ Speaker note: a committee cannot visit everything every cycle, so the question i
 
 ## Slide 5. The Track A rule
 
-- Priority level = the worst of K2 (quarters with no activity after construction started), K3 (months since the first announced handover date) and K6 (months since the first launch or promise with no confirmed start). No weights.
+- Priority level = the worst of K2 (quarters with no activity after construction started), K3 (months since the first announced handover date) and K6 (months since the first launch or promise with no confirmed start). No weights. Then a "may be complete" cap: if a handover is announced or vegetation share is 0.10 or more, the level is at most 3 (in 2026Q3 this sets 3 of 12 levels: C03, C12 and C21).
 - Level 1 inspect now; level 2 inspect this cycle; level 3 document review; level 4 routine. Follow-up states without a level: not started, start unknown, not assessable.
 - Legal references: 12 months handover grace and 24 months right to refund (Decree 2184/2022).
 - K5 (fine-eligible months) is illustrative and never sets a level.
@@ -53,6 +53,7 @@ Speaker note: a committee cannot visit everything every cycle, so the question i
 - Early alert in 1 of 6 cases (after-start reading, case C21) and 0 of 6 (point-in-time reading).
 - The criterion of 5 cases was fixed before computing and was not lowered. It was not achieved.
 - The diagnosis shows imaging was sufficient in every case (at least 10 images per quarter). In the five missed cases the sites were seen as active, so the rule had no stall to detect. The rule measures stalls and passed dates, not pace against plan.
+- The one hit (C21) came from a start date set by publication timing and a lag in the activity score, not from a real stall during construction, so it does not carry over to the other five.
 - These counts do not prove why each delay happened.
 - Source: `data/BACKTEST_CURRENT.md`, `data/experiments/35_backtest_diagnosis/DIAGNOSIS.md`.
 
@@ -72,7 +73,7 @@ Speaker note: a committee cannot visit everything every cycle, so the question i
 ## Slide 8b. The twin: one what-if scenario
 
 - Light compound-level twin: observed state from satellites and statements, simulated hidden state from the generator, what-if scenarios.
-- Scenarios in the plan: S1 dollar shock, S2 collections drop, S3 inspection capacity change. Pick one live and show which compounds move up in priority.
+- Scenarios: S1 dollar shock, S2 collections drop, S3 inspection capacity change. Demo S3 live: who enters or leaves the cycle list at 2 or 6 visits instead of 4 (45 of 744 rows change list membership: 28 at capacity 2, 17 at capacity 6; levels never change). Say plainly that S1 and S2 change nothing in the list or the levels (0 of 216 rows each).
 - Generated (🟠), orange banner on screen, no map.
 - Not a 3D or real-time twin. [confirm the what-if screen is ready; if not, drop the word "twin" and say "observatory", as the spec's fallback says]
 

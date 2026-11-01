@@ -16,10 +16,17 @@ import re
 from pathlib import Path
 from typing import Any
 
+from src.inference.verifier import (
+    forbidden_terms,
+    named_compounds,
+    stated_value_mismatches,
+)
+
 # Known causal trigger words requiring human inspector review
 CAUSAL_WORDS_AR = [
     "بسبب", "أدى إلى", "أدت إلى", "نتيجة ل", "يرجع إلى", "ترجع إلى",
-    "علّة", "سببه", "نتج عن", "بدافع", "بداعي"
+    "علّة", "سببه", "نتج عن", "بدافع", "بداعي",
+    "لأن", "لأنه", "لأنها", "جراء", "نتيجة"
 ]
 
 CAUSAL_WORDS_EN = [
@@ -28,6 +35,8 @@ CAUSAL_WORDS_EN = [
 ]
 
 ALL_CAUSAL_TERMS = CAUSAL_WORDS_AR + CAUSAL_WORDS_EN
+
+DATE_RE = re.compile(r"\b\d{4}-\d{2}-\d{2}\b|\b\d{4}Q[1-4]\b")
 
 # Verifier Verdicts
 VERDICT_CORRECT = "correct"
@@ -87,8 +96,8 @@ def extract_context_facts(context: dict[str, Any]) -> tuple[set[str], set[str], 
 
     walk(context)
 
-    # Standard benign numbers allowed in structured outputs (e.g. 3 questions, 1 paragraph, 2 images, 2184, 119)
-    benign_numbers = {"1", "2", "3", "4", "5", "2184", "2022", "119", "2008", "151", "2020", "27"}
+    # Statute references quoted by the templates (Decree 2184/2022, Law 119/2008, Law 151/2020)
+    benign_numbers = {"2184", "2022", "119", "2008", "151", "2020"}
     known_numbers.update(benign_numbers)
 
     return known_numbers, known_dates, known_codes
@@ -108,8 +117,8 @@ def find_causal_words(text: str) -> list[str]:
 
 def extract_numbers_from_text(text: str) -> list[str]:
     """Extracts all numbers and percentage values from text."""
-    # Matches numbers like 0.34, 34%, 120, 2026
-    raw_nums = re.findall(r"\b\d+(?:\.\d+)?%?\b", text)
+    # Matches numbers like 0.34, 34%, 120, 2026; dates are checked whole, not as 3 numbers
+    raw_nums = re.findall(r"\b\d+(?:\.\d+)?%?\b", DATE_RE.sub(" ", text))
     cleaned = []
     for n in raw_nums:
         # remove % if present
@@ -126,8 +135,7 @@ def extract_codes_from_text(text: str) -> list[str]:
 
 def extract_dates_from_text(text: str) -> list[str]:
     """Extracts dates YYYY-MM-DD or YYYYQ[1-4] or standalone years from text."""
-    dates = re.findall(r"\b\d{4}-\d{2}-\d{2}\b|\b\d{4}Q[1-4]\b", text)
-    return dates
+    return DATE_RE.findall(text)
 
 
 def verify_inspection_text(
@@ -172,18 +180,23 @@ def verify_inspection_text(
             "details": "Source facts context is empty or None."
         }
 
-    known_numbers, _known_dates, known_codes = extract_context_facts(source_context)
+    known_numbers, known_dates, known_codes = extract_context_facts(source_context)
     
     # 1. Check Causal Words
     causal_found = find_causal_words(text)
     
-    # 2. Check Numbers
+    # 2. Check Numbers: any value tied to a level, K label or unit must equal that field
+    kpis = source_context.get("kpis")
+    field_mismatches = stated_value_mismatches(text, kpis if isinstance(kpis, dict) else None)
+    mismatched_values = {token for token, _note in field_mismatches}
     text_numbers = extract_numbers_from_text(text)
     wrong_numbers = []
     for num in text_numbers:
         # Check if number matches as integer, float, or rounded
         matched = False
-        if num in known_numbers:
+        if num in mismatched_values:
+            pass
+        elif num in known_numbers:
             matched = True
         else:
             try:
@@ -195,7 +208,9 @@ def verify_inspection_text(
                 pass
         if not matched:
             wrong_numbers.append(num)
-            
+    wrong_numbers.extend(token for token, _note in field_mismatches if not token.replace(".", "").isdigit())
+    wrong_numbers.extend(date for date in extract_dates_from_text(text) if date not in known_dates)
+
     # 3. Check Codes
     text_codes = extract_codes_from_text(text)
     wrong_codes = []
@@ -211,10 +226,25 @@ def verify_inspection_text(
         verdict = VERDICT_WRONG_NUMBER
         flags.append(f"Unverified numbers found: {wrong_numbers}")
 
+    if field_mismatches:
+        flags.append("Stated values differ from their source field: " + "; ".join(note for _token, note in field_mismatches))
+
     if wrong_codes:
         if verdict == VERDICT_CORRECT:
             verdict = VERDICT_UNSUPPORTED
         flags.append(f"Unverified entity codes found: {wrong_codes}")
+
+    forbidden_found = forbidden_terms(text)
+    if forbidden_found:
+        if verdict == VERDICT_CORRECT:
+            verdict = VERDICT_UNSUPPORTED
+        flags.append(f"Forbidden wording found: {forbidden_found}")
+
+    named_found = named_compounds(text)
+    if named_found:
+        if verdict == VERDICT_CORRECT:
+            verdict = VERDICT_UNSUPPORTED
+        flags.append(f"Compound named without a code: {named_found}")
 
     if causal_found:
         flags.append(f"Speculative causal terms requiring inspector review: {causal_found}")

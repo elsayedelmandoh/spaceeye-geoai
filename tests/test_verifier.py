@@ -47,7 +47,7 @@ class TestInspectionVerifier(unittest.TestCase):
         """Valid text referencing only factual context numbers and codes passes."""
         valid_text = (
             "وفقاً للبيانات المعتمدة للمشروع C07 بالمنطقة R7 حتى الربع 2026Q3، "
-            "بلغت نسبة الإنجاز المرصودة A نحو 0.34 مع استقرار مؤشر K2 عند 0.28 ومؤشر K4 عند 0.12."
+            "بلغت درجة النشاط المرصودة A نحو 0.34 مع استقرار مؤشر K2 عند 0.28 ومؤشر K4 عند 0.12."
         )
         res = verify_inspection_text(valid_text, self.sample_context, "C07", "2026Q3")
         self.assertEqual(res["verdict"], VERDICT_CORRECT)
@@ -106,6 +106,61 @@ class TestInspectionVerifier(unittest.TestCase):
         path = log_verification_result(res, "C07", "2026Q3", "Preview text", test_log)
         self.assertTrue(Path(path).exists())
         test_log.unlink()
+
+class TestFieldTiedChecks(unittest.TestCase):
+
+    def setUp(self):
+        self.context = {
+            "compound_code": "C01",
+            "kpis": {
+                "level": 4,
+                "A": 0.87,
+                "K2": 0.0,
+                "K2_stoppage_quarters": 0.0,
+                "K3": 5,
+                "K3_delay_months": 5,
+                "series": [{"level": 2, "K2": 2.0}],
+            },
+        }
+
+    def test_swapped_level_is_a_wrong_number(self):
+        res = verify_inspection_text("المركب C01 في المستوى 2.", self.context, "C01", "2026Q3")
+        self.assertEqual(res["verdict"], VERDICT_WRONG_NUMBER)
+        self.assertIn("2", res["wrong_numbers"])
+        ok = verify_inspection_text("المركب C01 في المستوى 4.", self.context, "C01", "2026Q3")
+        self.assertEqual(ok["verdict"], VERDICT_CORRECT)
+
+    def test_wrong_k2_number_is_caught_even_if_the_digit_exists_elsewhere(self):
+        res = verify_inspection_text("توقف C01 لمدة 5 أرباع ودرجة النشاط 0.5.", self.context, "C01", "2026Q3")
+        self.assertEqual(res["verdict"], VERDICT_WRONG_NUMBER)
+        self.assertEqual(res["wrong_numbers"], ["5", "0.5"])
+
+    def test_small_numbers_are_no_longer_whitelisted(self):
+        res = verify_inspection_text("المركب C01 سجل 3 أرباع.", self.context, "C01", "2026Q3")
+        self.assertEqual(res["verdict"], VERDICT_WRONG_NUMBER)
+        self.assertIn("3", res["wrong_numbers"])
+        res = verify_inspection_text("المركب C01 فيه 27 لقطة.", self.context, "C01", "2026Q3")
+        self.assertIn("27", res["wrong_numbers"])
+
+    def test_arabic_forbidden_word_is_flagged(self):
+        res = verify_inspection_text("المركب C01 متعثر.", self.context, "C01", "2026Q3")
+        self.assertEqual(res["verdict"], VERDICT_UNSUPPORTED)
+        self.assertTrue(any("متعثر" in flag for flag in res["flags"]))
+
+    def test_arabic_causal_word_is_flagged(self):
+        res = verify_inspection_text("توقف العمل لأن التمويل نقص في C01.", self.context, "C01", "2026Q3")
+        self.assertEqual(res["verdict"], VERDICT_UNSUPPORTED)
+        self.assertIn("لأن", res["causal_words"])
+
+    def test_named_compound_is_flagged(self):
+        res = verify_inspection_text("المركب النخيل متأخر.", self.context, "C01", "2026Q3")
+        self.assertEqual(res["verdict"], VERDICT_UNSUPPORTED)
+        self.assertTrue(any("named" in flag for flag in res["flags"]))
+
+    def test_ordinary_words_after_compound_are_not_names(self):
+        res = verify_inspection_text("ينقل الكمبوند تلقائياً إلى قائمة المتابعة.", self.context, "C01", "2026Q3")
+        self.assertFalse(any("named" in flag for flag in res["flags"]))
+
 
 if __name__ == "__main__":
     unittest.main()

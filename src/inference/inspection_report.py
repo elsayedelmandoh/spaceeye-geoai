@@ -224,8 +224,16 @@ def render_report_html(
             if len(questions) == 3
             else ""
         )
+        failed_checks = isinstance(verification, Mapping) and bool(verification.get("needs_review"))
+        banner_html = (
+            '<p class="do-not-use" role="alert"><strong>مسودة: فشلت الفحوصات، لا تستخدم</strong> '
+            '<span dir="ltr">Draft: failed checks, do not use</span></p>'
+            if failed_checks
+            else ""
+        )
         draft_html = (
             '<section class="section ai-draft"><h2>مسودة الذكاء الاصطناعي — تحتاج إلى مراجعة</h2>'
+            f"{banner_html}"
             '<p class="draft-label" dir="ltr"><strong>AI draft</strong> — needs review</p>'
             f'<p class="draft-paragraph">{_escaped(ai_paragraph.get("text"))}</p>'
             f"{question_html}"
@@ -281,6 +289,7 @@ def render_report_html(
     .section p { margin: 0.45rem 0; }
     .ai-draft { border: 2px dashed #9a6b00; background: #fffaf0; }
     .draft-label { color: #7a5200; font-weight: 700; }
+    .do-not-use { color: #fff; background: #9b1c1c; padding: 0.5rem 0.75rem; border-radius: 6px; }
     .draft-paragraph { font-size: 1.05rem; }
     .questions { padding-inline-start: 1.6rem; }
     .synthetic { direction: ltr; text-align: left; font-weight: 700; color: #7a3d00; }

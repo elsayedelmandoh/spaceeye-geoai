@@ -4,7 +4,7 @@ Task T-AH-12. Snapshot of saved data-only checks; rendering this report does not
 
 Source: `app_data/data_completion/quality_checks.csv` (external configured input).
 Source SHA256: `d10487c275305bb1140f630b86fefe1dee821e046052e1e7f6af777576e0c44e`.
-Source: `data_completion/quality_checks.csv` (ten-gate run of complete_data). The Track A run keeps its own record in `real/quality_checks_log.parquet` with the same run id.
+Source: `data_completion/quality_checks.csv` (11-gate run of complete_data, run id below). The v7 log `real/quality_checks_log.parquet` is a separate run with 11 gates and run id `R1-1846440cf3`; in that log `no_names` scanned 3332 files (this table's run scanned 360).
 
 Run id: `R1-e7ddf4b1c0`.
 Computed at: `2026-10-30`.

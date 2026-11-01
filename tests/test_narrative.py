@@ -233,13 +233,37 @@ def test_draft_narrative_rejects_an_invented_number_date_or_code(
 
 @pytest.mark.parametrize(
     "forbidden_word",
-    ["distressed", "risk level", "high-risk", "completion %"],
+    ["distressed", "risk level", "high-risk", "completion %", "متعثر", "نسبة الإنجاز"],
 )
 def test_draft_narrative_rejects_forbidden_wording(forbidden_word: str) -> None:
     client = FakeClient(
         f"The compound C01 is {forbidden_word}.",
         _VALID_QUESTIONS,
     )
+
+    result = draft_narrative(
+        _kpis(),
+        _facts(),
+        client=client,
+        budget=CallBudget(max_calls_total=3, max_calls_per_file=3),
+        config=_config(),
+    )
+
+    assert result is None
+
+
+@pytest.mark.parametrize(
+    "paragraph",
+    [
+        "المركب C01 في المستوى 4 بحسب السجلات.",
+        "المركب C01 توقف لمدة 27 أرباع بحسب السجلات.",
+        "المركب C01 تأخر 4 أشهر بحسب السجلات.",
+    ],
+)
+def test_draft_narrative_rejects_a_source_number_tied_to_the_wrong_field(
+    paragraph: str,
+) -> None:
+    client = FakeClient(paragraph, _VALID_QUESTIONS)
 
     result = draft_narrative(
         _kpis(),

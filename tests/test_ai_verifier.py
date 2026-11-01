@@ -181,3 +181,86 @@ def test_verification_is_deterministic() -> None:
 
     assert first == second
     assert summarize(first) == summarize(second)
+
+
+def _kpi_source() -> dict[str, object]:
+    return {
+        "code": "C01",
+        "kpis": {
+            "level": 4,
+            "A": 0.87,
+            "K2": 0.0,
+            "K2_stoppage_quarters": 0.0,
+            "K3": 5,
+            "K3_delay_months": 5,
+            "K5_months": None,
+            "K5_fine_eligible_months": None,
+            "series": [{"level": 2, "K2": 2.0, "A": 0.35}],
+        },
+    }
+
+
+def _wrong_tokens(text: str) -> list[str]:
+    rows = verify_text(text, _kpi_source(), file_id="C01")
+    return [row["token"] for row in rows if row["verdict"] == "wrong number"]
+
+
+def test_swapped_level_is_a_wrong_number_even_when_the_digit_is_in_the_source() -> None:
+    assert _wrong_tokens("C01 is at level 2.") == ["2"]
+    assert _wrong_tokens("C01 is at level 4.") == []
+
+
+def test_swapped_arabic_level_word_is_a_wrong_number() -> None:
+    assert _wrong_tokens("صُنّف المركب C01 في المستوى الثاني.") == ["الثاني"]
+    assert _wrong_tokens("صُنّف المركب C01 في المستوى الرابع.") == []
+
+
+def test_quarters_and_activity_are_tied_to_their_fields() -> None:
+    assert _wrong_tokens("C01 stalled for 5 quarters, activity 0.5.") == ["5", "0.5"]
+    assert _wrong_tokens("C01 has K2 = 0 and activity score 0.87.") == []
+
+
+def test_months_and_k_labels_must_equal_the_field_value() -> None:
+    assert _wrong_tokens("K3 is 7 months late.") == ["7"]
+    assert _wrong_tokens("K3 is 5 months late.") == []
+    assert _wrong_tokens("K5 shows 11 months.") == ["11"]
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "المركب C01 متعثر حالياً.",
+        "بلغت نسبة الإنجاز 40 بالمئة.",
+        "المشروع مكتمل ميدانياً.",
+        "Compound C01 is distressed.",
+    ],
+)
+def test_forbidden_wording_is_flagged_in_arabic_and_english(text: str) -> None:
+    rows = verify_text(text, _kpi_source(), file_id="C01")
+
+    flagged = [row for row in rows if row["note"] == "forbidden wording"]
+    assert len(flagged) == 1
+    assert flagged[0]["verdict"] == "unsupported claim"
+
+
+def test_hedged_may_be_complete_wording_is_not_forbidden() -> None:
+    rows = verify_text("قد يكون مكتملًا وفق إعلان التسليم.", _kpi_source(), file_id="C01")
+
+    assert "forbidden wording" not in {row["note"] for row in rows}
+
+
+@pytest.mark.parametrize("word", ["لأن", "جراء", "أدى إلى", "نتيجة"])
+def test_arabic_causal_words_require_manual_review(word: str) -> None:
+    rows = verify_text(f"توقف العمل {word} نقص التمويل.", _kpi_source(), file_id="C01")
+
+    causal_rows = [row for row in rows if row["token"] == word]
+    assert len(causal_rows) == 1
+    assert causal_rows[0]["note"] == "causal wording: manual review"
+
+
+def test_a_named_compound_is_flagged_but_a_code_is_not() -> None:
+    named = verify_text("المركب النخيل متأخر.", _kpi_source(), file_id="C01")
+    coded = verify_text("المركب C01 متأخر.", _kpi_source(), file_id="C01")
+
+    assert "compound named without a code" in {row["note"] for row in named}
+    assert "compound named without a code" not in {row["note"] for row in coded}
