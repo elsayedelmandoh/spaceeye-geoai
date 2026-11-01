@@ -5,6 +5,7 @@ Run with:  streamlit run app.py
 
 from __future__ import annotations
 
+import html
 import json
 import os
 import re
@@ -82,8 +83,14 @@ PALETTE = {
 # Stored-file access (no live computation) + no-names gate
 # --------------------------------------------------------------------------- #
 
+# Generated hand-off folders that sit under real/ (the v7 release): what-if results and the
+# S1..S3 scenario tables. They are generated, so Track A must refuse them too.
+GENERATED_PATH_RE = re.compile(r"(^|/)(what_if/|(tables|csv)/current/S\d\.)")
+
+
 def is_generated_path(rel_path: str) -> bool:
-    return rel_path.replace("\\", "/").startswith(GENERATED_PREFIXES)
+    path = rel_path.replace("\\", "/")
+    return path.startswith(GENERATED_PREFIXES) or bool(GENERATED_PATH_RE.search(path))
 
 
 def enforce_no_names(df: pd.DataFrame, source: str) -> pd.DataFrame:
@@ -105,7 +112,7 @@ def enforce_no_names(df: pd.DataFrame, source: str) -> pd.DataFrame:
 
 
 @st.cache_data(show_spinner=False)
-def _read_file(path_str: str) -> pd.DataFrame:
+def _read_file_cached(path_str: str, mtime_ns: int) -> pd.DataFrame:
     path = Path(path_str)
     suffix = path.suffix.lower()
     if suffix == ".parquet":
@@ -115,6 +122,12 @@ def _read_file(path_str: str) -> pd.DataFrame:
     if suffix == ".json":
         return pd.read_json(path)
     raise ValueError(f"Unsupported file type: {suffix}")
+
+
+def _read_file(path_str: str) -> pd.DataFrame:
+    """Cached read. The file's modification time is part of the cache key, so a new
+    hand-off (e.g. a fresh kpi_values.parquet) is picked up without restarting the app."""
+    return _read_file_cached(path_str, Path(path_str).stat().st_mtime_ns)
 
 
 def load_table(rel_path: str, track: Track) -> pd.DataFrame | None:
@@ -379,7 +392,7 @@ def _hex_to_rgba(hex_color: str, alpha: int = 175) -> list[int]:
 
 
 @st.cache_data(show_spinner=False)
-def _read_boundaries(path_str: str) -> tuple[dict, list[str]]:
+def _read_boundaries(path_str: str, mtime_ns: int = 0) -> tuple[dict, list[str]]:
     data = json.loads(Path(path_str).read_text(encoding="utf-8"))
     features, bad_codes = [], []
     for feat in data.get("features", []):
@@ -400,7 +413,7 @@ def load_boundaries() -> dict | None:
     path = APP_DATA / "real" / "compound_boundaries.geojson"
     if not path.exists():
         return None
-    geojson, bad_codes = _read_boundaries(str(path))
+    geojson, bad_codes = _read_boundaries(str(path), path.stat().st_mtime_ns)
     if bad_codes:
         st.error(
             f"no_names gate: compound_boundaries.geojson has {len(bad_codes)} "
@@ -970,7 +983,7 @@ def _yes_no(flag: bool | None) -> str:
 
 
 @st.cache_data(show_spinner=False)
-def _read_json(path_str: str) -> object:
+def _read_json(path_str: str, mtime_ns: int = 0) -> object:
     return json.loads(Path(path_str).read_text(encoding="utf-8"))
 
 
@@ -981,7 +994,7 @@ def load_backtest_summary() -> dict | None:
     if not path.exists():
         return None
     try:
-        data = _read_json(str(path))
+        data = _read_json(str(path), path.stat().st_mtime_ns)
     except (OSError, ValueError):
         return None
     return data if isinstance(data, dict) else None
@@ -1244,7 +1257,400 @@ def render_b_signals(track: Track) -> None:
         st.caption(f"{ORIGIN_GENERATED} generated · {len(table)} compound(s) · as of {asof} · "
                    "B1, B2, B3, B5 raise the level to at least 2 when triggered; "
                    "B4 is context only. Missing stays 'unknown', never 'No'.")
+
+
+# --------------------------------------------------------------------------- #
+# Screen 4 data (T-NA-06): gates, coverage, facts counter, colour key
+# --------------------------------------------------------------------------- #
+
+QUALITY_LOG_FILES = (
+    "releases/ready-data/review/real/quality_checks_log.parquet",
+    "ready-data/review/real/quality_checks_log.parquet",
+    "review/real/quality_checks_log.parquet",
+    "real/quality_checks_log.parquet",
+    "real/quality_checks_log.csv",
+)  # contract: ahmed -> nada
+COMPOUNDS_FILE = "real/compounds.parquet"                                                # contract: ahmed -> nada
+FACTS_FILES = ("real/facts_register.parquet", "real/facts_register.csv",
+               "real/facts.parquet", "real/facts.csv")                                   # ASSUMED (not in the contract)
+DOCUMENTED_FACTS = (1009, 1026)  # 01-specs section 12 (slide 3). Fallback only: used when no facts register file exists
+
+# The 10 quality gates (01-specs section 8): key, dimension, rule, owner role, if it fails.
+GATES = (
+    ("source", "Accuracy", "Every fact has a record_id and an accepted verdict", "R2", "Fix: excluded"),
+    ("completeness", "Completeness", "At least 6 Dynamic World images in the quarter", "R3", "Flag: not assessable"),
+    ("validity", "Validity", "Probabilities 0-1, counts ≥ 0, levels 1-4, valid dates", "R1", "Stop"),
+    ("uniqueness", "Uniqueness", "(compound, quarter) and (compound, year) are unique", "R1", "Stop"),
+    ("consistency", "Consistency", "Every code is in the register; row counts equal after joins", "R1", "Stop"),
+    ("freshness", "Freshness", "Last quarter at most 1 quarter before computation", "R3", "Flag: stale"),
+    ("separation", "Consistency", "No generated column in a real table; every column has an origin", "R1", "Stop"),
+    ("data_or_city", "Accuracy", "More than 30% of compounds switch to 'no activity' in one quarter", "R4", "Flag and review"),
+    ("stuck_series", "Accuracy", "Same value 4 quarters in a row", "R3", "Flag and review"),
+    ("no_names", "Privacy", "No compound or developer name in any output file", "R1", "Stop"),
+)
+
+_PASS = {"pass", "passed", "ok", "true", "1", "1.0", "yes"}
+_FLAG = {"flag", "flagged", "warn", "warning", "stale", "review"}
+_FAIL = {"fail", "failed", "false", "0", "0.0", "no", "stop", "stopped", "error"}
+STATUS_WORD = {"Pass": "✅ Pass", "Flag": "⚠️ Flag", "Fail": "⛔ Fail", "unknown": "❔ not in log"}
+
+# Dashboard-side audit: which stored tables are checked, and what must never appear in a real one.
+AUDIT_REAL_FILES = (KPI_FILE, COMPOUNDS_FILE, "real/statements.parquet", "real/sat_yearly.parquet",
+                    "real/sat_quarterly.parquet", "real/quality_checks_log.parquet")
+AUDIT_GENERATED_FILES = (PREDICTIONS_FILE, METRICS_FILE, B_SIGNALS_FILE,
+                         "sim/fin_monthly.parquet", "sim/complaints.parquet")
+GENERATED_COLUMN_HINTS = {  # columns that exist only in generated tables (spec sections 2, 5, 9)
+    "p_distressed", "p_not_distressed", "k5_egp", "cover_balance_egp", "cover_required_egp",
+    "planned_pct", "reported_pct", "land_months_late", "complaints", "kwh", "meters_active",
+}
+
+
+def _safe(label: str, fn, *args, default=None):
+    """Run a loader; if a stored file is corrupt, say so and keep the screen alive.
+    (st.stop() is not an Exception, so the no-names gate still stops the app.)"""
+    try:
+        return fn(*args)
+    except Exception as exc:
+        st.warning(f"{label}: could not be read ({type(exc).__name__}).")
+        return default
+
+
+def _norm(text: object) -> str:
+    return re.sub(r"[^a-z0-9]+", "_", str(text).lower()).strip("_")
+
+
+def _gate_status(value: object) -> str:
+    text = str(value).strip().lower()
+    if text in _PASS:
+        return "Pass"
+    if text in _FLAG:
+        return "Flag"
+    if text in _FAIL:
+        return "Fail"
+    return "unknown"
+
+
+def load_quality_log() -> pd.DataFrame | None:
+    """Read the quality checks log from relative paths or directly from the project root."""
+    possible_paths = [
+        Path("releases/ready-data/review/real/quality_checks_log.parquet"),
+        Path("ready-data/review/real/quality_checks_log.parquet"),
+        Path("review/real/quality_checks_log.parquet"),
+        APP_DATA / "real/quality_checks_log.parquet",
+        APP_DATA / "quality_checks_log.parquet",
+    ]
+    for path in possible_paths:
+        if path.exists():
+            try:
+                return pd.read_parquet(path)
+            except Exception:
+                pass
+    return None
+
+
+def gate_results(log: pd.DataFrame | None) -> dict[str, tuple[str, str]]:
+    """{gate key: (Pass | Flag | Fail | unknown, impact/detail text)}; the latest row wins."""
+    results: dict[str, tuple[str, str]] = {}
+    if log is None:
+        return results
+    g_col = _find_col(log, ("gate", "check", "check_id", "gate_name", "check_name", "test"))
+    s_col = _find_col(log, ("status", "result", "verdict", "outcome", "passed", "state"))
+    if g_col is None or s_col is None:
+        return results
+    d_col = _find_col(log, ("impact_on_indicator", "impact", "detail", "details", "message", "note"))
+    t_col = _find_col(log, ("computed_at", "checked_at", "timestamp"))
+    ordered = log.sort_values(t_col) if t_col else log
+    for _, row in ordered.iterrows():
+        name = _norm(row[g_col])
+        key = next((k for k, *_ in GATES if name == k or k in name), None)
+        if key:
+            detail = "" if d_col is None or _missing(row[d_col]) else str(row[d_col])
+            results[key] = (_gate_status(row[s_col]), detail)
+    return results
+
+
+def load_facts_count() -> tuple[int, int, str, bool]:
+    """(accepted, documented, source label, read from a stored file?).
+    Reads a facts register when one exists; otherwise falls back to the figure
+    documented in the spec, and says so. Nothing is invented."""
+    register = _load_first(FACTS_FILES)
+    if register is not None and not register.empty:
+        v_col = _find_col(register, ("verdict", "status", "review_verdict"))
+        id_col = _find_col(register, ("record_id",))
+        if v_col:
+            accepted = (register[v_col].astype(str).str.strip().str.lower()
+                        .isin({"accepted", "accept", "ok", "verified", "true", "1"}))
+            if id_col:
+                accepted &= register[id_col].notna()
+            return int(accepted.sum()), len(register), "facts register", True
+    return DOCUMENTED_FACTS[0], DOCUMENTED_FACTS[1], "01-specs §12, not recomputed", False
+
+
+def compute_coverage() -> dict | None:
+    """Assessable vs not assessable, per quarter and now, from the stored kpi_values."""
+    kpis = load_table(KPI_FILE, TRACK_A)
+    if kpis is None or kpis.empty or not {"code", "quarter"} <= set(kpis.columns):
+        return None
+    k4_col = _find_col(kpis, ("k4", "k4_assessable", "assessable"))
+    frame = kpis.copy()
+    frame["quarter"] = frame["quarter"].astype(str)
+    if k4_col:
+        frame["_ok"] = frame[k4_col].map(_as_bool)  # True / False / None (unknown)
+    elif "level" in frame.columns:  # fallback: no K4 column, infer from the level
+        frame["_ok"] = frame["level"].notna().map(bool)
+    else:
+        return None
+    asof = frame["quarter"].max()
+    latest = frame[frame["quarter"] == asof]
+    per_quarter = (frame.groupby("quarter")
+                   .agg(total=("code", "nunique"),
+                        assessable=("_ok", lambda s: int(sum(1 for x in s if x is True))))
+                   .reset_index())
+    codes = set(latest["code"].astype(str))
+    geo = load_boundaries()
+    boundary_codes = None if geo is None else {f["properties"]["code"] for f in geo["features"]}
+    return {
+        "asof": asof, "used_k4": k4_col is not None, "per_quarter": per_quarter,
+        "total": len(latest),
+        "ok": sum(1 for x in latest["_ok"] if x is True),
+        "not_codes": sorted(latest.loc[[x is False for x in latest["_ok"]], "code"].astype(str)),
+        "unknown": sum(1 for x in latest["_ok"] if x is None),
+        "with_boundary": None if boundary_codes is None else len(codes & boundary_codes),
+    }
+
+
+def _audit_file(rel: str, track: Track) -> dict | None:
+    """Non-stopping audit of one stored table (the live gate in load_table stops instead)."""
+    # تحديد المسارات المحتملة للملف (سواء داخل app_data أو في مسارات الـ releases الخارجية)
+    possible_paths = [
+        APP_DATA / rel,
+        Path(rel),
+        Path("releases/ready-data/review") / rel,
+        Path("ready-data/review") / rel,
+    ]
+    
+    path = None
+    for p in possible_paths:
+        if p.exists():
+            path = p
+            break
+
+    if path is None or path.suffix.lower() not in (".csv", ".parquet"):
+        return None
         
+    generated = is_generated_path(rel)
+    if generated and not track.generated:
+        return None  # separation: never opened in Track A
+        
+    df = _read_file(str(path))
+    name_cols = [c for c in df.columns if str(c).lower() in FORBIDDEN_COLUMNS]
+    bad = 0
+    for col in df.columns:
+        if str(col).lower() in CODE_COLUMNS:
+            values = df[col].dropna().astype(str)
+            bad += int((~values.str.match(CODE_PATTERN)).sum())
+    stray = []
+    if not generated:
+        stray = sorted(c for c in df.columns if str(c).lower() in GENERATED_COLUMN_HINTS)
+        origin = _find_col(df, ("origin",))
+        if origin and df[origin].astype(str).str.lower().str.contains("generated").any():
+            stray.append("origin = generated")
+    ok = bad == 0 and not stray
+    return {"File": rel, "Zone": f"{ORIGIN_GENERATED} generated" if generated else "real / derived",
+            "Name-like columns dropped": len(name_cols), "Non-code values": bad,
+            "Generated content in a real table": ", ".join(stray) if stray else "none",
+            "Result": "✅ Pass" if ok else "⛔ Fail"}
+
+
+def separation_guard_holds() -> bool:
+    """Live self-test: opening a generated table as Track A must be refused."""
+    try:
+        load_table(PREDICTIONS_FILE, TRACK_A)
+    except PermissionError:
+        return True
+    return False
+
+
+# ---- screen 4 renderers ----------------------------------------------------- #
+
+def render_trust_tiles(cov: dict | None, results: dict, log: pd.DataFrame | None,
+                       facts: tuple[int, int, str, bool]) -> None:
+    section_title("📊", "Trust at a glance")
+    tiles = st.columns(4)
+
+    with tiles[0]:
+        if not results:
+            metric_tile("Quality gates", "unknown", "",
+                        "waiting for real/quality_checks_log (hand-off from ahmed, D3)",
+                        "n/a", ORIGIN_DERIVED)
+        else:
+            n_pass = sum(1 for s, _ in results.values() if s == "Pass")
+            n_flag = sum(1 for s, _ in results.values() if s == "Flag")
+            n_fail = sum(1 for s, _ in results.values() if s == "Fail")
+            run_col = _find_col(log, ("run_id",)) if log is not None else None
+            run = str(log[run_col].iloc[-1]) if run_col else "stored log"
+            metric_tile("Quality gates passed", f"{n_pass} of {len(GATES)}", "",
+                        f"{len(results)} reported · {n_flag} flagged · {n_fail} failed",
+                        run, ORIGIN_DERIVED)
+
+    with tiles[1]:
+        if cov is None:
+            metric_tile("Assessable", "unknown", "", "waiting for real/kpi_values.parquet",
+                        "n/a", ORIGIN_DERIVED)
+        else:
+            metric_tile("Assessable compounds", f"{cov['ok']} of {cov['total']}", "",
+                        "K4 passed: at least 6 images and a reviewed boundary",
+                        cov["asof"], ORIGIN_DERIVED)
+
+    with tiles[2]:
+        if cov is None:
+            metric_tile("Not assessable", "unknown", "", "waiting for real/kpi_values.parquet",
+                        "n/a", ORIGIN_DERIVED)
+        else:
+            extra = f" · {cov['unknown']} unknown" if cov["unknown"] else ""
+            metric_tile("Not assessable compounds", f"{len(cov['not_codes'])} of {cov['total']}", "",
+                        f"K4 failed: fix location/images first{extra}", cov["asof"], ORIGIN_DERIVED)
+
+    with tiles[3]:
+        accepted, documented, source, _ = facts
+        metric_tile("Facts verified", f"{accepted:,} of {documented:,}", "",
+                    f"documented facts with a record_id and an accepted verdict · "
+                    f"{documented - accepted:,} excluded", source, ORIGIN_REAL)
+
+    if not facts[3]:
+        st.caption("ℹ️ Facts counter: no facts register file found in app_data/real/, so the "
+                   "figure documented in 01-specs §12 is shown (not recomputed). It switches to "
+                   "the stored register automatically once one exists.")
+
+
+def render_gates_table(results: dict, log: pd.DataFrame | None) -> None:
+    section_title("🚦", "Quality gates")
+    rows = []
+    for key, dimension, rule, owner, on_fail in GATES:
+        status, detail = results.get(key, ("unknown", ""))
+        rows.append({"Gate": key, "Dimension": dimension, "Rule": rule, "Owner": owner,
+                     "If it fails": on_fail, "Result": STATUS_WORD[status], "Impact on indicator": detail})
+    table = pd.DataFrame(rows)
+    if not results:
+        table = table.drop(columns=["Impact on indicator"])
+    with st.container(border=True):
+        if log is None:
+            st.info("Waiting for real/quality_checks_log (hand-off from ahmed, D3): "
+                    "the gates and rules are listed, results appear once the log exists.")
+        st.dataframe(table, use_container_width=True, hide_index=True, column_config={
+            "Gate": st.column_config.TextColumn(width="small"),
+            "Dimension": st.column_config.TextColumn(width="small"),
+            "Rule": st.column_config.TextColumn(width="large"),
+            "Owner": st.column_config.TextColumn(width="small"),
+            "If it fails": st.column_config.TextColumn(width="medium"),
+            "Result": st.column_config.TextColumn(width="small"),
+            "Impact on indicator": st.column_config.TextColumn(width="medium"),
+        })
+        st.caption(f"{ORIGIN_DERIVED} derived from the stored quality log · owners are roles · "
+                   "'not in log' = the pipeline has not reported that gate yet")
+
+
+def render_coverage(cov: dict | None) -> None:
+    section_title("🛰️", "Coverage and not assessable")
+    with st.container(border=True):
+        if cov is None:
+            st.info("Waiting for real/kpi_values.parquet (needs code, quarter and K4 or level).")
+            return
+
+        per_q = cov["per_quarter"]
+        top = int(per_q["total"].max())
+        chart = alt.Chart(per_q).mark_bar(color="#38BDF8").encode(
+            x=alt.X("quarter:N", sort=list(per_q["quarter"]), title=None,
+                    axis=alt.Axis(labelAngle=-45)),
+            y=alt.Y("assessable:Q", title=f"assessable compounds (of {top})",
+                    scale=alt.Scale(domain=[0, top])),  # axis starts at 0 and ends at the total
+            tooltip=["quarter", "assessable", "total"],
+        )
+        st.altair_chart(chart.properties(height=220), use_container_width=True)
+        st.caption(f"{ORIGIN_DERIVED} derived · each bar = compounds assessable in that quarter, "
+                   "out of the compounds on file that quarter · a change in coverage is shown, "
+                   "never hidden")
+
+        if cov["not_codes"]:
+            codes = ", ".join(f"`{c}`" for c in cov["not_codes"])
+            st.markdown(f"**Not assessable in {cov['asof']}:** {codes} · "
+                        f"{len(cov['not_codes'])} of {cov['total']} compounds. "
+                        "Action: fix location/images first. They stay grey on the map.")
+        else:
+            st.markdown(f"**All {cov['total']} compounds are assessable in {cov['asof']}.**")
+        if cov["unknown"]:
+            st.caption(f"{cov['unknown']} compound(s) have no K4 value: counted as unknown, "
+                       "never as assessable.")
+        if cov["with_boundary"] is not None:
+            st.caption(f"Reviewed boundary on file for {cov['with_boundary']} of "
+                       f"{cov['total']} compounds.")
+        if not cov["used_k4"]:
+            st.caption("K4 column not found: assessability is inferred from the level (a missing "
+                       "level counts as not assessable).")
+
+
+def render_dashboard_audit(track: Track) -> None:
+    section_title("🔒", "Enforced by this dashboard")
+    rows, missing = [], 0
+    for rel in (*AUDIT_REAL_FILES, *(AUDIT_GENERATED_FILES if track.generated else ())):
+        row = _safe(rel, _audit_file, rel, track)
+        if row is None:
+            missing += 1
+        else:
+            rows.append(row)
+    guard = separation_guard_holds()
+
+    with st.container(border=True):
+        st.markdown(
+            f"**no_names** · name-like columns are dropped on load and a non-code value in a code "
+            f"column stops the screen ({len(FORBIDDEN_COLUMNS)} name-like column names watched).  \n"
+            f"**separation** · opening a generated table as Track A is refused: "
+            f"{'✅ confirmed just now' if guard else '⛔ NOT refused: fix load_table'}. "
+            f"Generated tables load only in Track B, under the orange banner, tagged {ORIGIN_GENERATED}.")
+        if rows:
+            table = pd.DataFrame(rows)
+            st.dataframe(table, use_container_width=True, hide_index=True)
+            failed = int((table["Result"] != "✅ Pass").sum())
+            st.caption(f"{len(rows)} stored table(s) checked now · {failed} with a finding"
+                       + (f" · {missing} not on file yet" if missing else ""))
+        else:
+            st.info("No stored tables found yet to audit.")
+        if not track.generated:
+            st.caption("Generated tables are not opened in Track A, so they are not audited here.")
+
+
+def render_colour_key() -> None:
+    section_title("🎨", "Colour key and trust")
+    cards = (
+        (ORIGIN_REAL, "Real", "as published",
+         "Published statements, registers and public records, used as published with their source.",
+         "Highest trust. Each fact carries a record_id; still read the date it was published."),
+        (ORIGIN_DERIVED, "Derived", "computed from real data",
+         "Numbers worked out from real data by a stated rule: activity score A, K2, K4, K6, "
+         "priority levels, the height estimate.",
+         "As good as its inputs. Read the 'as of' quarter and the gaps; unknown stays unknown."),
+        (ORIGIN_GENERATED, "Generated", "stand-in for ACUD data",
+         "Simulated finance, complaints, classifier probabilities and scenarios. "
+         "'Synthetic - for training only'.",
+         "For training and what-if only. Track B only, never on the map, never a statement "
+         "about a real compound."),
+    )
+    cols = st.columns(3)
+    for col, (icon, name, short, what, trust) in zip(cols, cards):
+        with col, st.container(border=True):
+            st.markdown(f"### {icon} {name}")
+            st.caption(short)
+            st.markdown(what)
+            st.markdown(f"**How far to trust.** {trust}")
+    with st.container(border=True):
+        st.markdown(
+            f"**Trust order:** {ORIGIN_REAL} real → {ORIGIN_DERIVED} derived → {ORIGIN_GENERATED} "
+            "generated. A figure that mixes origins carries the least trusted tag: K5 is "
+            f"{ORIGIN_DERIVED} in months and {ORIGIN_GENERATED} in EGP.  \n"
+            "**Reading rules:** a level is always written as a word (colour is never the only cue) · "
+            "'unknown' is never shown as 0 · counts are 'n of m' · every tile shows its "
+            "'as of' quarter and origin.")
+
 
 # --------------------------------------------------------------------------- #
 # Screens
@@ -1324,12 +1730,226 @@ def screen_backtest(track: Track) -> None:
 
 def screen_data_trust(track: Track) -> None:
     page_header("🛡️", "Data trust", "How far can each number be trusted?")
+    log = _safe("quality_checks_log", load_quality_log)
+    results = gate_results(log)
+    cov = _safe("kpi_values", compute_coverage)
+    facts = _safe("facts register", load_facts_count,
+                  default=(*DOCUMENTED_FACTS, "01-specs §12, not recomputed", False))
+
+    render_trust_tiles(cov, results, log, facts)
+    render_gates_table(results, log)
+    render_coverage(cov)
+    render_dashboard_audit(track)
+    render_colour_key()
+
+
+# --------------------------------------------------------------------------- #
+# Screen 5: What if? (twin)  -- T-NA-07
+#
+# Reads the stored v7 what-if hand-off (never recomputes):
+#   real/SpaceEye_R7_READY_DATA_2026-10-31_v7/what_if/<S1|S2|S3>/who_moved_and_why.csv
+#   real/SpaceEye_R7_READY_DATA_2026-10-31_v7/tables/current/<S>.parquet  (csv/current/<S>.csv as fallback)
+#
+# ASSUMPTIONS (change in one place):
+#   * The columns of who_moved_and_why.csv are not documented here, so they are found by
+#     tolerant aliases (WHATIF_ALIASES). Whatever the file holds is also shown unchanged
+#     in the full table, so nothing is hidden if an alias misses.
+#   * If a newer release folder (..._v8) is dropped in, the newest SpaceEye_R7_READY_DATA_*
+#     folder that holds the file is used.
+#   * Both folders are generated content. is_generated_path() treats them as generated,
+#     so Track A refuses them even though they sit under real/.
+#   * Scenario names come from the spec (section 9): S1 dollar shock, S2 collections drop,
+#     S3 inspection capacity N ± 2 (re-rank only).
+# --------------------------------------------------------------------------- #
+
+WHATIF_RELEASE = "real/SpaceEye_R7_READY_DATA_2026-10-31_v7"
+WHATIF_RELEASE_GLOB = "real/SpaceEye_R7_READY_DATA_*"
+WHATIF_SCENARIOS = ("S1", "S2", "S3")
+SCENARIO_NOTES = {
+    "S1": "Dollar shock · USD/EGP +30%",
+    "S2": "Collections drop · buyer payments −25% for 6 months",
+    "S3": "Inspection capacity · N ± 2 (re-rank only, no generator re-run)",
+}
+WHATIF_ALIASES = {
+    "code": ("code", "compound_code", "compound"),
+    "before": ("level_base", "base_level", "baseline_level", "level_baseline", "level_before",
+               "before_level", "before", "from_level", "level_from", "old_level", "level"),
+    "after": ("level_scenario", "scenario_level", "level_after", "after_level", "after",
+              "to_level", "level_to", "new_level"),
+    "moved": ("selection_changed", "moved", "changed", "level_changed", "moves", "did_move"),  # <-- التعديل هنا
+    "reason": ("reason", "why", "reason_text", "reason_en", "reason_ar", "explanation"),
+}
+LEVEL_NUMBER = {word.lower(): n for n, (word, _) in LEVELS.items()}   # word -> 1..4 (1 = most urgent)
+MAX_MOVED_CARDS = 25
+
+
+def _whatif_rel(scenario: str, tail: str) -> str | None:
+    """Path (relative to the data folder) of a stored what-if file, newest release first."""
+    candidates = [f"{WHATIF_RELEASE}/{tail.format(s=scenario)}"]
+    releases = sorted(p.name for p in (APP_DATA / "real").glob("SpaceEye_R7_READY_DATA_*") if p.is_dir()) \
+        if (APP_DATA / "real").exists() else []
+    candidates += [f"real/{name}/{tail.format(s=scenario)}" for name in reversed(releases)]
+    return next((c for c in candidates if (APP_DATA / c).exists()), None)
+
+
+def _whatif_load(scenario: str, track: Track) -> dict:
+    """All stored pieces for one scenario. Each load is isolated (one bad file never blanks the screen)."""
+    out: dict = {"moved": None, "moved_rel": None, "table": None, "table_rel": None}
+    rel = _whatif_rel(scenario, "what_if/{s}/who_moved_and_why.csv")
+    if rel:
+        out["moved_rel"] = rel
+        out["moved"] = _safe(f"what_if/{scenario}/who_moved_and_why.csv", load_table, rel, track)
+    for tail in ("tables/current/{s}.parquet", "csv/current/{s}.csv"):
+        rel = _whatif_rel(scenario, tail)
+        if rel:
+            out["table_rel"] = rel
+            out["table"] = _safe(f"{tail.format(s=scenario)}", load_table, rel, track)
+            if out["table"] is not None:
+                break
+    return out
+
+
+def _level_text(value: object) -> str:
+    """A level always as a word. Unknown stays 'unknown' (never 0)."""
+    if _missing(value) or str(value).strip() == "":
+        return "unknown"
+    text = str(value).strip()
+    if text.lower() in LEVEL_NUMBER:
+        return next(w for w, _ in LEVELS.values() if w.lower() == text.lower())
+    try:
+        number = int(float(text))
+    except ValueError:
+        return text
+    return level_word(number) if number in LEVELS else "unknown"
+
+
+def _level_number(word: str) -> int | None:
+    return LEVEL_NUMBER.get(word.lower())
+
+
+def _tagged_table(df: pd.DataFrame) -> pd.DataFrame:
+    return _tag_numeric_headers(df)
+
+
+def _prepare_moved(raw: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """Standard view of who_moved_and_why: code, before, in scenario, change, reason."""
+    cols = {k: _find_col(raw, a) for k, a in WHATIF_ALIASES.items()}
+    view = pd.DataFrame({"code": raw[cols["code"]].astype(str)}) if cols["code"] else pd.DataFrame(index=raw.index)
+    if cols["before"]:
+        view["before"] = raw[cols["before"]].map(_level_text)
+    if cols["after"]:
+        view["in scenario"] = raw[cols["after"]].map(_level_text)
+
+    def change(i: int) -> str:
+        if cols["before"] and cols["after"]:
+            b, a = view.iloc[i]["before"], view.iloc[i]["in scenario"]
+            nb, na = _level_number(b), _level_number(a)
+            if nb is None or na is None:
+                return "unknown"
+            return "moves up" if na < nb else ("moves down" if na > nb else "unchanged")
+        if cols["moved"]:
+            flag = _as_bool(raw.iloc[i][cols["moved"]])
+            return "unknown" if flag is None else ("changes level" if flag else "unchanged")
+        return "listed as moved"   # the file only lists compounds that moved
+
+    view["change"] = [change(i) for i in range(len(raw))]
+    view["reason"] = raw[cols["reason"]].fillna("").astype(str) if cols["reason"] else ""
+    return view, cols
+
+
+def _render_whatif_waiting(scenario: str) -> None:
+    st.info(
+        f"Scenario {scenario} results are not stored yet. Waiting for "
+        f"`{WHATIF_RELEASE}/what_if/{scenario}/who_moved_and_why.csv`. "
+        "The screen fills in by itself once the file is in the data folder."
+    )
     with st.container(border=True):
-        st.markdown(
-            f"**Colour key** &nbsp; {ORIGIN_REAL} real · {ORIGIN_DERIVED} derived · "
-            f"{ORIGIN_GENERATED} generated"
-        )
-    st.info("Skeleton page.")
+        st.markdown("#### 👀 Preview: what this screen will show")
+        st.caption(f"{ORIGIN_GENERATED} expected shape (empty preview, no numbers invented)")
+        st.dataframe(pd.DataFrame({"code": pd.Series(dtype="object"), "before": pd.Series(dtype="object"),
+                                   "in scenario": pd.Series(dtype="object"),
+                                   "change": pd.Series(dtype="object"), "reason": pd.Series(dtype="object")}),
+                     use_container_width=True, hide_index=True)
+
+
+def render_scenario_picker() -> str:
+    section_title("🎛️", "Choose a scenario")
+    with st.container(border=True):
+        chosen = st.radio("Scenario", WHATIF_SCENARIOS, horizontal=True, key="whatif_scenario",
+                          label_visibility="collapsed")
+        st.caption(f"{ORIGIN_GENERATED} {SCENARIO_NOTES.get(chosen, '')} · hypothetical, "
+                   "the base run is never overwritten")
+    return chosen
+
+
+def render_whatif_tiles(view: pd.DataFrame, total: int | None, asof: str) -> None:
+    changed = view[view["change"].isin(["moves up", "moves down", "changes level", "listed as moved"])]
+    n, up, down = len(changed), int((view["change"] == "moves up").sum()), int((view["change"] == "moves down").sum())
+    unknown = int((view["change"] == "unknown").sum())
+    of = f"{n} of {total}" if total else f"{n}"
+    with_reason = int((changed["reason"].str.strip() != "").sum())
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        metric_tile("Change level", of, "", "compounds whose level changes"
+                    + (f" · {unknown} unknown" if unknown else "") + ("" if total else " · total not stored"),
+                    asof, ORIGIN_GENERATED)
+    directed = bool(view["change"].isin(["moves up", "moves down", "unchanged"]).any())
+    with c2:
+        metric_tile("Move up", f"{up} of {n}" if directed else "unknown", "",
+                    "more urgent than in the base run" if directed else "direction not in the stored file",
+                    asof, ORIGIN_GENERATED)
+    with c3:
+        metric_tile("Move down", f"{down} of {n}" if directed else "unknown", "",
+                    "less urgent than in the base run" if directed else "direction not in the stored file",
+                    asof, ORIGIN_GENERATED)
+    with c4:
+        metric_tile("With a reason", f"{with_reason} of {n}", "", "changed compounds that carry a reason",
+                    asof, ORIGIN_GENERATED)
+
+
+def render_whatif_moved(view: pd.DataFrame) -> None:
+    section_title("🔀", "Who changes level, and why")
+    with st.container(border=True):
+        changed = view[view["change"].isin(["moves up", "moves down", "changes level", "listed as moved"])]
+        if changed.empty:
+            st.info("No compound changes level in this scenario.")
+            return
+        arrow = {"moves up": "▲", "moves down": "▼"}
+        color = {"moves up": "#F87171", "moves down": "#34D399"}   # up = more urgent = red
+        rows = []
+        for _, r in changed.head(MAX_MOVED_CARDS).iterrows():
+            path = (f'{html.escape(r["before"])} → <b>{html.escape(r["in scenario"])}</b>'
+                    if "before" in r and "in scenario" in r else html.escape(r["change"]))
+            why = html.escape(r["reason"]) if r["reason"].strip() else '<i style="color:#8A9BB8">no reason stored</i>'
+            c = color.get(r["change"], PALETTE["muted"])
+            rows.append(
+                f'<div style="padding:10px 0;border-bottom:1px solid {PALETTE["border"]}">'
+                f'<span style="color:{c};font-weight:700">{arrow.get(r["change"], "●")} '
+                f'{html.escape(str(r.get("code", "")))}</span> &nbsp;·&nbsp; {path}'
+                f'<div dir="auto" style="color:{PALETTE["muted"]};margin-top:4px">{why}</div></div>')
+        st.markdown("".join(rows), unsafe_allow_html=True)
+        extra = len(changed) - MAX_MOVED_CARDS
+        st.caption(f"{ORIGIN_GENERATED} ▲ moves up = more urgent to inspect · ▼ moves down = less urgent"
+                   + (f" · {extra} more in the table below" if extra > 0 else ""))
+
+
+def render_whatif_table(raw: pd.DataFrame, view: pd.DataFrame, scenario: str) -> None:
+    section_title("📋", "Full table as stored")
+    with st.container(border=True):
+        st.dataframe(_tagged_table(raw), use_container_width=True, hide_index=True)
+        st.caption(f"{ORIGIN_GENERATED} every column of who_moved_and_why.csv for {scenario}, unchanged")
+        st.download_button("⬇️ Download this scenario (CSV)",
+                           data=view.to_csv(index=False).encode("utf-8-sig"),
+                           file_name=f"who_moved_{scenario}.csv", mime="text/csv", key="whatif_download")
+
+
+def render_whatif_result_table(table: pd.DataFrame | None, scenario: str) -> None:
+    if table is None:
+        return
+    with st.expander(f"Scenario {scenario} result table ({len(table):,} rows)"):
+        st.dataframe(_tagged_table(table.head(500)), use_container_width=True, hide_index=True)
+        st.caption(f"{ORIGIN_GENERATED} stored result of the scenario run"
+                   + (" · first 500 rows shown" if len(table) > 500 else ""))
 
 
 def screen_what_if(track: Track) -> None:
@@ -1339,7 +1959,43 @@ def screen_what_if(track: Track) -> None:
             "Scenarios use generated data. Switch to Track B in the sidebar to open them."
         )
         return
-    st.info("Skeleton page.")
+    # No map on this screen by design: generated numbers never sit on the real map.
+
+    scenario = render_scenario_picker()
+    stored = _whatif_load(scenario, track)
+    raw = stored["moved"]
+    if raw is None:
+        _render_whatif_waiting(scenario)
+        render_whatif_result_table(stored["table"], scenario)
+        return
+    if raw.empty:
+        st.info(f"Scenario {scenario}: who_moved_and_why.csv is stored but has no rows.")
+        return
+
+    view, cols = _prepare_moved(raw)
+    if not cols["code"]:
+        st.warning("who_moved_and_why.csv has no compound code column, so it cannot be shown by compound.")
+        render_whatif_table(raw, view, scenario)
+        return
+    if not (cols["before"] and cols["after"] or cols["moved"]):
+        st.caption("Level before/after columns were not recognised: every row is treated as a compound that moved.")
+
+    table = stored["table"]
+    total = None
+    if table is not None:
+        code_col = _find_col(table, WHATIF_ALIASES["code"])
+        total = int(table[code_col].nunique()) if code_col else None
+    elif cols["before"] and cols["after"]:
+        total = len(view)
+    asof = _find_col(raw, ("as_of", "asof", "quarter", "cutoff"))
+    asof_text = str(raw[asof].dropna().astype(str).max()) if asof and raw[asof].notna().any() else "unknown"
+
+    render_whatif_tiles(view, total, asof_text)
+    render_whatif_moved(view)
+    render_whatif_table(raw, view, scenario)
+    render_whatif_result_table(table, scenario)
+    st.caption(f"{ORIGIN_GENERATED} {BANNER_TEXT}. Hypothetical interventions on generated data: "
+               "they show who would move up in priority, not what will happen.")
 
 
 SCREEN_FUNCTIONS = {
