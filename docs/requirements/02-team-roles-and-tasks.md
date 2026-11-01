@@ -263,7 +263,7 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-E
 - [x] **T-EL-11** [Must] D4 · S1 dollar shock (USD/EGP +30%), S2 collections drop (−25% for 6 months), S3 capacity N ± 2 (re-rank only) · `scenarios/S1..S3/` + "who moved up and why" table · reviewer: nada **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/SCENARIO_CONTRACT_CURRENT.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [ ] **T-EL-12** [Could] D4 · S4 material cost +40%, S5 grace 12 → 6 months · reviewer: nada
+- [ ] **T-EL-12** [Could] D4 · S4 material cost +40%, S5 grace 12 → 6 months · reviewer: nada **Partial. S4 (material cost +40% from the shock month) is implemented in `src/generator/scenarios.py`, tested in `tests/test_scenarios_s4.py` and `tests/test_scenarios.py` (full suite 274 passed, 1 skipped). S5 is not implemented: the grace clock does not yet feed the scenario results, and verina must decide where it does. S5 is not in the scenario list.**
 - [ ] **T-EL-13** [Could] D4 · FPMI and SAF tests on generated data, conditions written before the run, logged in `team_ideas.md` · reviewer: ahmed
 - [x] **T-EL-14** [Must] D4 · Code freeze for Track B; one command builds Track B after `run_all` · reviewer: ahmed **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/BINARY_SCOPE_DECISION.md).
