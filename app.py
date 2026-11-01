@@ -727,10 +727,7 @@ def render_stage_strip(code: str) -> None:
         )
         st.altair_chart(chart.properties(height=70), use_container_width=True)
         start = mine.loc[mine["stage"] != "S0", "year"]
-        st.caption(f"{ORIGIN_DERIVED} derived · construction first seen in "
-                   f"{int(start.min()) if not start.empty else 'no year yet'} · stages labelled by an AI "
-                   "rater from Wayback figures, without a site visit · years without a figure use the "
-                   "satellite and radar layer, which never marks a compound complete")
+        st.caption(f"Construction first seen in {int(start.min()) if not start.empty else 'no year yet'}.")
 
 
 def render_images(code: str) -> None:
@@ -748,7 +745,6 @@ def render_images(code: str) -> None:
                     st.image(str(path), caption=caption, use_container_width=True)
                 else:
                     st.info(f"No '{kind}' image for {code} yet.")
-        st.caption("Judged by eye: images support the visit, they are not a measurement.")
 
 
 def render_inspection_button(code: str, asof: str) -> None:
@@ -839,7 +835,7 @@ def screen_compound_file(track: Track) -> None:
 
         if row is None:
             st.warning(f"{code} has no KPI row for {asof}: shown as not assessable.")
-        reason = None if row is None else row.get("reason_ar")
+        reason = None if row is None else short_reason_ar(row.get("reason_ar"))
         if not _missing(reason) and str(reason).strip():
             st.markdown(f'<div class="se-rtl"><b>السبب:</b> {html.escape(str(reason))}</div>', unsafe_allow_html=True)
 
@@ -969,8 +965,6 @@ def render_sidebar() -> tuple[Track, str]:
             f'<span class="se-pill se-pill-a">{ORIGIN_REAL} REAL · {ORIGIN_DERIVED} DERIVED</span>',
             unsafe_allow_html=True,
         )
-        st.sidebar.caption("Public and derived data only")
-    st.sidebar.caption("🔒 Codes only: no compound or developer names.")
     return track, screen
 
 
