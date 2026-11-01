@@ -17,6 +17,7 @@ import pandas as pd
 import pydeck as pdk
 import streamlit as st
 
+from src.dashboard import insights
 from src.dashboard.ops_visits import render_ops_visits_form  # T-NA-04
 from src.pipeline.common import APP as PIPELINE_APP_DATA
 
@@ -495,7 +496,45 @@ def cycle_headline(latest_df: pd.DataFrame, asof: str) -> str:
             f"compounds, {asof}). {cycle.iloc[0]['code']} comes first: {html.escape(why)}.{rest}")
 
 
-def render_cycle_list(latest: tuple[pd.DataFrame, str] | None) -> None:
+def load_promises_ahead(latest_df: pd.DataFrame, asof: str) -> list[dict]:
+    statements = load_table("real/statements.parquet", TRACK_A)
+    if statements is None:
+        return []
+    return insights.upcoming_promises(statements, list(latest_df["code"].astype(str)), asof)
+
+
+def render_summary_tiles(latest_df: pd.DataFrame, asof: str, promises: list[dict]) -> None:
+    cycle = build_cycle_list(latest_df)
+    months = latest_df["K5_months"].dropna() if "K5_months" in latest_df.columns else pd.Series(dtype=float)
+    fined = months[months > 0]
+    tiles = st.columns(4)
+    with tiles[0]:
+        metric_tile("To visit this cycle", len(cycle), "compounds", f"of {len(latest_df)}", asof, ORIGIN_DERIVED)
+    with tiles[1]:
+        metric_tile("At level 1", int((latest_df["level"] == 1).sum()), "compounds", "inspect now", asof,
+                    ORIGIN_DERIVED)
+    with tiles[2]:
+        metric_tile("Fine-eligible months", int(round(fined.sum())), "months",
+                    f"in {len(fined)} compounds · the contract decides the fine", asof, ORIGIN_DERIVED)
+    with tiles[3]:
+        metric_tile("Promised dates ahead", len(promises), "dates",
+                    f"in {len({p['code'] for p in promises})} compounds", asof, ORIGIN_DERIVED)
+
+
+def visit_table(latest_df: pd.DataFrame, cycle: pd.DataFrame) -> pd.DataFrame:
+    """The cycle list in visit order with the suggested action and the stored reason."""
+    rows = latest_df.set_index("code").loc[cycle["code"]]
+    return pd.DataFrame({
+        "Rank": range(1, len(rows) + 1),
+        "Compound": rows.index,
+        "Level": rows["level"].map(level_word).to_numpy(),
+        "Suggested action": [insights.suggested_action(r)[0] for _, r in rows.iterrows()],
+        "Why": rows["reason_ar"].map(insights.short_reason_ar).to_numpy(),
+    })
+
+
+def render_visit_list(latest: tuple[pd.DataFrame, str] | None) -> None:
+    section_title("📋", "Visit list")
     if latest is None:
         st.info("Waiting for real/kpi_values.parquet.")
         return
@@ -506,13 +545,59 @@ def render_cycle_list(latest: tuple[pd.DataFrame, str] | None) -> None:
         st.info(f"No compounds in the cycle list for {asof}.")
         return
 
+    st.caption("Suggested actions are proposals; the committee decides.")
+    st.dataframe(visit_table(latest_df, cycle), hide_index=True, use_container_width=True,
+                 column_config={"Why": st.column_config.TextColumn("Why", width="large")})
+
+    files = [(code, find_inspection_file(code, asof)) for code in sorted(latest_df["code"].astype(str))]
+    files = [(code, path) for code, path in files if path is not None]
+    buttons = st.columns(len(files) + 1)
+    for column, (code, path) in zip(buttons, files):
+        column.download_button(f"📄 {code} inspection file", data=path.read_bytes(), file_name=path.name,
+                               mime="text/html", key=f"visit_file_{code}")
     export = cycle.rename(columns={"level_word": "level"})
-    st.download_button(
-        "⬇️ Download cycle list (CSV)",
+    buttons[-1].download_button(
+        "⬇️ Cycle list (CSV)",
         data=export.to_csv(index=False).encode("utf-8-sig"),
         file_name=f"cycle_list_{asof}.csv",
         mime="text/csv",
     )
+
+
+def _level_move(change: dict) -> str:
+    was = "none" if change["was"] is None else change["was"]
+    return f"level {was} to {'none' if change['now'] is None else change['now']}"
+
+
+def render_changes(asof: str) -> None:
+    kpis = load_table(KPI_FILE, TRACK_A)
+    changes = None if kpis is None or "cycle_rank" not in kpis.columns else insights.cycle_changes(kpis, asof)
+    if changes is None:
+        return
+    section_title("🔄", f"Changes since {changes['prev']}")
+    for column, (title, colour, key) in zip(st.columns(2), (
+            ("Joined the list", "#F87171", "joined"), ("Left the list", "#34D399", "left"))):
+        with column, st.container(border=True):
+            st.markdown(f"**{title}**")
+            if not changes[key]:
+                st.markdown("No change.")
+            for item in changes[key]:
+                st.markdown(
+                    f'<div class="se-move"><span style="color:{colour};font-weight:700">{html.escape(item["code"])}'
+                    f'</span> · {_level_move(item)}'
+                    f'<div dir="auto" class="se-move-why">{html.escape(item["why"])}</div></div>',
+                    unsafe_allow_html=True)
+
+
+def render_promises_ahead(promises: list[dict]) -> None:
+    section_title("📅", "Promised dates ahead")
+    if not promises:
+        st.info("No promised date is still ahead.")
+        return
+    st.caption("A visit before these dates can check the developer's own promise.")
+    table = pd.DataFrame(promises).rename(
+        columns={"code": "Compound", "claim": "Promise", "said": "Said in", "end": "Due by"})
+    st.dataframe(table, hide_index=True, use_container_width=True)
 
 
 # --------------------------------------------------------------------------- #
@@ -610,7 +695,7 @@ def load_images(code: str) -> dict[str, tuple[Path, str]]:
 
 def find_inspection_file(code: str, asof: str) -> Path | None:
     for files_dir in FILES_DIRS:
-        for pattern in (f"{code}_{asof}.html", f"{code}_{asof}_*.html", f"{code}_*.html"):
+        for pattern in (f"{code}_{asof}.html", f"{code}_{asof}_*.html"):
             matches = sorted(files_dir.glob(pattern))
             if matches:
                 return matches[-1]
@@ -799,10 +884,16 @@ def _safe(label: str, fn, *args, default=None):
 def screen_priority_map(track: Track) -> None:
     page_header("🛰️", "Priority map", "Whom should the committee visit first?")
     latest = load_latest_kpis()
+    promises = []
     if latest is not None:
         finding(cycle_headline(*latest))
+        promises = load_promises_ahead(*latest)
+        render_summary_tiles(*latest, promises)
     render_map_slot(track, latest)
-    render_cycle_list(latest)
+    render_visit_list(latest)
+    if latest is not None:
+        render_changes(latest[1])
+        render_promises_ahead(promises)
 
 
 def screen_compound_file(track: Track) -> None:
@@ -835,7 +926,7 @@ def screen_compound_file(track: Track) -> None:
 
         if row is None:
             st.warning(f"{code} has no KPI row for {asof}: shown as not assessable.")
-        reason = None if row is None else short_reason_ar(row.get("reason_ar"))
+        reason = None if row is None else insights.short_reason_ar(row.get("reason_ar"))
         if not _missing(reason) and str(reason).strip():
             st.markdown(f'<div class="se-rtl"><b>السبب:</b> {html.escape(str(reason))}</div>', unsafe_allow_html=True)
 
@@ -862,15 +953,6 @@ CAPACITY_FILE = "what_if/S3/who_moved_and_why.csv"
 CAPACITY_VARIANTS = {"capacity_minus_2": "2 visits instead of 4", "capacity_plus_2": "6 visits instead of 4"}
 
 
-def short_reason_ar(text: object) -> str:
-    """An Arabic level reason without the level prefix, the activity score or the image count."""
-    if _missing(text):
-        return ""
-    body = re.sub(r"\s*\(درجة النشاط [^)]*\)", "", str(text).split(": ", 1)[-1])
-    clauses = [c.strip(" .") for c in body.split("؛") if c.strip(" .") and not c.strip().startswith("عدد الصور")]
-    return "، ".join(clauses)
-
-
 def whatif_view(raw: pd.DataFrame) -> tuple[pd.DataFrame, str]:
     """The latest quarter of one capacity variant: one row per compound, baseline versus scenario."""
     label = str(raw["quarter"].max())
@@ -878,7 +960,7 @@ def whatif_view(raw: pd.DataFrame) -> tuple[pd.DataFrame, str]:
     view = pd.DataFrame({"code": latest["code"].astype(str)})
     view["change"] = [("joins the list" if _as_bool(s) else "leaves the list") if _as_bool(c) else "unchanged"
                       for s, c in zip(latest["selected"], latest["selection_changed"])]
-    view["reason"] = latest["reason_ar"].map(short_reason_ar)
+    view["reason"] = latest["reason_ar"].map(insights.short_reason_ar)
     return view.reset_index(drop=True), label
 
 
