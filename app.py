@@ -18,12 +18,18 @@ import pydeck as pdk
 import streamlit as st
 
 from src.dashboard.ops_visits import render_ops_visits_form  # T-NA-04
+from src.pipeline.common import APP as PIPELINE_APP_DATA
 
 # --------------------------------------------------------------------------- #
 # Configuration
 # --------------------------------------------------------------------------- #
 
-APP_DATA = Path(os.environ.get("SPACEEYE_APP_DATA", "app_data"))
+REPO_DIR = Path(__file__).resolve().parent
+# Same folder that setup_review installs into (configs/data.yaml or SPACEEYE_DATA_ROOT);
+# SPACEEYE_APP_DATA still overrides it.
+APP_DATA = Path(os.environ.get("SPACEEYE_APP_DATA") or PIPELINE_APP_DATA)
+# The unpacked v7 release sits next to app_data (setup_review): what-if, backtest, model outputs.
+READY_DATA = APP_DATA.parent / "ready-data"
 
 BANNER_TEXT = "Synthetic - for training only"
 
@@ -83,9 +89,9 @@ PALETTE = {
 # Stored-file access (no live computation) + no-names gate
 # --------------------------------------------------------------------------- #
 
-# Generated hand-off folders that sit under real/ (the v7 release): what-if results and the
-# S1..S3 scenario tables. They are generated, so Track A must refuse them too.
-GENERATED_PATH_RE = re.compile(r"(^|/)(what_if/|(tables|csv)/current/S\d\.)")
+# Generated parts of the v7 release: what-if results, current model outputs (tables/current),
+# the training export and the model metrics. Track A must refuse them too.
+GENERATED_PATH_RE = re.compile(r"(^|/)(what_if/|training/|(tables|csv)/current/|docs/CURRENT_MODEL_)")
 
 
 def is_generated_path(rel_path: str) -> bool:
@@ -130,13 +136,13 @@ def _read_file(path_str: str) -> pd.DataFrame:
     return _read_file_cached(path_str, Path(path_str).stat().st_mtime_ns)
 
 
-def load_table(rel_path: str, track: Track) -> pd.DataFrame | None:
+def load_table(rel_path: str, track: Track, root: Path = APP_DATA) -> pd.DataFrame | None:
     """Load a stored table. Returns None if the file does not exist yet."""
     if is_generated_path(rel_path) and not track.generated:
         raise PermissionError(
             f"Generated table '{rel_path}' must not be loaded in Track A."
         )
-    path = APP_DATA / rel_path
+    path = root / rel_path
     if not path.exists():
         return None
     return enforce_no_names(_read_file(str(path)), rel_path)
@@ -566,17 +572,21 @@ def render_cycle_list(latest: tuple[pd.DataFrame, str] | None) -> None:
 KPI_FILE = "real/kpi_values.parquet"
 CONTEXT_FILES = ("real/sat_yearly.parquet", "real/sat_quarterly.parquet")
 ANNOUNCE_FILES = ("real/statements.parquet",)
-FILES_DIR = APP_DATA / "files"
-PREDICTIONS_FILE = "ml/predictions.parquet"
-K5_EGP_FILE, K5_EGP_COL = "ml/ml_dataset.parquet", "k5_egp"
+# Inspection files: written by the pipeline into app_data, or the stored set committed in the repo.
+FILES_DIRS = (APP_DATA / "files", REPO_DIR / "app_data" / "files")
+IMAGERY_DIR = REPO_DIR / "data" / "imagery"
+# Current model outputs and the training export of the v7 release (under READY_DATA).
+PREDICTIONS_FILE = "tables/current/ml_current.parquet"
+K5_EGP_FILE, K5_EGP_COL = "training/ml_dataset_extended.parquet", "K5_egp"
 
 COL_A, COL_DW = "activity_prob", "built_prob_mean"
 COL_HEIGHT, COL_VEG, COL_YEAR = "height_mean_m", "veg_share", "year"
 MAX_HEIGHT_YEAR = 2024
 VEG_COMPLETE_THRESHOLD = 0.10
 
-K_ORIGIN = {"A": ORIGIN_DERIVED, "K2": ORIGIN_DERIVED, "K3": ORIGIN_REAL,
-            "K4": ORIGIN_REAL, "K5": ORIGIN_DERIVED, "K6": ORIGIN_DERIVED}
+# Every K is computed from real inputs (K3 from a published date), so all are derived.
+K_ORIGIN = {"A": ORIGIN_DERIVED, "K2": ORIGIN_DERIVED, "K3": ORIGIN_DERIVED,
+            "K4": ORIGIN_DERIVED, "K5": ORIGIN_DERIVED, "K6": ORIGIN_DERIVED}
 SERIES_COLORS = {"Activity score A": "#38BDF8", "Dynamic World built probability": "#818CF8"}
 MARKER_COLOR = "#A78BFA"
 
@@ -607,7 +617,12 @@ def load_kpi_history(code: str) -> pd.DataFrame | None:
     kpis = load_table(KPI_FILE, TRACK_A)
     if kpis is None or not {"code", "quarter"} <= set(kpis.columns):
         return None
-    return kpis[kpis["code"] == code].sort_values("quarter").reset_index(drop=True)
+    history = kpis[kpis["code"] == code]
+    # The Dynamic World series lives in sat_quarterly, not in kpi_values.
+    sat = load_table("real/sat_quarterly.parquet", TRACK_A)
+    if sat is not None and COL_DW not in history.columns and {"code", "quarter", COL_DW} <= set(sat.columns):
+        history = history.merge(sat.loc[sat["code"] == code, ["quarter", COL_DW]], on="quarter", how="left")
+    return history.sort_values("quarter").reset_index(drop=True)
 
 
 def load_announcements(code: str, asof: str) -> pd.DataFrame | None:
@@ -621,78 +636,41 @@ def load_announcements(code: str, asof: str) -> pd.DataFrame | None:
     except Exception:
         return None
     df = df[df["published_date"] <= cutoff]
-    if "handover_date" in df.columns:
-        df["handover_date"] = pd.to_datetime(df["handover_date"], errors="coerce")
     return df.sort_values("published_date").reset_index(drop=True)
 
 
-def first_announced_date(ann: pd.DataFrame | None) -> tuple[pd.Timestamp, pd.Timestamp] | None:
-    if ann is None or "handover_date" not in ann.columns:
-        return None
-    dated = ann.dropna(subset=["handover_date"])
-    if dated.empty:
-        return None
-    first = dated.iloc[0]
-    return first["handover_date"], first["published_date"]
-
-
 def load_images(code: str) -> dict[str, tuple[Path, str]]:
-    """Smart image loader supporting both main and subfolder layouts."""
-    imagery_dir = Path("data/imagery")
-    images_sub = imagery_dir / "images"
-    
-    index_path = imagery_dir / "images.csv"
-    if not index_path.exists():
-        index_path = imagery_dir / "IMAGERY_MANIFEST.csv"
-
-    index = None
-    if index_path.exists():
-        try:
-            df = pd.read_csv(index_path)
-            drop = [c for c in df.columns if c.lower() in FORBIDDEN_COLUMNS]
-            if drop:
-                df = df.drop(columns=drop)
-            index = df
-        except Exception:
-            pass
-
+    """Before/after Wayback pair: the installed runtime pair (app_data/images) first, then the
+    figures committed in the repo (data/imagery/figures). Capture dates come from each folder's index."""
     found: dict[str, tuple[Path, str]] = {}
-    type_col = "image_type" if index is not None and "image_type" in index.columns else "kind"
-
-    for kind in ("before", "after"):
-        possible_paths = [
-            images_sub / f"{code}_{kind}.jpg",
-            images_sub / f"{code.lower()}_{kind}.jpg",
-            imagery_dir / f"{code}_{kind}.jpg",
-            imagery_dir / f"{code.lower()}_{kind}.jpg",
-        ]
-        
-        path = next((p for p in possible_paths if p.exists()), None)
-        if path is None:
-            continue
-
-        captured, credit = "capture date n/a", "Esri World Imagery Wayback"
-        if index is not None and {"code", type_col} <= set(index.columns):
-            hit = index[(index["code"].astype(str).str.upper() == code.upper()) & 
-                        (index[type_col] == kind)]
-            if not hit.empty:
-                row = hit.iloc[0]
-                if "capture_date" in index.columns and not _missing(row.get("capture_date")):
-                    captured = f"captured {row['capture_date']}"
-                if "attribution" in index.columns and not _missing(row.get("attribution")):
-                    credit = str(row["attribution"])
-
-        found[kind] = (path, f"{kind.capitalize()} · {captured} · {credit}")
-
+    for folder, index_name in ((APP_DATA / "images", "images.csv"), (IMAGERY_DIR / "figures", "index.csv")):
+        index_path = folder / index_name
+        index = pd.read_csv(index_path) if index_path.exists() else None
+        role_col = None if index is None else _find_col(index, ("role", "image_type"))
+        for kind in ("before", "after"):
+            path = folder / f"{code}_{kind}.jpg"
+            if kind in found or not path.exists():
+                continue
+            captured, credit = "capture date n/a", "Esri World Imagery Wayback"
+            if index is not None and role_col and "code" in index.columns:
+                hit = index[(index["code"].astype(str) == code) & (index[role_col] == kind)]
+                if not hit.empty:
+                    row = hit.iloc[0]
+                    if not _missing(row.get("capture_date")):
+                        captured = f"captured {row['capture_date']}"
+                    if not _missing(row.get("attribution")):
+                        credit = str(row["attribution"])
+            found[kind] = (path, f"{kind.capitalize()} · {captured} · {credit}")
     return found
 
 
 def find_inspection_file(code: str, asof: str) -> Path | None:
-    exact = FILES_DIR / f"{code}_{asof}.html"
-    if exact.exists():
-        return exact
-    matches = sorted(FILES_DIR.glob(f"{code}_*.html"))
-    return matches[-1] if matches else None
+    for files_dir in FILES_DIRS:
+        for pattern in (f"{code}_{asof}.html", f"{code}_{asof}_*.html", f"{code}_*.html"):
+            matches = sorted(files_dir.glob(pattern))
+            if matches:
+                return matches[-1]
+    return None
 
 
 # ---- screen 2 renderers ----------------------------------------------------- #
@@ -716,12 +694,15 @@ def render_kpi_tiles(row: pd.Series | None, asof: str) -> None:
                   "since first launch/promise, no construction start", asof, K_ORIGIN["K6"])
 
     k4 = get("K4")
+    k5, k5_status = get("K5_months"), get("K5_status")
+    k5_text = (_fmt(k5, 0) if not _missing(k5) else
+               "no published deadline" if k5_status == "no_published_deadline" else "unknown")
     k4_text = "unknown" if _missing(k4) else ("Yes" if k4 in (True, 1, "True", "Yes") else
                                              "No" if k4 in (False, 0, "False", "No") else str(k4))
     context = pd.DataFrame({
         "Indicator": ["A activity score", "K4 assessable", "K5 fine-eligible months"],
-        "Value": [_fmt(get(COL_A), 2), k4_text, _fmt(get("K5"), 0)],
-        "Unit": ["probability 0-1", "yes/no (≥ 6 images)", "months (real part)"],
+        "Value": [_fmt(get(COL_A), 2), k4_text, k5_text],
+        "Unit": ["probability 0-1", "yes/no (≥ 6 images)", "months (screening, not a fine)"],
         "Origin": [K_ORIGIN["A"], K_ORIGIN["K4"], K_ORIGIN["K5"]],
     })
     with st.container(border=True):
@@ -738,7 +719,8 @@ def render_lineage(row: pd.Series | None, asof: str) -> None:
     st.caption("🧬 Lineage · " + " · ".join(parts) + f" · as of {asof}")
 
 
-def render_curves(code: str, history: pd.DataFrame | None, ann: pd.DataFrame | None) -> None:
+def render_curves(code: str, history: pd.DataFrame | None, ann: pd.DataFrame | None,
+                  row: pd.Series | None) -> None:
     section_title("📈", "Satellite curves")
     with st.container(border=True):
         wanted = {COL_A: "Activity score A", COL_DW: "Dynamic World built probability"}
@@ -777,11 +759,11 @@ def render_curves(code: str, history: pd.DataFrame | None, ann: pd.DataFrame | N
                     chart = lines + rules
         st.altair_chart(chart.properties(height=300), use_container_width=True)
 
-        first = first_announced_date(ann)
-        if first is not None:
-            handover, published = first
-            st.markdown(f"📌 **First announced handover date:** {handover:%b %Y} "
-                        f"(published {published:%b %Y})")
+        # The same first deadline that K3 counts from (kpi_values.k3_first_deadline).
+        first = None if row is None else row.get("k3_first_deadline")
+        if not _missing(first):
+            st.markdown(f"📌 **First announced handover date:** {pd.Timestamp(first):%b %Y} "
+                        "(the date K3 counts from)")
         else:
             st.caption("📌 No announced handover date on file for this compound yet.")
         st.caption(f"{ORIGIN_DERIVED} derived · gaps = quarters not assessable · "
@@ -851,7 +833,7 @@ def render_images(code: str) -> None:
     images = load_images(code)
     with st.container(border=True):
         if not images:
-            st.info("Waiting for Wayback images in data/imagery/.")
+            st.info(f"No Wayback before/after pair for {code} in app_data/images or data/imagery/figures.")
             return
         cols = st.columns(2)
         for col, kind in zip(cols, ("before", "after")):
@@ -868,12 +850,23 @@ def render_inspection_button(code: str, asof: str) -> None:
     section_title("📄", "Inspection file")
     path = find_inspection_file(code, asof)
     if path is None:
+        stored = sorted({p.name.split("_")[0] for d in FILES_DIRS for p in d.glob("C*_*.html")})
         st.button("📄 Inspection file (Arabic)", disabled=True, key=f"insp_{code}")
-        st.caption("Not ready yet: files/<code>_<quarter>.html arrives with T-EL-06.")
+        st.caption(f"No inspection file stored for {code}. Stored files cover: "
+                   f"{', '.join(stored) if stored else 'none'}.")
         return
     st.download_button("📄 Open inspection file (Arabic HTML)", data=path.read_bytes(),
                        file_name=path.name, mime="text/html", key=f"insp_{code}")
     st.caption("Drafted by AI from stored facts and reviewed before committee use.")
+
+
+def latest_predictions(preds: pd.DataFrame | None) -> pd.DataFrame | None:
+    """One row per compound and method for the latest quarter. The release stores four methods
+    and approves none as primary, so all four are shown side by side, never one picked silently."""
+    if preds is None or not {"code", "quarter", "method", "p_distressed"} <= set(preds.columns):
+        return None
+    latest = preds[preds["quarter"] == preds["quarter"].max()]
+    return latest.pivot_table(index="code", columns="method", values="p_distressed").round(2)
 
 
 def render_track_b_extras(code: str, track: Track) -> None:
@@ -881,34 +874,28 @@ def render_track_b_extras(code: str, track: Track) -> None:
         return
     section_title("🧠", "Generated-data model (Track B)")
 
-    preds = load_table(PREDICTIONS_FILE, track)
-    cols = st.columns(3)
-    if preds is not None and {"code", "quarter"} <= set(preds.columns):
-        mine = preds[preds["code"] == code]
-        if not mine.empty:
-            last = mine.sort_values("quarter").iloc[-1]
-            with cols[0]:
-                _kpi_tile("Probability: distressed", last.get("p_distressed"), "",
-                          "generated label, next 6 months", str(last["quarter"]),
-                          ORIGIN_GENERATED, digits=2)
-            with cols[1]:
-                _kpi_tile("Probability: not distressed", last.get("p_not_distressed"), "",
-                          "generated label, next 6 months", str(last["quarter"]),
-                          ORIGIN_GENERATED, digits=2)
+    preds = load_table(PREDICTIONS_FILE, track, READY_DATA)
+    table = latest_predictions(preds)
+    left, right = st.columns([2, 1])
+    with left, st.container(border=True):
+        st.markdown("**Probability of 'distressed' in the next 6 months, by method**")
+        if table is None or code not in table.index:
+            st.info(f"No stored prediction for {code} in {PREDICTIONS_FILE}.")
         else:
-            cols[0].info(f"No prediction row for {code}.")
-    else:
-        cols[0].info("Waiting for ml/predictions.parquet.")
+            row = table.loc[[code]].reset_index(drop=True)
+            st.dataframe(tag_generated_columns(row), use_container_width=True, hide_index=True)
+            st.caption(f"{ORIGIN_GENERATED} as of {preds['quarter'].max()} · four methods, none approved as primary · "
+                       "the rule, not these probabilities, selects the cycle list")
 
-    egp = load_table(K5_EGP_FILE, track)
-    with cols[2]:
+    egp = load_table(K5_EGP_FILE, track, READY_DATA)
+    with right:
         if egp is not None and {"code", "quarter", K5_EGP_COL} <= set(egp.columns):
             mine = egp[egp["code"] == code].sort_values("quarter")
             if not mine.empty:
                 last = mine.iloc[-1]
-                _kpi_tile("K5 fine exposure", last[K5_EGP_COL], "EGP",
-                          "eligible months × assumed rate × land value", str(last["quarter"]),
-                          ORIGIN_GENERATED)
+                _kpi_tile("K5 illustrative exposure", last[K5_EGP_COL], "EGP",
+                          "K5 months × assumed rate × assumed land value; not a fine",
+                          str(last["quarter"]), ORIGIN_GENERATED)
         else:
             st.info(f"Waiting for {K5_EGP_FILE}.")
     st.caption(f"{ORIGIN_GENERATED} Generated for training.")
@@ -918,36 +905,11 @@ def render_track_b_extras(code: str, track: Track) -> None:
 # Screen 3 data (T-NA-05): real-case backtest (Track A) + model metrics (Track B)
 # --------------------------------------------------------------------------- #
 
-BACKTEST_CASES_FILE = "releases/ready-data/backtest/cases.csv"        # Updated path
-BACKTEST_SUMMARY_FILE = "releases/ready-data/backtest/summary.json"   # Updated path
-METRICS_FILE = "ml/metrics.csv"                   # contract: elsayed -> nada (D3), generated
-B_SIGNALS_FILE = "ml/ml_dataset.parquet"          # ASSUMED home of the stored B1-B5 columns
+# Frozen-clock backtest of the v7 release (one row per public case, with its explanation).
+BACKTEST_DIR = "current/backtest"
+METRICS_FILE = "docs/CURRENT_MODEL_METRICS.csv"
+MODEL_METADATA_FILE = "docs/CURRENT_MODEL_METADATA.json"
 
-EARLY_WARNING_MONTHS = 6     # spec section 0: level 1-2 at least 6 months before the delay was public
-SUCCESS_TARGET_DEFAULT = 5   # spec section 0; used only if summary.json carries no target
-
-# Column / key aliases updated to match cases.csv structure
-CASE_ALIASES = {
-    "code": ("code", "compound_code", "case"),
-    "outcome": ("outcome", "outcome_type", "event_type", "event", "first_deadline"),
-    "event_date": ("event_date", "outcome_date", "public_date", "delay_public_date", "first_deadline"),
-    "level": ("level_reached", "first_level", "best_level", "level_at_cutoff", "level", "level_at_freeze"),
-    "months_early": ("months_early", "lead_months", "lead_time_months", "months_before", "after_start_months_before"),
-    "warned": ("warned_early", "warned", "early_warning", "hit", "after_start"),
-    "what": ("what_happened", "happened", "what", "literal"),
-    "why": ("why", "why_explanation", "reason", "driver"),
-    "next": ("what_next", "next_step", "next"),
-    "competing": ("competing_explanation", "rejected_explanation", "competing"),
-    "competing_n": ("competing_number", "rejected_number", "evidence_number"),
-}
-SUMMARY_ALIASES = {
-    "warned": ("warned_early", "n_warned", "warned", "hits"),
-    "total": ("n_cases", "cases", "total", "n_total", "n"),
-    "frozen": ("warned_frozen", "warned_at_frozen_cutoff", "frozen_cutoff", "n_warned_frozen"),
-    "target": ("target", "success_target", "target_cases"),
-    "asof": ("asof", "as_of", "as_of_quarter", "run_id"),
-}
-DENOMINATOR_COLUMNS = ("n", "denominator", "support", "n_test", "n_rows", "of")
 
 
 def _find_col(df: pd.DataFrame, aliases: tuple[str, ...]) -> str | None:
@@ -987,39 +949,12 @@ def _read_json(path_str: str, mtime_ns: int = 0) -> object:
     return json.loads(Path(path_str).read_text(encoding="utf-8"))
 
 
-def load_backtest_summary() -> dict | None:
-    path = APP_DATA.parent / BACKTEST_SUMMARY_FILE if not Path(BACKTEST_SUMMARY_FILE).exists() else Path(BACKTEST_SUMMARY_FILE)
-    if not path.exists():
-        path = Path(BACKTEST_SUMMARY_FILE)
+def load_ready_json(rel_path: str) -> dict | None:
+    path = READY_DATA / rel_path
     if not path.exists():
         return None
-    try:
-        data = _read_json(str(path), path.stat().st_mtime_ns)
-    except (OSError, ValueError):
-        return None
+    data = _read_json(str(path), path.stat().st_mtime_ns)
     return data if isinstance(data, dict) else None
-
-
-def _summary_value(summary: dict | None, aliases: tuple[str, ...]) -> object:
-    """First matching key, searching nested objects too. Only numbers/labels are read:
-    the raw JSON is never printed, so nothing unexpected can reach the screen."""
-    queue = [summary] if summary else []
-    while queue:
-        node = queue.pop(0)
-        for key, val in node.items():
-            if str(key).lower() in aliases and not isinstance(val, (dict, list)):
-                return val
-        queue += [v for v in node.values() if isinstance(v, dict)]
-    return None
-
-
-def _level_text(value: object) -> str:
-    if _missing(value):
-        return "unknown"
-    try:
-        return level_word(int(float(value)))
-    except (TypeError, ValueError):
-        return str(value)  # already a word such as "Inspect now"
 
 
 def _tag_numeric_headers(df: pd.DataFrame) -> pd.DataFrame:
@@ -1031,249 +966,131 @@ def _tag_numeric_headers(df: pd.DataFrame) -> pd.DataFrame:
 # ---- Track A: frozen-clock table -------------------------------------------- #
 
 def render_backtest_cases() -> None:
-    path = Path(BACKTEST_CASES_FILE)
-    if not path.exists():
-        path = APP_DATA.parent / BACKTEST_CASES_FILE
-    
-    cases = enforce_no_names(_read_file(str(path)), BACKTEST_CASES_FILE) if path.exists() else None
-    summary = load_backtest_summary()
-    if cases is None or cases.empty:
-        st.info("Waiting for releases/ready-data/backtest/cases.csv.")
+    path = READY_DATA / BACKTEST_DIR / "cases_explained.csv"
+    summary = load_ready_json(f"{BACKTEST_DIR}/summary.json")
+    if not path.exists() or summary is None:
+        st.info(f"Waiting for {BACKTEST_DIR}/cases_explained.csv and summary.json of the v7 release "
+                "(run python -m src.pipeline.setup_review).")
         return
-
-    col = {field: _find_col(cases, names) for field, names in CASE_ALIASES.items()}
-    flags = ([_as_bool(v) for v in cases[col["warned"]]] if col["warned"] else [None] * len(cases))
-
-    total = _as_int(_summary_value(summary, SUMMARY_ALIASES["total"])) or len(cases)
-    warned = _as_int(_summary_value(summary, SUMMARY_ALIASES["warned"]))
-    if warned is None and col["warned"]:
-        warned = sum(1 for f in flags if f)
-    frozen = _as_int(_summary_value(summary, SUMMARY_ALIASES["frozen"]))
-    target = _as_int(_summary_value(summary, SUMMARY_ALIASES["target"])) or SUCCESS_TARGET_DEFAULT
-    asof = str(_summary_value(summary, SUMMARY_ALIASES["asof"]) or "stored run")
-    met = None if warned is None else warned >= target
+    cases = enforce_no_names(_read_file(str(path)), "cases_explained.csv")
+    total = summary["n_cases"]
+    after_start = summary["after_start_reading"]["n"]
+    point_in_time = summary["point_in_time_reading"]["n"]
+    met = summary["after_start_reading"]["met"]
 
     section_title("🧊", "Frozen-clock backtest (real public cases)")
-    tiles = st.columns(3 if frozen is not None else 2)
+    tiles = st.columns(3)
     with tiles[0]:
-        metric_tile("Warned early", "unknown" if warned is None else f"{warned} of {total}",
-                    "" if warned is None else "cases",
-                    f"level 1-2 at least {EARLY_WARNING_MONTHS} months before the delay was public",
-                    asof, ORIGIN_DERIVED)
+        metric_tile("Warned after construction start", f"{after_start} of {total}", "cases",
+                    "level 1-2 at least 6 months before the first announced handover date "
+                    "(main reading)", "frozen clock", ORIGIN_DERIVED)
     with tiles[1]:
-        metric_tile("Success criterion",
-                    "unknown" if met is None else ("Met" if met else "Not met"), "",
-                    f"needs {target} of {total} cases · fixed before any computation",
-                    asof, ORIGIN_DERIVED)
-    if frozen is not None:
-        with tiles[2]:
-            metric_tile("At the frozen cutoff", f"{frozen} of {total}", "cases",
-                        "using only data published before each quarter", asof, ORIGIN_DERIVED)
+        metric_tile("Warned at the freeze date", f"{point_in_time} of {total}", "cases",
+                    "level 1-2 on the freeze date itself, using only data published by then",
+                    "frozen clock", ORIGIN_DERIVED)
+    with tiles[2]:
+        metric_tile("Success criterion", "Met" if met else "Not met", "",
+                    f"{summary['criterion']} · fixed before any computation, not lowered",
+                    "frozen clock", ORIGIN_DERIVED)
 
-    # Per-case table: one row per case, level as a word, yes/no in words
-    table = pd.DataFrame({"Case": cases[col["code"]].astype(str) if col["code"]
-                          else [f"Case {i + 1}" for i in range(len(cases))]})
-    for field, heading in (("outcome", "Outcome"), ("event_date", "Event date")):
-        if col[field]:
-            table[heading] = cases[col[field]].astype(str)
-    if col["level"]:
-        table["Level reached"] = cases[col["level"]].map(_level_text)
-    if col["months_early"]:
-        table["Months early"] = cases[col["months_early"]].map(lambda v: _fmt(v, 0))
-    table["Warned early"] = [_yes_no(f) for f in flags]
-
+    table = pd.DataFrame({
+        "Case": cases["code"].astype(str),
+        "First announced handover": cases["first_deadline"].astype(str),
+        "First level 1-2 alert": cases["first_alert_quarter"].fillna("none").astype(str),
+        "Months before handover": cases["after_start_months_before"].map(lambda v: _fmt(v, 0)),
+        "Warned after start": cases["after_start"].map(lambda v: _yes_no(_as_bool(v))),
+        "Level at freeze date": cases["level_at_freeze"].map(_level_text),
+        "Warned at freeze date": cases["point_in_time"].map(lambda v: _yes_no(_as_bool(v))),
+    })
     with st.container(border=True):
         st.dataframe(table, use_container_width=True, hide_index=True)
         st.caption(f"{ORIGIN_DERIVED} derived from real public cases · counts only, no percentages "
-                   f"(small sample) · 'early' = level 1-2 at least {EARLY_WARNING_MONTHS} months "
-                   "before the delay became public")
+                   "(small sample) · a later alert is not proof that the rule predicts delays")
 
-    # Why: per-case reasoning (what happened / why / what next / rejected explanation)
     section_title("🔎", "Why, case by case")
-    for i, (_, r) in enumerate(cases.iterrows()):
-        label = table.iloc[i]["Case"]
-        with st.expander(f"{label} · warned early: {_yes_no(flags[i])}"):
-            shown = False
-            for field, heading in (("what", "What happened"), ("why", "Why"),
-                                   ("next", "What next")):
-                if col[field] and not _missing(r[col[field]]):
-                    st.markdown(f"**{heading}.** {r[col[field]]}")
-                    shown = True
-            if col["competing"] and not _missing(r[col["competing"]]):
-                number = ""
-                if col["competing_n"] and not _missing(r[col["competing_n"]]):
-                    number = f" ({r[col['competing_n']]})"
-                st.markdown(f"**Competing explanation, rejected.** {r[col['competing']]}{number}")
-                shown = True
-            if not shown:
-                st.caption("No explanation text in cases.csv for this case yet.")
+    for _, r in cases.iterrows():
+        with st.expander(f"{r['code']} · warned after start: {_yes_no(_as_bool(r['after_start']))}"):
+            for column, heading in (("what_happened", "What happened"), ("this_case", "What the rule saw"),
+                                    ("why", "Rule reading"), ("what_next", "What next")):
+                if not _missing(r[column]):
+                    st.markdown(f"**{heading}.** {r[column]}")
+            if not _missing(r["competing_explanation"]):
+                st.markdown(f"**Competing explanation.** {r['competing_explanation']} "
+                            f"{'' if _missing(r['numeric_check']) else r['numeric_check']}")
 
-    if met is False:
+    if not met:
         with st.container(border=True):
             st.markdown(
-                "**What it means.** Satellites tell 'building or not' well, but the saved rule did "
-                "not raise early alerts in this small set of cases. Early warning of delay needs "
-                "ACUD's data (supervisor reports, contractual dates, meters, escrow). The counts "
-                "alone do not show why a delay happened.")
+                "**What it means.** The rule catches stalls and passed dates. In the missed cases the "
+                "sites looked active, so there was no stall to catch: the rule does not measure pace "
+                "against the plan. Early warning of delay needs ACUD's data (supervisor reports, "
+                "contractual dates, meters, escrow). The counts alone do not show why a delay happened.")
 
 
 # ---- Track B: model metrics + B1-B5 ----------------------------------------- #
 
 def render_model_metrics(track: Track) -> None:
     section_title("📐", "Binary classifier on generated data")
-    metrics = load_table(METRICS_FILE, track)  # generated: loaded only in Track B
+    metrics = load_table(METRICS_FILE, track, READY_DATA)  # generated: loaded only in Track B
     if metrics is None or metrics.empty:
-        st.info("Waiting for ml/metrics.csv (hand-off from elsayed, D3).")
+        st.info(f"Waiting for {METRICS_FILE} of the v7 release (run python -m src.pipeline.setup_review).")
         return
+    test = metrics[metrics["view"] == "time_test"].copy()
+    test["n of m"] = [f"{_fmt(n)} of {_fmt(m)}" for n, m in zip(test["numerator"], test["denominator"])]
+    test["value"] = test["value"].round(2)
 
-    m_col = _find_col(metrics, ("metric", "metric_name", "measure", "metric_key"))
-    v_col = _find_col(metrics, ("value", "score", "result"))
-    if m_col is None or v_col is None:
-        st.warning("ml/metrics.csv has no 'metric' / 'value' columns: showing the raw table.")
-        st.dataframe(_tag_numeric_headers(metrics), use_container_width=True, hide_index=True)
-        return
+    left, right = st.columns(2)
+    with left, st.container(border=True):
+        st.markdown("**Recall per class (time test)**")
+        recall = test[test["metric"] == "class_recall"].pivot(index="method", columns="class", values="n of m")
+        st.dataframe(tag_generated_columns(recall.reset_index(), skip=("method",)),
+                     use_container_width=True, hide_index=True)
+    with right, st.container(border=True):
+        st.markdown("**Macro-F1, two classes (time test)**")
+        f1 = test[test["metric"] == "macro_f1_binary"][["method", "value", "denominator"]]
+        f1 = f1.rename(columns={"value": "macro-F1", "denominator": "test rows"})
+        st.dataframe(tag_generated_columns(f1, skip=("method",)), use_container_width=True, hide_index=True)
 
-    metrics = metrics.copy()
-    metrics[v_col] = pd.to_numeric(metrics[v_col], errors="coerce").round(2)
-    text = metrics[m_col].astype(str).str.lower()
-    
-    # Safe blob conversion preventing float/type aggregation issues
-    blob = metrics.astype(str).fillna("").agg(lambda x: " ".join(x.astype(str)), axis=1).str.lower()
-    
-    # Updated filters matching metrics.csv structure (macro_f1_binary, distressed_recall_at_4, class_recall)
-    is_macro = text.str.contains("macro|f1", regex=True)
-    is_at_n = text.str.contains(r"@|_at_|recall_at|at_\d", regex=True)
-    is_class = (text.str.contains("recall|class") & ~is_at_n & ~is_macro) | (text == "class_recall")
-    is_random = blob.str.contains("random") | text.str.contains("random")
+    at_4 = test[test["metric"] == "distressed_recall_at_4"][["method", "value", "n of m"]]
+    random = (load_ready_json(MODEL_METADATA_FILE) or {}).get("random_at_4")
+    if random:
+        at_4 = pd.concat([at_4, pd.DataFrame([{
+            "method": "random ranking (mean)", "value": round(random["mean"], 2),
+            "n of m": f"{random['draws']:,} draws, range {random['low']:.2f}-{random['high']:.2f}"}])])
+    with st.container(border=True):
+        st.markdown("**Recall@4 for 'distressed' versus a random ranking (time test)**")
+        chart = alt.Chart(at_4).mark_bar().encode(
+            x=alt.X("value:Q", title="share of the distressed rows found in the top 4",
+                    scale=alt.Scale(domain=[0, 1])),
+            y=alt.Y("method:N", title=None, sort="-x"),
+            color=alt.condition(alt.datum.method == "random ranking (mean)",
+                                alt.value(PALETTE["muted"]), alt.value(PALETTE["accent_b"])),
+            tooltip=["method", alt.Tooltip("value:Q", format=".2f"), "n of m"],
+        )
+        st.altair_chart(chart.properties(height=230), use_container_width=True)
+        st.dataframe(tag_generated_columns(at_4, skip=("method",)), use_container_width=True, hide_index=True)
 
-    def block(title: str, rows: pd.DataFrame, empty_msg: str) -> None:
-        with st.container(border=True):
-            st.markdown(f"**{title}**")
-            if rows.empty:
-                st.info(empty_msg)
-            else:
-                st.dataframe(_tag_numeric_headers(rows), use_container_width=True, hide_index=True)
-
-    block("Per-class recall", metrics[is_class],
-          "No per-class recall rows found in ml/metrics.csv.")
-    block("Macro-F1 (two classes)", metrics[is_macro],
-          "No macro-F1 rows found in ml/metrics.csv.")
-
-    at_n = metrics[is_at_n | (is_random & text.str.contains("recall"))].copy()
-    block("Recall@N for 'distressed' vs random ranking", at_n,
-          "No recall@N rows found in ml/metrics.csv.")
-    if not at_n.empty:
-        group_cols = [c for c in at_n.columns if c not in (m_col, v_col)
-                      and not pd.api.types.is_numeric_dtype(at_n[c])
-                      and c.lower() not in DENOMINATOR_COLUMNS]
-        at_n["compared"] = (at_n[group_cols].astype(str).agg(" · ".join, axis=1)
-                            if group_cols else "model")
-        at_n.loc[is_random.loc[at_n.index], "compared"] = "random ranking"
-        enc = dict(x=alt.X("compared:N", title=None,
-                           axis=alt.Axis(labelAngle=-20, labelLimit=240)),
-                   y=alt.Y(f"{v_col}:Q", title="recall (0-1)", scale=alt.Scale(domain=[0, 1])),
-                   color=alt.Color(f"{m_col}:N", title=None, legend=alt.Legend(orient="bottom")),
-                   tooltip=["compared", m_col, alt.Tooltip(f"{v_col}:Q", format=".2f")])
-        try:
-            chart = alt.Chart(at_n).mark_bar().encode(xOffset=f"{m_col}:N", **enc)
-        except Exception:  # older Altair without xOffset
-            chart = alt.Chart(at_n).mark_bar().encode(**enc)
-        with st.container(border=True):
-            st.altair_chart(chart.properties(height=260), use_container_width=True)
-
-    if _find_col(metrics, DENOMINATOR_COLUMNS) is None:
-        st.warning("No denominator column (n) in ml/metrics.csv: every metric must show its n.")
+    holdout = metrics[(metrics["view"] == "developer_holdout") & (metrics["metric"] == "class_recall")
+                      & (metrics["class"] == "distressed")]
+    if not holdout.empty and (holdout["denominator"] == 0).all():
+        st.caption("Developer holdout: it holds no 'distressed' row, so recall for that class is undefined there.")
     st.caption(f"{ORIGIN_GENERATED} Generated data: a diagnostic of the generator and model "
-               "workflow, not real-world accuracy. The test split has very few 'distressed' rows, "
-               "so one row can move a recall value by a large step: differences of one row are "
-               "noise. Always compare with the random baseline and read the denominators.")
+               "workflow, not real-world accuracy. The time test holds very few 'distressed' rows, "
+               "so one row moves a recall value by a large step. Read the n of m.")
 
 
 def render_b_signals(track: Track) -> None:
     section_title("🧾", "B1-B5 signals per compound")
-    data = load_table(B_SIGNALS_FILE, track)  # generated: loaded only in Track B
-    if data is None or not {"code", "quarter"} <= set(data.columns):
-        st.info(f"Waiting for {B_SIGNALS_FILE} (B1-B5 columns).")
-        return
-
-    # خريطة البحث تشمل الأسماء المختصرة والأسماء الكاملة الموجودة في ملف الـ dataset
-    labels = {
-        1: "B1 escrow cover", 
-        2: "B2 land arrears", 
-        3: "B3 complaint rate",
-        4: "B4 occupancy gap (context only)", 
-        5: "B5 plan gap"
-    }
-    
-    # الكلمات المفتاحية البديلة لكل مؤشر في الملف
-    keywords = {
-        1: ["b1", "escrow"],
-        2: ["b2", "arrear"],
-        3: ["b3", "complaint"],
-        4: ["b4", "occupancy"],
-        5: ["b5", "plan"]
-    }
-
-    found = {}
-    for n, label in labels.items():
-        match = None
-        # البحث بالكلمات المفتاحية المرنة
-        for col in data.columns:
-            col_lower = str(col).lower()
-            if any(kw in col_lower for kw in keywords[n]):
-                match = col
-                break
-        if match:
-            found[label] = match
-
-    if not found:
-        st.info(f"No B1-B5 columns found in {B_SIGNALS_FILE}.")
-        return
-
-    asof = str(data["quarter"].max())
-    latest = data[data["quarter"] == data["quarter"].max()].sort_values("code")
-    table = pd.DataFrame({"Code": latest["code"].astype(str).values})
-    
-    for label, source in found.items():
-        values = latest[source]
-        flags = [_as_bool(v) for v in values]
-        known = values.dropna()
-        name = str(source).lower()
-        looks_like_amount = any(w in name for w in ("month", "pct", "pts", "point", "egp",
-                                                    "kwh", "rate", "ratio", "count"))
-        is_flag = (not known.empty and known.isin([0, 1, True, False]).all()
-                   and (values.dtype == bool or any(w in name for w in ("flag", "trigger", "hit"))
-                        or not looks_like_amount))
-        if is_flag:
-            word = "Gap" if label.startswith("B4") else "Triggered"
-            table[f"{label} {ORIGIN_GENERATED}"] = [
-                "unknown" if f is None else (word if f else "No") for f in flags]
-        else:
-            digits = 0 if (known % 1 == 0).all() else 1
-            table[f"{label} {ORIGIN_GENERATED}"] = [_fmt(v, digits) for v in values]
-
-    with st.container(border=True):
-        st.dataframe(table, use_container_width=True, hide_index=True)
-        st.caption(f"{ORIGIN_GENERATED} generated · {len(table)} compound(s) · as of {asof} · "
-                   "B1, B2, B3, B5 raise the level to at least 2 when triggered; "
-                   "B4 is context only. Missing stays 'unknown', never 'No'.")
+    st.info("The v7 release does not store the B1-B5 trigger flags per compound, so they are not "
+            "shown here. The model reads their generated inputs; see the training dictionary.")
 
 
 # --------------------------------------------------------------------------- #
 # Screen 4 data (T-NA-06): gates, coverage, facts counter, colour key
 # --------------------------------------------------------------------------- #
 
-QUALITY_LOG_FILES = (
-    "releases/ready-data/review/real/quality_checks_log.parquet",
-    "ready-data/review/real/quality_checks_log.parquet",
-    "review/real/quality_checks_log.parquet",
-    "real/quality_checks_log.parquet",
-    "real/quality_checks_log.csv",
-)  # contract: ahmed -> nada
 COMPOUNDS_FILE = "real/compounds.parquet"                                                # contract: ahmed -> nada
-FACTS_FILES = ("real/facts_register.parquet", "real/facts_register.csv",
-               "real/facts.parquet", "real/facts.csv")                                   # ASSUMED (not in the contract)
-DOCUMENTED_FACTS = (1009, 1026)  # 01-specs section 12 (slide 3). Fallback only: used when no facts register file exists
+STATEMENTS_FILE = "real/statements.parquet"  # published developer statements, one fact per row
 
 # The 10 quality gates (01-specs section 8): key, dimension, rule, owner role, if it fails.
 GATES = (
@@ -1297,8 +1114,7 @@ STATUS_WORD = {"Pass": "✅ Pass", "Flag": "⚠️ Flag", "Fail": "⛔ Fail", "u
 # Dashboard-side audit: which stored tables are checked, and what must never appear in a real one.
 AUDIT_REAL_FILES = (KPI_FILE, COMPOUNDS_FILE, "real/statements.parquet", "real/sat_yearly.parquet",
                     "real/sat_quarterly.parquet", "real/quality_checks_log.parquet")
-AUDIT_GENERATED_FILES = (PREDICTIONS_FILE, METRICS_FILE, B_SIGNALS_FILE,
-                         "sim/fin_monthly.parquet", "sim/complaints.parquet")
+AUDIT_GENERATED_FILES = (PREDICTIONS_FILE, METRICS_FILE, K5_EGP_FILE)
 GENERATED_COLUMN_HINTS = {  # columns that exist only in generated tables (spec sections 2, 5, 9)
     "p_distressed", "p_not_distressed", "k5_egp", "cover_balance_egp", "cover_required_egp",
     "planned_pct", "reported_pct", "land_months_late", "complaints", "kwh", "meters_active",
@@ -1331,20 +1147,11 @@ def _gate_status(value: object) -> str:
 
 
 def load_quality_log() -> pd.DataFrame | None:
-    """Read the quality checks log from relative paths or directly from the project root."""
-    possible_paths = [
-        Path("releases/ready-data/review/real/quality_checks_log.parquet"),
-        Path("ready-data/review/real/quality_checks_log.parquet"),
-        Path("review/real/quality_checks_log.parquet"),
-        APP_DATA / "real/quality_checks_log.parquet",
-        APP_DATA / "quality_checks_log.parquet",
-    ]
-    for path in possible_paths:
+    """The quality log installed by setup_review, else the copy committed with the release."""
+    for path in (APP_DATA / "real/quality_checks_log.parquet",
+                 REPO_DIR / "releases/ready-data/review/real/quality_checks_log.parquet"):
         if path.exists():
-            try:
-                return pd.read_parquet(path)
-            except Exception:
-                pass
+            return pd.read_parquet(path)
     return None
 
 
@@ -1369,21 +1176,13 @@ def gate_results(log: pd.DataFrame | None) -> dict[str, tuple[str, str]]:
     return results
 
 
-def load_facts_count() -> tuple[int, int, str, bool]:
-    """(accepted, documented, source label, read from a stored file?).
-    Reads a facts register when one exists; otherwise falls back to the figure
-    documented in the spec, and says so. Nothing is invented."""
-    register = _load_first(FACTS_FILES)
-    if register is not None and not register.empty:
-        v_col = _find_col(register, ("verdict", "status", "review_verdict"))
-        id_col = _find_col(register, ("record_id",))
-        if v_col:
-            accepted = (register[v_col].astype(str).str.strip().str.lower()
-                        .isin({"accepted", "accept", "ok", "verified", "true", "1"}))
-            if id_col:
-                accepted &= register[id_col].notna()
-            return int(accepted.sum()), len(register), "facts register", True
-    return DOCUMENTED_FACTS[0], DOCUMENTED_FACTS[1], "01-specs §12, not recomputed", False
+def load_facts_count() -> tuple[int, int] | None:
+    """(statements with a record_id and a review verdict, all statements) from the stored table."""
+    statements = load_table(STATEMENTS_FILE, TRACK_A)
+    if statements is None or not {"record_id", "verdict"} <= set(statements.columns):
+        return None
+    reviewed = statements["record_id"].notna() & statements["verdict"].notna()
+    return int(reviewed.sum()), len(statements)
 
 
 def compute_coverage() -> dict | None:
@@ -1421,23 +1220,10 @@ def compute_coverage() -> dict | None:
 
 def _audit_file(rel: str, track: Track) -> dict | None:
     """Non-stopping audit of one stored table (the live gate in load_table stops instead)."""
-    # تحديد المسارات المحتملة للملف (سواء داخل app_data أو في مسارات الـ releases الخارجية)
-    possible_paths = [
-        APP_DATA / rel,
-        Path(rel),
-        Path("releases/ready-data/review") / rel,
-        Path("ready-data/review") / rel,
-    ]
-    
-    path = None
-    for p in possible_paths:
-        if p.exists():
-            path = p
-            break
-
+    path = next((root / rel for root in (APP_DATA, READY_DATA) if (root / rel).exists()), None)
     if path is None or path.suffix.lower() not in (".csv", ".parquet"):
         return None
-        
+
     generated = is_generated_path(rel)
     if generated and not track.generated:
         return None  # separation: never opened in Track A
@@ -1474,7 +1260,7 @@ def separation_guard_holds() -> bool:
 # ---- screen 4 renderers ----------------------------------------------------- #
 
 def render_trust_tiles(cov: dict | None, results: dict, log: pd.DataFrame | None,
-                       facts: tuple[int, int, str, bool]) -> None:
+                       facts: tuple[int, int] | None) -> None:
     section_title("📊", "Trust at a glance")
     tiles = st.columns(4)
 
@@ -1512,15 +1298,14 @@ def render_trust_tiles(cov: dict | None, results: dict, log: pd.DataFrame | None
                         f"K4 failed: fix location/images first{extra}", cov["asof"], ORIGIN_DERIVED)
 
     with tiles[3]:
-        accepted, documented, source, _ = facts
-        metric_tile("Facts verified", f"{accepted:,} of {documented:,}", "",
-                    f"documented facts with a record_id and an accepted verdict · "
-                    f"{documented - accepted:,} excluded", source, ORIGIN_REAL)
-
-    if not facts[3]:
-        st.caption("ℹ️ Facts counter: no facts register file found in app_data/real/, so the "
-                   "figure documented in 01-specs §12 is shown (not recomputed). It switches to "
-                   "the stored register automatically once one exists.")
+        if facts is None:
+            metric_tile("Reviewed statements", "unknown", "", f"waiting for {STATEMENTS_FILE}",
+                        "n/a", ORIGIN_REAL)
+        else:
+            reviewed, total = facts
+            metric_tile("Reviewed statements", f"{reviewed:,} of {total:,}", "",
+                        f"published statements with a record_id and a review verdict · "
+                        f"{total - reviewed:,} without a verdict", "stored table", ORIGIN_REAL)
 
 
 def render_gates_table(results: dict, log: pd.DataFrame | None) -> None:
@@ -1663,13 +1448,16 @@ def screen_priority_map(track: Track) -> None:
     render_cycle_list(latest)
 
     if track.generated:
-        section_title("🧠", "Classifier probabilities")
-        preds = load_table("ml/predictions.parquet", track)
-        if preds is None:
-            st.info("Waiting for ml/predictions.parquet.")
+        section_title("🧠", "Classifier probabilities: 'distressed' in the next 6 months")
+        preds = load_table(PREDICTIONS_FILE, track, READY_DATA)
+        table = latest_predictions(preds)
+        if table is None:
+            st.info(f"Waiting for {PREDICTIONS_FILE}.")
         else:
-            st.dataframe(tag_generated_columns(preds.head(10)),
-                         use_container_width=True, hide_index=True)
+            st.dataframe(tag_generated_columns(table.reset_index()), use_container_width=True, hide_index=True)
+            st.caption(f"{ORIGIN_GENERATED} as of {preds['quarter'].max()} · {len(table)} compounds · "
+                       "four methods, none approved as primary · the rule above, not these "
+                       "probabilities, selects the cycle list")
 
 
 def screen_compound_file(track: Track) -> None:
@@ -1708,14 +1496,14 @@ def screen_compound_file(track: Track) -> None:
 
         render_kpi_tiles(row, asof)
         render_lineage(row, asof)
-        render_curves(code, history, ann)
+        render_curves(code, history, ann, row)
         render_context_charts(code)
         render_images(code)
         render_inspection_button(code, asof)
         render_track_b_extras(code, track)
 
-    section_title("📝", "Visit form")
-    render_ops_visits_form()
+        section_title("📝", "Visit form")
+        render_ops_visits_form(codes, code)
 
 
 def screen_backtest(track: Track) -> None:
@@ -1733,8 +1521,7 @@ def screen_data_trust(track: Track) -> None:
     log = _safe("quality_checks_log", load_quality_log)
     results = gate_results(log)
     cov = _safe("kpi_values", compute_coverage)
-    facts = _safe("facts register", load_facts_count,
-                  default=(*DOCUMENTED_FACTS, "01-specs §12, not recomputed", False))
+    facts = _safe("statements", load_facts_count)
 
     render_trust_tiles(cov, results, log, facts)
     render_gates_table(results, log)
@@ -1747,66 +1534,20 @@ def screen_data_trust(track: Track) -> None:
 # Screen 5: What if? (twin)  -- T-NA-07
 #
 # Reads the stored v7 what-if hand-off (never recomputes):
-#   real/SpaceEye_R7_READY_DATA_2026-10-31_v7/what_if/<S1|S2|S3>/who_moved_and_why.csv
-#   real/SpaceEye_R7_READY_DATA_2026-10-31_v7/tables/current/<S>.parquet  (csv/current/<S>.csv as fallback)
-#
-# ASSUMPTIONS (change in one place):
-#   * The columns of who_moved_and_why.csv are not documented here, so they are found by
-#     tolerant aliases (WHATIF_ALIASES). Whatever the file holds is also shown unchanged
-#     in the full table, so nothing is hidden if an alias misses.
-#   * If a newer release folder (..._v8) is dropped in, the newest SpaceEye_R7_READY_DATA_*
-#     folder that holds the file is used.
-#   * Both folders are generated content. is_generated_path() treats them as generated,
-#     so Track A refuses them even though they sit under real/.
-#   * Scenario names come from the spec (section 9): S1 dollar shock, S2 collections drop,
-#     S3 inspection capacity N ± 2 (re-rank only).
+#   ready-data/what_if/<S1|S2|S3>/who_moved_and_why.csv  (data/SCENARIO_CONTRACT_CURRENT.md)
+# S1/S2: one row per compound and simulated month; the Track B hypothetical level and the
+#        capacity-4 selection, baseline versus shock.
+# S3:    one row per compound, quarter and capacity variant (2 or 6 versus 4); selection only,
+#        levels never change.
 # --------------------------------------------------------------------------- #
 
-WHATIF_RELEASE = "real/SpaceEye_R7_READY_DATA_2026-10-31_v7"
-WHATIF_RELEASE_GLOB = "real/SpaceEye_R7_READY_DATA_*"
 WHATIF_SCENARIOS = ("S1", "S2", "S3")
 SCENARIO_NOTES = {
-    "S1": "Dollar shock · USD/EGP +30%",
-    "S2": "Collections drop · buyer payments −25% for 6 months",
-    "S3": "Inspection capacity · N ± 2 (re-rank only, no generator re-run)",
-}
-WHATIF_ALIASES = {
-    "code": ("code", "compound_code", "compound"),
-    "before": ("level_base", "base_level", "baseline_level", "level_baseline", "level_before",
-               "before_level", "before", "from_level", "level_from", "old_level", "level"),
-    "after": ("level_scenario", "scenario_level", "level_after", "after_level", "after",
-              "to_level", "level_to", "new_level"),
-    "moved": ("selection_changed", "moved", "changed", "level_changed", "moves", "did_move"),  # <-- التعديل هنا
-    "reason": ("reason", "why", "reason_text", "reason_en", "reason_ar", "explanation"),
+    "S1": "Cost shock · +30% on the imported cost component (FX-cost proxy)",
+    "S2": "Collections drop · buyer payments −25% for six months",
+    "S3": "Inspection capacity · 2 or 6 visits instead of 4 (re-rank only)",
 }
 LEVEL_NUMBER = {word.lower(): n for n, (word, _) in LEVELS.items()}   # word -> 1..4 (1 = most urgent)
-MAX_MOVED_CARDS = 25
-
-
-def _whatif_rel(scenario: str, tail: str) -> str | None:
-    """Path (relative to the data folder) of a stored what-if file, newest release first."""
-    candidates = [f"{WHATIF_RELEASE}/{tail.format(s=scenario)}"]
-    releases = sorted(p.name for p in (APP_DATA / "real").glob("SpaceEye_R7_READY_DATA_*") if p.is_dir()) \
-        if (APP_DATA / "real").exists() else []
-    candidates += [f"real/{name}/{tail.format(s=scenario)}" for name in reversed(releases)]
-    return next((c for c in candidates if (APP_DATA / c).exists()), None)
-
-
-def _whatif_load(scenario: str, track: Track) -> dict:
-    """All stored pieces for one scenario. Each load is isolated (one bad file never blanks the screen)."""
-    out: dict = {"moved": None, "moved_rel": None, "table": None, "table_rel": None}
-    rel = _whatif_rel(scenario, "what_if/{s}/who_moved_and_why.csv")
-    if rel:
-        out["moved_rel"] = rel
-        out["moved"] = _safe(f"what_if/{scenario}/who_moved_and_why.csv", load_table, rel, track)
-    for tail in ("tables/current/{s}.parquet", "csv/current/{s}.csv"):
-        rel = _whatif_rel(scenario, tail)
-        if rel:
-            out["table_rel"] = rel
-            out["table"] = _safe(f"{tail.format(s=scenario)}", load_table, rel, track)
-            if out["table"] is not None:
-                break
-    return out
 
 
 def _level_text(value: object) -> str:
@@ -1823,179 +1564,118 @@ def _level_text(value: object) -> str:
     return level_word(number) if number in LEVELS else "unknown"
 
 
-def _level_number(word: str) -> int | None:
-    return LEVEL_NUMBER.get(word.lower())
+def _in_list(flag: object) -> str:
+    return "on the list" if _as_bool(flag) else "not on the list"
 
 
-def _tagged_table(df: pd.DataFrame) -> pd.DataFrame:
-    return _tag_numeric_headers(df)
+def whatif_view(raw: pd.DataFrame, scenario: str) -> tuple[pd.DataFrame, str]:
+    """The latest period of one scenario: one row per compound, baseline versus scenario."""
+    period = "quarter" if scenario == "S3" else "month"
+    label = str(raw[period].max())
+    latest = raw[raw[period].astype(str) == label]
+    view = pd.DataFrame({"code": latest["code"].astype(str)})
+    if scenario == "S3":
+        view["level"] = latest["level"].map(_level_text)
+        view["baseline list"] = latest["baseline_selected"].map(_in_list)
+        view["list in scenario"] = latest["selected"].map(_in_list)
+        view["change"] = [("joins the list" if _as_bool(s) else "leaves the list") if _as_bool(c) else "unchanged"
+                          for s, c in zip(latest["selected"], latest["selection_changed"])]
+    else:
+        # Track B hypothetical levels (generated finance), not the real Track A levels of screen 1.
+        view["baseline level (Track B)"] = latest["baseline_hypothetical_level"].map(_level_text)
+        view["level in scenario (Track B)"] = latest["hypothetical_level"].map(_level_text)
+        view["baseline list"] = latest["baseline_selected"].map(_in_list)
+        view["list in scenario"] = latest["selected"].map(_in_list)
+        changed = [bool(_as_bool(lv)) or bool(_as_bool(sel))
+                   for lv, sel in zip(latest["level_changed"], latest["selection_changed"])]
+        view["change"] = ["changes" if c else "unchanged" for c in changed]
+    view["reason"] = latest["reason"].fillna("").astype(str)
+    return view.reset_index(drop=True), label
 
 
-def _prepare_moved(raw: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
-    """Standard view of who_moved_and_why: code, before, in scenario, change, reason."""
-    cols = {k: _find_col(raw, a) for k, a in WHATIF_ALIASES.items()}
-    view = pd.DataFrame({"code": raw[cols["code"]].astype(str)}) if cols["code"] else pd.DataFrame(index=raw.index)
-    if cols["before"]:
-        view["before"] = raw[cols["before"]].map(_level_text)
-    if cols["after"]:
-        view["in scenario"] = raw[cols["after"]].map(_level_text)
-
-    def change(i: int) -> str:
-        if cols["before"] and cols["after"]:
-            b, a = view.iloc[i]["before"], view.iloc[i]["in scenario"]
-            nb, na = _level_number(b), _level_number(a)
-            if nb is None or na is None:
-                return "unknown"
-            return "moves up" if na < nb else ("moves down" if na > nb else "unchanged")
-        if cols["moved"]:
-            flag = _as_bool(raw.iloc[i][cols["moved"]])
-            return "unknown" if flag is None else ("changes level" if flag else "unchanged")
-        return "listed as moved"   # the file only lists compounds that moved
-
-    view["change"] = [change(i) for i in range(len(raw))]
-    view["reason"] = raw[cols["reason"]].fillna("").astype(str) if cols["reason"] else ""
-    return view, cols
+def count_changed_rows(raw: pd.DataFrame) -> int:
+    """Rows over the whole history whose level or list position differs from the baseline."""
+    flags = [raw["selection_changed"]] + ([raw["level_changed"]] if "level_changed" in raw.columns else [])
+    return sum(1 for values in zip(*flags) if any(_as_bool(v) for v in values))
 
 
-def _render_whatif_waiting(scenario: str) -> None:
-    st.info(
-        f"Scenario {scenario} results are not stored yet. Waiting for "
-        f"`{WHATIF_RELEASE}/what_if/{scenario}/who_moved_and_why.csv`. "
-        "The screen fills in by itself once the file is in the data folder."
-    )
-    with st.container(border=True):
-        st.markdown("#### 👀 Preview: what this screen will show")
-        st.caption(f"{ORIGIN_GENERATED} expected shape (empty preview, no numbers invented)")
-        st.dataframe(pd.DataFrame({"code": pd.Series(dtype="object"), "before": pd.Series(dtype="object"),
-                                   "in scenario": pd.Series(dtype="object"),
-                                   "change": pd.Series(dtype="object"), "reason": pd.Series(dtype="object")}),
-                     use_container_width=True, hide_index=True)
-
-
-def render_scenario_picker() -> str:
+def render_scenario_picker() -> tuple[str, str | None]:
     section_title("🎛️", "Choose a scenario")
     with st.container(border=True):
         chosen = st.radio("Scenario", WHATIF_SCENARIOS, horizontal=True, key="whatif_scenario",
+                          format_func=lambda s: f"{s} · {SCENARIO_NOTES[s].split(' · ')[0]}",
                           label_visibility="collapsed")
-        st.caption(f"{ORIGIN_GENERATED} {SCENARIO_NOTES.get(chosen, '')} · hypothetical, "
+        capacity = None
+        if chosen == "S3":
+            capacity = st.radio("Visits per cycle", ("capacity_minus_2", "capacity_plus_2"), horizontal=True,
+                                key="whatif_capacity",
+                                format_func=lambda c: "2 visits" if c.endswith("minus_2") else "6 visits")
+        st.caption(f"{ORIGIN_GENERATED} {SCENARIO_NOTES[chosen]} · hypothetical, "
                    "the base run is never overwritten")
-    return chosen
+    return chosen, capacity
 
 
-def render_whatif_tiles(view: pd.DataFrame, total: int | None, asof: str) -> None:
-    changed = view[view["change"].isin(["moves up", "moves down", "changes level", "listed as moved"])]
-    n, up, down = len(changed), int((view["change"] == "moves up").sum()), int((view["change"] == "moves down").sum())
-    unknown = int((view["change"] == "unknown").sum())
-    of = f"{n} of {total}" if total else f"{n}"
-    with_reason = int((changed["reason"].str.strip() != "").sum())
-    c1, c2, c3, c4 = st.columns(4)
+def render_whatif_tiles(raw: pd.DataFrame, view: pd.DataFrame, scenario: str, label: str) -> None:
+    period_word = "quarter" if scenario == "S3" else "month"
+    c1, c2, c3 = st.columns(3)
     with c1:
-        metric_tile("Change level", of, "", "compounds whose level changes"
-                    + (f" · {unknown} unknown" if unknown else "") + ("" if total else " · total not stored"),
-                    asof, ORIGIN_GENERATED)
-    directed = bool(view["change"].isin(["moves up", "moves down", "unchanged"]).any())
+        metric_tile("Compounds that change", f"{int((view['change'] != 'unchanged').sum())} of {len(view)}", "",
+                    "join or leave the cycle list; levels never change in S3" if scenario == "S3"
+                    else "level or cycle list, versus the baseline", label, ORIGIN_GENERATED)
     with c2:
-        metric_tile("Move up", f"{up} of {n}" if directed else "unknown", "",
-                    "more urgent than in the base run" if directed else "direction not in the stored file",
-                    asof, ORIGIN_GENERATED)
+        metric_tile(f"Changes over every {period_word}", f"{count_changed_rows(raw)} of {len(raw)}", "",
+                    f"compound-{period_word} rows that differ from the baseline", "whole history",
+                    ORIGIN_GENERATED)
     with c3:
-        metric_tile("Move down", f"{down} of {n}" if directed else "unknown", "",
-                    "less urgent than in the base run" if directed else "direction not in the stored file",
-                    asof, ORIGIN_GENERATED)
-    with c4:
-        metric_tile("With a reason", f"{with_reason} of {n}", "", "changed compounds that carry a reason",
-                    asof, ORIGIN_GENERATED)
+        metric_tile("On the list in the scenario", f"{int((view['list in scenario'] == 'on the list').sum())} "
+                    f"of {len(view)}", "", "compounds selected for visits", label, ORIGIN_GENERATED)
 
 
 def render_whatif_moved(view: pd.DataFrame) -> None:
-    section_title("🔀", "Who changes level, and why")
+    section_title("🔀", "Who changes, and why")
     with st.container(border=True):
-        changed = view[view["change"].isin(["moves up", "moves down", "changes level", "listed as moved"])]
+        changed = view[view["change"] != "unchanged"]
         if changed.empty:
-            st.info("No compound changes level in this scenario.")
+            st.info("No compound changes level or list position in this scenario: the shock moves the "
+                    "generated finances, but not across a rule threshold.")
             return
-        arrow = {"moves up": "▲", "moves down": "▼"}
-        color = {"moves up": "#F87171", "moves down": "#34D399"}   # up = more urgent = red
         rows = []
-        for _, r in changed.head(MAX_MOVED_CARDS).iterrows():
-            path = (f'{html.escape(r["before"])} → <b>{html.escape(r["in scenario"])}</b>'
-                    if "before" in r and "in scenario" in r else html.escape(r["change"]))
-            why = html.escape(r["reason"]) if r["reason"].strip() else '<i style="color:#8A9BB8">no reason stored</i>'
-            c = color.get(r["change"], PALETTE["muted"])
+        for _, r in changed.iterrows():
+            colour = "#34D399" if r["change"] == "leaves the list" else "#F87171"
             rows.append(
-                f'<div style="padding:10px 0;border-bottom:1px solid {PALETTE["border"]}">'
-                f'<span style="color:{c};font-weight:700">{arrow.get(r["change"], "●")} '
-                f'{html.escape(str(r.get("code", "")))}</span> &nbsp;·&nbsp; {path}'
-                f'<div dir="auto" style="color:{PALETTE["muted"]};margin-top:4px">{why}</div></div>')
+                f'<div class="se-move"><span style="color:{colour};font-weight:700">'
+                f'{html.escape(r["code"])}</span> · {html.escape(r["change"])}'
+                f'<div dir="auto" class="se-move-why">{html.escape(r["reason"])}</div></div>')
         st.markdown("".join(rows), unsafe_allow_html=True)
-        extra = len(changed) - MAX_MOVED_CARDS
-        st.caption(f"{ORIGIN_GENERATED} ▲ moves up = more urgent to inspect · ▼ moves down = less urgent"
-                   + (f" · {extra} more in the table below" if extra > 0 else ""))
-
-
-def render_whatif_table(raw: pd.DataFrame, view: pd.DataFrame, scenario: str) -> None:
-    section_title("📋", "Full table as stored")
-    with st.container(border=True):
-        st.dataframe(_tagged_table(raw), use_container_width=True, hide_index=True)
-        st.caption(f"{ORIGIN_GENERATED} every column of who_moved_and_why.csv for {scenario}, unchanged")
-        st.download_button("⬇️ Download this scenario (CSV)",
-                           data=view.to_csv(index=False).encode("utf-8-sig"),
-                           file_name=f"who_moved_{scenario}.csv", mime="text/csv", key="whatif_download")
-
-
-def render_whatif_result_table(table: pd.DataFrame | None, scenario: str) -> None:
-    if table is None:
-        return
-    with st.expander(f"Scenario {scenario} result table ({len(table):,} rows)"):
-        st.dataframe(_tagged_table(table.head(500)), use_container_width=True, hide_index=True)
-        st.caption(f"{ORIGIN_GENERATED} stored result of the scenario run"
-                   + (" · first 500 rows shown" if len(table) > 500 else ""))
 
 
 def screen_what_if(track: Track) -> None:
-    page_header("🧪", "What if?", "Compound-level twin: who moves up if conditions change?")
+    page_header("🧪", "What if?", "Compound-level twin: who would change if conditions changed?")
     if not track.generated:
-        st.warning(
-            "Scenarios use generated data. Switch to Track B in the sidebar to open them."
-        )
+        st.warning("Scenarios use generated data. Switch to Track B in the sidebar to open them.")
         return
     # No map on this screen by design: generated numbers never sit on the real map.
 
-    scenario = render_scenario_picker()
-    stored = _whatif_load(scenario, track)
-    raw = stored["moved"]
-    if raw is None:
-        _render_whatif_waiting(scenario)
-        render_whatif_result_table(stored["table"], scenario)
+    scenario, capacity = render_scenario_picker()
+    rel = f"what_if/{scenario}/who_moved_and_why.csv"
+    raw = _safe(rel, load_table, rel, track, READY_DATA)
+    if raw is None or raw.empty:
+        st.info(f"Scenario {scenario} is not installed: ready-data/{rel} is missing. "
+                "Run python -m src.pipeline.setup_review.")
         return
-    if raw.empty:
-        st.info(f"Scenario {scenario}: who_moved_and_why.csv is stored but has no rows.")
-        return
+    if capacity:
+        raw = raw[raw["scenario_id"] == capacity]
 
-    view, cols = _prepare_moved(raw)
-    if not cols["code"]:
-        st.warning("who_moved_and_why.csv has no compound code column, so it cannot be shown by compound.")
-        render_whatif_table(raw, view, scenario)
-        return
-    if not (cols["before"] and cols["after"] or cols["moved"]):
-        st.caption("Level before/after columns were not recognised: every row is treated as a compound that moved.")
-
-    table = stored["table"]
-    total = None
-    if table is not None:
-        code_col = _find_col(table, WHATIF_ALIASES["code"])
-        total = int(table[code_col].nunique()) if code_col else None
-    elif cols["before"] and cols["after"]:
-        total = len(view)
-    asof = _find_col(raw, ("as_of", "asof", "quarter", "cutoff"))
-    asof_text = str(raw[asof].dropna().astype(str).max()) if asof and raw[asof].notna().any() else "unknown"
-
-    render_whatif_tiles(view, total, asof_text)
+    view, label = whatif_view(raw, scenario)
+    render_whatif_tiles(raw, view, scenario, label)
     render_whatif_moved(view)
-    render_whatif_table(raw, view, scenario)
-    render_whatif_result_table(table, scenario)
-    st.caption(f"{ORIGIN_GENERATED} {BANNER_TEXT}. Hypothetical interventions on generated data: "
-               "they show who would move up in priority, not what will happen.")
+    section_title("📋", f"All compounds in {label}")
+    with st.container(border=True):
+        st.dataframe(view, use_container_width=True, hide_index=True)
+        st.download_button("⬇️ Download this view (CSV)", data=view.to_csv(index=False).encode("utf-8-sig"),
+                           file_name=f"what_if_{scenario}_{label}.csv", mime="text/csv", key="whatif_download")
+    st.caption(f"{ORIGIN_GENERATED} {BANNER_TEXT}. Hypothetical interventions on generated data: they show "
+               f"who would change in priority, not what will happen. Full history in ready-data/{rel}.")
 
 
 SCREEN_FUNCTIONS = {
