@@ -27,7 +27,7 @@ from src.generator import (
     stories,
     truth,
 )
-from src.generator.inputs import GEN, LABEL, SIM, N, mi
+from src.generator.inputs import GEN, LABEL, MONTHS, SIM, N, mi
 from src.pipeline.common import CFG, PRIVATE
 
 SEED = CFG["seed"]
@@ -97,7 +97,7 @@ def drain_masks(sigs: list[stories.Signals]) -> dict[str, np.ndarray]:
     return out
 
 
-def build() -> dict:
+def build(grace_months: float | None = None) -> dict:
     real = inputs.load_real()
     sigs = stories.derive(real)
     drv = inputs.drivers(real["drivers_monthly"])
@@ -115,11 +115,30 @@ def build() -> dict:
         rep = observe.reports(s, st, tr, rng)
         eco = economy.run(s, st, tr, drv, rep.val, ~np.isnan(rep.val), rng, drains[s.code], mi("2025-02-01") if s.code == bulk_code else None)
         mt, kwh, home = observe.meters(s, st, tr, drv, rng)
-        warn, level, wev = observe.acud(s, st, tr, eco, rep, rng)
+        warn, level, wev = observe.acud(s, st, tr, eco, rep, rng, grace_months=grace_months)
         u = Unit(s, st, tr, rep, eco, mt, kwh, home, warn, level, wev)
         u.distress = answer.distress(u)
         units.append(u)
     return {"units": units, "drv": drv, "devs": devs, "bulk": bulk_code, "viral": viral_code, "real": real}
+
+
+def grace_shortened_table() -> pd.DataFrame:
+    """Monthly S5 warning flags and levels without writing or replacing base outputs."""
+    grace_months = float(CFG["generator"]["scenarios"]["grace_months_s5"])
+    scenario_run = build(grace_months=grace_months)
+    monthly_rows = [
+        {
+            "code": unit.sig.code, "month": str(month), "level": level,
+            "warning_issued": warning_issued, "scenario_id": "grace_shortened",
+            "synthetic_label": LABEL,
+        }
+        for unit in scenario_run["units"]
+        for month, level, warning_issued in zip(MONTHS, unit.level, unit.warn)
+    ]
+    return pd.DataFrame(
+        monthly_rows,
+        columns=["code", "month", "level", "warning_issued", "scenario_id", "synthetic_label"],
+    )
 
 
 def fin_monthly(run: dict) -> pd.DataFrame:
