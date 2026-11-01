@@ -248,3 +248,17 @@
 .lt-claims { margin: 0 0 10px; padding-inline-start: 1.2em; color: var(--ink-2); }
 .lt-claims li { margin: 0 0 4px; }
 @media (max-width: 980px) { .lt-promises li { grid-template-columns: 7em minmax(0, 1fr); } .lt-thumb, .lt-thumb-note { grid-column: 2; } }
+
+/* Screen 1: changes since the previous quarter, promised dates ahead */
+.lt-changes { list-style: none; margin: 0 0 22px; padding: 0; border-top: 1px solid var(--rule); font-size: 14px; }
+.lt-changes li { padding: 8px 0; border-bottom: 1px solid var(--rule); color: var(--ink-2); }
+.lt-changes b { color: var(--ink); font-weight: 600; }
+.lt-changes .why { display: block; font-size: 13px; color: var(--ink-3); margin-top: 2px; }
+
+/* Value screen: developers with several compounds */
+.lt-devs { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); max-width: 900px; }
+.lt-devs li { display: grid; grid-template-columns: 4em 1fr; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--rule); }
+.lt-devs b { font-size: 17px; font-weight: 600; }
+.lt-devs .items { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.lt-dev-item { border: 1px solid var(--rule); background: var(--mat); border-radius: 3px; padding: 4px 10px; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; font-weight: 600; }
+.lt-dev-item:hover { border-color: var(--sel); }

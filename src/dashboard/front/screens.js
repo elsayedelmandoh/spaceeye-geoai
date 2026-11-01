@@ -144,6 +144,18 @@ function renderPriority(root, data, ctx) {
   if (data.waiting > 0) {
     side.append(el("p", { class: "lt-wait", text: `و${compounds(data.waiting)} كمان في انتظار الدورة الجاية.` }));
   }
+  const ch = data.changes;
+  if (ch && (ch.joined.length || ch.left.length)) {
+    const row = (m, verb) => el("li", {}, el("b", {}, code(m.code), ` ${verb}`),
+      ` · المستوى كان ${m.was ?? "—"} وبقى ${m.now ?? "—"}`, m.why ? el("span", { class: "why", text: m.why }) : null);
+    side.append(el("h2", {}, "اللي اتغير من ربع ", code(ch.prev)),
+      el("ul", { class: "lt-changes" }, ch.joined.map((m) => row(m, "دخل القائمة")), ch.left.map((m) => row(m, "طلع من القائمة"))));
+  }
+  if (data.upcoming.length) {
+    side.append(el("h2", { text: "مواعيد تسليم جاية" }),
+      el("ul", { class: "lt-changes" }, data.upcoming.map((u) => el("li", {}, el("b", {}, code(u.code)),
+        ` · ${u.claim}`, el("span", { class: "why", text: `اتنشر ${u.said}` })))));
+  }
   const credit = el("p", { class: "lt-credit", text: data.credit });
   root.append(el("div", { class: "lt-grid" }, el("div", {}, printSlot, credit), side));
 
@@ -282,7 +294,9 @@ function renderCompound(root, data) {
     el("div", { class: "lt-head-row" }, el("h1", {}, data.code, level(data.level, data.level_word)),
       fileButton(data.file, "اطبع ملف الزيارة", "lt-print-btn")),
     data.reason_ar ? el("p", { class: "lt-reason", text: data.reason_ar }) : null,
-    el("p", { class: "lt-sub" }, el("span", {}, "بيانات ", code(data.asof)))));
+    el("p", { class: "lt-sub" }, el("span", {}, "بيانات ", code(data.asof)),
+      data.last_visit ? el("span", {}, "آخر زيارة ", code(data.last_visit.date), `: ${data.last_visit.result}`)
+        : el("span", { text: "مفيش زيارة متسجلة لسه" }))));
 
   const left = el("div", {}, data.frames.length >= 2 ? swipeBlock(data) :
     el("p", { class: "lt-empty", text: `أقل من صورتين Wayback لـ ${data.code}، فمفيش مقارنة.` }),
@@ -547,6 +561,16 @@ function renderValue(root, data, ctx) {
           f.foot ? el("img", { class: "lt-foot", src: f.foot, alt: `بيانات صورة ${f.date}` }) : null,
           el("figcaption", { class: "lt-label" }, el("strong", { text: f.date }),
             el("span", { text: f.stage ? `${f.caption} · ${f.stage}` : f.caption }))))))));
+  }
+
+  if (data.developers.length) {
+    root.append(el("section", { class: "lt-band" },
+      el("h2", { class: "lt-band-title", text: "مطورين عندهم أكتر من كمباوند" }),
+      el("p", { class: "lt-sub", text: "اجتماع واحد مع المطور يغطي كل الكمباوندات بتاعته." }),
+      el("ul", { class: "lt-devs" }, data.developers.map((d) => el("li", {},
+        el("b", {}, code(d.developer)),
+        el("span", { class: "items" }, d.compounds.map((c) => el("button", { class: "lt-dev-item", type: "button",
+          onclick: () => ctx.open(c.code) }, code(c.code), " ", level(c.level, c.level_word)))))))));
   }
 
   if (data.fines.length) {

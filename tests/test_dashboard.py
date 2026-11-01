@@ -65,3 +65,28 @@ def test_passed_date_on_a_possibly_complete_compound_is_not_shown_as_zero_months
                      "may_be_complete": np.bool_(True), "K6": None, "K5_months": 4})
     k3 = app.compound_payload("C12", row, None, None, "2026Q3")["clocks"][1]
     assert k3["value"] is None and "محتاج تأكيد" in k3["text"]
+
+
+def test_cycle_changes_name_who_joined_and_who_left_since_the_previous_quarter(monkeypatch):
+    kpis = pd.DataFrame({
+        "code": ["C07", "C10", "C18", "C07", "C10", "C18"],
+        "quarter": ["2026Q2"] * 3 + ["2026Q3"] * 3,
+        "level": [3, 1, 1, 2, 4, 1],
+        "cycle_rank": [None, 2, 1, 2, None, 1],
+        "reason_ar": [""] * 6,
+    })
+    monkeypatch.setattr(app, "load_table", lambda rel, track, root=None: kpis)
+    changes = app.cycle_changes("2026Q3")
+    assert changes["prev"] == "2026Q2"
+    assert [(m["code"], m["was"], m["now"]) for m in changes["joined"]] == [("C07", 3, 2)]
+    assert [(m["code"], m["was"], m["now"]) for m in changes["left"]] == [("C10", 1, 4)]
+
+
+def test_only_developers_with_several_compounds_are_grouped_most_urgent_first(monkeypatch):
+    compounds = pd.DataFrame({"code": ["C01", "C18", "C14", "C21", "C07"],
+                              "developer_code": ["D14", "D14", "D13", "D13", "D07"]})
+    monkeypatch.setattr(app, "load_table", lambda rel, track, root=None: compounds)
+    latest = pd.DataFrame({"code": ["C01", "C18", "C14", "C21", "C07"], "level": [4, 1, 2, 3, 2]})
+    groups = app.developer_groups(latest)
+    assert [g["developer"] for g in groups] == ["D14", "D13"]
+    assert [c["code"] for c in groups[0]["compounds"]] == ["C18", "C01"]

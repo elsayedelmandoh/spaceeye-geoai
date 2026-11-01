@@ -16,7 +16,7 @@ import pandas as pd
 import streamlit as st
 
 from src.dashboard import front
-from src.dashboard.ops_visits import render_ops_visits_form  # T-NA-04
+from src.dashboard.ops_visits import RESULT_WORDS, load_visits, render_ops_visits_form  # T-NA-04
 from src.pipeline.common import APP as PIPELINE_APP_DATA
 
 # --------------------------------------------------------------------------- #
@@ -426,7 +426,8 @@ def priority_payload(track: Track, latest: tuple[pd.DataFrame, str]) -> dict:
                       "frames": frames_payload(item["code"]), "file": inspection_payload(item["code"], asof)})
     eligible = int(latest_df["level"].isin([1, 2, 3]).sum())
     payload = {"screen": "priority", "asof": asof, "total": len(latest_df), "cycle": items,
-               "waiting": max(eligible - len(items), 0), "credit": WAYBACK_CREDIT, "map": False}
+               "waiting": max(eligible - len(items), 0), "credit": WAYBACK_CREDIT, "map": False,
+               "changes": cycle_changes(asof), "upcoming": upcoming_promises(latest_df, asof)}
     # Track B keeps the map off: its tables start in a different quarter.
     mapped = None if track.generated else map_payload(latest_df, cycle)
     if mapped:
@@ -434,6 +435,64 @@ def priority_payload(track: Track, latest: tuple[pd.DataFrame, str]) -> dict:
             "عرض 3D بيرفع كل كمباوند بمتوسط ارتفاع مبانيه (Google Open Buildings، "
             f"آخر سنة لحد {MAX_HEIGHT_YEAR})، مكبّر {MAP_HEIGHT_EXAGGERATION} مرات"))
     return payload
+
+
+def cycle_changes(asof: str) -> dict | None:
+    """Who joined and who left the visit list since the previous quarter, with the level before and now."""
+    kpis = load_table(KPI_FILE, TRACK_A)
+    if kpis is None or "cycle_rank" not in kpis.columns:
+        return None
+    quarters = sorted(q for q in kpis["quarter"].astype(str).unique() if q < asof)
+    if not quarters:
+        return None
+    before, now = (kpis[kpis["quarter"].astype(str) == q].set_index("code") for q in (quarters[-1], asof))
+    on_before, on_now = set(before.index[before["cycle_rank"].notna()]), set(now.index[now["cycle_rank"].notna()])
+
+    def moved(codes: set[str]) -> list[dict]:
+        return [{"code": c, "was": level_number(before["level"].get(c)), "now": level_number(now["level"].get(c)),
+                 "why": short_reason_ar(now["reason_ar"].get(c))} for c in sorted(codes)]
+    return {"prev": quarters[-1], "joined": moved(on_now - on_before), "left": moved(on_before - on_now)}
+
+
+def upcoming_promises(latest_df: pd.DataFrame, asof: str) -> list[dict]:
+    """Confirmed promised dates still ahead, soonest first: the next claims a visit can check."""
+    rows = []
+    for code in latest_df["code"].astype(str):
+        ann = load_announcements(code, asof)
+        if ann is None or ann.empty or "verdict" not in ann.columns:
+            continue
+        ahead = ann[(ann["verdict"] == "CONFIRMED") & (ann["kind"] == "promise")
+                    & (pd.to_datetime(ann["period_end"]) > pd.Period(asof, "Q").end_time)]
+        rows += [{"code": code, "claim": claim_text(r), "said": month_ar(r["published_date"]),
+                  "end": str(pd.Timestamp(r["period_end"]).date())} for _, r in ahead.iterrows()]
+    return sorted(rows, key=lambda r: (r["end"], r["code"]))
+
+
+def developer_groups(latest_df: pd.DataFrame) -> list[dict]:
+    """Developers with more than one R7 compound: one meeting can cover all of them."""
+    compounds = load_table("real/compounds.parquet", TRACK_A)
+    if compounds is None or "developer_code" not in compounds.columns:
+        return []
+    levels = dict(zip(latest_df["code"], latest_df["level"]))
+    groups = []
+    for dev, part in compounds.groupby("developer_code"):
+        if len(part) < 2:
+            continue
+        items = sorted(({"code": c, "level": level_number(levels.get(c)), "level_word": level_word(levels.get(c))}
+                        for c in part["code"]), key=lambda i: (i["level"] or 9, i["code"]))
+        groups.append({"developer": str(dev), "compounds": items})
+    return sorted(groups, key=lambda g: (g["compounds"][0]["level"] or 9, -len(g["compounds"]), g["developer"]))
+
+
+def last_visit(code: str) -> dict | None:
+    visits = load_visits()
+    if visits is None or visits.empty:
+        return None
+    mine = visits[visits["code"] == code].sort_values("date")
+    if mine.empty:
+        return None
+    last = mine.iloc[-1]
+    return {"date": str(last["date"]), "result": RESULT_WORDS.get(last["result"], str(last["result"]))}
 
 
 def open_compound_file_from(key: str):
@@ -609,7 +668,7 @@ def compound_payload(code: str, row: pd.Series | None, history: pd.DataFrame | N
         "level": level_number(get("level")), "level_word": level_word(get("level")),
         "reason_ar": reason or None,
         "frames": frames, "file": inspection_payload(code, asof), "credit": WAYBACK_CREDIT,
-        "clocks": clocks, "fine": fine,
+        "clocks": clocks, "fine": fine, "last_visit": last_visit(code),
         "quarters": quarters, "statements": statements, "deadline": marker,
         "chart_note": None,
         "stages": stages, "stage_words": [{"stage": k, "word": v} for k, v in STAGE_WORDS.items()],
@@ -802,7 +861,8 @@ def value_payload(latest: tuple[pd.DataFrame, str]) -> dict:
 
     return {"screen": "value", "asof": asof, "total": len(latest_df), "visits": len(cycle),
             "example": warning_example(), "now": now, "promise": promise_example(latest_df, asof),
-            "fines": fine_rows, "fine_months": sum(r["months"] for r in fine_rows)}
+            "fines": fine_rows, "fine_months": sum(r["months"] for r in fine_rows),
+            "developers": developer_groups(latest_df)}
 
 
 # --------------------------------------------------------------------------- #
