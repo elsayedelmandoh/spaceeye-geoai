@@ -73,15 +73,15 @@ SCREENS = [
 # --------------------------------------------------------------------------- #
 
 PALETTE = {
-    "bg": "#0A0E17",          # deep space
-    "bg_alt": "#0D1220",      # sidebar
-    "surface": "#121A2B",     # cards
-    "surface_hi": "#182238",  # hover / inputs
-    "border": "#223049",
-    "text": "#E6EDF7",
-    "muted": "#8A9BB8",
-    "accent": "#38BDF8",      # Track A cyan
-    "accent_b": "#FB923C",    # Track B amber
+    "bg": "#0E2235",          # survey plate: deep blueprint blue
+    "bg_alt": "#0B1C2C",      # sidebar
+    "surface": "#13304A",     # cards
+    "surface_hi": "#1A3D5C",  # hover / inputs
+    "border": "#2B4E6E",      # ruled lines
+    "text": "#E9EFF5",
+    "muted": "#9DB3C8",
+    "accent": "#F2C14E",      # surveyor's chalk: Track A
+    "accent_b": "#F28C38",    # generated data: Track B
 }
 
 
@@ -174,183 +174,120 @@ def metric_tile(label: str, value: object, unit: str, denominator: str,
 
 
 def page_header(icon: str, title: str, subtitle: str = "") -> None:
-    """Consistent screen title: icon chip + title + muted one-line subtitle."""
+    """Screen title + the question the screen answers. Text only: emoji icons are not shown."""
     sub = f'<div class="se-sub">{subtitle}</div>' if subtitle else ""
-    st.markdown(
-        f"""
-        <div class="se-header">
-          <div class="se-icon">{icon}</div>
-          <div><div class="se-title">{title}</div>{sub}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    st.markdown(f'<div class="se-header"><div><div class="se-title">{title}</div>{sub}</div></div>',
+                unsafe_allow_html=True)
 
 
 def section_title(icon: str, text: str) -> None:
-    """Small uppercase section label used above cards."""
-    st.markdown(
-        f'<div class="se-section">{icon}&nbsp; {text}</div>',
-        unsafe_allow_html=True,
-    )
+    """Section label above cards (the emoji argument is kept for call sites but not shown)."""
+    st.markdown(f'<div class="se-section">{text}</div>', unsafe_allow_html=True)
+
+
+def finding(text: str) -> None:
+    """The screen's main finding in one plain sentence, built from the stored data."""
+    st.markdown(f'<div class="se-finding">{text}</div>', unsafe_allow_html=True)
+
+
+def how_to_read(points: list[str]) -> None:
+    """Short reading guide, folded so it does not compete with the data."""
+    with st.expander("How to read this screen"):
+        st.markdown("\n".join(f"- {point}" for point in points))
 
 
 def inject_css() -> None:
-    """Dark tech theme."""
+    """Survey-plate theme: flat ruled cards on blueprint blue, one type family for Arabic and Latin,
+    tabular figures for numbers. The 3D priority map is the one bold element."""
     p = PALETTE
     st.markdown(
         f"""
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
-
-        html, body, [class*="css"], .stApp {{
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap');
+        html, body, [class*="css"], .stApp, button, input, textarea {{
+            font-family: 'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, sans-serif;
         }}
-        .stApp {{
-            background:
-              radial-gradient(1100px 500px at 85% -10%, rgba(56,189,248,0.08), transparent 60%),
-              radial-gradient(900px 450px at -10% 0%, rgba(99,102,241,0.07), transparent 55%),
-              {p['bg']};
-            color: {p['text']};
-        }}
-        .block-container {{ padding-top: 1.6rem; padding-bottom: 3rem; max-width: 1280px; }}
+        .stApp {{ background: {p['bg']}; color: {p['text']}; }}
+        .block-container {{ padding-top: 1.4rem; padding-bottom: 3rem; max-width: 1240px; }}
         header[data-testid="stHeader"] {{ background: transparent; }}
         #MainMenu, footer {{ visibility: hidden; }}
         h1, h2, h3, h4, p, label, span, li {{ color: {p['text']}; }}
-        h2, h3 {{ letter-spacing: -0.01em; font-weight: 700; }}
+        p, li {{ line-height: 1.6; }}
         [data-testid="stCaptionContainer"], .stCaption {{ color: {p['muted']} !important; }}
         hr {{ border-color: {p['border']}; }}
+        :focus-visible {{ outline: 2px solid {p['accent']} !important; outline-offset: 2px; }}
 
-        .se-header {{ display: flex; align-items: center; gap: 0.9rem; margin: 0 0 1.4rem 0; }}
-        .se-icon {{
-            width: 48px; height: 48px; border-radius: 14px; font-size: 1.5rem;
-            display: flex; align-items: center; justify-content: center;
-            background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(99,102,241,0.18));
-            border: 1px solid {p['border']};
-            box-shadow: 0 6px 20px rgba(0,0,0,0.35);
-        }}
-        .se-title {{ font-size: 1.7rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; }}
-        .se-sub {{ color: {p['muted']}; font-size: 0.92rem; margin-top: 0.15rem; }}
-        .se-section {{
-            color: {p['muted']}; font-size: 0.74rem; font-weight: 700;
-            letter-spacing: 0.12em; text-transform: uppercase; margin: 1.2rem 0 0.55rem 0;
-        }}
+        .se-header {{ display: flex; align-items: baseline; gap: 0.8rem; margin: 0 0 1.2rem 0;
+                      padding-bottom: 0.8rem; border-bottom: 1px solid {p['border']}; }}
+        .se-icon {{ font-size: 1.4rem; }}
+        .se-title {{ font-size: 1.9rem; font-weight: 700; letter-spacing: -0.015em; line-height: 1.15; }}
+        .se-sub {{ color: {p['muted']}; font-size: 1rem; margin-top: 0.2rem; }}
+        .se-finding {{ border-left: 4px solid {p['accent']}; background: {p['surface']};
+                       padding: 0.8rem 1rem; margin: 0 0 1rem 0; font-size: 1.08rem; line-height: 1.55; }}
+        .se-section {{ color: {p['text']}; font-size: 1.02rem; font-weight: 600; margin: 1.3rem 0 0.5rem 0; }}
 
-        /* ضمان تساوي ارتفاع جميع الكاردز بنسبة 100% */
-        [data-testid="stHorizontalBlock"] > div {{
-            display: flex;
-            flex-direction: column;
-        }}
+        [data-testid="stHorizontalBlock"] > div {{ display: flex; flex-direction: column; }}
         [data-testid="stVerticalBlockBorderWrapper"] {{
-            background: linear-gradient(180deg, {p['surface']} 0%, {p['bg_alt']} 100%);
+            background: {p['surface']};
             border: 1px solid {p['border']} !important;
-            border-radius: 16px;
-            padding: 0.5rem 0.7rem;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.28);
+            border-radius: 6px;
+            padding: 0.45rem 0.65rem;
             height: 100% !important;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
         }}
-
-        [data-testid="stMetric"] {{
-            padding: 0.1rem 0.2rem;
-            overflow: visible;
-        }}
+        [data-testid="stMetric"] {{ padding: 0.1rem 0.2rem; }}
         [data-testid="stMetricLabel"] p {{
-            color: {p['muted']} !important;
-            font-size: 0.72rem !important;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
+            color: {p['muted']} !important; font-size: 0.86rem !important; font-weight: 500;
             white-space: normal !important;
-            word-break: break-word !important;
         }}
         [data-testid="stMetricValue"] div {{
-            font-family: 'JetBrains Mono', ui-monospace, monospace;
-            font-weight: 700;
-            color: {p['text']};
-            font-size: clamp(1.1rem, 1.5vw, 1.5rem) !important;
-            white-space: normal !important;
-            word-break: break-word !important;
-            line-height: 1.25 !important;
-            overflow-wrap: break-word !important;
+            font-variant-numeric: tabular-nums lining-nums;
+            font-weight: 700; color: {p['text']};
+            font-size: clamp(1.15rem, 1.6vw, 1.6rem) !important;
+            white-space: normal !important; line-height: 1.25 !important;
         }}
-
         [data-testid="stAlert"] {{
-            background: {p['surface']}; border: 1px solid {p['border']};
-            border-left: 4px solid {p['accent']}; border-radius: 12px;
-            padding: 0.9rem 1.1rem; color: {p['text']};
+            background: {p['bg_alt']}; border: 1px solid {p['border']};
+            border-left: 3px solid {p['accent']}; border-radius: 4px; color: {p['text']};
         }}
         [data-testid="stAlert"] p {{ color: {p['text']}; }}
+        [data-testid="stDataFrame"] {{ border: 1px solid {p['border']}; border-radius: 4px; }}
+        [dir="auto"], .se-rtl {{ unicode-bidi: plaintext; }}
+        .se-rtl {{ direction: rtl; text-align: right; font-size: 1.05rem; }}
 
-        [data-testid="stDataFrame"] {{
-            border: 1px solid {p['border']}; border-radius: 14px; overflow: hidden;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-        }}
-
-        [data-testid="stSidebar"] {{
-            background: linear-gradient(180deg, {p['bg_alt']} 0%, #090D16 100%);
-            border-right: 1px solid {p['border']};
-        }}
+        [data-testid="stSidebar"] {{ background: {p['bg_alt']}; border-right: 1px solid {p['border']}; }}
         [data-testid="stSidebar"] .block-container {{ padding-top: 1rem; }}
-        [data-testid="stSidebar"] hr {{ margin: 1rem 0; border-color: {p['border']}; }}
-        .se-brand {{ display: flex; align-items: center; gap: 0.7rem; margin: 0.2rem 0 0.4rem 0; }}
-        .se-brand-logo {{
-            width: 40px; height: 40px; border-radius: 12px; font-size: 1.3rem;
-            display: flex; align-items: center; justify-content: center;
-            background: linear-gradient(135deg, #38BDF8, #6366F1);
-            box-shadow: 0 6px 18px rgba(56,189,248,0.35);
-        }}
-        .se-brand-name {{ font-weight: 800; font-size: 1.1rem; letter-spacing: -0.01em; }}
-        .se-brand-sub {{ color: {p['muted']}; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; }}
-        .se-side-label {{
-            color: {p['muted']}; font-size: 0.7rem; font-weight: 700;
-            letter-spacing: 0.14em; text-transform: uppercase; margin: 0.2rem 0 0.1rem 0;
-        }}
+        [data-testid="stSidebar"] hr {{ margin: 0.9rem 0; border-color: {p['border']}; }}
+        .se-brand {{ display: flex; align-items: center; gap: 0.6rem; margin: 0.2rem 0 0.3rem 0; }}
+        .se-brand-logo {{ font-size: 1.4rem; }}
+        .se-brand-name {{ font-weight: 700; font-size: 1.15rem; }}
+        .se-brand-sub {{ color: {p['muted']}; font-size: 0.85rem; }}
+        .se-side-label {{ color: {p['muted']}; font-size: 0.85rem; font-weight: 500; margin: 0.2rem 0 0.1rem 0; }}
         [data-testid="stSidebar"] [data-baseweb="select"] > div {{
-            background: {p['surface_hi']}; border: 1px solid {p['border']}; border-radius: 10px;
+            background: {p['surface']}; border: 1px solid {p['border']}; border-radius: 4px;
         }}
         [data-testid="stSidebar"] [data-baseweb="select"] * {{ color: {p['text']}; }}
-        [data-testid="stSidebar"] [role="radiogroup"] {{ gap: 0.25rem; }}
         [data-testid="stSidebar"] [role="radiogroup"] label {{
-            background: transparent; border: 1px solid transparent; border-radius: 10px;
-            padding: 0.45rem 0.7rem; transition: all 0.15s ease; width: 100%;
-        }}
-        [data-testid="stSidebar"] [role="radiogroup"] label:hover {{
-            background: {p['surface_hi']}; border-color: {p['border']};
+            border-left: 3px solid transparent; padding: 0.4rem 0.6rem; width: 100%;
         }}
         [data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) {{
-            background: linear-gradient(90deg, rgba(56,189,248,0.16), rgba(56,189,248,0.04));
-            border-color: rgba(56,189,248,0.45);
+            border-left-color: {p['accent']}; background: {p['surface']};
         }}
         .se-pill {{
-            display: inline-block; padding: 0.22rem 0.65rem; border-radius: 999px;
-            font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em;
-            border: 1px solid {p['border']}; background: {p['surface']};
+            display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px;
+            font-size: 0.85rem; font-weight: 500; border: 1px solid {p['border']};
         }}
-        .se-pill-a {{ color: {p['accent']}; border-color: rgba(56,189,248,0.45); }}
-        .se-pill-b {{ color: {p['accent_b']}; border-color: rgba(251,146,60,0.55); }}
-
+        .se-pill-a {{ color: {p['accent']}; border-color: {p['accent']}; }}
+        .se-pill-b {{ color: {p['accent_b']}; border-color: {p['accent_b']}; }}
+        .se-move {{ padding: 0.6rem 0; border-bottom: 1px solid {p['border']}; }}
+        .se-move-why {{ color: {p['muted']}; margin-top: 0.25rem; }}
         .synthetic-banner {{
             position: sticky; top: 0.5rem; z-index: 1000;
-            display: flex; align-items: center; justify-content: center; gap: 0.7rem;
-            margin: 0 0 1.4rem 0; padding: 0.8rem 1.2rem;
-            background: linear-gradient(100deg, #FF6A00 0%, #FF8A00 45%, #FFB300 100%);
-            color: #1A0E00; font-weight: 800; font-size: 1.02rem;
-            letter-spacing: 0.08em; text-transform: uppercase; text-align: center;
-            border-radius: 14px;
-            border: 1px solid rgba(255,255,255,0.35);
-            box-shadow: 0 10px 28px rgba(255,122,0,0.38),
-                        0 2px 6px rgba(0,0,0,0.45),
-                        inset 0 1px 0 rgba(255,255,255,0.45);
-            text-shadow: 0 1px 0 rgba(255,255,255,0.25);
+            display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+            margin: 0 0 1.2rem 0; padding: 0.6rem 1rem;
+            background: {p['accent_b']}; color: #1F1102; font-weight: 700; font-size: 1rem;
+            border-radius: 4px;
         }}
-        .synthetic-banner .dot {{
-            width: 10px; height: 10px; border-radius: 50%; background: #1A0E00;
-            box-shadow: 0 0 0 3px rgba(26,14,0,0.25); animation: se-pulse 1.8s ease-in-out infinite;
-        }}
-        @keyframes se-pulse {{ 0%,100% {{ opacity: 1; }} 50% {{ opacity: 0.35; }} }}
+        .synthetic-banner .dot {{ width: 8px; height: 8px; border-radius: 50%; background: #1F1102; }}
         </style>
         """,
         unsafe_allow_html=True,
@@ -448,7 +385,10 @@ def build_cycle_list(latest_df: pd.DataFrame) -> pd.DataFrame:
         df = df[df["cycle_rank"].notna()].sort_values("cycle_rank")
     else:
         df = df[df["level"].isin([1, 2, 3])].sort_values(["level", "code"])
-    wanted = ("cycle_rank", "code", "level_word", "reason_ar", "K2", "K3", "K6")
+    if "K6_status" in df.columns:  # an empty K6 has a stated reason; show it instead of a blank
+        df["K6"] = [("does not apply" if status == "not_applicable_started" else "unknown") if _missing(k6)
+                    else str(int(k6)) for k6, status in zip(df["K6"], df["K6_status"])]
+    wanted =("cycle_rank", "code", "level_word", "reason_ar", "K2", "K3", "K6")
     return df[[c for c in wanted if c in df.columns]].reset_index(drop=True)
 
 
@@ -468,6 +408,19 @@ def _geo_points(geometry: dict | None) -> list[list[float]]:
     return points
 
 
+MAP_HEIGHT_EXAGGERATION = 10  # 20-30 m buildings on 0.5-1 km plots would look flat at true scale
+
+
+def latest_heights() -> dict[str, tuple[float, int]]:
+    """{code: (mean building height in m, year)}: the latest approved year (to 2024) with a value."""
+    yearly = load_table("real/sat_yearly.parquet", TRACK_A)
+    if yearly is None or not {"code", COL_YEAR, COL_HEIGHT} <= set(yearly.columns):
+        return {}
+    known = yearly[(yearly[COL_YEAR] <= MAX_HEIGHT_YEAR) & yearly[COL_HEIGHT].notna()]
+    last = known.sort_values(COL_YEAR).groupby("code").tail(1)
+    return {r["code"]: (float(r[COL_HEIGHT]), int(r[COL_YEAR])) for _, r in last.iterrows()}
+
+
 def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None) -> None:
     if track.generated:
         return
@@ -483,19 +436,29 @@ def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None) -> No
 
     latest_df, asof = latest
     levels = dict(zip(latest_df["code"], latest_df["level"]))
+    heights = latest_heights()
 
-    features, points = [], []
+    features, points, labels = [], [], []
     counts = {word: 0 for word, _ in [*LEVELS.values(), NOT_ASSESSABLE]}
     for feat in geojson["features"]:
         code = feat["properties"]["code"]
         word, color = _level_style(levels.get(code))
         counts[word] += 1
-        points += _geo_points(feat["geometry"])
+        outline = _geo_points(feat["geometry"])
+        points += outline
+        if outline:
+            top = heights.get(code, (0.0, 0))[0] * MAP_HEIGHT_EXAGGERATION + 40
+            labels.append({"code": code, "position": [sum(x for x, _ in outline) / len(outline),
+                                                      sum(y for _, y in outline) / len(outline), top]})
         features.append({
             "type": "Feature",
             "geometry": feat["geometry"],
             "properties": {"code": code, "level_word": word,
-                           "fill_color": _hex_to_rgba(color)},
+                           "fill_color": _hex_to_rgba(color),
+                           # Flat when no height was measured (construction too recent).
+                           "elevation": heights.get(code, (0.0, 0))[0],
+                           "height_text": (f"mean height {heights[code][0]:.0f} m ({heights[code][1]})"
+                                           if code in heights else "no height on file")},
         })
 
     with st.container(border=True):
@@ -506,17 +469,24 @@ def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None) -> No
             "GeoJsonLayer",
             data={"type": "FeatureCollection", "features": features},
             get_fill_color="properties.fill_color",
-            get_line_color=[255, 255, 255, 220],
+            get_line_color=[232, 238, 244, 200],
+            get_elevation="properties.elevation",
+            elevation_scale=MAP_HEIGHT_EXAGGERATION,
             line_width_min_pixels=1,
-            stroked=True, filled=True, pickable=True,
+            stroked=True, filled=True, extruded=True, wireframe=True, pickable=True,
         )
+        codes = pdk.Layer("TextLayer", data=labels, get_position="position", get_text="code",
+                          get_size=15, get_color=[233, 239, 245, 255], get_alignment_baseline="'bottom'",
+                          billboard=True)
         view = pdk.data_utils.compute_view(points, view_proportion=0.9) if points else None
+        if view is not None:
+            view.pitch, view.bearing = 50, -18
         st.pydeck_chart(
             pdk.Deck(
-                layers=[layer],
+                layers=[layer, codes],
                 initial_view_state=view,
                 map_style="dark",
-                tooltip={"text": "{code}\n{level_word}"},
+                tooltip={"text": "{code}\n{level_word}\n{height_text}"},
             ),
             use_container_width=True,
         )
@@ -526,7 +496,24 @@ def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None) -> No
             for word, color in [*LEVELS.values(), NOT_ASSESSABLE]
         )
         st.markdown(legend, unsafe_allow_html=True)
-        st.caption(f"{ORIGIN_DERIVED} derived · as of {asof} · grey = not assessable")
+        st.caption(f"{ORIGIN_DERIVED} derived · as of {asof} · colour = priority level, grey = not "
+                   "assessable · block height = mean building height (Google Open Buildings, latest "
+                   f"year to {MAX_HEIGHT_YEAR}), drawn {MAP_HEIGHT_EXAGGERATION}× taller · "
+                   "right-drag to tilt or turn")
+
+
+def cycle_headline(latest_df: pd.DataFrame, asof: str) -> str:
+    """One sentence that states the cycle decision, built only from the stored level and reason."""
+    cycle = build_cycle_list(latest_df)
+    if cycle.empty:
+        return f"No compound needs a visit this cycle ({asof})."
+    first = latest_df[latest_df["code"] == cycle.iloc[0]["code"]].iloc[0]
+    why = str(first.get("reason", "")).split(": ", 1)[-1].split("; observation")[0]
+    eligible = int(latest_df["level"].isin([1, 2, 3]).sum())
+    waiting = eligible - len(cycle)
+    rest = f" {waiting} more at levels 1-3 wait for the next cycle." if waiting > 0 else ""
+    return (f"<b>Visit {', '.join(cycle['code'])} this cycle</b> ({len(cycle)} of {len(latest_df)} "
+            f"compounds, {asof}). {cycle.iloc[0]['code']} comes first: {html.escape(why)}.{rest}")
 
 
 def render_cycle_list(latest: tuple[pd.DataFrame, str] | None) -> None:
@@ -587,8 +574,8 @@ VEG_COMPLETE_THRESHOLD = 0.10
 # Every K is computed from real inputs (K3 from a published date), so all are derived.
 K_ORIGIN = {"A": ORIGIN_DERIVED, "K2": ORIGIN_DERIVED, "K3": ORIGIN_DERIVED,
             "K4": ORIGIN_DERIVED, "K5": ORIGIN_DERIVED, "K6": ORIGIN_DERIVED}
-SERIES_COLORS = {"Activity score A": "#38BDF8", "Dynamic World built probability": "#818CF8"}
-MARKER_COLOR = "#A78BFA"
+SERIES_COLORS = {"Activity score A": "#F2C14E", "Dynamic World built probability": "#7FB2DE"}
+MARKER_COLOR = "#E9EFF5"
 
 
 def _missing(value: object) -> bool:
@@ -685,13 +672,17 @@ def render_kpi_tiles(row: pd.Series | None, asof: str) -> None:
                     "worst of K2, K3, K6", asof, ORIGIN_DERIVED)
     with tiles[1]:
         _kpi_tile("K2 no activity", get("K2"), "quarter(s)",
-                  "counted only after construction started", asof, K_ORIGIN["K2"])
+                  "counted after the start: 4 active quarters or a published launch", asof, K_ORIGIN["K2"])
     with tiles[2]:
         _kpi_tile("K3 handover clock", get("K3"), "months",
                   "since first announced handover date", asof, K_ORIGIN["K3"])
     with tiles[3]:
-        _kpi_tile("K6 never started", get("K6"), "months",
-                  "since first launch/promise, no construction start", asof, K_ORIGIN["K6"])
+        if _missing(get("K6")) and get("K6_status") == "not_applicable_started":
+            metric_tile("K6 never started", "does not apply", "",
+                        "construction start was observed", asof, K_ORIGIN["K6"])
+        else:
+            _kpi_tile("K6 never started", get("K6"), "months",
+                      "since first launch/promise, no construction start", asof, K_ORIGIN["K6"])
 
     k4 = get("K4")
     k5, k5_status = get("K5_months"), get("K5_status")
@@ -770,6 +761,38 @@ def render_curves(code: str, history: pd.DataFrame | None, ann: pd.DataFrame | N
                    "dashed lines = quarter of a published developer statement")
 
 
+STAGE_TABLE = REPO_DIR / "data" / "experiments" / "42_r7_stage_table" / "r7_stage_table.csv"
+STAGE_WORDS = {"S0": "land or ground works", "S1": "under construction", "S2": "complete"}
+
+
+def render_stage_strip(code: str) -> None:
+    """Construction stage per year, read from the stored stage table (experiment 42)."""
+    section_title("🏗️", "Construction stage by year")
+    with st.container(border=True):
+        if not STAGE_TABLE.exists():
+            st.info("The stage table (data/experiments/42_r7_stage_table) is not in this checkout.")
+            return
+        table = enforce_no_names(_read_file(str(STAGE_TABLE)), "r7_stage_table.csv")
+        mine = table.loc[table["code"] == code, ["year", "stage", "stage_source"]].copy()
+        if mine.empty:
+            st.info(f"No stage rows for {code}.")
+            return
+        mine["meaning"] = mine["stage"].map(STAGE_WORDS)
+        chart = alt.Chart(mine).mark_rect(stroke=PALETTE["bg"], strokeWidth=2).encode(
+            x=alt.X("year:O", title=None),
+            color=alt.Color("meaning:N", title=None, legend=alt.Legend(orient="bottom"),
+                            scale=alt.Scale(domain=list(STAGE_WORDS.values()),
+                                            range=["#8A7A5C", PALETTE["accent"], "#46A758"])),
+            tooltip=["year", "stage", "meaning", "stage_source"],
+        )
+        st.altair_chart(chart.properties(height=70), use_container_width=True)
+        start = mine.loc[mine["stage"] != "S0", "year"]
+        st.caption(f"{ORIGIN_DERIVED} derived · construction first seen in "
+                   f"{int(start.min()) if not start.empty else 'no year yet'} · stages labelled by an AI "
+                   "rater from Wayback figures, without a site visit · years without a figure use the "
+                   "satellite and radar layer, which never marks a compound complete")
+
+
 def render_context_charts(code: str) -> None:
     section_title("🏗️", "Height and vegetation")
     ctx = _load_first(CONTEXT_FILES)
@@ -798,7 +821,7 @@ def render_context_charts(code: str) -> None:
                             opacity=alt.Opacity("kind:N", legend=alt.Legend(orient="bottom", title=None),
                                                 scale=alt.Scale(domain=["observed", "estimate (v4)"],
                                                                 range=[1.0, 0.5])),
-                            color=alt.value("#38BDF8"),
+                            color=alt.value("#7FB2DE"),
                             tooltip=[COL_YEAR, alt.Tooltip(COL_HEIGHT, format=".1f"), "kind"],
                         ).properties(height=240),
                         use_container_width=True)
@@ -978,6 +1001,16 @@ def render_backtest_cases() -> None:
     point_in_time = summary["point_in_time_reading"]["n"]
     met = summary["after_start_reading"]["met"]
 
+    finding(f"<b>The rule warned early in {after_start} of {total} public cases</b> (after construction "
+            f"start), and in {point_in_time} of {total} on the freeze date itself. The success criterion "
+            f"was {'met' if met else 'not met'}: {html.escape(summary['criterion'])}.")
+    how_to_read([
+        ("Each case is a real public R7 delay. The clock was frozen before the delay was known, and "
+        "only data published by then was used."),
+        ("'Warned after start' asks whether level 1 or 2 appeared at least 6 months before the first "
+        "announced handover date."),
+        "Open a case below for what happened, what the rule saw and the explanation that was tested and rejected.",
+    ])
     section_title("🧊", "Frozen-clock backtest (real public cases)")
     tiles = st.columns(3)
     with tiles[0]:
@@ -1092,7 +1125,8 @@ def render_b_signals(track: Track) -> None:
 COMPOUNDS_FILE = "real/compounds.parquet"                                                # contract: ahmed -> nada
 STATEMENTS_FILE = "real/statements.parquet"  # published developer statements, one fact per row
 
-# The 10 quality gates (01-specs section 8): key, dimension, rule, owner role, if it fails.
+# The 10 quality gates of 01-specs section 8 plus the vegetation pull check the pipeline logs:
+# key, dimension, rule, owner role, if it fails.
 GATES = (
     ("source", "Accuracy", "Every fact has a record_id and an accepted verdict", "R2", "Fix: excluded"),
     ("completeness", "Completeness", "At least 6 Dynamic World images in the quarter", "R3", "Flag: not assessable"),
@@ -1103,6 +1137,8 @@ GATES = (
     ("separation", "Consistency", "No generated column in a real table; every column has an origin", "R1", "Stop"),
     ("data_or_city", "Accuracy", "More than 30% of compounds switch to 'no activity' in one quarter", "R4", "Flag and review"),
     ("stuck_series", "Accuracy", "Same value 4 quarters in a row", "R3", "Flag and review"),
+    ("veg_pull_check", "Accuracy", "Pulled vegetation share equals the audited file (max diff 0.02)",
+     "R3", "Flag"),
     ("no_names", "Privacy", "No compound or developer name in any output file", "R1", "Stop"),
 )
 
@@ -1344,7 +1380,7 @@ def render_coverage(cov: dict | None) -> None:
 
         per_q = cov["per_quarter"]
         top = int(per_q["total"].max())
-        chart = alt.Chart(per_q).mark_bar(color="#38BDF8").encode(
+        chart = alt.Chart(per_q).mark_bar(color="#7FB2DE").encode(
             x=alt.X("quarter:N", sort=list(per_q["quarter"]), title=None,
                     axis=alt.Axis(labelAngle=-45)),
             y=alt.Y("assessable:Q", title=f"assessable compounds (of {top})",
@@ -1411,14 +1447,14 @@ def render_colour_key() -> None:
          "Published statements, registers and public records, used as published with their source.",
          "Highest trust. Each fact carries a record_id; still read the date it was published."),
         (ORIGIN_DERIVED, "Derived", "computed from real data",
-         "Numbers worked out from real data by a stated rule: activity score A, K2, K4, K6, "
-         "priority levels, the height estimate.",
+         ("Numbers worked out from real data by a stated rule: activity score A, K2, K4, K6, "
+         "priority levels, the height estimate."),
          "As good as its inputs. Read the 'as of' quarter and the gaps; unknown stays unknown."),
         (ORIGIN_GENERATED, "Generated", "stand-in for ACUD data",
-         "Simulated finance, complaints, classifier probabilities and scenarios. "
-         "'Synthetic - for training only'.",
-         "For training and what-if only. Track B only, never on the map, never a statement "
-         "about a real compound."),
+         ("Simulated finance, complaints, classifier probabilities and scenarios. "
+         "'Synthetic - for training only'."),
+         ("For training and what-if only. Track B only, never on the map, never a statement "
+         "about a real compound.")),
     )
     cols = st.columns(3)
     for col, (icon, name, short, what, trust) in zip(cols, cards):
@@ -1444,6 +1480,16 @@ def render_colour_key() -> None:
 def screen_priority_map(track: Track) -> None:
     page_header("🛰️", "Priority map", "Whom should the committee visit first?")
     latest = load_latest_kpis()
+    if latest is not None:
+        finding(cycle_headline(*latest))
+    how_to_read([
+        ("Each block is one coded R7 compound. Colour is the priority level; height is the mean "
+        "building height seen from space."),
+        ("The level is the worst of three clocks: K2 quarters without building activity, K3 months "
+        "past the first announced handover date, K6 months since launch without a confirmed start."),
+        "A compound that may be complete is capped at level 3 and must be confirmed on site.",
+        "The cycle list takes up to 4 compounds from levels 1-3. The rule recommends; the committee decides.",
+    ])
     render_map_slot(track, latest)
     render_cycle_list(latest)
 
@@ -1462,6 +1508,13 @@ def screen_priority_map(track: Track) -> None:
 
 def screen_compound_file(track: Track) -> None:
     page_header("🗂️", "Compound file", "Why this one? Evidence behind the priority level.")
+    how_to_read([
+        "Pick a compound: the default is the first one on the cycle list. The Arabic sentence states why it has its level.",
+        "The tiles show the three clocks that set the level; the table below them shows context that never sets it.",
+        "The curves show building activity per quarter; dashed lines mark quarters with a published developer statement.",
+        "The two Wayback images are judged by eye: they help plan the visit, they are not a measurement.",
+        "Record the visit result at the bottom: real visit results are the ground truth this system still lacks.",
+    ])
 
     latest = load_latest_kpis()
     if latest is None:
@@ -1492,11 +1545,12 @@ def screen_compound_file(track: Track) -> None:
             st.warning(f"{code} has no KPI row for {asof}: shown as not assessable.")
         reason = None if row is None else row.get("reason_ar")
         if not _missing(reason) and str(reason).strip():
-            st.markdown(f"**السبب:** {reason}")
+            st.markdown(f'<div class="se-rtl"><b>السبب:</b> {html.escape(str(reason))}</div>', unsafe_allow_html=True)
 
         render_kpi_tiles(row, asof)
         render_lineage(row, asof)
         render_curves(code, history, ann, row)
+        render_stage_strip(code)
         render_context_charts(code)
         render_images(code)
         render_inspection_button(code, asof)
@@ -1523,6 +1577,17 @@ def screen_data_trust(track: Track) -> None:
     cov = _safe("kpi_values", compute_coverage)
     facts = _safe("statements", load_facts_count)
 
+    if cov is not None and results:
+        n_pass = sum(1 for status, _ in results.values() if status == "Pass")
+        n_flag = sum(1 for status, _ in results.values() if status == "Flag")
+        finding(f"<b>{cov['ok']} of {cov['total']} compounds can be assessed in {cov['asof']}</b>. "
+                f"{n_pass} of {len(GATES)} quality gates passed and {n_flag} raised a flag for review.")
+    how_to_read([
+        ("Green numbers are published as they are, blue numbers are computed from them by a stated rule, "
+        "orange numbers are generated for training only."),
+        "A quality gate stops the run or flags it. A flag means a person should look, not that the data is wrong.",
+        "A compound without enough images gets no level and stays grey on the map.",
+    ])
     render_trust_tiles(cov, results, log, facts)
     render_gates_table(results, log)
     render_coverage(cov)
@@ -1667,6 +1732,17 @@ def screen_what_if(track: Track) -> None:
         raw = raw[raw["scenario_id"] == capacity]
 
     view, label = whatif_view(raw, scenario)
+    moved = view[view["change"] != "unchanged"]
+    finding(f"<b>{len(moved)} of {len(view)} compounds change in {scenario}</b> ({label})"
+            + (": " + ", ".join(f"{c} {w}" for c, w in zip(moved["code"], moved["change"])) if len(moved) else
+               ". The shock moves the generated finances, but no compound crosses a rule threshold")
+            + ". Generated data: this shows sensitivity, not a forecast.")
+    how_to_read([
+        ("S1 and S2 shock the generated finances and re-apply the Track B rule; compare each level with "
+        "its own baseline, not with the real levels of screen 1."),
+        "S3 keeps every level and only changes how many compounds fit in one cycle (2 or 6 instead of 4).",
+        "Nothing here is observed: no new satellite image or field visit enters a scenario.",
+    ])
     render_whatif_tiles(raw, view, scenario, label)
     render_whatif_moved(view)
     section_title("📋", f"All compounds in {label}")
