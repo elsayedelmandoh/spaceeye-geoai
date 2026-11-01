@@ -1,9 +1,32 @@
+[server]
+enableStaticServing = true
+
 [theme]
-base = "dark"
-primaryColor = "#F2C14E"
-backgroundColor = "#0E2235"
-secondaryBackgroundColor = "#13304A"
-textColor = "#E9EFF5"
+base = "light"
+primaryColor = "#007C89"
+backgroundColor = "#F1F2EE"
+secondaryBackgroundColor = "#E6E9E3"
+textColor = "#1A1D1B"
+borderColor = "#D3D7D0"
+font = "Readex Pro, Segoe UI, Tahoma, sans-serif"
+headingFont = "Readex Pro, Segoe UI, Tahoma, sans-serif"
+baseRadius = "small"
+
+[[theme.fontFaces]]
+family = "Readex Pro"
+url = "app/static/fonts/ReadexPro-latin.woff2"
+weight = "200 700"
+unicodeRange = "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
+
+[[theme.fontFaces]]
+family = "Readex Pro"
+url = "app/static/fonts/ReadexPro-arabic.woff2"
+weight = "200 700"
+unicodeRange = "U+0600-06FF, U+0750-077F, U+0870-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC"
+
+[theme.sidebar]
+backgroundColor = "#E2E8E5"
+secondaryBackgroundColor = "#FFFFFF"
 
 [client]
 toolbarMode = "viewer"
