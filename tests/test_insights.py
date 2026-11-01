@@ -72,9 +72,21 @@ def _statements() -> pd.DataFrame:
 
 def test_upcoming_promises_are_confirmed_after_the_quarter_end_soonest_first():
     rows = insights.upcoming_promises(_statements(), ["C14", "C21"], "2026Q3")
-    assert [(r["code"], r["end"]) for r in rows] == [
-        ("C14", "2026-12-31"), ("C14", "2027-12-31"), ("C21", "2027-12-31")]
-    assert rows[0]["claim"] == "promised handover by Dec 2026" and rows[0]["said"] == "Mar 2025"
+    assert [(r["code"], r["end"]) for r in rows] == [("C14", "2027-12-31"), ("C21", "2027-12-31")]
+    assert rows[0]["claim"] == "promised handover by Dec 2027" and rows[0]["said"] == "Apr 2025"
+
+
+def test_a_later_confirmed_promise_with_a_later_date_replaces_the_earlier_one():
+    base = {"kind": "promise", "subtype": "promised_delivery", "value": None, "qualifier": None,
+            "period_start": None, "code": "C14"}
+    statements = pd.DataFrame([
+        {**base, "published_date": "2025-03-01", "period_end": "2026-12-31", "verdict": "CONFIRMED"},
+        {**base, "published_date": "2025-04-01", "period_end": "2027-12-31", "verdict": "CONFIRMED_MINOR_FIX"},
+        {**base, "published_date": "2025-05-01", "period_end": "2026-10-31", "verdict": "CONFIRMED"},
+        {**base, "published_date": "2025-06-01", "period_end": "2030-12-31", "verdict": "REJECTED"},
+    ])
+    rows = insights.upcoming_promises(statements, ["C14"], "2026Q3")
+    assert [r["end"] for r in rows] == ["2026-10-31", "2027-12-31"]
 
 
 def test_a_claim_is_paired_only_with_a_picture_from_within_a_year():
@@ -164,14 +176,15 @@ WHY = ("Level 1: no building activity for 6 quarter(s) (activity score 0.30); fi
 
 
 def test_what_space_saw_drops_the_level_prefix_and_the_observation_clause():
-    assert insights.what_space_saw(WHY) == ("No building activity for 6 quarters (activity score 0.30); "
+    assert insights.what_space_saw(WHY) == ("No building activity for 6 quarters; "
                                             "first announced handover date (Dec 2023) is still ahead")
 
 
 def test_warning_case_picks_the_earliest_warning_after_start_and_words_the_outcome():
     cases = pd.DataFrame({
         "code": ["C14", "C21"], "after_start": [False, True], "after_start_months_before": [np.nan, 39.0],
-        "first_alert_quarter": [None, "2020Q3"], "first_deadline": ["2024-12-31", "2023-12-31"], "why": ["", WHY],
+        "first_alert_quarter": [None, "2020Q3"],
+        "freeze_date": ["2024-06-30", "2023-06-30"], "level_at_freeze": [4, 4], "first_deadline": ["2024-12-31", "2023-12-31"], "why": ["", WHY],
         "what_happened": ["delivered_late; outcome date 2024-09-24",
                           "partial_delivery_late_completion_postponed; outcome date 2026-01-29; first published 2026-01-29"],
     })
@@ -179,7 +192,14 @@ def test_warning_case_picks_the_earliest_warning_after_start_and_words_the_outco
     assert (case["code"], case["alert"], case["months"], case["deadline"]) == ("C21", "2020Q3", 39, "Dec 2023")
     assert case["outcome"] == "partly handed over late, completion postponed"
     assert case["reported"] == "Jan 2026"
+    assert (case["freeze"], case["level_at_freeze"]) == ("2023-06-30", 4)
     assert insights.warning_case(cases.assign(after_start=False)) is None
+
+
+def test_outcome_text_words_known_types_and_guards_a_missing_one():
+    assert insights.outcome_text("delivered_late") == "handed over late"
+    assert insights.outcome_text("handover_slipped") == "handover slipped"
+    assert insights.outcome_text(np.nan) == "outcome not on file"
 
 
 def test_frame_pair_is_the_chosen_frame_and_the_latest():
@@ -198,10 +218,10 @@ def test_flagged_early_keeps_listed_compounds_with_no_date_passed():
         "code": ["C18", "C07", "C14", "C03", "C21"], "level": [1, 2, 2, 3, 3], "cycle_rank": [1, 2, 3, 4, None],
         "K3": [57, 0, 21, 0, 0],
         "k3_first_deadline": ["2021-12-31", None, "2024-12-31", None, "2023-12-31"],
-        "may_be_complete": [False, False, False, False, True], "reason": [""] * 5,
+        "may_be_complete": [False, False, False, True, True], "reason": [""] * 5,
     })
     flagged = insights.flagged_early(latest)
-    assert [r["code"] for r in flagged] == ["C07", "C03"]
+    assert [r["code"] for r in flagged] == ["C07"]
     assert flagged[0]["level"] == 2
 
 
@@ -209,7 +229,7 @@ def test_strongest_claim_is_the_largest_k3_among_compounds_with_confirmed_claims
     latest = pd.DataFrame({"code": ["C18", "C14", "C99"], "K3": [57, 21, 90],
                            "k3_first_deadline": ["2021-12-31", "2024-12-31", "2020-01-31"]})
     statements = pd.DataFrame({
-        "code": ["C18", "C18", "C14", "C99"], "verdict": ["CONFIRMED", "CONFIRMED", "CONFIRMED", "REJECTED"],
+        "code": ["C18", "C18", "C14", "C99"], "verdict": ["CONFIRMED", "CONFIRMED_MINOR_FIX", "CONFIRMED", "REJECTED"],
         "published_date": ["2021-07-26", "2022-05-25", "2022-03-16", "2021-01-01"]})
     claim = insights.strongest_claim(latest, statements, "2026Q3")
     assert (claim["code"], claim["k3"], claim["deadline"]) == ("C18", 57, "Dec 2021")
@@ -268,7 +288,8 @@ def test_scenario_view_marks_who_changed_level_or_list_in_the_latest_month():
 def test_level_counts_cover_baseline_and_scenario_including_not_assessable():
     counts = insights.level_counts(insights.scenario_view(_scenario_raw())[0])
     pairs = {(r["case"], None if pd.isna(r["level"]) else r["level"]): r["compounds"] for _, r in counts.iterrows()}
-    assert pairs == {("Baseline", 2.0): 1, ("Baseline", 4.0): 1, ("Baseline", None): 1,
+    baseline = insights.BASELINE_LABEL
+    assert pairs == {(baseline, 2.0): 1, (baseline, 4.0): 1, (baseline, None): 1,
                      ("Scenario", 1.0): 1, ("Scenario", 4.0): 1, ("Scenario", None): 1}
 
 

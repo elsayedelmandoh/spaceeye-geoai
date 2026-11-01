@@ -1061,17 +1061,21 @@ def render_frame_row(frames: list[dict], stages: dict[int, str], captions: list[
 
 
 def render_early_warning(case: dict | None) -> None:
-    section_title("⏰", "It warns before the date passes")
     if case is None:
+        section_title("⏰", "An early signal")
         st.info("No public late case in the backtest was flagged after construction started.")
         return
     code = case["code"]
+    section_title("⏰", f"An early signal: {code}")
     frames, stages = space_frames(code), stage_of_year(code)
     pair = insights.frame_pair(frames, insights.first_frame_after(frames, pd.Period(case["alert"], "Q").end_time))
     with st.container(border=True):
         finding(f"<b>{code}</b> was first flagged in {case['alert']}, {case['months']} months before its first "
                 f"handover date ({case['deadline']}).")
         st.markdown(f"**What space saw.** {html.escape(case['saw'])}.")
+        if case["level_at_freeze"] is not None:
+            st.markdown(f"By the freeze date ({case['freeze']}) it was back at level {case['level_at_freeze']} "
+                        f"({level_word(case['level_at_freeze'])}).")
         reported = f", reported {case['reported']}" if case["reported"] else ""
         st.markdown(f"**What happened.** {html.escape(case['outcome'].capitalize())}{reported}.")
         render_frame_row(pair, stages, ["First capture after the alert", "Latest"][-len(pair):])
@@ -1122,7 +1126,7 @@ def render_strongest_claim(latest_df: pd.DataFrame, asof: str) -> None:
 
 
 def render_homes_waiting(compounds: pd.DataFrame, latest_df: pd.DataFrame) -> None:
-    section_title("🏠", "Homes waiting")
+    section_title("🏠", "Homes in compounds with fine-eligible months")
     waiting = insights.homes_waiting(compounds, latest_df)
     if not waiting["rows"]:
         st.info("No compound with a published unit count has fine-eligible months.")
@@ -1139,7 +1143,7 @@ def render_homes_waiting(compounds: pd.DataFrame, latest_df: pd.DataFrame) -> No
         tooltip=["code", "units", "k5", "Level"])
     labels = base.mark_text(align="left", dx=4, color=PALETTE["text"]).encode(text="label:N")
     with st.container(border=True):
-        finding(f"<b>{waiting['homes']:,} homes</b> in {waiting['compounds']} compounds wait with fine-eligible months.")
+        finding(f"<b>{waiting['homes']:,} homes</b> in {waiting['compounds']} compounds with fine-eligible months.")
         st.altair_chart((bars + labels).properties(height=34 * waiting["compounds"]), use_container_width=True)
         st.caption("Label = fine-eligible months of the compound.")
 
@@ -1165,7 +1169,7 @@ def render_late_promises(outcomes: pd.DataFrame) -> None:
         st.altair_chart((bars + labels + rule).properties(height=34 * len(table)), use_container_width=True)
         kinds = outcomes.set_index("code")["outcome_type"]
         for code in delays["pending"]:
-            st.markdown(f"**{code}**: {insights.OUTCOME_WORDS.get(kinds[code], kinds[code].replace('_', ' '))}.")
+            st.markdown(f"**{code}**: {insights.outcome_text(kinds.get(code))}.")
         st.caption("Dashed line = median.")
 
 
@@ -1305,7 +1309,8 @@ def render_scenario_moves(view: pd.DataFrame) -> None:
         st.markdown("Nobody crosses a threshold: no compound changes level or list position.")
         return
     for _, r in moved.iterrows():
-        change = f"{hypothetical_text(r['baseline_level'])} to {hypothetical_text(r['level'])}"
+        change = (f"hypothetical baseline {hypothetical_text(r['baseline_level'])}, "
+                  f"scenario {hypothetical_text(r['level'])}")
         if r["baseline_listed"] != r["listed"]:
             change += ", joins the list" if r["listed"] else ", leaves the list"
         st.markdown(
@@ -1321,10 +1326,11 @@ def render_scenario_levels(view: pd.DataFrame) -> None:
     words, _ = level_scale()
     chart = alt.Chart(counts).mark_bar().encode(
         x=alt.X("Level:N", sort=words, title=None, axis=alt.Axis(labelAngle=0)),
-        xOffset=alt.XOffset("case:N", sort=["Baseline", "Scenario"]),
+        xOffset=alt.XOffset("case:N", sort=[insights.BASELINE_LABEL, "Scenario"]),
         y=alt.Y("compounds:Q", title="Compounds", axis=alt.Axis(tickMinStep=1)),
         color=alt.Color("case:N", title=None, legend=alt.Legend(orient="bottom"),
-                        scale=alt.Scale(domain=["Baseline", "Scenario"], range=[PALETTE["muted"], PALETTE["accent_b"]])),
+                        scale=alt.Scale(domain=[insights.BASELINE_LABEL, "Scenario"],
+                                        range=[PALETTE["muted"], PALETTE["accent_b"]])),
         tooltip=["case", "Level", "compounds"])
     st.altair_chart(chart.properties(height=200), use_container_width=True)
 
@@ -1339,14 +1345,8 @@ def render_finance_scenario(scenario: str, track: Track) -> None:
     with st.container(border=True):
         st.caption(f"{ORIGIN_GENERATED} Generated · {SCENARIO_NOTES[scenario]} · {month}")
         render_scenario_moves(view)
-        render_scenario_levels(view)
-        st.dataframe(pd.DataFrame({
-            "Compound": view["code"],
-            "Baseline level": view["baseline_level"].map(hypothetical_text),
-            "Scenario level": view["level"].map(hypothetical_text),
-            "Baseline list": view["baseline_listed"].map({True: "on the list", False: "off the list"}),
-            "Scenario list": view["listed"].map({True: "on the list", False: "off the list"}),
-        }), hide_index=True, use_container_width=True)
+        if view["changed"].any():
+            render_scenario_levels(view)
 
 
 def screen_what_if(track: Track) -> None:

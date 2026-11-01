@@ -88,16 +88,25 @@ def claim_text(row: pd.Series) -> str:
 def _confirmed(statements: pd.DataFrame, asof: str) -> pd.DataFrame:
     """Confirmed claims published by the end of the quarter."""
     published = pd.to_datetime(statements["published_date"], errors="coerce")
-    return statements[(statements["verdict"] == "CONFIRMED") & (published <= pd.Period(asof, "Q").end_time)]
+    confirmed = statements["verdict"].astype(str).str.startswith("CONFIRMED")
+    return statements[confirmed & (published <= pd.Period(asof, "Q").end_time)]
 
 
 def upcoming_promises(statements: pd.DataFrame, codes: list[str], asof: str) -> list[dict]:
-    """Confirmed promised dates still ahead, soonest first: the next claims a visit can check."""
+    """Confirmed promised dates still ahead, soonest first: the next claims a visit can check.
+
+    A promise is dropped when a later-published confirmed promise of the same compound moves the date out.
+    """
     confirmed = _confirmed(statements[statements["code"].isin(codes)], asof)
-    ahead = confirmed[(confirmed["kind"] == "promise")
-                      & (pd.to_datetime(confirmed["period_end"]) > pd.Period(asof, "Q").end_time)]
-    rows = [{"code": str(r["code"]), "claim": claim_text(r), "said": month_text(r["published_date"]),
-             "end": str(pd.Timestamp(r["period_end"]).date())} for _, r in ahead.iterrows()]
+    promises = confirmed[confirmed["kind"] == "promise"].assign(
+        published=lambda d: pd.to_datetime(d["published_date"]), ends=lambda d: pd.to_datetime(d["period_end"]))
+    rows = []
+    for _, r in promises[promises["ends"] > pd.Period(asof, "Q").end_time].iterrows():
+        later = promises[(promises["code"] == r["code"]) & (promises["published"] > r["published"])]
+        if (later["ends"] > r["ends"]).any():
+            continue
+        rows.append({"code": str(r["code"]), "claim": claim_text(r), "said": month_text(r["published_date"]),
+                     "end": str(r["ends"].date())})
     return sorted(rows, key=lambda r: (r["end"], r["code"]))
 
 
@@ -195,11 +204,19 @@ OUTCOME_WORDS = {
     "postponed_twice_not_yet_delivered": "handover postponed twice, not yet delivered",
     "delivered_late": "handed over late",
 }
+BASELINE_LABEL = "Hypothetical baseline (generated finance)"
 NUMBER_WORDS = ("No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten")
 
 
 def _flag(value: object) -> bool:
     return not is_missing(value) and bool(value)
+
+
+def outcome_text(outcome_type: object) -> str:
+    if is_missing(outcome_type):
+        return "outcome not on file"
+    kind = str(outcome_type).strip()
+    return OUTCOME_WORDS.get(kind, kind.replace("_", " "))
 
 
 def short_reason(text: object) -> str:
@@ -213,10 +230,8 @@ def short_reason(text: object) -> str:
 
 
 def what_space_saw(why: object) -> str:
-    """The stored English reason without its level prefix and the 'observation complete' clause."""
-    clauses = [c.strip(" .") for c in str(why).split(": ", 1)[-1].split(";")]
-    text = "; ".join(c for c in clauses if c and not c.startswith("observation complete"))
-    text = re.sub(r"(\d+) quarter\(s\)", lambda m: f"{m[1]} quarter{'' if m[1] == '1' else 's'}", text)
+    """`short_reason` as a sentence start."""
+    text = short_reason(why)
     return text[:1].upper() + text[1:]
 
 
@@ -231,7 +246,8 @@ def warning_case(cases: pd.DataFrame) -> dict | None:
     return {"code": str(case["code"]), "alert": str(case["first_alert_quarter"]),
             "months": int(case["after_start_months_before"]), "deadline": month_text(case["first_deadline"]),
             "saw": what_space_saw(case["why"]),
-            "outcome": OUTCOME_WORDS.get(outcome.strip(), outcome.strip().replace("_", " ")),
+            "freeze": str(case["freeze_date"])[:10], "level_at_freeze": level_number(case["level_at_freeze"]),
+            "outcome": outcome_text(outcome),
             "reported": month_text(reported[1]) if reported else ""}
 
 
@@ -247,10 +263,11 @@ def frame_pair(frames: list[dict], index: int | None) -> list[dict]:
 
 
 def flagged_early(latest: pd.DataFrame) -> list[dict]:
-    """Visit-list compounds flagged with no handover date passed: none announced, or still ahead."""
+    """Visit-list compounds flagged with no handover date passed (none announced, or still ahead), leaving out
+    those that may already be handed over."""
     on_list = latest[latest["cycle_rank"].notna()].sort_values("cycle_rank")
-    early = on_list[on_list["k3_first_deadline"].isna()
-                    | ((on_list["K3"].fillna(0) == 0) & ~on_list["may_be_complete"].map(_flag))]
+    early = on_list[(on_list["k3_first_deadline"].isna() | (on_list["K3"].fillna(0) == 0))
+                    & ~on_list["may_be_complete"].map(_flag)]
     return [{"code": str(r["code"]), "level": level_number(r["level"]), "why": short_reason(r["reason"])}
             for _, r in early.iterrows()]
 
@@ -319,5 +336,5 @@ def scenario_view(raw: pd.DataFrame) -> tuple[pd.DataFrame, str]:
 def level_counts(view: pd.DataFrame) -> pd.DataFrame:
     """How many compounds sit at each hypothetical level (NaN = not assessable), baseline and scenario."""
     both = pd.concat([pd.DataFrame({"case": case, "level": view[column]})
-                      for case, column in (("Baseline", "baseline_level"), ("Scenario", "level"))])
+                      for case, column in ((BASELINE_LABEL, "baseline_level"), ("Scenario", "level"))])
     return both.groupby(["case", "level"], dropna=False).size().rename("compounds").reset_index()
