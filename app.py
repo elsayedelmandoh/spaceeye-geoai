@@ -14,9 +14,9 @@ from pathlib import Path
 
 import altair as alt  # ships with Streamlit
 import pandas as pd
-import pydeck as pdk
 import streamlit as st
 
+from src.dashboard import front
 from src.dashboard.ops_visits import render_ops_visits_form  # T-NA-04
 from src.pipeline.common import APP as PIPELINE_APP_DATA
 
@@ -73,15 +73,15 @@ SCREENS = [
 # --------------------------------------------------------------------------- #
 
 PALETTE = {
-    "bg": "#0E2235",          # survey plate: deep blueprint blue
-    "bg_alt": "#0B1C2C",      # sidebar
-    "surface": "#13304A",     # cards
-    "surface_hi": "#1A3D5C",  # hover / inputs
-    "border": "#2B4E6E",      # ruled lines
-    "text": "#E9EFF5",
-    "muted": "#9DB3C8",
-    "accent": "#F2C14E",      # surveyor's chalk: Track A
-    "accent_b": "#F28C38",    # generated data: Track B
+    "bg": "#F1F2EE",          # light table: cool diffuser grey
+    "bg_alt": "#E2E8E5",      # sidebar rail, tinted toward the boundary cyan
+    "surface": "#FFFFFF",     # print mat
+    "surface_hi": "#E6E9E3",  # hover
+    "border": "#D3D7D0",      # hairline rules
+    "text": "#1A1D1B",        # graphite ink
+    "muted": "#4F5652",
+    "accent": "#007C89",      # the cyan of the reviewed boundary: selection and actions
+    "accent_b": "#B54708",    # generated data: Track B
 }
 
 
@@ -197,87 +197,50 @@ def how_to_read(points: list[str]) -> None:
 
 
 def inject_css() -> None:
-    """Survey-plate theme: flat ruled cards on blueprint blue, one type family for Arabic and Latin,
-    tabular figures for numbers. The 3D priority map is the one bold element."""
+    """Light-table theme for the Streamlit parts (screens 3-5 and the lower half of 1-2). The font,
+    Readex Pro for Arabic and Latin, is served from static/fonts through .streamlit/config.toml."""
     p = PALETTE
     st.markdown(
         f"""
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap');
-        html, body, [class*="css"], .stApp, button, input, textarea {{
-            font-family: 'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, sans-serif;
-        }}
-        .stApp {{ background: {p['bg']}; color: {p['text']}; }}
-        .block-container {{ padding-top: 1.4rem; padding-bottom: 3rem; max-width: 1240px; }}
+        .block-container {{ padding-top: 1.6rem; padding-bottom: 3rem; max-width: 1320px; }}
         header[data-testid="stHeader"] {{ background: transparent; }}
         #MainMenu, footer {{ visibility: hidden; }}
-        h1, h2, h3, h4, p, label, span, li {{ color: {p['text']}; }}
         p, li {{ line-height: 1.6; }}
-        [data-testid="stCaptionContainer"], .stCaption {{ color: {p['muted']} !important; }}
-        hr {{ border-color: {p['border']}; }}
+        ::selection {{ background: {p['accent']}; color: #fff; }}
         :focus-visible {{ outline: 2px solid {p['accent']} !important; outline-offset: 2px; }}
+        [data-testid="stCaptionContainer"], .stCaption {{ color: {p['muted']} !important; }}
 
-        .se-header {{ display: flex; align-items: baseline; gap: 0.8rem; margin: 0 0 1.2rem 0;
-                      padding-bottom: 0.8rem; border-bottom: 1px solid {p['border']}; }}
-        .se-icon {{ font-size: 1.4rem; }}
-        .se-title {{ font-size: 1.9rem; font-weight: 700; letter-spacing: -0.015em; line-height: 1.15; }}
-        .se-sub {{ color: {p['muted']}; font-size: 1rem; margin-top: 0.2rem; }}
-        .se-finding {{ border-left: 4px solid {p['accent']}; background: {p['surface']};
-                       padding: 0.8rem 1rem; margin: 0 0 1rem 0; font-size: 1.08rem; line-height: 1.55; }}
-        .se-card-head {{ display: flex; justify-content: space-between; align-items: center;
-                         gap: 0.4rem; margin-top: 0.3rem; }}
-        .se-card-why {{ color: {p['muted']}; font-size: 0.92rem; line-height: 1.45; margin-top: 0.35rem; }}
-        .se-section {{ color: {p['text']}; font-size: 1.02rem; font-weight: 600; margin: 1.3rem 0 0.5rem 0; }}
+        .se-header {{ margin: 0 0 1.1rem 0; }}
+        .se-title {{ font-size: 1.85rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; }}
+        .se-sub {{ color: {p['muted']}; font-size: 1rem; margin-top: 0.3rem; }}
+        .se-finding {{ font-size: 1.15rem; line-height: 1.5; margin: 0 0 1.1rem 0; max-width: 75ch; }}
+        .se-finding b {{ font-weight: 600; color: {p['accent']}; }}
+        .se-section {{ font-size: 1rem; font-weight: 600; margin: 1.6rem 0 0.5rem 0; }}
 
-        [data-testid="stHorizontalBlock"] > div {{ display: flex; flex-direction: column; }}
         [data-testid="stVerticalBlockBorderWrapper"] {{
-            background: {p['surface']};
-            border: 1px solid {p['border']} !important;
-            border-radius: 6px;
-            padding: 0.45rem 0.65rem;
-            height: 100% !important;
+            background: {p['surface']}; border: 1px solid {p['border']} !important; border-radius: 3px;
         }}
-        [data-testid="stMetric"] {{ padding: 0.1rem 0.2rem; }}
         [data-testid="stMetricLabel"] p {{
-            color: {p['muted']} !important; font-size: 0.86rem !important; font-weight: 500;
-            white-space: normal !important;
+            color: {p['muted']} !important; font-size: 0.86rem !important; white-space: normal !important;
         }}
         [data-testid="stMetricValue"] div {{
-            font-variant-numeric: tabular-nums lining-nums;
-            font-weight: 700; color: {p['text']};
-            font-size: clamp(1.15rem, 1.6vw, 1.6rem) !important;
+            font-weight: 600; font-size: clamp(1.15rem, 1.6vw, 1.6rem) !important;
             white-space: normal !important; line-height: 1.25 !important;
         }}
-        [data-testid="stAlert"] {{
-            background: {p['bg_alt']}; border: 1px solid {p['border']};
-            border-left: 3px solid {p['accent']}; border-radius: 4px; color: {p['text']};
-        }}
-        [data-testid="stAlert"] p {{ color: {p['text']}; }}
-        [data-testid="stDataFrame"] {{ border: 1px solid {p['border']}; border-radius: 4px; }}
+        [data-testid="stDataFrame"] {{ border: 1px solid {p['border']}; border-radius: 3px; }}
         [dir="auto"], .se-rtl {{ unicode-bidi: plaintext; }}
         .se-rtl {{ direction: rtl; text-align: right; font-size: 1.05rem; }}
 
-        [data-testid="stSidebar"] {{ background: {p['bg_alt']}; border-right: 1px solid {p['border']}; }}
-        [data-testid="stSidebar"] .block-container {{ padding-top: 1rem; }}
-        [data-testid="stSidebar"] hr {{ margin: 0.9rem 0; border-color: {p['border']}; }}
-        .se-brand {{ display: flex; align-items: center; gap: 0.6rem; margin: 0.2rem 0 0.3rem 0; }}
-        .se-brand-logo {{ font-size: 1.4rem; }}
-        .se-brand-name {{ font-weight: 700; font-size: 1.15rem; }}
+        [data-testid="stSidebar"] {{ border-right: 1px solid {p['border']}; }}
+        .se-brand-name {{ font-weight: 600; font-size: 1.2rem; letter-spacing: -0.01em; }}
         .se-brand-sub {{ color: {p['muted']}; font-size: 0.85rem; }}
-        .se-side-label {{ color: {p['muted']}; font-size: 0.85rem; font-weight: 500; margin: 0.2rem 0 0.1rem 0; }}
-        [data-testid="stSidebar"] [data-baseweb="select"] > div {{
-            background: {p['surface']}; border: 1px solid {p['border']}; border-radius: 4px;
-        }}
-        [data-testid="stSidebar"] [data-baseweb="select"] * {{ color: {p['text']}; }}
-        [data-testid="stSidebar"] [role="radiogroup"] label {{
-            border-left: 3px solid transparent; padding: 0.4rem 0.6rem; width: 100%;
-        }}
-        [data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) {{
-            border-left-color: {p['accent']}; background: {p['surface']};
-        }}
+        .se-side-label {{ color: {p['muted']}; font-size: 0.85rem; margin: 0.2rem 0 0.1rem 0; }}
+        [data-testid="stSidebar"] [role="radiogroup"] label {{ padding: 0.35rem 0.6rem; width: 100%; border-radius: 3px; }}
+        [data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) {{ background: {p['surface']}; font-weight: 600; }}
         .se-pill {{
-            display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px;
-            font-size: 0.85rem; font-weight: 500; border: 1px solid {p['border']};
+            display: inline-block; padding: 0.1rem 0.6rem; border-radius: 999px;
+            font-size: 0.85rem; font-weight: 500; border: 1px solid {p['border']}; background: {p['surface']};
         }}
         .se-pill-a {{ color: {p['accent']}; border-color: {p['accent']}; }}
         .se-pill-b {{ color: {p['accent_b']}; border-color: {p['accent_b']}; }}
@@ -286,11 +249,10 @@ def inject_css() -> None:
         .synthetic-banner {{
             position: sticky; top: 0.5rem; z-index: 1000;
             display: flex; align-items: center; justify-content: center; gap: 0.6rem;
-            margin: 0 0 1.2rem 0; padding: 0.6rem 1rem;
-            background: {p['accent_b']}; color: #1F1102; font-weight: 700; font-size: 1rem;
-            border-radius: 4px;
+            margin: 0 0 1.2rem 0; padding: 0.55rem 1rem;
+            background: {p['accent_b']}; color: #fff; font-weight: 600; border-radius: 3px;
         }}
-        .synthetic-banner .dot {{ width: 8px; height: 8px; border-radius: 50%; background: #1F1102; }}
+        .synthetic-banner .dot {{ width: 7px; height: 7px; border-radius: 50%; background: #fff; }}
         </style>
         """,
         unsafe_allow_html=True,
@@ -310,13 +272,14 @@ def render_banner(track: Track) -> None:
 # Screen 1 data
 # --------------------------------------------------------------------------- #
 
+# Print tones for a light ground, checked with the dataviz palette validator (CVD and contrast).
 LEVELS: dict[int, tuple[str, str]] = {
-    1: ("Inspect now", "#EF4444"),
-    2: ("Inspect this cycle", "#F97316"),
-    3: ("Document review", "#EAB308"),
-    4: ("Routine", "#22C55E"),
+    1: ("Inspect now", "#A8102C"),
+    2: ("Inspect this cycle", "#E35D17"),
+    3: ("Document review", "#D1A80C"),
+    4: ("Routine", "#2E7D4F"),
 }
-NOT_ASSESSABLE: tuple[str, str] = ("Not assessable", "#6B7280")  # grey
+NOT_ASSESSABLE: tuple[str, str] = ("Not assessable", "#8A8F8B")  # grey
 
 REQUIRED_KPI_COLUMNS = {"code", "quarter", "level"}
 
@@ -330,11 +293,6 @@ def _level_style(level: object) -> tuple[str, str]:
 
 def level_word(level: object) -> str:
     return _level_style(level)[0]
-
-
-def _hex_to_rgba(hex_color: str, alpha: int = 175) -> list[int]:
-    h = hex_color.lstrip("#")
-    return [int(h[i:i + 2], 16) for i in (0, 2, 4)] + [alpha]
 
 
 @st.cache_data(show_spinner=False)
@@ -424,125 +382,84 @@ def latest_heights() -> dict[str, tuple[float, int]]:
     return {r["code"]: (float(r[COL_HEIGHT]), int(r[COL_YEAR])) for _, r in last.iterrows()}
 
 
-def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None) -> None:
-    if track.generated:
-        return
-    section_title("🗺️", "Priority map")
+WAYBACK_CREDIT = ("Esri World Imagery Wayback: each print carries its own release and imagery credits. "
+                  "Cyan line = reviewed working boundary, not a legal survey. Judged by eye: the frames "
+                  "help plan the visit, they are not a measurement.")
 
+
+def level_number(level: object) -> int | None:
+    try:
+        return int(level) if int(level) in LEVELS else None
+    except (TypeError, ValueError):
+        return None
+
+
+def short_reason(row: pd.Series) -> str:
+    return str(row.get("reason", "")).split(": ", 1)[-1].split("; observation")[0]
+
+
+def frames_payload(code: str) -> list[dict]:
+    stages = stage_of_year(code)
+    return [{"date": date, "stage": stages.get(int(date[:4]), ""), "src": front.frame_uri(path),
+             "foot": front.frame_uri(path, "foot")} for date, path in space_frames(code)]
+
+
+def map_payload(latest_df: pd.DataFrame, cycle: pd.DataFrame) -> dict | None:
     geojson = load_boundaries()
     if geojson is None:
-        st.warning("real/compound_boundaries.geojson not found yet.")
-        return
-    if latest is None:
-        st.info("Waiting for real/kpi_values.parquet.")
-        return
-
-    latest_df, asof = latest
+        return None
     levels = dict(zip(latest_df["code"], latest_df["level"]))
+    ranks = dict(zip(cycle["code"], cycle.index + 1))
     heights = latest_heights()
-
-    features, points, labels = [], [], []
-    counts = {word: 0 for word, _ in [*LEVELS.values(), NOT_ASSESSABLE]}
+    compounds = []
     for feat in geojson["features"]:
         code = feat["properties"]["code"]
-        word, color = _level_style(levels.get(code))
-        counts[word] += 1
         outline = _geo_points(feat["geometry"])
-        points += outline
-        if outline:
-            top = heights.get(code, (0.0, 0))[0] * MAP_HEIGHT_EXAGGERATION + 40
-            labels.append({"code": code, "position": [sum(x for x, _ in outline) / len(outline),
-                                                      sum(y for _, y in outline) / len(outline), top]})
-        features.append({
-            "type": "Feature",
-            "geometry": feat["geometry"],
-            "properties": {"code": code, "level_word": word,
-                           "fill_color": _hex_to_rgba(color),
-                           # Flat when no height was measured (construction too recent).
-                           "elevation": heights.get(code, (0.0, 0))[0],
-                           "height_text": (f"mean height {heights[code][0]:.0f} m ({heights[code][1]})"
-                                           if code in heights else "no height on file")},
+        if not outline:
+            continue
+        height = heights.get(code)
+        compounds.append({
+            "code": code, "level": level_number(levels.get(code)), "level_word": level_word(levels.get(code)),
+            "rank": ranks.get(code), "geometry": feat["geometry"],
+            "center": [sum(x for x, _ in outline) / len(outline), sum(y for _, y in outline) / len(outline)],
+            "height": height[0] if height else 0,
+            "height_text": f"mean height {height[0]:.0f} m ({height[1]})" if height else "no height on file",
         })
-
-    with st.container(border=True):
-        if not features:
-            st.info("No R7 boundaries in the file.")
-            return
-        layer = pdk.Layer(
-            "GeoJsonLayer",
-            data={"type": "FeatureCollection", "features": features},
-            get_fill_color="properties.fill_color",
-            get_line_color=[232, 238, 244, 200],
-            get_elevation="properties.elevation",
-            elevation_scale=MAP_HEIGHT_EXAGGERATION,
-            line_width_min_pixels=1,
-            stroked=True, filled=True, extruded=True, wireframe=True, pickable=True,
-        )
-        codes = pdk.Layer("TextLayer", data=labels, get_position="position", get_text="code",
-                          get_size=15, get_color=[233, 239, 245, 255], get_alignment_baseline="'bottom'",
-                          billboard=True)
-        view = pdk.data_utils.compute_view(points, view_proportion=0.9) if points else None
-        if view is not None:
-            view.pitch, view.bearing = 50, -18
-        st.pydeck_chart(
-            pdk.Deck(
-                layers=[layer, codes],
-                initial_view_state=view,
-                map_style="dark",
-                tooltip={"text": "{code}\n{level_word}\n{height_text}"},
-            ),
-            use_container_width=True,
-        )
-        legend = "".join(
-            f'<span class="se-pill" style="border-color:{color};margin-right:0.4rem">'
-            f'<span style="color:{color}">●</span> {word} · {counts[word]}</span>'
-            for word, color in [*LEVELS.values(), NOT_ASSESSABLE]
-        )
-        st.markdown(legend, unsafe_allow_html=True)
-        st.caption(f"{ORIGIN_DERIVED} derived · as of {asof} · colour = priority level, grey = not "
-                   "assessable · block height = mean building height (Google Open Buildings, latest "
-                   f"year to {MAX_HEIGHT_YEAR}), drawn {MAP_HEIGHT_EXAGGERATION}× taller · "
-                   "right-drag to tilt or turn")
+    shown = [c["level"] for c in compounds]
+    legend = [{"level": n, "word": word, "count": shown.count(n)} for n, (word, _) in LEVELS.items()]
+    legend.append({"level": None, "word": NOT_ASSESSABLE[0], "count": shown.count(None)})
+    return {"compounds": compounds, "legend": legend}
 
 
-def cycle_headline(latest_df: pd.DataFrame, asof: str) -> str:
-    """One sentence that states the cycle decision, built only from the stored level and reason."""
+def priority_payload(track: Track, latest: tuple[pd.DataFrame, str]) -> dict:
+    """Screen 1 for the front end: the cycle list with its frames and, on Track A, the map."""
+    latest_df, asof = latest
     cycle = build_cycle_list(latest_df)
-    if cycle.empty:
-        return f"No compound needs a visit this cycle ({asof})."
-    first = latest_df[latest_df["code"] == cycle.iloc[0]["code"]].iloc[0]
-    why = str(first.get("reason", "")).split(": ", 1)[-1].split("; observation")[0]
-    eligible = int(latest_df["level"].isin([1, 2, 3]).sum())
-    waiting = eligible - len(cycle)
-    rest = f" {waiting} more at levels 1-3 wait for the next cycle." if waiting > 0 else ""
-    return (f"<b>Visit {', '.join(cycle['code'])} this cycle</b> ({len(cycle)} of {len(latest_df)} "
-            f"compounds, {asof}). {cycle.iloc[0]['code']} comes first: {html.escape(why)}.{rest}")
-
-
-def render_cycle_cards(latest: tuple[pd.DataFrame, str] | None) -> None:
-    """The cycle list as four cards: the latest view from space, the level and the reason in one line."""
-    if latest is None:
-        return
-    latest_df, _ = latest
-    cycle = build_cycle_list(latest_df)
-    if cycle.empty:
-        return
-    section_title("📋", "This cycle's visits")
-    for col, (_, item) in zip(st.columns(len(cycle)), cycle.iterrows()):
+    items = []
+    for _, item in cycle.iterrows():
         row = latest_df[latest_df["code"] == item["code"]].iloc[0]
-        word, colour = _level_style(row["level"])
-        why = str(row.get("reason", "")).split(": ", 1)[-1].split("; observation")[0]
-        frames = space_frames(item["code"])
-        with col, st.container(border=True):
-            if frames:
-                st.image(str(frames[-1][1]), use_container_width=True)
-            st.markdown(
-                f'<div class="se-card-head"><b>{int(item["cycle_rank"])} · {item["code"]}</b>'
-                f'<span class="se-pill" style="border-color:{colour};color:{colour}">{word}</span></div>'
-                f'<div class="se-card-why">{html.escape(why)}</div>',
-                unsafe_allow_html=True)
-            if frames:
-                st.caption(f"Wayback capture {frames[-1][0]}")
+        items.append({"rank": len(items) + 1, "code": item["code"], "level": level_number(row["level"]),
+                      "level_word": level_word(row["level"]), "why": short_reason(row),
+                      "frames": frames_payload(item["code"])})
+    eligible = int(latest_df["level"].isin([1, 2, 3]).sum())
+    payload = {"screen": "priority", "asof": asof, "total": len(latest_df), "cycle": items,
+               "waiting": max(eligible - len(items), 0), "credit": WAYBACK_CREDIT, "map": False}
+    # Track B keeps the map off: its tables start in a different quarter.
+    mapped = None if track.generated else map_payload(latest_df, cycle)
+    if mapped:
+        payload.update(mapped, map=True, map_note=(
+            f"Derived from public data · as of {asof} · Tilt 3D raises each compound by its mean building "
+            f"height (Google Open Buildings, latest year to {MAX_HEIGHT_YEAR}), drawn "
+            f"{MAP_HEIGHT_EXAGGERATION}× taller"))
+    return payload
+
+
+def open_compound_file() -> None:
+    """Screen 1 asked for a compound file: switch screens before the sidebar is drawn again."""
+    code = (st.session_state.get("front_priority") or {}).get("open")
+    if code:
+        st.session_state["compound_code"] = code
+        st.session_state["screen"] = SCREENS[1]
 
 
 def render_cycle_list(latest: tuple[pd.DataFrame, str] | None) -> None:
@@ -603,8 +520,6 @@ VEG_COMPLETE_THRESHOLD = 0.10
 # Every K is computed from real inputs (K3 from a published date), so all are derived.
 K_ORIGIN = {"A": ORIGIN_DERIVED, "K2": ORIGIN_DERIVED, "K3": ORIGIN_DERIVED,
             "K4": ORIGIN_DERIVED, "K5": ORIGIN_DERIVED, "K6": ORIGIN_DERIVED}
-SERIES_COLORS = {"Activity score A": "#F2C14E", "Dynamic World built probability": "#7FB2DE"}
-MARKER_COLOR = "#E9EFF5"
 
 
 def _missing(value: object) -> bool:
@@ -655,31 +570,6 @@ def load_announcements(code: str, asof: str) -> pd.DataFrame | None:
     return df.sort_values("published_date").reset_index(drop=True)
 
 
-def load_images(code: str) -> dict[str, tuple[Path, str]]:
-    """Before/after Wayback pair: the installed runtime pair (app_data/images) first, then the
-    figures committed in the repo (data/imagery/figures). Capture dates come from each folder's index."""
-    found: dict[str, tuple[Path, str]] = {}
-    for folder, index_name in ((APP_DATA / "images", "images.csv"), (IMAGERY_DIR / "figures", "index.csv")):
-        index_path = folder / index_name
-        index = pd.read_csv(index_path) if index_path.exists() else None
-        role_col = None if index is None else _find_col(index, ("role", "image_type"))
-        for kind in ("before", "after"):
-            path = folder / f"{code}_{kind}.jpg"
-            if kind in found or not path.exists():
-                continue
-            captured, credit = "capture date n/a", "Esri World Imagery Wayback"
-            if index is not None and role_col and "code" in index.columns:
-                hit = index[(index["code"].astype(str) == code) & (index[role_col] == kind)]
-                if not hit.empty:
-                    row = hit.iloc[0]
-                    if not _missing(row.get("capture_date")):
-                        captured = f"captured {row['capture_date']}"
-                    if not _missing(row.get("attribution")):
-                        credit = str(row["attribution"])
-            found[kind] = (path, f"{kind.capitalize()} · {captured} · {credit}")
-    return found
-
-
 def find_inspection_file(code: str, asof: str) -> Path | None:
     for files_dir in FILES_DIRS:
         for pattern in (f"{code}_{asof}.html", f"{code}_{asof}_*.html", f"{code}_*.html"):
@@ -691,45 +581,6 @@ def find_inspection_file(code: str, asof: str) -> Path | None:
 
 # ---- screen 2 renderers ----------------------------------------------------- #
 
-def render_kpi_tiles(row: pd.Series | None, asof: str) -> None:
-    section_title("📊", "Indicators")
-    get = (lambda c: None) if row is None else (lambda c: row.get(c))
-
-    tiles = st.columns(4)
-    with tiles[0]:
-        metric_tile("Priority level", level_word(get("level")), "",
-                    "worst of K2, K3, K6", asof, ORIGIN_DERIVED)
-    with tiles[1]:
-        _kpi_tile("K2 no activity", get("K2"), "quarter(s)",
-                  "counted after the start: 4 active quarters or a published launch", asof, K_ORIGIN["K2"])
-    with tiles[2]:
-        _kpi_tile("K3 handover clock", get("K3"), "months",
-                  "since first announced handover date", asof, K_ORIGIN["K3"])
-    with tiles[3]:
-        if _missing(get("K6")) and get("K6_status") == "not_applicable_started":
-            metric_tile("K6 never started", "does not apply", "",
-                        "construction start was observed", asof, K_ORIGIN["K6"])
-        else:
-            _kpi_tile("K6 never started", get("K6"), "months",
-                      "since first launch/promise, no construction start", asof, K_ORIGIN["K6"])
-
-    k4 = get("K4")
-    k5, k5_status = get("K5_months"), get("K5_status")
-    k5_text = (_fmt(k5, 0) if not _missing(k5) else
-               "no published deadline" if k5_status == "no_published_deadline" else "unknown")
-    k4_text = "unknown" if _missing(k4) else ("Yes" if k4 in (True, 1, "True", "Yes") else
-                                             "No" if k4 in (False, 0, "False", "No") else str(k4))
-    context = pd.DataFrame({
-        "Indicator": ["A activity score", "K4 assessable", "K5 fine-eligible months"],
-        "Value": [_fmt(get(COL_A), 2), k4_text, k5_text],
-        "Unit": ["probability 0-1", "yes/no (≥ 6 images)", "months (screening, not a fine)"],
-        "Origin": [K_ORIGIN["A"], K_ORIGIN["K4"], K_ORIGIN["K5"]],
-    })
-    with st.container(border=True):
-        st.caption("Context: shown, but they do not set the level.")
-        st.dataframe(context, use_container_width=True, hide_index=True)
-
-
 def render_lineage(row: pd.Series | None, asof: str) -> None:
     if row is None:
         return
@@ -739,87 +590,8 @@ def render_lineage(row: pd.Series | None, asof: str) -> None:
     st.caption("🧬 Lineage · " + " · ".join(parts) + f" · as of {asof}")
 
 
-def render_curves(code: str, history: pd.DataFrame | None, ann: pd.DataFrame | None,
-                  row: pd.Series | None) -> None:
-    section_title("📈", "Satellite curves")
-    with st.container(border=True):
-        wanted = {COL_A: "Activity score A", COL_DW: "Dynamic World built probability"}
-        if history is None or history.empty or not (set(wanted) & set(history.columns)):
-            st.info(f"Waiting for the A / Dynamic World series of {code} in real/kpi_values.parquet.")
-            return
-
-        present = [c for c in wanted if c in history.columns]
-        order = sorted(history["quarter"].astype(str).unique())
-        long = (history[["quarter", *present]].rename(columns=wanted)
-                .melt("quarter", var_name="series", value_name="value"))
-        long["quarter"] = long["quarter"].astype(str)
-
-        x = alt.X("quarter:N", sort=order, title=None, axis=alt.Axis(labelAngle=-45))
-        lines = alt.Chart(long).mark_line(point=True).encode(
-            x=x,
-            y=alt.Y("value:Q", title="0-1", scale=alt.Scale(domain=[0, 1])),
-            color=alt.Color("series:N", title=None,
-                            scale=alt.Scale(domain=list(SERIES_COLORS),
-                                            range=list(SERIES_COLORS.values())),
-                            legend=alt.Legend(orient="bottom")),
-            tooltip=["quarter", "series", alt.Tooltip("value:Q", format=".2f")],
-        )
-        chart = lines
-        if ann is not None and not ann.empty and "published_date" in ann.columns:
-            valid_ann = ann.dropna(subset=["published_date"])
-            if not valid_ann.empty:
-                marks = pd.DataFrame({
-                    "quarter": valid_ann["published_date"].dt.to_period("Q").astype(str),
-                    "label": "Developer statement published",
-                })
-                marks = marks[marks["quarter"].isin(order)].drop_duplicates("quarter")
-                if not marks.empty:
-                    rules = alt.Chart(marks).mark_rule(color=MARKER_COLOR, strokeDash=[4, 4]).encode(
-                        x=alt.X("quarter:N", sort=order), tooltip=["quarter", "label"])
-                    chart = lines + rules
-        st.altair_chart(chart.properties(height=300), use_container_width=True)
-
-        # The same first deadline that K3 counts from (kpi_values.k3_first_deadline).
-        first = None if row is None else row.get("k3_first_deadline")
-        if not _missing(first):
-            st.markdown(f"📌 **First announced handover date:** {pd.Timestamp(first):%b %Y} "
-                        "(the date K3 counts from)")
-        else:
-            st.caption("📌 No announced handover date on file for this compound yet.")
-        st.caption(f"{ORIGIN_DERIVED} derived · gaps = quarters not assessable · "
-                   "dashed lines = quarter of a published developer statement")
-
-
 STAGE_TABLE = REPO_DIR / "data" / "experiments" / "42_r7_stage_table" / "r7_stage_table.csv"
 STAGE_WORDS = {"S0": "land or ground works", "S1": "under construction", "S2": "complete"}
-
-
-def render_stage_strip(code: str) -> None:
-    """Construction stage per year, read from the stored stage table (experiment 42)."""
-    section_title("🏗️", "Construction stage by year")
-    with st.container(border=True):
-        if not STAGE_TABLE.exists():
-            st.info("The stage table (data/experiments/42_r7_stage_table) is not in this checkout.")
-            return
-        table = enforce_no_names(_read_file(str(STAGE_TABLE)), "r7_stage_table.csv")
-        mine = table.loc[table["code"] == code, ["year", "stage", "stage_source"]].copy()
-        if mine.empty:
-            st.info(f"No stage rows for {code}.")
-            return
-        mine["meaning"] = mine["stage"].map(STAGE_WORDS)
-        chart = alt.Chart(mine).mark_rect(stroke=PALETTE["bg"], strokeWidth=2).encode(
-            x=alt.X("year:O", title=None),
-            color=alt.Color("meaning:N", title=None, legend=alt.Legend(orient="bottom"),
-                            scale=alt.Scale(domain=list(STAGE_WORDS.values()),
-                                            range=["#8A7A5C", PALETTE["accent"], "#46A758"])),
-            tooltip=["year", "stage", "meaning", "stage_source"],
-        )
-        st.altair_chart(chart.properties(height=70), use_container_width=True)
-        start = mine.loc[mine["stage"] != "S0", "year"]
-        st.caption(f"{ORIGIN_DERIVED} derived · construction first seen in "
-                   f"{int(start.min()) if not start.empty else 'no year yet'} · stages labelled by an AI "
-                   "rater from Wayback figures, without a site visit · years without a figure use the "
-                   "satellite and radar layer, which never marks a compound complete")
 
 
 def render_context_charts(code: str) -> None:
@@ -850,7 +622,7 @@ def render_context_charts(code: str) -> None:
                             opacity=alt.Opacity("kind:N", legend=alt.Legend(orient="bottom", title=None),
                                                 scale=alt.Scale(domain=["observed", "estimate (v4)"],
                                                                 range=[1.0, 0.5])),
-                            color=alt.value("#7FB2DE"),
+                            color=alt.value("#2B59C3"),
                             tooltip=[COL_YEAR, alt.Tooltip(COL_HEIGHT, format=".1f"), "kind"],
                         ).properties(height=240),
                         use_container_width=True)
@@ -870,12 +642,12 @@ def render_context_charts(code: str) -> None:
                 if v[COL_VEG].notna().sum() == 0:
                     st.info("No vegetation value for this compound.")
                 else:
-                    line = alt.Chart(v).mark_line(point=True, color="#22C55E").encode(
+                    line = alt.Chart(v).mark_line(point=True, color="#2E7D4F").encode(
                         x=alt.X(f"{COL_YEAR}:O", title=None),
                         y=alt.Y(f"{COL_VEG}:Q", title="share 0-1", scale=alt.Scale(domain=[0, 1])),
                         tooltip=[COL_YEAR, alt.Tooltip(COL_VEG, format=".2f")])
                     rule = alt.Chart(pd.DataFrame({"y": [VEG_COMPLETE_THRESHOLD]})).mark_rule(
-                        color=MARKER_COLOR, strokeDash=[4, 4]).encode(y="y:Q")
+                        color=PALETTE["muted"], strokeDash=[4, 4]).encode(y="y:Q")
                     st.altair_chart((line + rule).properties(height=240), use_container_width=True)
                 st.caption(f"{ORIGIN_DERIVED} derived · dashed line = {VEG_COMPLETE_THRESHOLD:.2f}")
 
@@ -900,48 +672,88 @@ def stage_of_year(code: str) -> dict[int, str]:
     return {int(y): STAGE_WORDS.get(stage, stage) for y, stage in zip(mine["year"], mine["stage"])}
 
 
-def render_space_timeline(code: str) -> None:
-    """The compound seen from space: one large frame chosen on a date slider, and the strip of all frames."""
-    frames = space_frames(code)
-    if not frames:
-        render_images(code)
-        return
-    section_title("🛰️", "Seen from space")
-    stages = stage_of_year(code)
-    with st.container(border=True):
-        dates = [date for date, _ in frames]
-        chosen = st.select_slider("Capture date", options=dates, value=dates[-1], key=f"frame_{code}")
-        stage = stages.get(int(chosen[:4]))
-        big, grid = st.columns([3, 2])
-        big.image(str(dict(frames)[chosen]), use_container_width=True,
-                  caption=f"{code} · captured {chosen}" + (f" · {stage}" if stage else ""))
-        with grid:
-            for start in range(0, len(frames), 2):
-                for col, (date, frame) in zip(st.columns(2), frames[start:start + 2]):
-                    label = stages.get(int(date[:4]), "")
-                    col.image(str(frame), caption=date + (f" · {label}" if label else ""),
-                              use_container_width=True)
-        st.caption("Esri World Imagery Wayback, single-capture frames with the same extent and zoom; cyan line = "
-                   "reviewed working boundary, not a legal survey. Judged by eye: the images help plan the "
-                   "visit, they are not a measurement. Stage words come from the stage table below.")
+def _clock(label: str, rule: str, value: object, unit: str, text: str | None = None) -> dict:
+    if text is None and _missing(value):
+        text = "unknown"
+    return {"label": label, "rule": rule, "unit": unit,
+            "value": None if text else int(value), "text": text}
 
 
-def render_images(code: str) -> None:
-    section_title("🛰️", "Wayback images")
-    images = load_images(code)
-    with st.container(border=True):
-        if not images:
-            st.info(f"No Wayback before/after pair for {code} in app_data/images or data/imagery/figures.")
-            return
-        cols = st.columns(2)
-        for col, kind in zip(cols, ("before", "after")):
-            with col:
-                if kind in images:
-                    path, caption = images[kind]
-                    st.image(str(path), caption=caption, use_container_width=True)
-                else:
-                    st.info(f"No '{kind}' image for {code} yet.")
-        st.caption("Judged by eye: images support the visit, they are not a measurement.")
+def _share(value: object) -> float | None:
+    return None if _missing(value) else round(float(value), 3)
+
+
+def compound_payload(code: str, row: pd.Series | None, history: pd.DataFrame | None,
+                     ann: pd.DataFrame | None, asof: str) -> dict:
+    """Screen 2 for the front end: frames to compare, the three clocks, the quarterly series, stages."""
+    get = (lambda c: None) if row is None else row.get
+    deadline = get("k3_first_deadline")
+    k6_text = "does not apply: construction start observed" if (
+        _missing(get("K6")) and get("K6_status") == "not_applicable_started") else None
+    clocks = [
+        _clock("K2 no activity", "quarters in a row, counted after the start", get("K2"), "quarters"),
+        _clock("K3 handover clock", "months since the first announced handover date", get("K3"), "months",
+               None if not _missing(deadline) else "no announced handover date"),
+        _clock("K6 never started", "months since launch or promise, no construction start", get("K6"), "months",
+               k6_text),
+    ]
+    quarters = []
+    if history is not None and not history.empty:
+        for _, h in history.iterrows():
+            quarters.append({"q": str(h["quarter"]), "a": _share(h.get(COL_A)), "dw": _share(h.get(COL_DW))})
+    seen = {q["q"] for q in quarters}
+    statements = []
+    if ann is not None and not ann.empty:
+        published = ann["published_date"].dropna().dt.to_period("Q").astype(str)
+        statements = sorted(set(published) & seen)
+    marker = None
+    if not _missing(deadline):
+        first = pd.Timestamp(deadline)
+        marker = {"q": str(first.to_period("Q")), "label": f"{first:%b %Y}"}
+
+    stages, stage_note = [], None
+    if STAGE_TABLE.exists():
+        table = enforce_no_names(_read_file(str(STAGE_TABLE)), "r7_stage_table.csv")
+        mine = table.loc[table["code"] == code].sort_values("year")
+        stages = [{"year": int(r["year"]), "stage": r["stage"], "word": STAGE_WORDS.get(r["stage"], r["stage"])}
+                  for _, r in mine.iterrows()]
+        start = mine.loc[mine["stage"] != "S0", "year"]
+        stage_note = (f"Derived · construction first seen in "
+                      f"{int(start.min()) if not start.empty else 'no year yet'} · stages labelled by an AI rater "
+                      "from Wayback figures, without a site visit · years without a figure use the satellite and "
+                      "radar layer, which never marks a compound complete")
+    reason = get("reason_ar")
+    return {
+        "screen": "compound", "code": code, "asof": asof,
+        "level": level_number(get("level")), "level_word": level_word(get("level")),
+        "reason_ar": None if _missing(reason) or not str(reason).strip() else str(reason),
+        "frames": frames_payload(code), "credit": WAYBACK_CREDIT, "clocks": clocks,
+        "quarters": quarters, "statements": statements, "deadline": marker,
+        "chart_note": "Derived · gaps = quarters that could not be assessed · the first handover date is the "
+                      "date K3 counts from",
+        "stages": stages, "stage_words": [{"stage": k, "word": v} for k, v in STAGE_WORDS.items()],
+        "stage_note": stage_note,
+        "stage_missing": "The stage table (data/experiments/42_r7_stage_table) is not in this checkout.",
+    }
+
+
+def render_context_table(row: pd.Series | None) -> None:
+    """Indicators shown for context: they never set the level."""
+    get = (lambda c: None) if row is None else row.get
+    k4 = get("K4")
+    k5, k5_status = get("K5_months"), get("K5_status")
+    k5_text = (_fmt(k5, 0) if not _missing(k5) else
+               "no published deadline" if k5_status == "no_published_deadline" else "unknown")
+    k4_text = "unknown" if _missing(k4) else ("Yes" if k4 in (True, 1, "True", "Yes") else
+                                             "No" if k4 in (False, 0, "False", "No") else str(k4))
+    context = pd.DataFrame({
+        "Indicator": ["A activity score", "K4 assessable", "K5 fine-eligible months"],
+        "Value": [_fmt(get(COL_A), 2), k4_text, k5_text],
+        "Unit": ["probability 0-1", "yes/no (≥ 6 images)", "months (screening, not a fine)"],
+        "Origin": [K_ORIGIN["A"], K_ORIGIN["K4"], K_ORIGIN["K5"]],
+    })
+    section_title("", "Context: shown, but it does not set the level")
+    st.dataframe(context, use_container_width=True, hide_index=True)
 
 
 def render_inspection_button(code: str, asof: str) -> None:
@@ -1455,7 +1267,7 @@ def render_coverage(cov: dict | None) -> None:
 
         per_q = cov["per_quarter"]
         top = int(per_q["total"].max())
-        chart = alt.Chart(per_q).mark_bar(color="#7FB2DE").encode(
+        chart = alt.Chart(per_q).mark_bar(color="#2B59C3").encode(
             x=alt.X("quarter:N", sort=list(per_q["quarter"]), title=None,
                     axis=alt.Axis(labelAngle=-45)),
             y=alt.Y("assessable:Q", title=f"assessable compounds (of {top})",
@@ -1553,24 +1365,24 @@ def render_colour_key() -> None:
 # --------------------------------------------------------------------------- #
 
 def screen_priority_map(track: Track) -> None:
-    page_header("🛰️", "Priority map", "Whom should the committee visit first?")
     latest = load_latest_kpis()
-    if latest is not None:
-        finding(cycle_headline(*latest))
+    if latest is None:
+        page_header("", "Priority map", "Whom should the committee visit first?")
+        st.info("Waiting for real/kpi_values.parquet.")
+        return
+    front.mount(priority_payload(track, latest), key="front_priority", on_open=open_compound_file)
     how_to_read([
-        ("Each block is one coded R7 compound. Colour is the priority level; height is the mean "
-        "building height seen from space."),
+        "The list is the visit order. Pick a compound to see it from space; the dates under the picture flip it from the oldest to the latest capture.",
         ("The level is the worst of three clocks: K2 quarters without building activity, K3 months "
-        "past the first announced handover date, K6 months since launch without a confirmed start."),
+         "past the first announced handover date, K6 months since launch without a confirmed start."),
         "A compound that may be complete is capped at level 3 and must be confirmed on site.",
         "The cycle list takes up to 4 compounds from levels 1-3. The rule recommends; the committee decides.",
     ])
-    render_cycle_cards(latest)
-    render_map_slot(track, latest)
-    render_cycle_list(latest)
+    with st.expander("Cycle list as a table, with the Arabic reasons"):
+        render_cycle_list(latest)
 
     if track.generated:
-        section_title("🧠", "Classifier probabilities: 'distressed' in the next 6 months")
+        section_title("", "Classifier probabilities: 'distressed' in the next 6 months")
         preds = load_table(PREDICTIONS_FILE, track, READY_DATA)
         table = latest_predictions(preds)
         if table is None:
@@ -1583,57 +1395,42 @@ def screen_priority_map(track: Track) -> None:
 
 
 def screen_compound_file(track: Track) -> None:
-    page_header("🗂️", "Compound file", "Why this one? Evidence behind the priority level.")
-    how_to_read([
-        "Pick a compound: the default is the first one on the cycle list. The Arabic sentence states why it has its level.",
-        "The tiles show the three clocks that set the level; the table below them shows context that never sets it.",
-        "The curves show building activity per quarter; dashed lines mark quarters with a published developer statement.",
-        "The two Wayback images are judged by eye: they help plan the visit, they are not a measurement.",
-        "Record the visit result at the bottom: real visit results are the ground truth this system still lacks.",
-    ])
-
     latest = load_latest_kpis()
     if latest is None:
+        page_header("", "Compound file", "Why this one? Evidence behind the priority level.")
         st.info("Waiting for real/kpi_values.parquet.")
-    else:
-        latest_df, asof = latest
-        codes = sorted(latest_df["code"].dropna().astype(str).unique())
-        levels = dict(zip(latest_df["code"], latest_df["level"]))
+        return
+    latest_df, asof = latest
+    codes = sorted(latest_df["code"].dropna().astype(str).unique())
+    levels = dict(zip(latest_df["code"], latest_df["level"]))
+    if st.session_state.get("compound_code") not in codes:
+        cycle = build_cycle_list(latest_df)
+        st.session_state["compound_code"] = cycle["code"].iloc[0] if not cycle.empty else codes[0]
 
-        default = 0
-        if "cycle_rank" in latest_df.columns:
-            ranked = latest_df.dropna(subset=["cycle_rank"]).sort_values("cycle_rank")
-            if not ranked.empty and str(ranked.iloc[0]["code"]) in codes:
-                default = codes.index(str(ranked.iloc[0]["code"]))
+    pick, _ = st.columns([1, 3])
+    code = pick.selectbox("Compound", codes, key="compound_code",
+                          format_func=lambda c: f"{c} · {level_word(levels.get(c))}")
+    now = latest_df[latest_df["code"] == code]
+    row = now.iloc[0] if not now.empty else None
+    if row is None:
+        st.warning(f"{code} has no KPI row for {asof}: shown as not assessable.")
+    front.mount(compound_payload(code, row, load_kpi_history(code), load_announcements(code, asof), asof),
+                key="front_compound")
+    how_to_read([
+        "Drag across the picture to compare two capture dates; the two lists under it choose the dates.",
+        "The three clocks set the level; the table below shows context that never sets it.",
+        "The curve shows building activity per quarter; the small marks on its top edge are quarters with a published developer statement.",
+        "The pictures are judged by eye: they help plan the visit, they are not a measurement.",
+        "Record the visit result at the bottom: real visit results are the ground truth this system still lacks.",
+    ])
+    render_context_table(row)
+    render_lineage(row, asof)
+    render_context_charts(code)
+    render_inspection_button(code, asof)
+    render_track_b_extras(code, track)
 
-        pick, _ = st.columns([1, 2])
-        code = pick.selectbox(
-            "Compound", codes, index=default, key="compound_code",
-            format_func=lambda c: f"{c} · {level_word(levels.get(c))}",
-        )
-
-        history = load_kpi_history(code)
-        now = latest_df[latest_df["code"] == code]
-        row = now.iloc[0] if not now.empty else None
-        ann = load_announcements(code, asof)
-
-        if row is None:
-            st.warning(f"{code} has no KPI row for {asof}: shown as not assessable.")
-        reason = None if row is None else row.get("reason_ar")
-        if not _missing(reason) and str(reason).strip():
-            st.markdown(f'<div class="se-rtl"><b>السبب:</b> {html.escape(str(reason))}</div>', unsafe_allow_html=True)
-
-        render_space_timeline(code)
-        render_kpi_tiles(row, asof)
-        render_lineage(row, asof)
-        render_curves(code, history, ann, row)
-        render_stage_strip(code)
-        render_context_charts(code)
-        render_inspection_button(code, asof)
-        render_track_b_extras(code, track)
-
-        section_title("📝", "Visit form")
-        render_ops_visits_form(codes, code)
+    section_title("", "Visit form")
+    render_ops_visits_form(codes, code)
 
 
 def screen_backtest(track: Track) -> None:
@@ -1782,7 +1579,7 @@ def render_whatif_moved(view: pd.DataFrame) -> None:
             return
         rows = []
         for _, r in changed.iterrows():
-            colour = "#34D399" if r["change"] == "leaves the list" else "#F87171"
+            colour = "#2E7D4F" if r["change"] == "leaves the list" else "#A8102C"
             rows.append(
                 f'<div class="se-move"><span style="color:{colour};font-weight:700">'
                 f'{html.escape(r["code"])}</span> · {html.escape(r["change"])}'
@@ -1847,9 +1644,8 @@ def render_sidebar() -> tuple[Track, str]:
     st.sidebar.markdown(
         """
         <div class="se-brand">
-          <div class="se-brand-logo">🛰️</div>
-          <div><div class="se-brand-name">SpaceEye</div>
-          <div class="se-brand-sub">R7 · Observatory</div></div>
+          <div class="se-brand-name">SpaceEye</div>
+          <div class="se-brand-sub">R7 observatory · New Administrative Capital</div>
         </div>
         """,
         unsafe_allow_html=True,
