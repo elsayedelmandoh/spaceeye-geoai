@@ -13,12 +13,12 @@ Source of every task: [`01-specs.md`](01-specs.md) (section numbers in brackets,
 
 ## Current implementation marks for human review
 
-Updated on 2 November 2026 against 77 current IDs (recounted from the checkboxes). Current approved binary scope and existing review records are preserved.
+Updated on 2 November 2026 against 77 current IDs (recounted from the checkboxes; includes PRs #62 to #66). Current approved binary scope and existing review records are preserved.
 
 | State | Count | Meaning |
 | --- | ---: | --- |
-| Main task checked | 58 | Implemented, with evidence; 43 still await assigned review |
-| Main task unchecked, open/partial | 17 | Original work/decision still unresolved (includes T-EL-13, partial; T-NA-08 and T-NA-10 partial) |
+| Main task checked | 59 | Implemented, with evidence; 44 still await assigned review |
+| Main task unchecked, open/partial | 16 | Original work/decision still unresolved (includes T-EL-13, partial; T-NA-08 and T-NA-10 partial) |
 | Main task unchecked, failed/excluded | 2 | T-NA-05 and T-NA-06: screens removed by owner decision (PR #60, 2 Nov 2026) |
 | Review accepted | 15 recorded | Existing review records retained; no new reviewer acceptance inferred |
 
@@ -321,7 +321,8 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-E
 Goal: every number in the docs and slides has a source or an origin mark and matches `kpi_values`; the story is honest (backtest failed, shown with the reason).
 
 - [ ] **T-SA-01** [Must] D1 · Compass signed (use-case canvas, 8 checks); ask the instructor rubric + presentation length · `docs/requirements/05-project-compass.md` · reviewer: ahmed **Open; the compass file is a sign-off worksheet and no instructor sign-off is recorded in it.**
-- [ ] **T-SA-02** [Must] D2 · KPI cards (10 fields + 2 tags, A K2 K3 K4 K5 K6) + KPI tree + levels table (deliverable 1), schema of `kpi_reference.csv` · `configs/kpis.yaml` + `docs/deliverables/kpi-cards.md` · reviewer: ahmed **Partial; the 2 tags are `TODO` in both files, and `kpi_reference.csv` is not in the repo.**
+- [x] **T-SA-02** [Must] D2 · KPI cards (10 fields + 2 tags, A K2 K3 K4 K5 K6) + KPI tree + levels table (deliverable 1), schema of `kpi_reference.csv` · `configs/kpis.yaml` + `docs/deliverables/kpi-cards.md` · reviewer: ahmed **Implemented; review pending.** The two tags are the "Leading/lagging" and "International axis" rows of the KPI card table in `01-specs.md`, filled per KPI in `configs/kpis.yaml` and `kpi-cards.md` (PR #64). Reviewer to confirm: `kpi_reference.csv` is not in the repo.
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [ ] **T-SA-03** [Must] D3 · Value in EGP, 3 settings, no double counting (§12 formula) · `configs/cost_assumptions.yaml` + "Under these assumptions, from X to Y million EGP per year" · reviewer: elsayed **Partial; operating cost, missed cases and late-detection cost are PLACEHOLDER values in `configs/cost_assumptions.yaml`, and the reviewer's values are needed.**
 - [x] **T-SA-04** [Must] D3 · Governance cards for the real and generated tables (owner, origin, refresh, who sees what) · `docs/deliverables/governance-cards.md` · reviewer: elsayed **Implemented; review pending.**
   - Evidence: [implementation/output](../deliverables/governance-cards.md).
@@ -329,11 +330,11 @@ Goal: every number in the docs and slides has a source or an origin mark and mat
 - [x] **T-SA-05** [Must] D4 · Decision memo, one page Arabic + one page English, same facts and order (deliverable 8) · `docs/deliverables/decision-memo.md` · reviewer: verina **Implemented; review pending.**
   - Evidence: [decision memo](../deliverables/decision-memo.md) has an English and an Arabic section, each citing its source files. Page length and the same-order check were not verified.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [ ] **T-SA-06** [Must] D4 · Slides 1-11 (§12): backtest slide is the only place real names may appear; slide 8 always quotes the denominator, the baseline, the scope and "generated data" · `docs/deliverables/01-presentation.md` + deck · reviewer: all **Partial; slide text 1-11 (plus an extra slide 8b) is in `docs/deliverables/01-presentation.md`, slide 8 has the denominator, baseline, scope and label, and no real names appear; no deck file is in the repo. Two bracketed notes remain on `main` (slide 6, the run command; slide 8b, the what-if screen). The slide text was changed on `main` after the HTML was built, so the HTML must be rebuilt before it is used.**
+- [ ] **T-SA-06** [Must] D4 · Slides 1-11 (§12): backtest slide is the only place real names may appear; slide 8 always quotes the denominator, the baseline, the scope and "generated data" · `docs/deliverables/01-presentation.md` + deck · reviewer: all **Partial; the slide notes are closed in `01-presentation.md` (PR #65): the run command cites `make run` (T-AH-19), the complaints figures match `complaints_eval.csv`, and the what-if slide says "observatory". Still open: the deck HTML is not built, so there is no deck file in the repo yet.**
 - [ ] **T-SA-07** [Must] D4 · Wording audit of every doc, slide and screen against §3 allowed/forbidden table ("priority level" not "risk level", no "distressed" on a real compound, no completion %) · checklist in PR · reviewer: verina **Partial; `docs/deliverables/wording-audit.md` covers six files. The dashboard screens and the other team documents are not audited.**
 - [ ] **T-SA-08** [Must] D4 · Number audit: every number on slides and memo traced to `kpi_values`, `EW_REPORT.md` or `ai_verification_log` · reviewer: ahmed **Partial; not complete. The headline figures were checked by hand (backtest, early-warning counts, cost range, complaints scores). The slide 3 figure was rewritten to the spec wording on `main`. The rest of the roughly 50 numbers are not traced, and the lane runs timed out.**
 - [x] **T-SA-09** [Must] D5 · Expected questions sheet (§12) with one-line answers · reviewer: elsayed **Implemented; review pending.**
-  - Evidence: [expected questions](../deliverables/expected-questions.md): 14 questions, each with a one-line answer and a named source file. Caveats: one bracketed note is open ("verify in the dataset audit", for the Dynamic World and Open Buildings correlation, which I did not recheck); the EGP answer quotes the placeholder range from `configs/cost_assumptions.yaml`, so it must change when T-SA-03 gets real values.
+  - Evidence: [expected questions](../deliverables/expected-questions.md): 14 questions, each with a one-line answer and a named source file. PR #66 corrected the complaints answer to the `complaints_eval.csv` figures (keyword 0.27 / 0.37, TF-IDF 0.22 / 0.30). Caveats: one bracketed note is still open ("verify in the dataset audit", for the Dynamic World and Open Buildings r about 0.96; no source found yet); the EGP answer quotes the placeholder range from `configs/cost_assumptions.yaml`, so it must change when T-SA-03 gets real values.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [ ] **T-SA-10** [Must] D5 · Final submission checklist: 13 deliverables (§11) ready, "done when" list (§14) ticked · reviewer: all **Partial; `docs/deliverables/final-checklist.md` lists the 13 items, 12 of them with a file present. The deck (item 13) is not built, and the §14 done-when items are not met. The checklist says no run command was found for item 10, but the `Makefile` has a `run` target, so that line needs correcting.**
 - [ ] **T-SA-11** [Should] D2 · Update `docs/requirements/04-timeline.md` with today's program day and this board's D-days · reviewer: ahmed **Open; the timeline file says the program day is unconfirmed and it still reads "as of 28 October 2026".**
