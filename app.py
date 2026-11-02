@@ -17,6 +17,7 @@ import pandas as pd
 import pydeck as pdk
 import streamlit as st
 
+from src.dashboard.exports import export_csv
 from src.dashboard.ops_visits import render_ops_visits_form  # T-NA-04
 from src.pipeline.common import APP as PIPELINE_APP_DATA
 
@@ -572,13 +573,18 @@ def render_cycle_list(latest: tuple[pd.DataFrame, str] | None) -> None:
         )
         left, right = st.columns([3, 1])
         left.caption(f"{ORIGIN_DERIVED} derived · {len(export)} compound(s) · as of {asof}")
-        right.download_button(
-            "⬇️ Download CSV",
-            data=export.to_csv(index=False).encode("utf-8-sig"),
-            file_name=f"cycle_list_{asof}.csv",
-            mime="text/csv",
-            use_container_width=True,
-        )
+        try:
+            csv_data = export_csv(export, "cycle list")
+        except ValueError as exc:
+            st.error(str(exc))
+        else:
+            right.download_button(
+                "⬇️ Download CSV",
+                data=csv_data,
+                file_name=f"cycle_list_{asof}.csv",
+                mime="text/csv",
+                use_container_width=True,
+            )
 
 
 # --------------------------------------------------------------------------- #
@@ -1824,8 +1830,13 @@ def screen_what_if(track: Track) -> None:
     section_title("📋", f"All compounds in {label}")
     with st.container(border=True):
         st.dataframe(view, use_container_width=True, hide_index=True)
-        st.download_button("⬇️ Download this view (CSV)", data=view.to_csv(index=False).encode("utf-8-sig"),
-                           file_name=f"what_if_{scenario}_{label}.csv", mime="text/csv", key="whatif_download")
+        try:
+            csv_data = export_csv(view, "scenario view")
+        except ValueError as exc:
+            st.error(str(exc))
+        else:
+            st.download_button("⬇️ Download this view (CSV)", data=csv_data,
+                               file_name=f"what_if_{scenario}_{label}.csv", mime="text/csv", key="whatif_download")
     st.caption(f"{ORIGIN_GENERATED} {BANNER_TEXT}. Hypothetical interventions on generated data: they show "
                f"who would change in priority, not what will happen. Full history in ready-data/{rel}.")
 
