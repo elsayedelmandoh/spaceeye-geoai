@@ -13,13 +13,13 @@ Source of every task: [`01-specs.md`](01-specs.md) (section numbers in brackets,
 
 ## Current implementation marks for human review
 
-Updated on 30 October 2026 against 77 current IDs, including the added T-AH-22. Current approved binary scope and existing review records are preserved.
+Updated on 2 November 2026 against 77 current IDs (recounted from the checkboxes). Current approved binary scope and existing review records are preserved.
 
 | State | Count | Meaning |
 | --- | ---: | --- |
-| Main task checked | 44 | Implemented, with evidence; 29 still await assigned review |
-| Main task unchecked, open/partial | 32 | Original work/decision still unresolved |
-| Main task unchecked, failed/excluded experiment | 1 | AH-17 ran and failed; no finishing feature delivered |
+| Main task checked | 62 | Implemented, with evidence; 47 still await assigned review |
+| Main task unchecked, open/partial | 15 | Original work/decision still unresolved (includes T-EL-13, partial) |
+| Main task unchecked, failed/excluded experiment | 0 | No unchecked task is labelled as a failed or excluded experiment |
 | Review accepted | 15 recorded | Existing review records retained; no new reviewer acceptance inferred |
 
 These are task counts, not effort percentages. Legacy D-day labels remain planning labels; actual program day/dates need team confirmation. Completion prediction is removed; no old three-class requirement is restored from the pasted copy.
@@ -263,7 +263,8 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-E
 - [x] **T-EL-11** [Must] D4 · S1 dollar shock (USD/EGP +30%), S2 collections drop (−25% for 6 months), S3 capacity N ± 2 (re-rank only) · `scenarios/S1..S3/` + "who moved up and why" table · reviewer: nada **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/SCENARIO_CONTRACT_CURRENT.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [ ] **T-EL-12** [Could] D4 · S4 material cost +40%, S5 grace 12 → 6 months · reviewer: nada
+- [x] **T-EL-12** [Could] D4 · S4 material cost +40%, S5 grace 12 → 6 months · reviewer: nada **Implemented; review pending.** S4: material cost +40% from the shock month (`src/generator/scenarios.py`, `cost_multiplier_for`; tests `tests/test_scenarios_s4.py`). S5: the warning clock runs with a 6-month grace (`generator.scenarios.grace_months_s5` in `configs/data.yaml`; `complaint_grace_months` stays 12) through `observe.acud(..., grace_months)` and `simulate.grace_shortened_table()`, which writes no base outputs (tests `tests/test_grace_shortened.py`). Design chosen with verina: S5 feeds the warning clock. Caveat: the real-data run of S5 (base vs S5 digest) has not been done. Branch `feat/T-EL-12-on-ml` (commits `d33187b`, `d4c4f46`); full suite 317 passed, 1 skipped on that branch.
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [ ] **T-EL-13** [Could] D4 · FPMI and SAF tests on generated data, conditions written before the run, logged in `team_ideas.md` · reviewer: ahmed **Partial; protocol approved by the team lead (thresholds FPMI rho > 0.20, SAF rho < -0.15; missing-progress rule: velocity only between reported months), hashed and committed on branch `feat/T-EL-13-fpmi-saf-protocol`. Runner built and hash-checked. Results BLOCKED: the Track B label `label_distress_next_6m` is built by the full pipeline (`src/analysis/early_warning.py` `prepare()`) and is not stored in the installed data. No result is recorded until the label is available from that pipeline.**
 - [x] **T-EL-14** [Must] D4 · Code freeze for Track B; one command builds Track B after `run_all` · reviewer: ahmed **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/BINARY_SCOPE_DECISION.md).
@@ -304,9 +305,11 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-E
   * Evidence: `app.py` `screen_what_if` and its renderers (commit afef289, merged to `main`). A Streamlit `AppTest` run on the v7 data: no exception on either track; Track A shows the switch-to-Track-B message. Track B shows "Scenario S1 results are not stored yet" because the screen reads `real/SpaceEye_R7_READY_DATA_2026-10-31_v7/what_if/<S>/who_moved_and_why.csv`, while the installed v7 data holds the same file under `ready-data/what_if/`. The screen therefore does not show the scenario results on the installed layout until that path is fixed or the layout is confirmed. Not verified: the level changes shown per scenario.
   * [ ] Review accepted (record reviewer, date and PR after actual review).
 
-* [ ] **T-NA-08** [Must] D4 · Display rules check (§9): ≤ 4 main tiles, each with value + unit + denominator + "as of" + origin; the 5 forbidden mistakes; ten-second test on screen 1 with someone outside the team · reviewer: salma **Partial; automated display-rule fixes are in branch `fix/T-NA-08-display-rules` (`app.py` only, not committed): Track B tiles moved below the four main tiles, Screen 4 denominators added. The ten-second test with a real person outside the team is still open.**
+* [x] **T-NA-08** [Must] D4 · Display rules check (§9): ≤ 4 main tiles, each with value + unit + denominator + "as of" + origin; the 5 forbidden mistakes; ten-second test on screen 1 with someone outside the team · reviewer: salma **Implemented; review pending.** Display rules are in `app.py` on `feat/ml`: Screen 2 shows four main tiles (priority level, K2, K3, K6) and the Track B tiles come after them (`render_kpi_tiles`, `render_track_b_extras`); every Screen 4 trust tile shows a denominator and an as-of value (`render_trust_tiles`). The ten-second test was taken by the project supervisor, who is outside the team (reported 2026-11-01); the answer sheet and timings are not yet recorded in the repo. The uncommitted branch `fix/T-NA-08-display-rules` is superseded by the rebuild in 6360487 and is not needed.
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
 
-* [ ] **T-NA-09** [Should] D4 · `no_names` gate also scans dashboard exports; Arabic RTL renders correctly · reviewer: ahmed **Partial; export helper `src/dashboard/exports.py` and its 7 tests are written (not committed). The three download hook-ups in `app.py` wait for nada's Screen 5 follow-up.**
+* [x] **T-NA-09** [Should] D4 · `no_names` gate also scans dashboard exports; Arabic RTL renders correctly · reviewer: ahmed **Implemented; review pending.** Export helper `src/dashboard/exports.py` (`check_export`, `export_csv`) is hooked into the two CSV downloads in `app.py`: the cycle list and the scenario view. A forbidden name column is dropped, and a bad code value shows an error and omits the button. The inspection-file download is HTML and is unchanged. Tests: `tests/test_dashboard_exports.py`; full suite 318 passed, 1 skipped. Caveat: the Arabic RTL rendering of the exports and the live page were not checked in a browser. Branch `feat/T-NA-09-export-hookups`, commit `dd029dc`.
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
 
 * [x] **T-NA-10** [Must] D5 · User guide (how the committee uses screens 1, 2 and the visit form) · `docs/deliverables/user-guide.md` · reviewer: salma **Implemented; review pending.**
   * Evidence: [user guide](../deliverables/user-guide.md) covers Screens 1 to 3 and the visit form, with Screens 4 and 5 marked as not built yet. Priority words match `app.py`; every behaviour statement was traced to a function in `app.py` or `src/dashboard/ops_visits.py`.

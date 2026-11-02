@@ -18,6 +18,7 @@ import pydeck as pdk
 import streamlit as st
 
 from src.dashboard import insights
+from src.dashboard.exports import export_csv
 from src.dashboard.ops_visits import load_visits, render_ops_visits_form  # T-NA-04
 from src.pipeline.common import APP as PIPELINE_APP_DATA
 
@@ -566,12 +567,17 @@ def render_visit_list(latest: tuple[pd.DataFrame, str] | None, track: Track) -> 
                                data=path.read_bytes(), file_name=path.name,
                                mime="text/html", key=f"visit_file_{code}")
     export = cycle.rename(columns={"level_word": "level"})
-    buttons[-1].download_button(
-        "⬇️ Cycle list (CSV)",
-        data=export.to_csv(index=False).encode("utf-8-sig"),
-        file_name=f"cycle_list_{asof}.csv",
-        mime="text/csv",
-    )
+    try:
+        csv_data = export_csv(export, "cycle list")
+    except ValueError as exc:
+        buttons[-1].error(str(exc))
+    else:
+        buttons[-1].download_button(
+            "⬇️ Cycle list (CSV)",
+            data=csv_data,
+            file_name=f"cycle_list_{asof}.csv",
+            mime="text/csv",
+        )
 
 
 def _level_move(change: dict) -> str:
