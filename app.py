@@ -1020,6 +1020,47 @@ def screen_priority_map(track: Track) -> None:
         render_promises_ahead(promises)
 
 
+# Track B model outputs, stored in the v7 release (never refitted here).
+ML_CURRENT = "tables/current/ml_current.parquet"
+ML_DATASET = "training/ml_dataset_extended.parquet"
+MODEL_METRICS = "docs/CURRENT_MODEL_METRICS.csv"
+MODEL_METADATA = "docs/CURRENT_MODEL_METADATA.json"
+
+
+def _fmt_egp(value: object) -> str:
+    return "not stored for this quarter" if _missing(value) else f"{float(value):,.0f} EGP"
+
+
+def render_classifier(code: str, track: Track) -> None:
+    """Track B: the stored distressed / not_distressed probabilities of all four methods and K5 in EGP."""
+    section_title("🟠", f"{ORIGIN_GENERATED} Classifier probabilities and K5 in EGP (generated)")
+    probs = _safe(ML_CURRENT, load_table, ML_CURRENT, track, READY_DATA)
+    rows = None if probs is None else probs[probs["code"].astype(str) == code]
+    if rows is None or rows.empty:
+        st.info(f"No stored classifier output for {code} in ready-data/{ML_CURRENT}.")
+        return
+    quarter = str(rows["quarter"].max())
+    latest = rows[rows["quarter"].astype(str) == quarter]
+    view = pd.DataFrame({
+        "Method": latest["method"].astype(str),
+        "Split": latest["split"].astype(str),
+        "🟠 Predicted class": latest["predicted_class"].astype(str),
+        "🟠 P(distressed)": latest["p_distressed"].round(2),
+        "🟠 P(not_distressed)": latest["p_not_distressed"].round(2),
+    })
+    data = _safe(ML_DATASET, load_table, ML_DATASET, track, READY_DATA)
+    k5 = None if data is None else data[(data["code"].astype(str) == code)
+                                        & (data["quarter"].astype(str) == quarter)]
+    k5_text = "not stored" if k5 is None or k5.empty else _fmt_egp(k5.iloc[0]["K5_egp"])
+    with st.container(border=True):
+        st.caption(f"{ORIGIN_GENERATED} Generated · {BANNER_TEXT} · {code} · {quarter}")
+        st.dataframe(view, width="stretch", hide_index=True)
+        st.markdown(f"{ORIGIN_GENERATED} **K5 screening exposure:** {k5_text}")
+        st.caption("satellite = images; combined = images + numbers. The rule, not these probabilities, "
+                   "selects the cycle list. Not_distressed does not mean completed or financially healthy. "
+                   "K5 = screening months × assumed land value × assumed monthly rate; not an assessed fine.")
+
+
 def screen_compound_file(track: Track) -> None:
     page_header("🗂️", "Compound file", "Why this one? Evidence behind the priority level.")
 
@@ -1064,6 +1105,7 @@ def screen_compound_file(track: Track) -> None:
         render_images(code)
         render_claims(code, ann, asof)
         if track.generated:
+            render_classifier(code, track)
             render_inspection_button(code, asof)
 
         section_title("📝", "Visit form")
@@ -1285,6 +1327,33 @@ def screen_district(track: Track) -> None:
     if compounds is not None:
         render_developer_groups(compounds, latest_df)
     render_district_levels()
+    if track.generated:
+        render_model_metrics(track)
+
+
+def _read_json(path: Path) -> dict | None:
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+
+
+def render_model_metrics(track: Track) -> None:
+    """Track B: stored frozen-protocol metrics per method, the stored random baseline, B1-B5 status."""
+    section_title("🟠", f"{ORIGIN_GENERATED} Classifier evaluation, frozen protocol (generated)")
+    metrics = _safe(MODEL_METRICS, load_table, MODEL_METRICS, track, READY_DATA)
+    if metrics is None or metrics.empty:
+        st.info(f"Waiting for ready-data/{MODEL_METRICS}. Run python -m src.pipeline.setup_review.")
+        return
+    meta = _safe(MODEL_METADATA, _read_json, READY_DATA / MODEL_METADATA) or {}
+    test = meta.get("test_classes", {})
+    holdout = meta.get("developer_holdout", {}).get("status", "not stored")
+    with st.container(border=True):
+        st.caption(f"{ORIGIN_GENERATED} Generated · {BANNER_TEXT} · time test: "
+                   f"{meta.get('test_rows', 'not stored')} rows, {test.get('distressed', 'not stored')} distressed")
+        st.dataframe(insights.model_metrics_table(metrics, meta.get("random_at_4")),
+                     width="stretch", hide_index=True)
+        st.caption("satellite = images; combined = images + numbers; *_rule = the priority rule's top 4. "
+                   f"Developer hold-out has no distressed rows (stored status {holdout}) and is not shown. "
+                   "Frozen-protocol models only.")
+        st.markdown(f"{ORIGIN_GENERATED} **B1-B5 per compound:** not stored in the v7 release.")
 
 
 # --------------------------------------------------------------------------- #

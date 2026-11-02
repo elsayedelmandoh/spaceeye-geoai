@@ -355,3 +355,37 @@ def level_counts(view: pd.DataFrame) -> pd.DataFrame:
     both = pd.concat([pd.DataFrame({"case": case, "level": view[column]})
                       for case, column in ((BASELINE_LABEL, "baseline_level"), ("Scenario", "level"))])
     return both.groupby(["case", "level"], dropna=False).size().rename("compounds").reset_index()
+
+
+METRIC_COLUMNS = {  # stored metric/class -> column header (generated numbers carry the orange marker)
+    ("class_recall", "distressed"): "🟠 Distressed recall",
+    ("class_recall", "not_distressed"): "🟠 Not-distressed recall",
+    ("macro_f1_binary", "all"): "🟠 Macro-F1",
+    ("distressed_recall_at_4", "distressed"): "🟠 Distressed in top 4 (recall@4)",
+}
+
+
+def _metric_cell(row: pd.Series) -> str:
+    if row["metric"] == "macro_f1_binary":
+        return f"{row['value']:.3f} ({int(row['denominator'])} rows)"
+    return f"{int(row['numerator'])} of {int(row['denominator'])}"
+
+
+def model_metrics_table(metrics: pd.DataFrame, random_at_4: dict | None = None,
+                        view: str = "time_test") -> pd.DataFrame:
+    """One row per stored method for one evaluation view, each cell as stored ("n of m");
+    the stored random recall@4 baseline is appended as its own row. Nothing is recomputed."""
+    rows = metrics[metrics["view"] == view]
+    table = pd.DataFrame({"Method": pd.unique(rows["method"])}).set_index("Method")
+    for column in METRIC_COLUMNS.values():
+        table[column] = "not stored"
+    for _, row in rows.iterrows():
+        column = METRIC_COLUMNS.get((row["metric"], row["class"]))
+        if column:
+            table.loc[row["method"], column] = _metric_cell(row)
+    if random_at_4:
+        random_row = dict.fromkeys(METRIC_COLUMNS.values(), "not stored")
+        random_row["🟠 Distressed in top 4 (recall@4)"] = (
+            f"{random_at_4['mean']:.3f} (mean of {int(random_at_4['draws']):,} random draws)")
+        table.loc["random"] = random_row
+    return table.reset_index()
