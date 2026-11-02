@@ -1,104 +1,170 @@
 # Committee user guide (T-NA-10)
 
-## Before you start
+This guide describes the four sidebar screens of the dashboard, the visit list on screen 1 and the visit form on screen 2. Each section lists what the screen renders, using the labels in the code. Each section ends with an implementation note that names the functions it traces to.
+
+The browser was not run for this guide. Every statement was checked against the code, not by opening the page.
 
 The dashboard reads stored files. It does not run the data build or fit a model live.
 
-Use Track A for committee review. It is the default track. It shows real public observations and values derived from them.
+Use project codes such as `C07` or `D03`. Do not write a compound or developer name in a note or a visit entry.
 
-Use project codes, such as `C07` or `D03`. Do not use a compound name or a developer name.
+*Implementation note:* `load_table`, `enforce_no_names`, `CODE_PATTERN` (app.py).
 
 ## Track switch and origin marks
 
-The track switch is in the sidebar.
+The track switch is the **Track** box in the sidebar. The two options are `Track A: images` (the default) and `Track B: images + numbers (generated)`. The help text reads "Track A: public/derived data. Track B: adds generated ACUD-style data."
 
-- **Track A** uses stored real public data and derived values. It is the default.
-- **Track B** adds generated numbers. It shows the orange banner `Synthetic - for training only`. The priority map is hidden in this track. Track B is for training only.
+- **Track A** shows stored real observations and values derived from them. Stored generated tables are refused in this track.
+- **Track B** shows the orange banner `Synthetic - for training only` on every screen. It also adds the generated items marked below. The sidebar caption reads "Generated numbers tagged · map hidden".
 
-The dashboard uses these origin marks:
+The sidebar pill in Track A reads `🟢 REAL · 🔵 DERIVED`. In Track B it reads `🟠 GENERATED`.
 
-- 🟢 **Real**: published as observed.
-- 🔵 **Derived**: calculated from real data.
-- 🟠 **Generated**: made for training.
+Origin marks used on the screens:
 
-Generated numbers carry the orange generated mark. Generated table headings also carry the mark. Do not treat generated numbers as observations.
+- 🟢 **Real**: named in the Track A sidebar pill.
+- 🔵 **Derived**: on the metric tiles, the priority map caption and the satellite curves caption.
+- 🟠 **Generated**: on the inspection file buttons, on the scenario and progress captions in screen 4, and on the Track B sidebar pill.
 
-## Priority levels
+The district view does not use the track switch. The visit list changes only by the Track B inspection file buttons described in screen 1.
 
-The dashboard shows these priority levels and words:
+*Implementation note:* `TRACKS`, `TRACK_A`, `TRACK_B`, `render_sidebar`, `render_banner`, `load_table`, `ORIGIN_REAL`, `ORIGIN_DERIVED`, `ORIGIN_GENERATED`, `metric_tile`.
 
-| Priority level | Dashboard word |
+## Priority words
+
+The stored level is shown with one of these words, from `level_word`.
+
+| Level | Word on screen |
 | --- | --- |
 | 1 | Inspect now |
 | 2 | Inspect this cycle |
 | 3 | Document review |
 | 4 | Routine |
-| Grey | Not assessable |
+| not assessable | Not assessable (grey) |
 
-These are visit priorities. They are not findings about a project. Grey means `Not assessable`; it is not an extra priority level.
+The stored rule selects the visit list, using `cycle_rank`. The suggested action on the cards, the visit list and the compound header is a proposal, and the committee decides. The table lists the suggested actions in the order the code checks them.
+
+| Suggested action | When it is shown |
+| --- | --- |
+| No action | Level not assessable this quarter. |
+| Fine review | Level 1 or 2, and K5 is at least 12 fine-eligible months. |
+| Confirm handover on site | Level 3 and the compound may be complete. |
+| Monitor | Level 4 and the compound may be complete. |
+| Written warning | K3 is at least 12 months past the first announced date, or K2 is at least 4 quarters without activity. |
+| Monitor | Level 4 (routine). |
+| Document review | Level 3. |
+| Visit this cycle | Level 2. |
+| Visit now | Level 1. |
+
+The 12-month and 4-quarter thresholds are named proposals in the code. Each suggested action shows its threshold next to its reason.
+
+*Implementation note:* `LEVELS`, `NOT_ASSESSABLE`, `level_word`, `build_cycle_list`, `insights.suggested_action`, `insights.WARNING_K3_MONTHS`, `insights.WARNING_K2_QUARTERS`, `insights.FINE_REVIEW_K5_MONTHS`.
 
 ## Screen 1: Priority map
 
-Open **1 · Priority map** in the sidebar. The headline names the compounds to visit this cycle and why the first one comes first.
+Open **1 · Priority map**. The subtitle reads "Whom should the committee visit first?". The screen shows these parts, in this order. If the KPI file is missing, the screen shows "Waiting for real/kpi_values.parquet." under the visit list heading.
 
-The screen shows, from top to bottom:
+1. **Headline.** One sentence, shown when the KPI file loads. It names the compounds on the visit list for this cycle, the count of compounds, the first compound and the reason for it. If compounds at levels 1 to 3 are waiting for the next cycle, it adds how many. If the list is empty, it says that no compound needs a visit this cycle.
+2. **Summary tiles.** Four tiles, each with the derived mark and an "as of" caption:
+   - **To visit this cycle**: the number of compounds on the list, with the caption "of N".
+   - **At level 1**: the number of compounds at level 1, with the caption "inspect now".
+   - **Fine-eligible months**: the total of K5 over compounds with a value above zero, with the caption "in K compounds · the contract decides the fine".
+   - **Promised dates ahead**: the number of confirmed promised dates not yet passed, with the caption "in K compounds".
+3. **This cycle's visits.** One card per compound on the list. Each card shows the rank and code, the level word as a coloured pill and the short stored reason. If a Wayback capture exists, the card shows the latest capture and the caption "Wayback capture" with its date.
+4. **Priority map** (Track A only). A block map of the coded compounds, coloured by level word. The legend gives the count for each word, including Not assessable. Block height is the mean building height in the latest year to 2024, drawn 10 times taller. A compound with no height on file is drawn flat, and its tooltip reads "no height on file". The caption reads "colour = priority level, grey = not assessable" and "right-drag to tilt or turn". In Track B the heading and the map are not drawn.
+5. **Visit list.** The caption "Suggested actions are proposals; the committee decides." is followed by a table with the columns Rank, Compound, Level, Suggested action and Why, in visit order. A button labelled "⬇️ Cycle list (CSV)" saves the list as `cycle_list_<quarter>.csv`. In Track B, each compound with a stored inspection file also gets a button labelled "🟠 CODE inspection file (includes generated figures)". If the CSV check fails, the screen shows the error in place of the button.
+6. **Changes since the previous quarter.** The heading reads "Changes since <quarter>". Two boxes, "Joined the list" and "Left the list", each show "No change." or one line per compound: the code, the move in the form "level 2 to 1" (or "none"), and the stored reason. This part appears only when a previous quarter exists in the KPI file.
+7. **Promised dates ahead.** The heading reads "Promised dates ahead". The table has the columns Compound, Promise, Said in and Due by, sorted by due date. The caption reads "A visit before these dates can check the developer's own promise." If none is ahead, the screen says "No promised date is still ahead."
 
-- **Summary tiles**: compounds to visit this cycle, compounds at level 1, fine-eligible months and in how many compounds, and promised handover dates still ahead.
-- **This cycle's visits**: one card per compound with its latest Wayback capture, level and reason.
-- **Priority map**: every coded compound coloured by level; block height is the mean building height. Right-drag to tilt or turn. The map is hidden in Track B.
-- **Visit list**: rank, code, level, a suggested action and the reason. Download it as a CSV.
-- **Changes since the previous quarter**: compounds that joined or left the visit list, with their level before and now.
-- **Promised dates ahead**: the developers' confirmed promised dates that have not passed yet, soonest first.
-
-The stored rule selects the visit list (`cycle_rank`). Suggested actions (monitor, document review, visit, written warning, fine review, confirm handover on site) are proposals built from the stored levels and clocks with named thresholds; the committee decides.
-
-> Read aloud: "These are the compounds the rule puts first this cycle, and the action we suggest for each. The committee decides."
+*Implementation note:* `screen_priority_map`, `cycle_headline`, `render_summary_tiles`, `render_cycle_cards`, `render_map_slot`, `render_visit_list`, `visit_table`, `render_changes`, `_level_move`, `render_promises_ahead`, `load_promises_ahead`, `insights.upcoming_promises`, `export_csv`.
 
 ## Screen 2: Compound file
 
-Open **2 · Compound file** and choose a code. The first compound on the visit list is selected by default.
+Open **2 · Compound file**. The subtitle reads "Why this one? Evidence behind the priority level." The **Compound** box lists each code with its level word, for example "C07 · Inspect now". The first compound on the visit list is selected by default. If a compound has no KPI row for the quarter, the screen shows "CODE has no KPI row for <quarter>: shown as not assessable."
 
-The screen shows:
+The screen shows these parts, in this order.
 
-- the level, the suggested action and the last recorded visit;
-- the reason for the level and the K2, K3, K6 and K5 tiles. K5 is a count of fine-eligible months; the contract decides any fine. When a handover date has passed but the compound may be complete, K3 says "date passed, may be handed over: confirm on site" instead of 0;
-- the level history since 2019 and the satellite activity curves;
-- the construction stage by year;
-- the Wayback timeline: pick a capture date to see it large, or compare two dates side by side;
-- the developer's published claims (progress and promised dates) beside the nearest capture and the construction stage in the promised year;
-- the visit form.
+1. **Header.** A line in the form "Level N · word. Suggested action: X. <reason>. Last recorded visit: <date> (<result>)." If no visit is recorded, it says "no visit recorded yet". The caption reads "The action is a suggestion; the committee decides." Below it, "Why:" is followed by the stored reason.
+2. **Indicators.** Five tiles, each with the derived mark:
+   - **Priority level**: the level word, with the caption "worst of K2, K3, K6".
+   - **K2 no activity**: the number of quarters, with the caption "counted after the start: 4 active quarters or a published launch".
+   - **K3 handover clock**: the number of months, with the caption "since first announced handover date". If there is no announced date, the tile reads "no announced handover date". If the date has passed and the compound may be complete, the tile reads "date passed, may be handed over: confirm on site".
+   - **K6 never started**: the number of months, with the caption "since first launch/promise, no construction start". If a construction start was observed, the tile reads "does not apply".
+   - **K5 fine-eligible months**: the number of months, with the caption "the contract decides the fine". If there is no published deadline, the tile reads "no published deadline".
 
-### Inspection file
+   A missing value is shown as "unknown".
+3. **Level history.** A band of the level word for each quarter, with a legend.
+4. **Satellite curves.** A line chart of "Activity score A" and "Dynamic World built probability" for each quarter, on a 0 to 1 axis. Dashed markers show the quarter of a published developer statement, labelled "Developer statement published". Below the chart, the screen shows either "📌 First announced handover date: <month year> (the date K3 counts from)" or "📌 No announced handover date on file for this compound yet.". The caption reads "🔵 derived · gaps = quarters not assessable". If the series are missing, the screen says "Waiting for the A / Dynamic World series of CODE in real/kpi_values.parquet."
+5. **Construction stage by year.** A strip for each year with the stage word: "land or ground works", "under construction" or "complete". The caption reads "Construction first seen in <year>." If the stage table is not in the checkout, the screen says "The stage table (data/experiments/42_r7_stage_table) is not in this checkout."
+6. **Wayback timeline.** A slider labelled **Capture date** shows one capture large, with the metrics **Captured** and "Stage in <year>" and the caption "N of M captures". Below it, **Compare two captures** offers two selectors, "Compare: from" and "Compare: to", each showing a capture with its date and stage. A capture with no stage shows "stage not on file". If there is no timeline, the screen says "No Wayback timeline for CODE in data/imagery/figures/timeline."
+7. **Developer claims vs what space showed.** A table with the columns Published, Claim, Promised year and Nearest capture. Each row pairs a confirmed developer claim with the nearest capture within a year, or "none within a year". If none is confirmed, the screen says "No confirmed developer claim for CODE."
+8. **Inspection file** (Track B only). The button "📄 Inspection file (Arabic)" is disabled when no file is stored for the code and quarter, and the caption lists the codes that have stored files. When a file exists, the button reads "🟠 Open inspection file (Arabic HTML, includes generated figures)".
+9. **Visit form.** See the section on the visit form below.
 
-In Track B the screen offers the Arabic inspection file for this quarter (`app_data/files/<code>_<quarter>_inspection.html`). The files include generated figures (simulated complaints), so Track A does not offer them.
+*Implementation note:* `screen_compound_file`, `render_compound_header`, `render_kpi_tiles`, `render_level_history`, `render_curves`, `render_stage_strip`, `render_images`, `render_claims`, `render_inspection_button`, `insights.k3_text`, `insights.short_reason`, `last_recorded_visit`.
 
 ## Screen 3: District view
 
-Open **3 · District view**. It shows what the system adds across R7:
+Open **3 · District view**. The subtitle reads "What does the system give the committee?". The body of the screen does not use the track switch, so the view is the same in both tracks. If the KPI file is missing, the screen says "Waiting for real/kpi_values.parquet."
 
-- **An early signal**: the public late case flagged earliest after construction started (C21), what space showed then, its level at the freeze date and what happened later. It is one case, not a success rate.
-- **Flagged now, before any handover date passed**: compounds on the list whose first date has not passed.
-- **The developer said, space saw**: one compound's claims against its captures.
-- **Homes in compounds with fine-eligible months**: published unit counts only.
-- **How late R7 handovers ran**: months between the promised date and the first handover for the public cases.
-- **Fine-eligible months** by compound, **developers with several compounds**, and the **level history** of all compounds.
+The screen shows these sections, in this order.
 
-## Screen 4: Scenarios
+1. **An early signal.** The heading reads "An early signal: CODE" for one public late case, chosen as the case the stored case file flags earliest after construction started. The section shows the alert quarter, the months before its first handover date, what space saw, the level at the freeze date, what happened and any reported date, and two captures: "First capture after the alert" and "Latest". It shows one case only. If no case qualifies, the screen says "No public late case in the backtest was flagged after construction started."
+2. **Flagged now, before any handover date passed.** One line per compound on the visit list that has no announced handover date or whose K3 is zero, leaving out compounds that may be complete. Each line shows the code, the level text, the short reason and an **Open** button that opens the compound in screen 2. If none is flagged, the screen says "No compound on the visit list is flagged before a handover date."
+3. **The developer said, space saw.** The compound furthest past its first announced date among those with confirmed claims. The line reads "CODE: as of <quarter>, N months past the first announced handover date (<month year>)." The section shows the claims table and two captures, "Nearest to the last claim" and "Latest". If none exists, it says "No compound has a confirmed developer claim."
+4. **Homes in compounds with fine-eligible months.** A bar chart of published unit counts, with the axis "Homes (published unit count)" and each bar labelled with its fine-eligible months. The line reads "N homes in M compounds with fine-eligible months." The caption reads "Label = fine-eligible months of the compound." Generated unit counts are left out. If none qualifies, the screen says "No compound with a published unit count has fine-eligible months."
+5. **How late R7 promises ran.** A bar chart of months after the promised date for each public case with a delay, with a dashed median line. The line gives the number of cases, their range and the median. Cases with no value yet are listed with their outcome. The caption reads "Dashed line = median." If there is no delay on file, the screen says "No public case has a delay on file."
+6. **Fine-eligible months.** A bar chart of fine-eligible months per compound. The line gives the total and the number of compounds. The caption reads "The contract decides the fine." If none, the screen says "No compound has fine-eligible months."
+7. **Developers with several compounds.** One row per developer code with two or more compounds. Each compound is an **Open** button labelled with its code and level text, most urgent first. If none, the screen says "No developer has more than one compound."
+8. **Level history, all compounds.** A heat map with one row per compound, most urgent current level first, and one column per quarter.
 
-Open **4 · Scenarios** in Track B. Everything on it is generated and marked Synthetic - for training only. S1 raises imported costs by 30%, S2 lowers collections by 25% for six months, S3 changes the number of visits per cycle to 2 or 6. When nobody changes level or list, the screen says so in one line.
+*Implementation note:* `screen_district`, `render_early_warning`, `render_flagged_early`, `render_strongest_claim`, `render_homes_waiting`, `render_late_promises`, `render_fine_months`, `render_developer_groups`, `render_district_levels`, `insights.warning_case`, `insights.flagged_early`, `insights.strongest_claim`, `insights.homes_waiting`, `insights.late_delays`, `insights.fine_months`, `insights.developer_groups`, `insights.codes_by_current_level`.
 
-## Visit form
+## Screen 4: Digital twin what if
 
-The visit form is at the bottom of Screen 2. Pick the **Code** from the list, then enter the **Date**, the **Result** (`progressing`, `stalled`, `complete`, or `not done`) and an optional **Note**.
+Open **4 · Digital twin what if**. The subtitle reads "Who would change if costs, collections or visit capacity changed?". This screen works only in Track B. In Track A it shows the warning "Digital twin what if uses generated data. Switch to Track B in the sidebar to open it." and nothing else.
 
-The entries are saved to `app_data/ops_visits.csv` (git-ignored, local to the machine). Each save adds a row; earlier rows are kept. Saved visits are listed below the form, newest first, and the latest one shows in the compound file header. A visit entry does not change the stored priority level.
+Everything on this screen is generated, and the label "Synthetic - for training only" from the banner applies to it. Do not read these results as observed values, forecasts or validated figures. The screen does not change the stored priority levels.
 
-> Read aloud: "After the visit, I will enter the code, date, result, and note. Saving adds a new row and keeps the earlier visit entries."
+The screen shows these parts, in this order.
 
-## If something looks wrong
+1. **Progress against the baseline run.** A table with the columns Compound, Baseline progress %, S1 cost shock %, S1 change (pp), S2 collections drop % and S2 change (pp), for the latest month. The caption, marked 🟠 Generated, names the month and states that the baseline and both shocks come from one run. Below the table: "Change in percent points of progress. A shock that moves no compound to another level or visit-list place is a result, not a missing value." The shocks here move progress by about one percentage point. Do not read a larger change into this table.
+2. **Tab S1 · Cost shock.** The caption, marked 🟠 Generated, gives the scenario "Imported cost +30%." and the month. If nobody crosses a threshold, the tab says "Nobody crosses a threshold: no compound changes level or list position." Otherwise it lists each changed compound with its hypothetical baseline level, its scenario level, "joins the list" or "leaves the list" where that applies, and the stored reason. A bar chart of level counts for the baseline and the scenario appears only when something changed.
+3. **Tab S2 · Collections drop.** The same layout as S1, with the caption "Collections -25% for six months." and the same wording for no change.
+4. **Tab S3 · Capacity.** Two boxes, "2 visits instead of 4" and "6 visits instead of 4". Each lists the compounds that join or leave the list, with the stored reason. If the list does not change, the box says "The list does not change." The caption shows the quarter. A capacity change moves list selection only; no level changes.
+5. **Missing files.** A missing file shows "Waiting for ready-data/..." with the file name and the step that writes it.
 
-1. Check the track switch first. Use Track A for real-data committee review.
-2. On Screens 1 to 3, check the as-of quarter shown by the dashboard.
-3. Look for a `Waiting for ...` message. It means a needed stored file is not present.
-4. If the inspection file is missing, switch to Track B and check whether a file exists for the selected code and quarter.
-5. Ask the dashboard owner about a screen or button problem. Ask the Track A data owner about missing or stale stored data. Ask the operations owner about a visit entry that did not save. Ask the AI component owner about the AI paragraph in an inspection report.
+The baseline label in the level chart is "Hypothetical baseline (generated finance)", and the scenario label is "Scenario".
+
+*Implementation note:* `screen_what_if`, `render_progress_vs_baseline`, `render_finance_scenario`, `render_scenario_moves`, `render_scenario_levels`, `render_capacity_variant`, `insights.progress_view`, `insights.scenario_view`, `insights.level_counts`, `SCENARIO_TABS`, `SCENARIO_NOTES`, `CAPACITY_VARIANTS`.
+
+## Visit form and recorded visits
+
+The form is at the bottom of screen 2, under the heading **Visit form**. The card title is "📝 Record a visit". The caption reads "Pick the compound code. Do not write compound or developer names in the note."
+
+Fields:
+
+- **Code**: a list of the codes in the quarter, with the compound from screen 2 selected.
+- **Date**: defaults to today. A later date cannot be chosen.
+- **Result**: one of `progressing`, `stalled`, `complete` or `not done`.
+- **Note**: optional free text, with the placeholder "Optional: what was seen on site."
+
+Press **💾 Save visit** to save. A code that is not a code (for example a name) is refused with "Use a code such as C07 (codes only, no compound or developer names)." An empty code is refused with "Please enter a code before saving." A file error shows "Could not save the visit: <reason>". A saved visit shows "Visit saved for CODE (result, date)." and the form clears.
+
+Each save adds one row to the visits file in the app data folder, and earlier rows are kept. The visits file is separate from the KPI file: a saved visit does not change the stored priority level.
+
+Below the form, the card "🗒️ Recorded visits" shows three metrics, **Total visits**, **Latest visit** and **Stalled** ("N of total"), and a table of the visits, newest first, with the columns Code, Date, Result and Note. Its caption gives the path of the visits file. The card appears only when at least one visit is recorded. The latest recorded visit also appears in the screen 2 header.
+
+*Implementation note:* `render_ops_visits_form`, `_render_form_card`, `_render_visits_card`, `append_visit`, `load_visits`, `validate_code`, `normalise_code`, `RESULT_OPTIONS` (src/dashboard/ops_visits.py); `last_recorded_visit` (app.py).
+
+## If a message appears
+
+- **Waiting for real/kpi_values.parquet.** The KPI file is not in the app data folder. Screens 1 to 3 need it.
+- **Waiting for the A / Dynamic World series of CODE ...** The satellite series for that compound are not in the KPI file.
+- **Waiting for ready-data/...** A stored what-if file is missing. Screen 4 needs it.
+- **real/compound_boundaries.geojson not found yet.** The priority map cannot be drawn in Track A.
+- **Digital twin what if uses generated data. Switch to Track B ...** Screen 4 is open in Track A. Switch the track to see it.
+- **CODE has no KPI row for <quarter> ...** The compound is not in the latest quarter, so it is shown as not assessable.
+- **<label>: could not be read (<error type>).** A stored file could not be read. The rest of the screen still renders.
+- **no_names gate: ... Display stopped.** A stored table has a value in a code column that is not a code. The screen stops.
+
+*Implementation note:* `load_latest_kpis`, `render_map_slot`, `render_curves`, `screen_compound_file`, `screen_what_if`, `_safe`, `enforce_no_names`, `render_finance_scenario`.

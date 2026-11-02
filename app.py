@@ -518,7 +518,8 @@ def render_summary_tiles(latest_df: pd.DataFrame, asof: str, promises: list[dict
         metric_tile("To visit this cycle", len(cycle), "compound" if len(cycle) == 1 else "compounds", f"of {len(latest_df)}", asof, ORIGIN_DERIVED)
     with tiles[1]:
         metric_tile("At level 1", int((latest_df["level"] == 1).sum()),
-                    "compound" if int((latest_df["level"] == 1).sum()) == 1 else "compounds", "inspect now", asof,
+                    "compound" if int((latest_df["level"] == 1).sum()) == 1 else "compounds",
+                    f"of {len(latest_df)} assessed compounds", asof,
                     ORIGIN_DERIVED)
     with tiles[2]:
         metric_tile("Fine-eligible months", int(round(fined.sum())), "months",
@@ -699,7 +700,7 @@ def render_kpi_tiles(row: pd.Series | None, asof: str) -> None:
     section_title("📊", "Indicators")
     get = (lambda c: None) if row is None else (lambda c: row.get(c))
 
-    tiles = st.columns(5)
+    tiles = st.columns(4)
     with tiles[0]:
         metric_tile("Priority level", level_word(get("level")), "",
                     "worst of K2, K3, K6", asof, ORIGIN_DERIVED)
@@ -721,14 +722,11 @@ def render_kpi_tiles(row: pd.Series | None, asof: str) -> None:
         else:
             _kpi_tile("K6 never started", get("K6"), "months",
                       "since first launch/promise, no construction start", asof, K_ORIGIN["K6"])
-    with tiles[4]:
-        k5, k5_status = get("K5_months"), get("K5_status")
-        if _missing(k5) and k5_status == "no_published_deadline":
-            metric_tile("K5 fine-eligible months", "no published deadline", "",
-                        "the contract decides the fine", asof, K_ORIGIN["K5"])
-        else:
-            _kpi_tile("K5 fine-eligible months", k5, "months",
-                      "the contract decides the fine", asof, K_ORIGIN["K5"])
+    k5, k5_status = get("K5_months"), get("K5_status")
+    k5_text = ("no published deadline" if _missing(k5) and k5_status == "no_published_deadline"
+               else "unknown" if _missing(k5) else f"{_fmt(k5, 0)} months")
+    st.caption(f"{K_ORIGIN['K5']} Context, not a tile: K5 fine-eligible months {k5_text} · "
+               f"the contract decides the fine · as of {asof}")
 
 
 def render_curves(code: str, history: pd.DataFrame | None, ann: pd.DataFrame | None,
@@ -824,8 +822,14 @@ def render_frame(frame: dict, stages: dict[int, str], caption: str = "") -> None
 def render_frame_compare(code: str, frames: list[dict], stages: dict[int, str]) -> None:
     dates = [f["date"] for f in frames]
     pickers = st.columns(2)
-    chosen = [pickers[0].selectbox("Compare: from", dates, index=0, key=f"cmp_from_{code}"),
-              pickers[1].selectbox("Compare: to", dates, index=len(dates) - 1, key=f"cmp_to_{code}")]
+    start = pickers[0].selectbox("Compare: from", dates, index=0, key=f"cmp_from_{code}")
+    season = insights.season_of(start)
+    same = [d for d in dates if d != start and insights.season_of(d) == season]
+    if not same:
+        st.info(f"No other {season} capture exists to compare with {start}; captures are compared within a season.")
+        return
+    chosen = [start, pickers[1].selectbox(f"Compare: to ({season} only)", same, index=len(same) - 1,
+                                          key=f"cmp_to_{code}")]
     for column, date in zip(st.columns(2), chosen):
         with column:
             render_frame(frames[dates.index(date)], stages)
@@ -845,8 +849,9 @@ def render_images(code: str) -> None:
         with big:
             st.image(str(shown["path"]), width="stretch")
         with side:
-            st.metric("Captured", date)
-            st.metric(f"Stage in {date[:4]}", frame_stage(shown, stages))
+            metric_tile("Captured", date, "", f"capture {dates.index(date) + 1} of {len(frames)}", date, ORIGIN_REAL)
+            metric_tile(f"Stage in {date[:4]}", frame_stage(shown, stages), "",
+                        "stage table, see the stage strip", date, ORIGIN_DERIVED)
             st.caption(f"{dates.index(date) + 1} of {len(frames)} captures")
         st.markdown("**Compare two captures**")
         render_frame_compare(code, frames, stages)
@@ -1021,6 +1026,47 @@ def screen_priority_map(track: Track) -> None:
         render_promises_ahead(promises)
 
 
+# Track B model outputs, stored in the v7 release (never refitted here).
+ML_CURRENT = "tables/current/ml_current.parquet"
+ML_DATASET = "training/ml_dataset_extended.parquet"
+MODEL_METRICS = "docs/CURRENT_MODEL_METRICS.csv"
+MODEL_METADATA = "docs/CURRENT_MODEL_METADATA.json"
+
+
+def _fmt_egp(value: object) -> str:
+    return "not stored for this quarter" if _missing(value) else f"{float(value):,.0f} EGP"
+
+
+def render_classifier(code: str, track: Track) -> None:
+    """Track B: the stored distressed / not_distressed probabilities of all four methods and K5 in EGP."""
+    section_title("🟠", f"{ORIGIN_GENERATED} Classifier probabilities and K5 in EGP (generated)")
+    probs = _safe(ML_CURRENT, load_table, ML_CURRENT, track, READY_DATA)
+    rows = None if probs is None else probs[probs["code"].astype(str) == code]
+    if rows is None or rows.empty:
+        st.info(f"No stored classifier output for {code} in ready-data/{ML_CURRENT}.")
+        return
+    quarter = str(rows["quarter"].max())
+    latest = rows[rows["quarter"].astype(str) == quarter]
+    view = pd.DataFrame({
+        "Method": latest["method"].astype(str),
+        "Split": latest["split"].astype(str),
+        "🟠 Predicted class": latest["predicted_class"].astype(str),
+        "🟠 P(distressed)": latest["p_distressed"].round(2),
+        "🟠 P(not_distressed)": latest["p_not_distressed"].round(2),
+    })
+    data = _safe(ML_DATASET, load_table, ML_DATASET, track, READY_DATA)
+    k5 = None if data is None else data[(data["code"].astype(str) == code)
+                                        & (data["quarter"].astype(str) == quarter)]
+    k5_text = "not stored" if k5 is None or k5.empty else _fmt_egp(k5.iloc[0]["K5_egp"])
+    with st.container(border=True):
+        st.caption(f"{ORIGIN_GENERATED} Generated · {BANNER_TEXT} · {code} · {quarter}")
+        st.dataframe(view, width="stretch", hide_index=True)
+        st.markdown(f"{ORIGIN_GENERATED} **K5 screening exposure:** {k5_text}")
+        st.caption("satellite = images; combined = images + numbers. The rule, not these probabilities, "
+                   "selects the cycle list. Not_distressed does not mean completed or financially healthy. "
+                   "K5 = screening months × assumed land value × assumed monthly rate; not an assessed fine.")
+
+
 def screen_compound_file(track: Track) -> None:
     page_header("🗂️", "Compound file", "Why this one? Evidence behind the priority level.")
 
@@ -1065,6 +1111,7 @@ def screen_compound_file(track: Track) -> None:
         render_images(code)
         render_claims(code, ann, asof)
         if track.generated:
+            render_classifier(code, track)
             render_inspection_button(code, asof)
 
         section_title("📝", "Visit form")
@@ -1092,6 +1139,15 @@ def level_text(level: int | None) -> str:
     return NOT_ASSESSABLE[0] if level is None else f"Level {level} · {level_word(level)}"
 
 
+def render_season_pair(pair: list[dict], stages: dict[int, str], anchor_caption: str) -> None:
+    """An anchor capture beside the latest one from the same season, or a note when there is none."""
+    if not pair:
+        st.caption("No later capture from the same season, so no image pair is shown.")
+        return
+    season = insights.season_of(pair[0]["date"])
+    render_frame_row(pair, stages, [anchor_caption, f"Latest {season} capture"][-len(pair):])
+
+
 def render_frame_row(frames: list[dict], stages: dict[int, str], captions: list[str]) -> None:
     for column, frame, caption in zip(st.columns(max(len(frames), 2)), frames, captions):
         with column:
@@ -1116,7 +1172,7 @@ def render_early_warning(case: dict | None) -> None:
                         f"({level_word(case['level_at_freeze'])}).")
         reported = f", reported {case['reported']}" if case["reported"] else ""
         st.markdown(f"**What happened.** {html.escape(case['outcome'].capitalize())}{reported}.")
-        render_frame_row(pair, stages, ["First capture after the alert", "Latest"][-len(pair):])
+        render_season_pair(pair, stages, "First capture after the alert")
 
 
 def render_flagged_early(rows: list[dict]) -> None:
@@ -1160,10 +1216,10 @@ def render_strongest_claim(latest_df: pd.DataFrame, asof: str) -> None:
         finding(f"<b>{code}</b>: as of {asof}, {claim['k3']} months past the first announced handover date "
                 f"({claim['deadline']}).")
         st.dataframe(claims_table(rows), hide_index=True, width="stretch")
-        render_frame_row(pair, stages, ["Nearest to the last claim", "Latest"][-len(pair):])
+        render_season_pair(pair, stages, "Nearest to the last claim")
 
 
-def render_homes_waiting(compounds: pd.DataFrame, latest_df: pd.DataFrame) -> None:
+def render_homes_waiting(compounds: pd.DataFrame, latest_df: pd.DataFrame, asof: str) -> None:
     section_title("🏠", "Homes in compounds with fine-eligible months")
     waiting = insights.homes_waiting(compounds, latest_df)
     if not waiting["rows"]:
@@ -1181,7 +1237,8 @@ def render_homes_waiting(compounds: pd.DataFrame, latest_df: pd.DataFrame) -> No
         tooltip=["code", "units", "k5", "Level"])
     labels = base.mark_text(align="left", dx=4, color=PALETTE["text"]).encode(text="label:N")
     with st.container(border=True):
-        finding(f"<b>{waiting['homes']:,} homes</b> in {waiting['compounds']} compounds with fine-eligible months.")
+        finding(f"{ORIGIN_DERIVED} <b>{waiting['homes']:,} homes</b> in {waiting['compounds']} compounds "
+                f"with fine-eligible months, as of {asof}.")
         st.altair_chart((bars + labels).properties(height=34 * waiting["compounds"]), width="stretch")
         st.caption("Label = fine-eligible months of the compound.")
 
@@ -1211,7 +1268,7 @@ def render_late_promises(outcomes: pd.DataFrame) -> None:
         st.caption("Dashed line = median.")
 
 
-def render_fine_months(latest_df: pd.DataFrame) -> None:
+def render_fine_months(latest_df: pd.DataFrame, asof: str) -> None:
     section_title("⚖️", "Fine-eligible months")
     fines = insights.fine_months(latest_df)
     if not fines["rows"]:
@@ -1222,7 +1279,8 @@ def render_fine_months(latest_df: pd.DataFrame) -> None:
         x=alt.X("code:N", sort=list(table["code"]), title=None, axis=alt.Axis(labelAngle=0)),
         y=alt.Y("months:Q", title="Fine-eligible months"), tooltip=["code", "months"])
     with st.container(border=True):
-        finding(f"<b>{fines['total']} fine-eligible months</b> over {fines['compounds']} compounds today.")
+        finding(f"{ORIGIN_DERIVED} <b>{fines['total']} fine-eligible months</b> over {fines['compounds']} "
+                f"compounds, as of {asof}.")
         st.altair_chart(chart.properties(height=220), width="stretch")
         st.caption("The contract decides the fine.")
 
@@ -1277,13 +1335,40 @@ def screen_district(track: Track) -> None:
     render_flagged_early(insights.flagged_early(latest_df))
     render_strongest_claim(latest_df, asof)
     if compounds is not None:
-        render_homes_waiting(compounds, latest_df)
+        render_homes_waiting(compounds, latest_df, asof)
     if outcomes is not None:
         render_late_promises(outcomes)
-    render_fine_months(latest_df)
+    render_fine_months(latest_df, asof)
     if compounds is not None:
         render_developer_groups(compounds, latest_df)
     render_district_levels()
+    if track.generated:
+        render_model_metrics(track)
+
+
+def _read_json(path: Path) -> dict | None:
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+
+
+def render_model_metrics(track: Track) -> None:
+    """Track B: stored frozen-protocol metrics per method, the stored random baseline, B1-B5 status."""
+    section_title("🟠", f"{ORIGIN_GENERATED} Classifier evaluation, frozen protocol (generated)")
+    metrics = _safe(MODEL_METRICS, load_table, MODEL_METRICS, track, READY_DATA)
+    if metrics is None or metrics.empty:
+        st.info(f"Waiting for ready-data/{MODEL_METRICS}. Run python -m src.pipeline.setup_review.")
+        return
+    meta = _safe(MODEL_METADATA, _read_json, READY_DATA / MODEL_METADATA) or {}
+    test = meta.get("test_classes", {})
+    holdout = meta.get("developer_holdout", {}).get("status", "not stored")
+    with st.container(border=True):
+        st.caption(f"{ORIGIN_GENERATED} Generated · {BANNER_TEXT} · time test: "
+                   f"{meta.get('test_rows', 'not stored')} rows, {test.get('distressed', 'not stored')} distressed")
+        st.dataframe(insights.model_metrics_table(metrics, meta.get("random_at_4")),
+                     width="stretch", hide_index=True)
+        st.caption("satellite = images; combined = images + numbers; *_rule = the priority rule's top 4. "
+                   f"Developer hold-out has no distressed rows (stored status {holdout}) and is not shown. "
+                   "Frozen-protocol models only.")
+        st.markdown(f"{ORIGIN_GENERATED} **B1-B5 per compound:** not stored in the v7 release.")
 
 
 # --------------------------------------------------------------------------- #
@@ -1330,7 +1415,7 @@ def render_capacity_variant(raw: pd.DataFrame, variant: str) -> None:
                 f'{html.escape(r["code"])}</span> · {html.escape(r["change"])}'
                 f'<div class="se-move-why">{html.escape(r["reason"])}</div></div>',
                 unsafe_allow_html=True)
-        st.caption(f"{label}")
+        st.caption(f"{ORIGIN_GENERATED} Generated · {label}")
 
 
 SCENARIO_TABS = {"S1": "S1 · Cost shock", "S2": "S2 · Collections drop", "S3": "S3 · Capacity"}

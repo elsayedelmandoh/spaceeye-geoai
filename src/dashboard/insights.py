@@ -255,11 +255,29 @@ def first_frame_after(frames: list[dict], when: pd.Timestamp) -> int | None:
     return next((i for i, f in enumerate(frames) if pd.Timestamp(f["date"]) > when), None)
 
 
+def season_of(date: object) -> str:
+    """Meteorological season of a capture date: Dec-Feb winter, Mar-May spring, Jun-Aug summer, Sep-Nov autumn."""
+    return ("winter", "spring", "summer", "autumn")[pd.Timestamp(date).month % 12 // 3]
+
+
+def latest_same_season(frames: list[dict], anchor: int) -> int | None:
+    """Index of the latest capture after `frames[anchor]` in the same season, or None."""
+    when, season = pd.Timestamp(frames[anchor]["date"]), season_of(frames[anchor]["date"])
+    later = [i for i, f in enumerate(frames) if pd.Timestamp(f["date"]) > when and season_of(f["date"]) == season]
+    return max(later, key=lambda i: pd.Timestamp(frames[i]["date"]), default=None)
+
+
 def frame_pair(frames: list[dict], index: int | None) -> list[dict]:
-    """The frame at `index` and the latest one; just the latest when there is no index or they coincide."""
+    """The frame at `index` and the latest capture in its season (the spec forbids cross-season comparisons).
+
+    Just the latest frame when there is no index or the index is the latest; empty when no later capture
+    shares the anchor's season."""
     if not frames:
         return []
-    return [frames[index], frames[-1]] if index is not None and index != len(frames) - 1 else frames[-1:]
+    if index is None or index == len(frames) - 1:
+        return frames[-1:]
+    later = latest_same_season(frames, index)
+    return [] if later is None else [frames[index], frames[later]]
 
 
 def flagged_early(latest: pd.DataFrame) -> list[dict]:
@@ -341,10 +359,10 @@ def progress_view(raw: pd.DataFrame) -> tuple[pd.DataFrame, str]:
     s2 = latest[latest["scenario_id"] == "S2"].set_index("code").reindex(s1.index)
     view = pd.DataFrame({
         "Compound": s1.index.astype(str),
-        "Baseline progress %": s1["baseline_progress_pct"].round(1).to_numpy(),
-        "S1 cost shock %": s1["scenario_progress_pct"].round(1).to_numpy(),
+        "Baseline progress (% of whole project)": s1["baseline_progress_pct"].round(1).to_numpy(),
+        "S1 cost shock (% of whole project)": s1["scenario_progress_pct"].round(1).to_numpy(),
         "S1 change (pp)": s1["delta_pp"].round(2).to_numpy(),
-        "S2 collections drop %": s2["scenario_progress_pct"].round(1).to_numpy(),
+        "S2 collections drop (% of whole project)": s2["scenario_progress_pct"].round(1).to_numpy(),
         "S2 change (pp)": s2["delta_pp"].round(2).to_numpy(),
     })
     return view, month
@@ -355,3 +373,37 @@ def level_counts(view: pd.DataFrame) -> pd.DataFrame:
     both = pd.concat([pd.DataFrame({"case": case, "level": view[column]})
                       for case, column in ((BASELINE_LABEL, "baseline_level"), ("Scenario", "level"))])
     return both.groupby(["case", "level"], dropna=False).size().rename("compounds").reset_index()
+
+
+METRIC_COLUMNS = {  # stored metric/class -> column header (generated numbers carry the orange marker)
+    ("class_recall", "distressed"): "🟠 Distressed recall",
+    ("class_recall", "not_distressed"): "🟠 Not-distressed recall",
+    ("macro_f1_binary", "all"): "🟠 Macro-F1",
+    ("distressed_recall_at_4", "distressed"): "🟠 Distressed in top 4 (recall@4)",
+}
+
+
+def _metric_cell(row: pd.Series) -> str:
+    if row["metric"] == "macro_f1_binary":
+        return f"{row['value']:.3f} ({int(row['denominator'])} rows)"
+    return f"{int(row['numerator'])} of {int(row['denominator'])}"
+
+
+def model_metrics_table(metrics: pd.DataFrame, random_at_4: dict | None = None,
+                        view: str = "time_test") -> pd.DataFrame:
+    """One row per stored method for one evaluation view, each cell as stored ("n of m");
+    the stored random recall@4 baseline is appended as its own row. Nothing is recomputed."""
+    rows = metrics[metrics["view"] == view]
+    table = pd.DataFrame({"Method": pd.unique(rows["method"])}).set_index("Method")
+    for column in METRIC_COLUMNS.values():
+        table[column] = "not stored"
+    for _, row in rows.iterrows():
+        column = METRIC_COLUMNS.get((row["metric"], row["class"]))
+        if column:
+            table.loc[row["method"], column] = _metric_cell(row)
+    if random_at_4:
+        random_row = dict.fromkeys(METRIC_COLUMNS.values(), "not stored")
+        random_row["🟠 Distressed in top 4 (recall@4)"] = (
+            f"{random_at_4['mean']:.3f} (mean of {int(random_at_4['draws']):,} random draws)")
+        table.loc["random"] = random_row
+    return table.reset_index()

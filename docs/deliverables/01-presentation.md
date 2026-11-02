@@ -1,13 +1,13 @@
 # Presentation: slides 1-11
 
-Task T-SA-06. Draft text for review (the deck is built from this file). Length is still to be confirmed (spec says 12-15 min). Numbers come only from repo files and carry an origin mark: 🟢 real · 🔵 derived · 🟠 generated ("Synthetic - for training only"). Codes only, no names. The words "risk level", "distressed" (for a real compound) and any completion % are not used.
+Task T-SA-06. Draft text for review (the deck is built from this file). Length is still to be confirmed (spec says 12-15 min; `docs/requirements/01-specs.md` section 12). Numbers come only from repo files and carry an origin mark: 🟢 real · 🔵 derived · 🟠 generated ("Synthetic - for training only"). Codes only, no names. The words "risk level", "distressed" (for a real compound) and any completion % are not used.
 
 ## Slide 1. Problem in numbers
 
 - More than 400 developers and more than 500 projects.
 - Field review every 3 months.
 - About 7-8% of developers seriously late; 6 mutual terminations.
-- Source: statements by the ACUD chairman (Sep-Oct 2026). These are the chairman's statements, not our measurement.
+- Source: statements by the ACUD chairman, as recorded in `docs/requirements/01-specs.md` (section 12, slide 1). These are the chairman's statements, not our measurement.
 
 Speaker note: a committee cannot visit everything every cycle, so the question is whom to visit first.
 
@@ -19,7 +19,7 @@ Speaker note: a committee cannot visit everything every cycle, so the question i
 
 ## Slide 3. Data
 
-- 1,009 of 1,026 documented facts passed independent review; 0 invented. This is the figure stated in the spec (section 12), not a recount: the installed data has no facts register, and the dashboard's data-trust screen shows the same documented figure. [verify with the data owner]
+- 1,009 of 1,026 documented facts passed independent review; 0 invented. This is the figure stated in the spec (section 12), not a recount: the installed data has no facts register, and the dashboard's data-trust screen shows the same documented figure.
 - Origin key on every number: 🟢 real, 🔵 derived, 🟠 generated.
 - Real: satellite series, statements, laws. Generated: finance, supervisor reports, meters, complaints (only ACUD holds the real ones).
 - Source: `docs/requirements/01-specs.md` (section 12); `data/DATASET_CONTRACT.md` for the tables.
@@ -39,13 +39,13 @@ Speaker note: a committee cannot visit everything every cycle, so the question i
 - Legal references: 12 months handover grace and 24 months right to refund (Decree 2184/2022).
 - K5 (fine-eligible months) is illustrative and never sets a level.
 - Plan gap B5 (planned minus reported progress) is generated data (🟠) and appears only in Track B.
-- Source: `docs/deliverables/kpi-cards.md`, `configs/data.yaml`.
+- Source: `docs/deliverables/kpi-cards.md` (cap count), `configs/data.yaml`, `docs/requirements/01-specs.md` (level table: 24 months right to refund).
 
 ## Slide 6. Live demo (Track A)
 
 - Priority map, cycle list (capacity 4, levels 1-3), open one compound, read its reason sentence, open the inspection file, record a visit result.
 - Everything on screen in Track A is real or derived. No generated number appears on the map.
-- Dependency: the demo needs the dashboard to run from stored files. [confirm the run command with the pipeline owner before rehearsal]
+- Dependency: the demo needs the dashboard to run from stored files. Run command: `make run (team_run --full, which calls run_all)`, the one run command per board task T-AH-19.
 
 ## Slide 7. Backtest: 1 of 6 and why
 
@@ -65,21 +65,23 @@ Speaker note: a committee cannot visit everything every cycle, so the question i
   - public rule 3 of 4; combined rule 3 of 4
   - logistic, satellite features 1 of 4; logistic, combined features 2 of 4
   - boosting, satellite features 4 of 4; boosting, combined features 1 of 4
+- Caveat: the boosting 4 of 4 rests partly on the height column; the v2a run without height gives 1 of 4 (`data/EW_V2A_VS_V1.md`).
 - Baseline: random top-4 list, 2,000 draws, mean 0.335, 95% interval 0.000 to 0.750.
 - Reading: with 4 cases the methods cannot be separated, and combining ACUD-style data did not clearly help. Scores are diagnostic and do not show real-world accuracy.
-- Complaints classifier: the keyword baseline beat the trained TF-IDF logistic model on all three evaluation sets (accuracy 0.733 vs 0.300 on the 30-text check set; 0.800 vs 0.720 on the 100-text training feed; 0.683 vs 0.221 on the benchmark set). Accuracy on texts we wrote does not prove accuracy on real complaints. [confirm the number of texts in each set and their origin before quoting]
-- Source: `docs/deliverables/complaints_metrics.csv`.
+- Complaints classifier: the keyword baseline scored 0.27 accuracy on the 104-row benchmark and 0.37 on the 30-item check set; TF-IDF plus logistic scored 0.22 and 0.30, respectively. Accuracy on texts written by the team does not prove accuracy on real complaints.
+- Source: `docs/deliverables/complaints_eval.csv`, `data/EW_V2A_VS_V1.md`.
 
-## Slide 8b. The twin: one what-if scenario
+## Slide 8b. The observatory: one what-if scenario
 
-- Light compound-level twin: observed state from satellites and statements, simulated hidden state from the generator, what-if scenarios.
+- Light compound-level observatory: observed state from satellites and statements, simulated hidden state from the generator, what-if scenarios.
 - Scenarios: S1 dollar shock, S2 collections drop, S3 inspection capacity change. Demo S3 live: who enters or leaves the cycle list at 2 or 6 visits instead of 4 (45 of 744 rows change list membership: 28 at capacity 2, 17 at capacity 6; levels never change). Say plainly that S1 and S2 change nothing in the list or the levels (0 of 216 rows each).
 - Generated (🟠), orange banner on screen, no map.
-- Not a 3D or real-time twin. [confirm the what-if screen is ready; if not, drop the word "twin" and say "observatory", as the spec's fallback says]
+- Not a 3D or real-time observatory.
+- Source: `logs/review-05.md` (scenario row counts).
 
 ## Slide 9. Value in EGP (3 settings)
 
-- Visiting 4 compounds per cycle instead of all 12: 16 visits a year instead of 48.
+- Visiting 4 compounds per cycle instead of all 12: 16 visits a year instead of visiting every compound each cycle.
 - Under these assumptions, from -0.006 to 0.098 million EGP per year.
 - Every cost input is an assumption. The conservative setting is negative.
 - Cost per visit (2,000 / 3,000 / 4,000 EGP) comes from a team of 3 at published engineer pay plus assumed transport. Operating cost, missed cases and cost of a late case are placeholders.
@@ -95,11 +97,11 @@ Speaker note: a committee cannot visit everything every cycle, so the question i
 - Masking of complaint text does not prove that every real name is removed; real free text needs a further review before any provider receives it. No external AI call is enabled.
 - Law 151/2020 is referenced by the team board; its interpretation needs the data custodian's review. This is not legal advice.
 - The committee decides; every visit result is recorded to build real ground truth.
-- Source: `docs/deliverables/responsible-ai.md`.
+- Source: `docs/deliverables/responsible-ai.md`, `docs/requirements/01-specs.md` (Law 151/2020).
 
 ## Slide 11. What we ask from ACUD and next step
 
 - Message: this is what public data alone can do. Give us your data and the demo parts become real operation.
 - Data request, by impact: plot boundaries, allocated developer and land allocation date · contract fine rates and fines issued · approved schedule and contractual handover dates · quarterly supervisor reports (Law 119 art. 54) · field review records · warnings, deadlines, terminations · building permits and permitted floors · land installments and arrears · escrow balances and collections · meter requests and occupancy certificates · anonymised buyer complaints.
 - Next step: run one cycle with the list and record visit results.
-- Source: `docs/deliverables/data-request.md`.
+- Source: `docs/deliverables/data-request.md`, `docs/requirements/01-specs.md` (data request list, art. 54).
