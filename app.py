@@ -66,7 +66,7 @@ SCREENS = [
     "1 · Priority map",
     "2 · Compound file",
     "3 · District view",
-    "4 · Scenarios",
+    "4 · Digital twin what if",
 ]
 
 # --------------------------------------------------------------------------- #
@@ -1387,11 +1387,30 @@ def render_finance_scenario(scenario: str, track: Track) -> None:
             render_scenario_levels(view)
 
 
-def screen_what_if(track: Track) -> None:
-    page_header("🧪", "Scenarios", "Who would change if costs, collections or visit capacity changed?")
-    if not track.generated:
-        st.warning("Scenarios use generated data. Switch to Track B in the sidebar to open them.")
+PROGRESS_FILE = "what_if/progress_vs_baseline.csv"
+
+
+def render_progress_vs_baseline(track: Track) -> None:
+    """How far each finance shock moves progress against the baseline run (generated, same seed)."""
+    raw = _safe(PROGRESS_FILE, load_table, PROGRESS_FILE, track, READY_DATA)
+    section_title("📈", "Progress against the baseline run")
+    if raw is None or raw.empty:
+        st.info(f"Waiting for ready-data/{PROGRESS_FILE}. It is written by src/generator/twin_progress.py.")
         return
+    view, month = insights.progress_view(raw)
+    with st.container(border=True):
+        st.caption(f"{ORIGIN_GENERATED} Generated · latest month {month} · the baseline and both shocks come from one run")
+        st.dataframe(view, use_container_width=True, hide_index=True)
+        st.caption("Change in percent points of progress. A shock that moves no compound to another level "
+                   "or visit-list place is a result, not a missing value.")
+
+
+def screen_what_if(track: Track) -> None:
+    page_header("🧪", "Digital twin what if", "Who would change if costs, collections or visit capacity changed?")
+    if not track.generated:
+        st.warning("Digital twin what if uses generated data. Switch to Track B in the sidebar to open it.")
+        return
+    render_progress_vs_baseline(track)
     tabs = st.tabs(list(SCENARIO_TABS.values()))
     for tab, scenario in zip(tabs[:2], ("S1", "S2")):
         with tab:
