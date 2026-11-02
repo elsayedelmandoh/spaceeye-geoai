@@ -6,7 +6,7 @@ Task T-SA-02. Roles below are proposed operational responsibilities. No institut
 
 **Origin key:** 🟢 real · 🔵 derived · 🟠 generated (Track B only, "Synthetic - for training only").
 
-**Tags:** TODO. The specification asks for 10 fields + 2 tags per `kpi_reference.csv`, which is not in the repository. The two tags are pending reviewer confirmation.
+**Tags:** tags from the program format table in 01-specs.md; reviewer to confirm (kpi_reference.csv is not in the repo).
 
 ## Card A: Activity score
 
@@ -23,7 +23,7 @@ Task T-SA-02. Roles below are proposed operational responsibilities. No institut
 | Leading/lagging    | Leading                       |
 | International axis | Urban planning                |
 | Origin             | 🔵 derived                    |
-| Tags               | TODO                          |
+| Tags               | Leading; Urban planning       |
 
 A is the probability that the compound is building this quarter. It does not measure completion or finishing.
 
@@ -42,7 +42,7 @@ A is the probability that the compound is building this quarter. It does not mea
 | Leading/lagging    | Leading                                                           |
 | International axis | Urban planning                                                    |
 | Origin             | 🔵 derived                                                        |
-| Tags               | TODO                                                              |
+| Tags               | Leading; Urban planning                                         |
 
 K2 counts consecutive latest quarters with A below its threshold, **only after construction started**. A compound counts as started after 4 active quarters in a row, or once a launch or delivery event is published. K2 ≥ 4 gives level 1, K2 = 2-3 gives level 2, K2 = 1 gives level 3. Unknown never raises a level.
 
@@ -61,7 +61,7 @@ K2 counts consecutive latest quarters with A below its threshold, **only after c
 | Leading/lagging    | Lagging                             |
 | International axis | Housing                             |
 | Origin             | 🟢 real                             |
-| Tags               | TODO                                |
+| Tags               | Lagging; Housing                     |
 
 K3 is measured from the **first** announced handover date. Later promises never move that start date; K3 is 0 once a handover is published. It uses the nearest month (days / 30.44). K3 > 24 gives level 1, K3 = 13-24 gives level 2, K3 = 1-12 gives level 3. The developer announced the date; it is not an independent measurement.
 The data table also holds display-only assumed dates (marked "assumption", with their basis) that fill missing schedule dates. They never replace a published date and never set a level.
@@ -81,7 +81,7 @@ The data table also holds display-only assumed dates (marked "assumption", with 
 | Leading/lagging    | Guard                    |
 | International axis | Governance/data          |
 | Origin             | 🟢 real                  |
-| Tags               | TODO                     |
+| Tags               | Guard; Governance/data  |
 
 K4 needs at least 6 Dynamic World images in the quarter plus a boundary with a reviewed confidence label. No numeric confidence threshold is defined. If K4 fails, the result is **Not assessable** and no level is assigned.
 
@@ -100,7 +100,7 @@ K4 needs at least 6 Dynamic World images in the quarter plus a boundary with a r
 | Leading/lagging    | Lagging                                  |
 | International axis | Governance/data                          |
 | Origin             | 🔵 derived (months) / 🟠 generated (EGP) |
-| Tags               | TODO                                     |
+| Tags               | Lagging; Governance/data                  |
 
 K5 is illustrative policy screening, **not an assessed legal fine**. It never sets a priority level. K5 uses calendar months. Illustrative assumptions (from `configs/data.yaml`, `assumption: true`): monthly rate 1% of assumed land value, land price EGP 2,500-12,000 per m², allocation lag 6-18 months. EGP amounts exist only on generated data (Track B) and are not actual fines or verified losses.
 Compounds without a published delivery date show an empty K5 with a stated reason; a separate display-only assumed K5 (marked "assumption") may be shown beside it. It is never a real K5 value and never sets a level.
@@ -120,7 +120,7 @@ Compounds without a published delivery date show an empty K5 with a stated reaso
 | Leading/lagging    | Leading                        |
 | International axis | Urban planning                 |
 | Origin             | 🔵 derived                     |
-| Tags               | TODO                           |
+| Tags               | Leading; Urban planning        |
 
 K6 counts months without a **confirmed observed start**, measured from the first published launch or promise. It is not proof that no construction took place. If any quarter since the launch/promise is not assessable, K6 is unknown, and unknown never raises a level. K6 > 24 gives level 1, K6 = 13-24 gives level 2.
 The table also has a K6 status column: it says whether K6 has a value, does not apply because construction was observed to start, or is unknown because satellite observation was interrupted.
