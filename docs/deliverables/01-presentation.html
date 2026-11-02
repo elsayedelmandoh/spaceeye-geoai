@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Presentation: slides 1-11</title>
+<style>
+:root { --ink: #1d2330; --muted: #5a6272; --accent: #1f5f8b; --banner: #f7931e; --code-bg: #eef1f5; }
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; font: 17px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--ink); background: #e9edf2; }
+header, main { max-width: 900px; margin: 0 auto; padding: 16px; }
+header h1 { font-size: 1.5rem; margin: 8px 0; }
+header p { color: var(--muted); margin: 6px 0; }
+section { background: #fff; border-radius: 10px; padding: 20px 16px; margin: 16px 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); overflow-wrap: anywhere; }
+h2 { font-size: 1.35rem; margin: 0 0 12px; color: var(--accent); }
+ul { padding-left: 1.25rem; margin: 8px 0; }
+li { margin: 0.35rem 0; }
+p { margin: 8px 0; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em;
+  background: var(--code-bg); padding: 0 0.2em; border-radius: 3px; }
+.banner { background: var(--banner); color: #1a1a1a; font-weight: 700; padding: 8px 12px;
+  border-radius: 6px; margin: 0 0 12px; }
+.note { font-style: italic; color: var(--muted); border-left: 3px solid #c5ccd8; padding-left: 10px; }
+@media print {
+  @page { size: A4 landscape; margin: 12mm; }
+  body { background: #fff; font-size: 14pt; }
+  header, main { max-width: none; padding: 0; }
+  section { box-shadow: none; border-radius: 0; margin: 0; padding: 0 4mm;
+    min-height: 175mm; break-after: page; page-break-after: always; }
+  section:last-child { break-after: auto; page-break-after: auto; }
+  .banner { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+<header>
+<h1>Presentation: slides 1-11</h1>
+<p>Task T-SA-06. Draft text for review (the deck is built from this file). Length is still to be confirmed (spec says 12-15 min). Numbers come only from repo files and carry an origin mark: 🟢 real · 🔵 derived · 🟠 generated ("Synthetic - for training only"). Codes only, no names. The words "risk level", "distressed" (for a real compound) and any completion % are not used.</p>
+</header>
+<main>
+<section id="slide-1" aria-labelledby="slide-1-title">
+<h2 id="slide-1-title">Slide 1. Problem in numbers</h2>
+<ul>
+<li>More than 400 developers and more than 500 projects.
+</li>
+<li>Field review every 3 months.
+</li>
+<li>About 7-8% of developers seriously late; 6 mutual terminations.
+</li>
+<li>Source: statements by the ACUD chairman (Sep-Oct 2026). These are the chairman's statements, not our measurement.
+</li></ul>
+<p class="note">Speaker note: a committee cannot visit everything every cycle, so the question is whom to visit first.</p>
+</section>
+<section id="slide-2" aria-labelledby="slide-2-title">
+<h2 id="slide-2-title">Slide 2. The question and the decision</h2>
+<ul>
+<li>Question: which R7 compounds should the committee visit first next cycle, and why?
+</li>
+<li>The observatory ranks; the committee decides.
+</li>
+<li>Scope: R7 only, 12 coded compounds, reporting quarter 2026Q3, cycle capacity 4.
+</li></ul>
+</section>
+<section id="slide-3" aria-labelledby="slide-3-title">
+<h2 id="slide-3-title">Slide 3. Data</h2>
+<ul>
+<li>1,009 of 1,026 documented facts passed independent review; 0 invented. This is the figure stated in the spec (section 12), not a recount: the installed data has no facts register, and the dashboard's data-trust screen shows the same documented figure.
+</li>
+<li>Origin key on every number: 🟢 real, 🔵 derived, 🟠 generated.
+</li>
+<li>Real: satellite series, statements, laws. Generated: finance, supervisor reports, meters, complaints (only ACUD holds the real ones).
+</li>
+<li>Source: <code>docs/requirements/01-specs.md</code> (section 12); <code>data/DATASET_CONTRACT.md</code> for the tables.
+</li></ul>
+</section>
+<section id="slide-4" aria-labelledby="slide-4-title">
+<h2 id="slide-4-title">Slide 4. Seeing construction from space</h2>
+<ul>
+<li>Dynamic World gives a quarterly built probability per compound; the activity score A is the probability that the compound is building this quarter.
+</li>
+<li>Open Buildings gives yearly heights to 2023; the 2024 value is an estimate, shown as context only, never part of a priority level.
+</li>
+<li>Wayback before/after images (with capture date and attribution) are for display; Esri terms to be confirmed before use.
+</li>
+<li>A quarter is assessable only with at least 6 Dynamic World images and a boundary with a reviewed confidence label (K4).
+</li>
+<li>Limit: satellites show whether building is happening, not interior finishing. No completion % or finishing % is given.
+</li></ul>
+</section>
+<section id="slide-5" aria-labelledby="slide-5-title">
+<h2 id="slide-5-title">Slide 5. The Track A rule</h2>
+<ul>
+<li>Priority level = the worst of K2 (quarters with no activity after construction started), K3 (months since the first announced handover date) and K6 (months since the first launch or promise with no confirmed start). No weights. Then a "may be complete" cap: if a handover is announced or vegetation share is 0.10 or more, the level is at most 3 (in 2026Q3 this sets 3 of 12 levels: C03, C12 and C21).
+</li>
+<li>Level 1 inspect now; level 2 inspect this cycle; level 3 document review; level 4 routine. Follow-up states without a level: not started, start unknown, not assessable.
+</li>
+<li>Legal references: 12 months handover grace and 24 months right to refund (Decree 2184/2022).
+</li>
+<li>K5 (fine-eligible months) is illustrative and never sets a level.
+</li>
+<li>Plan gap B5 (planned minus reported progress) is generated data (🟠) and appears only in Track B.
+</li>
+<li>Source: <code>docs/deliverables/kpi-cards.md</code>, <code>configs/data.yaml</code>.
+</li></ul>
+</section>
+<section id="slide-6" aria-labelledby="slide-6-title">
+<h2 id="slide-6-title">Slide 6. Live demo (Track A)</h2>
+<ul>
+<li>Priority map, cycle list (capacity 4, levels 1-3), open one compound, read its reason sentence, open the inspection file, record a visit result.
+</li>
+<li>Everything on screen in Track A is real or derived. No generated number appears on the map.
+</li>
+<li>Dependency: the demo needs the dashboard to run from stored files. Run command: <code>make run (team_run --full, which calls run_all)</code>, the one run command per board task T-AH-19.
+</li></ul>
+</section>
+<section id="slide-7" aria-labelledby="slide-7-title">
+<h2 id="slide-7-title">Slide 7. Backtest: 1 of 6 and why</h2>
+<ul>
+<li>Six public R7 cases, checked with the clock frozen. Codes only, even on this slide.
+</li>
+<li>Early alert in 1 of 6 cases (after-start reading, case C21) and 0 of 6 (point-in-time reading).
+</li>
+<li>The criterion of 5 cases was fixed before computing and was not lowered. It was not achieved.
+</li>
+<li>The diagnosis shows imaging was sufficient in every case (at least 10 images per quarter). In the five missed cases the sites were seen as active, so the rule had no stall to detect. The rule measures stalls and passed dates, not pace against plan.
+</li>
+<li>The one hit (C21) came from a start date set by publication timing and a lag in the activity score, not from a real stall during construction, so it does not carry over to the other five.
+</li>
+<li>These counts do not prove why each delay happened.
+</li>
+<li>Source: <code>data/BACKTEST_CURRENT.md</code>, <code>data/experiments/35_backtest_diagnosis/DIAGNOSIS.md</code>.
+</li></ul>
+</section>
+<section id="slide-8" aria-labelledby="slide-8-title">
+<h2 id="slide-8-title">Slide 8. Track B: generated data (🟠 Synthetic - for training only)</h2>
+<div class="banner" role="note">Synthetic - for training only</div>
+<ul>
+<li>Scope: R7, 12 coded compounds. Target: distressed / not_distressed in the next six months. Completion prediction is outside the approved scope.
+</li>
+<li>Data: 96 training rows and 48 test rows. The test holds only 4 distressed rows, so statistical power is very low.
+</li>
+<li>Recall@4 (distressed cases among the top 4 of the list; denominator 4), on generated data:
+<ul>
+<li>public rule 3 of 4; combined rule 3 of 4
+</li>
+<li>logistic, satellite features 1 of 4; logistic, combined features 2 of 4
+</li>
+<li>boosting, satellite features 4 of 4; boosting, combined features 1 of 4
+</li></ul>
+</li>
+<li>Baseline: random top-4 list, 2,000 draws, mean 0.335, 95% interval 0.000 to 0.750.
+</li>
+<li>Reading: with 4 cases the methods cannot be separated, and combining ACUD-style data did not clearly help. Scores are diagnostic and do not show real-world accuracy.
+</li>
+<li>Complaints classifier: the keyword baseline scored 0.27 accuracy on the 104-row benchmark and 0.37 on the 30-item check set; TF-IDF plus logistic scored 0.22 and 0.30, respectively. Accuracy on texts written by the team does not prove accuracy on real complaints.
+</li>
+<li>Source: <code>docs/deliverables/complaints_eval.csv</code>.
+</li></ul>
+</section>
+<section id="slide-8b" aria-labelledby="slide-8b-title">
+<h2 id="slide-8b-title">Slide 8b. The observatory: one what-if scenario</h2>
+<div class="banner" role="note">Synthetic - for training only</div>
+<ul>
+<li>Light compound-level observatory: observed state from satellites and statements, simulated hidden state from the generator, what-if scenarios.
+</li>
+<li>Scenarios: S1 dollar shock, S2 collections drop, S3 inspection capacity change. Demo S3 live: who enters or leaves the cycle list at 2 or 6 visits instead of 4 (45 of 744 rows change list membership: 28 at capacity 2, 17 at capacity 6; levels never change). Say plainly that S1 and S2 change nothing in the list or the levels (0 of 216 rows each).
+</li>
+<li>Generated (🟠), orange banner on screen, no map.
+</li>
+<li>Not a 3D or real-time observatory.
+</li></ul>
+</section>
+<section id="slide-9" aria-labelledby="slide-9-title">
+<h2 id="slide-9-title">Slide 9. Value in EGP (3 settings)</h2>
+<ul>
+<li>Visiting 4 compounds per cycle instead of all 12: 16 visits a year instead of 48.
+</li>
+<li>Under these assumptions, from -0.006 to 0.098 million EGP per year.
+</li>
+<li>Every cost input is an assumption. The conservative setting is negative.
+</li>
+<li>Cost per visit (2,000 / 3,000 / 4,000 EGP) comes from a team of 3 at published engineer pay plus assumed transport. Operating cost, missed cases and cost of a late case are placeholders.
+</li>
+<li>Source: <code>configs/cost_assumptions.yaml</code>. Not a measured saving.
+</li></ul>
+</section>
+<section id="slide-10" aria-labelledby="slide-10-title">
+<h2 id="slide-10-title">Slide 10. Risks and responsible use</h2>
+<ul>
+<li>A priority level says whom to visit first. It is not a finding of misconduct, legal distress, contractual breach or a verified fine, and no automatic sanction follows from it.
+</li>
+<li>Missing evidence stays unknown; it is never read as a negative finding.
+</li>
+<li>K3 relies on developer statements, which are real but not independent measurements. Satellite coverage can affect projects differently.
+</li>
+<li>Generated data is never mixed with real data; Track B is marked and hidden from the map. It shows nothing about real-world accuracy or fairness.
+</li>
+<li>Small samples (6 real cases, 4 test cases): counts only, no percentages.
+</li>
+<li>Masking of complaint text does not prove that every real name is removed; real free text needs a further review before any provider receives it. No external AI call is enabled.
+</li>
+<li>Law 151/2020 is referenced by the team board; its interpretation needs the data custodian's review. This is not legal advice.
+</li>
+<li>The committee decides; every visit result is recorded to build real ground truth.
+</li>
+<li>Source: <code>docs/deliverables/responsible-ai.md</code>.
+</li></ul>
+</section>
+<section id="slide-11" aria-labelledby="slide-11-title">
+<h2 id="slide-11-title">Slide 11. What we ask from ACUD and next step</h2>
+<ul>
+<li>Message: this is what public data alone can do. Give us your data and the demo parts become real operation.
+</li>
+<li>Data request, by impact: plot boundaries, allocated developer and land allocation date · contract fine rates and fines issued · approved schedule and contractual handover dates · quarterly supervisor reports (Law 119 art. 54) · field review records · warnings, deadlines, terminations · building permits and permitted floors · land installments and arrears · escrow balances and collections · meter requests and occupancy certificates · anonymised buyer complaints.
+</li>
+<li>Next step: run one cycle with the list and record visit results.
+</li>
+<li>Source: <code>docs/deliverables/data-request.md</code>.
+</li></ul>
+</section>
+</main>
+</body>
+</html>
