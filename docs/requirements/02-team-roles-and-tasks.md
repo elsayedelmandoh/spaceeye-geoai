@@ -13,13 +13,13 @@ Source of every task: [`01-specs.md`](01-specs.md) (section numbers in brackets,
 
 ## Current implementation marks for human review
 
-Updated on 30 October 2026 against 77 current IDs, including the added T-AH-22. Current approved binary scope and existing review records are preserved.
+Updated on 2 November 2026 against 77 current IDs (recounted from the checkboxes). Current approved binary scope and existing review records are preserved.
 
 | State | Count | Meaning |
 | --- | ---: | --- |
-| Main task checked | 44 | Implemented, with evidence; 29 still await assigned review |
-| Main task unchecked, open/partial | 32 | Original work/decision still unresolved |
-| Main task unchecked, failed/excluded experiment | 1 | AH-17 ran and failed; no finishing feature delivered |
+| Main task checked | 62 | Implemented, with evidence; 47 still await assigned review |
+| Main task unchecked, open/partial | 15 | Original work/decision still unresolved (includes T-EL-13, partial) |
+| Main task unchecked, failed/excluded experiment | 0 | No unchecked task is labelled as a failed or excluded experiment |
 | Review accepted | 15 recorded | Existing review records retained; no new reviewer acceptance inferred |
 
 These are task counts, not effort percentages. Legacy D-day labels remain planning labels; actual program day/dates need team confirmation. Completion prediction is removed; no old three-class requirement is restored from the pasted copy.
