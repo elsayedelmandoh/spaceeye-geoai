@@ -341,10 +341,10 @@ def progress_view(raw: pd.DataFrame) -> tuple[pd.DataFrame, str]:
     s2 = latest[latest["scenario_id"] == "S2"].set_index("code").reindex(s1.index)
     view = pd.DataFrame({
         "Compound": s1.index.astype(str),
-        "Baseline progress %": s1["baseline_progress_pct"].round(1).to_numpy(),
-        "S1 cost shock %": s1["scenario_progress_pct"].round(1).to_numpy(),
+        "Baseline progress (% of whole project)": s1["baseline_progress_pct"].round(1).to_numpy(),
+        "S1 cost shock (% of whole project)": s1["scenario_progress_pct"].round(1).to_numpy(),
         "S1 change (pp)": s1["delta_pp"].round(2).to_numpy(),
-        "S2 collections drop %": s2["scenario_progress_pct"].round(1).to_numpy(),
+        "S2 collections drop (% of whole project)": s2["scenario_progress_pct"].round(1).to_numpy(),
         "S2 change (pp)": s2["delta_pp"].round(2).to_numpy(),
     })
     return view, month
