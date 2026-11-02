@@ -13,12 +13,12 @@ Source of every task: [`01-specs.md`](01-specs.md) (section numbers in brackets,
 
 ## Current implementation marks for human review
 
-Updated on 2 November 2026 against 80 current IDs (recounted from the checkboxes; includes PRs #62 to #66). Current approved binary scope and existing review records are preserved.
+Updated on 2 November 2026 against 87 current IDs (recounted from the checkboxes; includes PRs #62 to #66). Current approved binary scope and existing review records are preserved.
 
 | State | Count | Meaning |
 | --- | ---: | --- |
 | Main task checked | 61 | Implemented, with evidence; 46 still await assigned review |
-| Main task unchecked, open/partial | 17 | Original work/decision still unresolved (includes T-EL-13, partial; T-NA-08 and T-NA-10 partial) |
+| Main task unchecked, open/partial | 24 | Original work/decision still unresolved (includes T-EL-13, partial; T-NA-08 and T-NA-10 partial) |
 | Main task unchecked, failed/excluded | 2 | T-NA-05 and T-NA-06: screens removed by owner decision (PR #60, 2 Nov 2026) |
 | Review accepted | 15 recorded | Existing review records retained; no new reviewer acceptance inferred |
 
@@ -269,6 +269,16 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-E
 - [x] **T-EL-14** [Must] D4 · Code freeze for Track B; one command builds Track B after `run_all` · reviewer: ahmed **Implemented; review pending.**
   - Evidence: [implementation/output](../../data/BINARY_SCOPE_DECISION.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
+
+### Added 2 November 2026: dashboard, presentation, chatbot and media (owner: elsayed)
+
+- [ ] **T-EL-21** [Should] D5 · Search, filters and map click on screen 1 (T-NA-11/12/13 scope) · `app.py`, `src/dashboard/insights.py` + tests · reviewer: ahmed **Open; built on branch `feat/T-NA-11-13-search-filter-20261102` (382 tests pass); a real browser click on the map and the PR are still open.**
+- [ ] **T-EL-22** [Must] D5 · Deck rebuilt to the instructor rubric: 12 minutes, lines for as-is, transition and documentation, the committee decision as the closing slide · `docs/deliverables/01-presentation.md` + HTML · reviewer: salma **Open; built on branch `docs/deck-rubric-20261102` (12 slides, notes sum to 12:00); a timed rehearsal and the PR are still open.**
+- [ ] **T-EL-23** [Should] D5 · Compound details on map click: a sidebar panel with level, K2, K3, K6, reason, next action and the latest capture, each part opening a deeper view (compound file, signal history, images) · `app.py` + test · reviewer: ahmed **Open.**
+- [ ] **T-EL-24** [Should] D5 · Document Q&A chatbot (normal RAG with citations) answering from the project docs, the cited Egyptian laws (Decree 2184/2022, Law 119/2008 art. 54, Law 151/2020), ACUD public pages, the satellite data docs (Dynamic World, Open Buildings, Wayback) and public summaries of ISO 37120/37122 and the SLA notion behind the KPIs; answers only from retrieved passages; any model call stays behind the approval and budget guard in `configs/ai.yaml` · `src/` + corpus + tests · reviewer: ahmed **Open.**
+- [ ] **T-EL-25** [Must] D5 · PowerPoint deck built from the instructor rubric (`docs/requirements/ACUD-Rubric.md`) and the team's rubric deck (`docs/deliverables/SpaceEye_Rubric_V3.pdf`); the slide content is kept in `docs/deliverables/01-presentation.md` · `.pptx` · reviewer: salma **Open.**
+- [ ] **T-EL-26** [Could] D5 · Intro video before the ACUD discussion: 30-45 seconds, Arabic narration, no real compound or developer names, made with Higgsfield · `docs/deliverables/` · reviewer: salma **Open.**
+- [ ] **T-EL-27** [Must] D5 · Salma's tasks: record what is finished on this board and carry out the open parts that do not need a human (wording fixes from the T-SA-07 audit, the deck browser and print check for T-SA-06, the checklist and timeline follow-ups) · reviewer: salma **Open.**
 
 ---
 
