@@ -75,3 +75,14 @@ Tests on this branch: `uv run --locked --offline pytest -q` gives 302 passed, 2 
 - `src/analysis/enterprise_pipeline.py` keeps its known issues (a rolling feature without grouping by compound, `qi` used as a feature, input paths that do not exist): its results are withdrawn, and a corrected Track B model needs a new frozen protocol first (AGENTS.md).
 - The complaint rules were not re-derived from train and validation texts only; the documents state the limitation.
 - `governance-cards.md` and the live Gemini outputs were not checked against data.
+
+## Follow-up (2026-11-02)
+
+The dashboard was rebuilt on the review branch's design (PR #60). Changes to the team deliverables and open findings from that work:
+
+| # | Finding | Evidence | Change |
+| --- | --- | --- | --- |
+| 1 | The inspection files include generated figures on a real-data track | buyer complaints in each file are labelled simulated (C03 52, C07 65, C14 191, C18 116) | the dashboard offers the files on Track B only; the files are unchanged |
+| 2 | The inspection files still carry an English setup note and method wording | "Imagery files are not installed ... Install the T-AH-15 imagery snapshot"; "deterministic template, no AI model" | not changed: needs the file owner |
+| 3 | C01 and C18 share the same developer, land area and built-up area | `real/compounds.parquet`: both D14, 161,874 m2 land, 291,373 m2 BUA | not changed: needs the Track A data owner to confirm or correct |
+| 4 | The user guide described the removed screens (backtest, data trust) | `docs/deliverables/user-guide.md` | rewritten for the four screens of PR #60 |
