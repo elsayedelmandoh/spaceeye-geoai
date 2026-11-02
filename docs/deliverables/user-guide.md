@@ -37,94 +37,68 @@ The dashboard shows these priority levels and words:
 
 These are visit priorities. They are not findings about a project. Grey means `Not assessable`; it is not an extra priority level.
 
-## Screen 1: Priority map and cycle list
+## Screen 1: Priority map
 
-Open **Screen 1 · Priority map** in the sidebar.
+Open **1 · Priority map** in the sidebar. The headline names the compounds to visit this cycle and why the first one comes first.
 
-The map shows each coded project by its stored priority level. Hover over a project to see its code and priority word. The legend gives the count for each word. The caption gives the as-of quarter.
+The screen shows, from top to bottom:
 
-The cycle list is below the map. It shows the code, rank, priority level, Arabic reason, and available indicator columns. You can download the displayed list as a CSV.
+- **Summary tiles**: compounds to visit this cycle, compounds at level 1, fine-eligible months and in how many compounds, and promised handover dates still ahead.
+- **This cycle's visits**: one card per compound with its latest Wayback capture, level and reason.
+- **Priority map**: every coded compound coloured by level; block height is the mean building height. Right-drag to tilt or turn. The map is hidden in Track B.
+- **Visit list**: rank, code, level, a suggested action and the reason. Download it as a CSV.
+- **Changes since the previous quarter**: compounds that joined or left the visit list, with their level before and now.
+- **Promised dates ahead**: the developers' confirmed promised dates that have not passed yet, soonest first.
 
-The stored priority rule selects the cycle list. The dashboard reads the stored `cycle_rank`. If there is no stored rank, it selects levels 1 to 3 and orders them by level and code. A fitted probability does not select this list.
+The stored rule selects the visit list (`cycle_rank`). Suggested actions (monitor, document review, visit, written warning, fine review, confirm handover on site) are proposals built from the stored levels and clocks with named thresholds; the committee decides.
 
-In Track B, the map stays hidden. A table of generated classifier results appears below the cycle list.
+> Read aloud: "These are the compounds the rule puts first this cycle, and the action we suggest for each. The committee decides."
 
-> Read aloud: “This map shows the stored priority of each coded project, and the list below shows the projects selected by the rule for this cycle.”
+## Screen 2: Compound file
 
-## Screen 2: Compound file and inspection file
-
-Open **Screen 2 · Compound file** in the sidebar.
-
-Use the **Compound** selector to choose a code. When a stored cycle rank is available, the first ranked code is selected by default.
+Open **2 · Compound file** and choose a code. The first compound on the visit list is selected by default.
 
 The screen shows:
 
-- the Arabic reason for the priority level;
-- the priority level and the K2, K3, and K6 indicator tiles;
-- context values, lineage, satellite curves, height and vegetation charts, and Wayback images when those stored files are available;
-- the Track B generated indicators when Track B is active.
+- the level, the suggested action and the last recorded visit;
+- the reason for the level and the K2, K3, K6 and K5 tiles. K5 is a count of fine-eligible months; the contract decides any fine. When a handover date has passed but the compound may be complete, K3 says "date passed, may be handed over: confirm on site" instead of 0;
+- the level history since 2019 and the satellite activity curves;
+- the construction stage by year;
+- the Wayback timeline: pick a capture date to see it large, or compare two dates side by side;
+- the developer's published claims (progress and promised dates) beside the nearest capture and the construction stage in the promised year;
+- the visit form.
 
-The screen reads the stored priority and indicators. It does not calculate a new priority while you use it.
+### Inspection file
 
-### Inspection file button
+In Track B the screen offers the Arabic inspection file for this quarter (`app_data/files/<code>_<quarter>_inspection.html`). The files include generated figures (simulated complaints), so Track A does not offer them.
 
-The **Open inspection file** button provides the Arabic HTML report prepared for the selected code. The dashboard looks for:
+## Screen 3: District view
 
-`app_data/files/<code>_<quarter>.html`
+Open **3 · District view**. It shows what the system adds across R7:
 
-If that exact quarter file is not there, it uses the latest matching `<code>_*.html` file for that code. If no report exists, the button is disabled and says it is not ready.
+- **An early signal**: the public late case flagged earliest after construction started (C21), what space showed then, its level at the freeze date and what happened later. It is one case, not a success rate.
+- **Flagged now, before any handover date passed**: compounds on the list whose first date has not passed.
+- **The developer said, space saw**: one compound's claims against its captures.
+- **Homes in compounds with fine-eligible months**: published unit counts only.
+- **How late R7 handovers ran**: months between the promised date and the first handover for the public cases.
+- **Fine-eligible months** by compound, **developers with several compounds**, and the **level history** of all compounds.
 
-The report is local to the machine. The `app_data/` folder is git-ignored.
+## Screen 4: Scenarios
 
-The dashboard caption says the report is drafted by AI from stored facts and reviewed before committee use. Inside the report, the AI paragraph appears only when it is present. It is labelled `Drafted by AI`. If there is no AI paragraph, the report says that it was prepared by code.
-
-> Read aloud: “This file shows the stored evidence behind the priority for this code. I will open the prepared inspection report and review it with the other evidence.”
-
-## Screen 3: Would it have warned?
-
-Open **Screen 3 · Would it have warned?** in the sidebar.
-
-In Track A, this screen reads the stored real public backtest cases. It uses the frozen clock. It shows:
-
-- the stored backtest summary;
-- one row per case, including the level reached and whether it warned early;
-- the stored explanation for each case under **Why, case by case**, when present.
-
-Read the definition of `early` and the frozen cutoff shown on the screen. The screen shows counts for the stored cases. It does not rerun the backtest live.
-
-In Track B, this screen asks you to switch to Track A for the real-case backtest. It then shows generated model diagnostics and generated B1-B5 signals. These do not show real-world performance.
-
-> Read aloud: “This screen tests the stored rule against public cases using a frozen clock. It gives context, not an automatic instruction for a current project.”
+Open **4 · Scenarios** in Track B. Everything on it is generated and marked Synthetic - for training only. S1 raises imported costs by 30%, S2 lowers collections by 25% for six months, S3 changes the number of visits per cycle to 2 or 6. When nobody changes level or list, the screen says so in one line.
 
 ## Visit form
 
-The visit form is at the bottom of Screen 2. Enter:
+The visit form is at the bottom of Screen 2. Pick the **Code** from the list, then enter the **Date**, the **Result** (`progressing`, `stalled`, `complete`, or `not done`) and an optional **Note**.
 
-- **Code**: the project code, such as `C07`;
-- **Date**: the visit date;
-- **Result**: `progressing`, `stalled`, `complete`, or `not done`;
-- **Note**: an optional note about what was seen.
+The entries are saved to `app_data/ops_visits.csv` (git-ignored, local to the machine). Each save adds a row; earlier rows are kept. Saved visits are listed below the form, newest first, and the latest one shows in the compound file header. A visit entry does not change the stored priority level.
 
-The entries are saved to `app_data/ops_visits.csv`. This file is git-ignored and local to the machine.
-
-The form appends each new entry. It does not overwrite earlier entries. If the file does not exist, the form creates it with a header. Saved visits are listed below the form, newest first.
-
-A visit entry does not change the stored priority level.
-
-> Read aloud: “After the visit, I will enter the code, date, result, and note. Saving adds a new row and keeps the earlier visit entries.”
-
-## Screen 4: Data trust
-
-This screen shows how far each number can be trusted: the quality gates, data coverage and the reviewed statements.
-
-## Screen 5: What-if
-
-This screen shows generated (Track B) what-if scenarios. S1 and S2 show Track B hypothetical levels and the cycle list against the baseline. S3 shows who is on the list at 2 or 6 visits instead of 4. Everything on it is marked Synthetic - for training only.
+> Read aloud: "After the visit, I will enter the code, date, result, and note. Saving adds a new row and keeps the earlier visit entries."
 
 ## If something looks wrong
 
 1. Check the track switch first. Use Track A for real-data committee review.
-2. On Screens 1 and 2, check the as-of quarter shown by the dashboard.
+2. On Screens 1 to 3, check the as-of quarter shown by the dashboard.
 3. Look for a `Waiting for ...` message. It means a needed stored file is not present.
-4. If the inspection file is not ready, check whether a report exists for the selected code.
+4. If the inspection file is missing, switch to Track B and check whether a file exists for the selected code and quarter.
 5. Ask the dashboard owner about a screen or button problem. Ask the Track A data owner about missing or stale stored data. Ask the operations owner about a visit entry that did not save. Ask the AI component owner about the AI paragraph in an inspection report.
