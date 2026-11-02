@@ -17,9 +17,9 @@ Updated on 2 November 2026 against 77 current IDs (recounted from the checkboxes
 
 | State | Count | Meaning |
 | --- | ---: | --- |
-| Main task checked | 62 | Implemented, with evidence; 47 still await assigned review |
-| Main task unchecked, open/partial | 15 | Original work/decision still unresolved (includes T-EL-13, partial) |
-| Main task unchecked, failed/excluded experiment | 0 | No unchecked task is labelled as a failed or excluded experiment |
+| Main task checked | 58 | Implemented, with evidence; 43 still await assigned review |
+| Main task unchecked, open/partial | 17 | Original work/decision still unresolved (includes T-EL-13, partial; T-NA-08 and T-NA-10 partial) |
+| Main task unchecked, failed/excluded | 2 | T-NA-05 and T-NA-06: screens removed by owner decision (PR #60, 2 Nov 2026) |
 | Review accepted | 15 recorded | Existing review records retained; no new reviewer acceptance inferred |
 
 These are task counts, not effort percentages. Legacy D-day labels remain planning labels; actual program day/dates need team confirmation. Completion prediction is removed; no old three-class requirement is restored from the pasted copy.
@@ -43,7 +43,7 @@ These are task counts, not effort percentages. Legacy D-day labels remain planni
 | **ahmed abdelhamid** | **Track A: images → rule → cycle list** (real data)                       | R1 data pipeline + R3 GIS and satellites + R4 Track A rule and backtest | `src/pipeline/`, `configs/data.yaml`                                         |
 | **verina fouad**     | **Track B: generated ACUD data → `ml_dataset` → classifier → what-if** | R2 data and generator + R4 Track B classifier and early warning | `src/generator/`, `src/analysis/` |
 | **elsayed elmandoh** | **AI component: inspection file agent + verification log + complaints classifier** | R4 agent part | `src/inference/`, `prompts/` |
-| **nada shady**       | Dashboard (5 screens, track switch) + cycle list download + `ops_visits` form   | R5 dashboard part                                                       | `app.py`, `src/dashboard/`                                                   |
+| **nada shady**       | Dashboard (4 screens after the owner decision of 2 Nov 2026: Priority map, Compound file, District view, Digital twin what if; track switch) + cycle list download + `ops_visits` form   | R5 dashboard part                                                       | `app.py`, `src/dashboard/`                                                   |
 | **salma magdy**      | KPI cards, value in EGP, governance docs, memo, presentation, independent checks  | R5 presentation part + doc parts of R1/R2/R3                            | `docs/deliverables/`, `configs/cost_assumptions.yaml`, `configs/kpis.yaml` |
 
 ### Hand-off contracts (so nobody waits)
@@ -275,7 +275,7 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-E
 ## 7. nada: dashboard
 
 
-**Goal:** Streamlit, 5 screens, track switch on every screen, passes the ten-second test on screen 1. Everything reads stored files, no live computation (§9).
+**Goal:** Streamlit, 4 screens (owner decision, 2 Nov 2026, PR #60: Priority map, Compound file, District view, Digital twin what if), track switch on every screen, passes the ten-second test on screen 1. Everything reads stored files, no live computation (§9).
 
 * [x] **T-NA-01** [Must] D1 · App skeleton: `app.py` runs `streamlit run app.py`, track switch (Track A default / Track B), orange banner "Synthetic - for training only" fixed in Track B, 🟠 on generated numbers, map hidden in Track B · reviewer: verina **Done; review accepted.**
   * Evidence: `app.py` (App skeleton, track state management, dark CSS theme, `enforce_no_names` gate).
@@ -293,26 +293,26 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-E
   * Evidence: `src/dashboard/ops_visits.py` (`render_ops_visits_form`, appends entries safely to `app_data/ops_visits.csv`). Integrated into `app.py`.
   * Review accepted (verina).
 
-* [x] **T-NA-05** [Must] D3 · Screen 3 would it have warned: Track A frozen-clock table (1 of 6 and why); Track B per-class recall, macro-F1, recall@N vs random, B1-B5 per compound · depends: T-AH-10, T-VE-12 · reviewer: elsayed **Implemented; review pending.**
-  * Evidence: `app.py` `screen_backtest`, `render_backtest_cases` and the Track B metrics and B-signal renderers (commits 89cadfc and 3139d7a, branch `feat/ml`). A Streamlit `AppTest` run renders Track A with no exception: the six committed backtest cases from `releases/ready-data/backtest/cases.csv` and two summary metrics. Track B renders with no exception; its metrics come from `app_data/ml/metrics.csv`, which was not compared with the source. The B1-B5 per-compound part was not checked on data.
+* [ ] **T-NA-05** [Must] D3 · Screen 3 would it have warned (backtest): **Removed from the dashboard by owner decision (PR #60, Ahmed; the team lead approved the removal on 2 Nov 2026). Not in the four-screen sidebar; the backtest results stay in `data/BACKTEST_CURRENT.md`.** Original scope: Track A frozen-clock table (1 of 6 and why); Track B per-class recall, macro-F1, recall@N vs random, B1-B5 per compound · depends: T-AH-10, T-VE-12 · reviewer: elsayed
+  * Evidence (historical, before removal): `app.py` `screen_backtest` and renderers (commits 89cadfc and 3139d7a). The code is no longer in `app.py` on `main`.
   * [ ] Review accepted (record reviewer, date and PR after actual review).
 
-* [x] **T-NA-06** [Must] D3 · Screen 4 data trust: gates, coverage, not assessable, 1,009/1,026 facts, colour key 🟢🔵🟠 · depends: T-AH-11 · reviewer: ahmed **Implemented; review pending.**
-  * Evidence: `app.py` `screen_data_trust` and its helpers (commit ec70a7b, merged as c481307 "T-NA-06 Screen 4 data trust (#50)"). A Streamlit `AppTest` run on the v7 data renders both tracks with no exception: 9 of 10 quality gates passed, 12 of 12 compounds assessable, 0 not assessable. The "1,009 of 1,026 facts" tile is the documented spec figure, not a recount: the installed data has no facts register, so `load_facts_count` falls back to the constant and says so.
+* [ ] **T-NA-06** [Must] D3 · Screen 4 data trust (gates, coverage, not assessable, facts, colour key): **Removed from the dashboard by owner decision (PR #60, approved 2 Nov 2026). Not in the four-screen sidebar.** Original scope: gates, coverage, not assessable, 1,009/1,026 facts, colour key 🟢🔵🟠 · depends: T-AH-11 · reviewer: ahmed
+  * Evidence (historical, before removal): `app.py` `screen_data_trust` (commit ec70a7b). The code is no longer in `app.py` on `main`.
   * [ ] Review accepted (record reviewer, date and PR after actual review).
 
-* [x] **T-NA-07** [Must] D4 · Screen 5 what if (twin): pick S1-S3, show which compounds change level and why; generated (🟠, banner, no map) · depends: T-VE-14 · reviewer: elsayed **Implemented; review pending.**
-  * Evidence: `app.py` `screen_what_if` and its renderers (commit afef289, merged to `main`). A Streamlit `AppTest` run on the v7 data: no exception on either track; Track A shows the switch-to-Track-B message. Track B shows "Scenario S1 results are not stored yet" because the screen reads `real/SpaceEye_R7_READY_DATA_2026-10-31_v7/what_if/<S>/who_moved_and_why.csv`, while the installed v7 data holds the same file under `ready-data/what_if/`. The screen therefore does not show the scenario results on the installed layout until that path is fixed or the layout is confirmed. Not verified: the level changes shown per scenario.
+* [x] **T-NA-07** [Must] D4 · Digital twin what if (screen 4; was Screen 5 before PR #60): S1 cost shock and S2 collections drop progress against the baseline run from the same seed (`what_if/progress_vs_baseline.csv`, written by `src/generator/twin_progress.py`); S3 capacity list changes; generated (🟠, banner, no map) · depends: T-VE-14 · reviewer: elsayed **Implemented; review pending.**
+  * Evidence: `app.py` `screen_what_if` and `render_progress_vs_baseline`; `src/generator/twin_progress.py` (5 tests in `tests/test_twin_progress.py`); branch `feat/twin-what-if-20261102`, commit `46a59b7`. Renamed to "Digital twin what if". A headless run on Track B renders the screen with no exception. Result: S1 and S2 move progress by at most 1.0 and 0.95 points at 2026-09 and change no level or list place. Not done: the stored file is not in any release yet (v7 is pinned by SHA-256 in `setup_review`); it is written by `python -m src.generator.twin_progress --out <ready-data>/what_if/progress_vs_baseline.csv` on a machine with the real simulation inputs.
   * [ ] Review accepted (record reviewer, date and PR after actual review).
 
-* [x] **T-NA-08** [Must] D4 · Display rules check (§9): ≤ 4 main tiles, each with value + unit + denominator + "as of" + origin; the 5 forbidden mistakes; ten-second test on screen 1 with someone outside the team · reviewer: salma **Implemented; review pending.** Display rules are in `app.py` on `feat/ml`: Screen 2 shows four main tiles (priority level, K2, K3, K6) and the Track B tiles come after them (`render_kpi_tiles`, `render_track_b_extras`); every Screen 4 trust tile shows a denominator and an as-of value (`render_trust_tiles`). The ten-second test was taken by the project supervisor, who is outside the team (reported 2026-11-01); the answer sheet and timings are not yet recorded in the repo. The uncommitted branch `fix/T-NA-08-display-rules` is superseded by the rebuild in 6360487 and is not needed.
+* [ ] **T-NA-08** [Must] D4 · Display rules check (§9): ≤ 4 main tiles, each with value + unit + denominator + "as of" + origin; the 5 forbidden mistakes; ten-second test on screen 1 with someone outside the team · reviewer: salma **Partial.** The ten-second test was taken by the project supervisor, who is outside the team (reported 2026-11-01); the answer sheet and timings are not yet in the repo. The display-rule check referred to the Screen 4 trust tiles, which were removed on 2 Nov 2026 (PR #60); the check must be redone for the four screens before this box can be ticked.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 
-* [x] **T-NA-09** [Should] D4 · `no_names` gate also scans dashboard exports; Arabic RTL renders correctly · reviewer: ahmed **Implemented; review pending.** Export helper `src/dashboard/exports.py` (`check_export`, `export_csv`) is hooked into the two CSV downloads in `app.py`: the cycle list and the scenario view. A forbidden name column is dropped, and a bad code value shows an error and omits the button. The inspection-file download is HTML and is unchanged. Tests: `tests/test_dashboard_exports.py`; full suite 318 passed, 1 skipped. Caveat: the Arabic RTL rendering of the exports and the live page were not checked in a browser. Branch `feat/T-NA-09-export-hookups`, commit `dd029dc`.
+* [x] **T-NA-09** [Should] D4 · `no_names` gate also scans dashboard exports; Arabic RTL renders correctly · reviewer: ahmed **Implemented; review pending.** Export helper `src/dashboard/exports.py` (`check_export`, `export_csv`) guards the cycle-list CSV download in `app.py`: a forbidden name column is dropped, and a bad code value shows an error and omits the button. The scenario-view CSV was removed with the Scenarios screen rebuild (PR #60), so one CSV download remains. Tests: `tests/test_dashboard_exports.py`; full suite 318 passed, 1 skipped. Caveat: the Arabic RTL rendering of the export and the live page were not checked in a browser. Branch `feat/T-NA-09-export-hookups`, commit `dd029dc`.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 
-* [x] **T-NA-10** [Must] D5 · User guide (how the committee uses screens 1, 2 and the visit form) · `docs/deliverables/user-guide.md` · reviewer: salma **Implemented; review pending.**
-  * Evidence: [user guide](../deliverables/user-guide.md) covers Screens 1 to 3 and the visit form, with Screens 4 and 5 marked as not built yet. Priority words match `app.py`; every behaviour statement was traced to a function in `app.py` or `src/dashboard/ops_visits.py`.
+* [ ] **T-NA-10** [Must] D5 · User guide (how the committee uses the four screens and the visit form) · `docs/deliverables/user-guide.md` · reviewer: salma **Partial.** The guide must be rewritten for the four screens (Priority map, Compound file, District view, Digital twin what if) and the visit list. The version on main was written for the earlier layout (screens 3 to 5), so it is out of date after PR #60.
+  * Evidence: [user guide](../deliverables/user-guide.md) (out of date; rewrite pending).
   * [ ] Review accepted (record reviewer, date and PR after actual review).
 ---
 
