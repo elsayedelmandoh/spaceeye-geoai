@@ -202,11 +202,27 @@ def test_outcome_text_words_known_types_and_guards_a_missing_one():
     assert insights.outcome_text(np.nan) == "outcome not on file"
 
 
-def test_frame_pair_is_the_chosen_frame_and_the_latest():
-    frames = [{"date": "2019-01-01"}, {"date": "2021-04-09"}, {"date": "2025-07-23"}]
+def test_season_of_each_month():
+    seasons = ["winter"] * 2 + ["spring"] * 3 + ["summer"] * 3 + ["autumn"] * 3 + ["winter"]
+    assert [insights.season_of(f"2024-{m:02d}-15") for m in range(1, 13)] == seasons
+
+
+def test_latest_same_season_picks_the_latest_later_capture_in_the_anchor_season():
+    frames = [{"date": "2019-04-01"}, {"date": "2020-12-20"}, {"date": "2022-05-30"},
+              {"date": "2023-01-10"}, {"date": "2024-03-03"}, {"date": "2025-07-23"}]
+    assert insights.latest_same_season(frames, 0) == 4  # spring 2019 -> spring 2024, not summer 2025
+    assert insights.latest_same_season(frames, 1) == 3  # December and January are both winter
+    assert insights.latest_same_season(frames, 4) is None  # no later spring capture
+    assert insights.latest_same_season(frames, 5) is None
+
+
+def test_frame_pair_is_the_chosen_frame_and_the_latest_same_season_capture():
+    frames = [{"date": "2019-01-01"}, {"date": "2021-04-09"}, {"date": "2024-05-02"}, {"date": "2025-07-23"}]
     index = insights.first_frame_after(frames, pd.Timestamp("2020-09-30"))
     assert index == 1
-    assert [f["date"] for f in insights.frame_pair(frames, index)] == ["2021-04-09", "2025-07-23"]
+    assert [f["date"] for f in insights.frame_pair(frames, index)] == ["2021-04-09", "2024-05-02"]
+    assert insights.frame_pair(frames, 0) == []  # no later winter capture
+    frames = frames[:2] + frames[3:]
     assert [f["date"] for f in insights.frame_pair(frames, 2)] == ["2025-07-23"]
     assert insights.first_frame_after(frames, pd.Timestamp("2026-01-01")) is None
     assert [f["date"] for f in insights.frame_pair(frames, None)] == ["2025-07-23"]
