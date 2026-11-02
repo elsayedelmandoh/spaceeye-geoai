@@ -19,7 +19,7 @@ Speaker note: a committee cannot visit everything every cycle, so the question i
 
 ## Slide 3. Data
 
-- 1,009 of 1,026 documented facts passed independent review; 0 invented. This is the figure stated in the spec (section 12), not a recount: the installed data has no facts register, and the dashboard's data-trust screen shows the same documented figure. [verify with the data owner]
+- 1,009 of 1,026 documented facts passed independent review; 0 invented. This is the figure stated in the spec (section 12), not a recount: the installed data has no facts register, and the dashboard's data-trust screen shows the same documented figure.
 - Origin key on every number: 🟢 real, 🔵 derived, 🟠 generated.
 - Real: satellite series, statements, laws. Generated: finance, supervisor reports, meters, complaints (only ACUD holds the real ones).
 - Source: `docs/requirements/01-specs.md` (section 12); `data/DATASET_CONTRACT.md` for the tables.
@@ -45,7 +45,7 @@ Speaker note: a committee cannot visit everything every cycle, so the question i
 
 - Priority map, cycle list (capacity 4, levels 1-3), open one compound, read its reason sentence, open the inspection file, record a visit result.
 - Everything on screen in Track A is real or derived. No generated number appears on the map.
-- Dependency: the demo needs the dashboard to run from stored files. [confirm the run command with the pipeline owner before rehearsal]
+- Dependency: the demo needs the dashboard to run from stored files. Run command: `make run (team_run --full, which calls run_all)`, the one run command per board task T-AH-19.
 
 ## Slide 7. Backtest: 1 of 6 and why
 
@@ -67,15 +67,15 @@ Speaker note: a committee cannot visit everything every cycle, so the question i
   - boosting, satellite features 4 of 4; boosting, combined features 1 of 4
 - Baseline: random top-4 list, 2,000 draws, mean 0.335, 95% interval 0.000 to 0.750.
 - Reading: with 4 cases the methods cannot be separated, and combining ACUD-style data did not clearly help. Scores are diagnostic and do not show real-world accuracy.
-- Complaints classifier: the keyword baseline beat the trained TF-IDF logistic model on all three evaluation sets (accuracy 0.733 vs 0.300 on the 30-text check set; 0.800 vs 0.720 on the 100-text training feed; 0.683 vs 0.221 on the benchmark set). Accuracy on texts we wrote does not prove accuracy on real complaints. [confirm the number of texts in each set and their origin before quoting]
-- Source: `docs/deliverables/complaints_metrics.csv`.
+- Complaints classifier: the keyword baseline scored 0.27 accuracy on the 104-row benchmark and 0.37 on the 30-item check set; TF-IDF plus logistic scored 0.22 and 0.30, respectively. Accuracy on texts written by the team does not prove accuracy on real complaints.
+- Source: `docs/deliverables/complaints_eval.csv`.
 
-## Slide 8b. The twin: one what-if scenario
+## Slide 8b. The observatory: one what-if scenario
 
-- Light compound-level twin: observed state from satellites and statements, simulated hidden state from the generator, what-if scenarios.
+- Light compound-level observatory: observed state from satellites and statements, simulated hidden state from the generator, what-if scenarios.
 - Scenarios: S1 dollar shock, S2 collections drop, S3 inspection capacity change. Demo S3 live: who enters or leaves the cycle list at 2 or 6 visits instead of 4 (45 of 744 rows change list membership: 28 at capacity 2, 17 at capacity 6; levels never change). Say plainly that S1 and S2 change nothing in the list or the levels (0 of 216 rows each).
 - Generated (🟠), orange banner on screen, no map.
-- Not a 3D or real-time twin. [confirm the what-if screen is ready; if not, drop the word "twin" and say "observatory", as the spec's fallback says]
+- Not a 3D or real-time observatory.
 
 ## Slide 9. Value in EGP (3 settings)
 
