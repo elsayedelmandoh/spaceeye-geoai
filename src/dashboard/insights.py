@@ -333,6 +333,23 @@ def scenario_view(raw: pd.DataFrame) -> tuple[pd.DataFrame, str]:
     return view, month
 
 
+def progress_view(raw: pd.DataFrame) -> tuple[pd.DataFrame, str]:
+    """Latest month of the stored progress-vs-baseline table: baseline and each finance scenario, in percent points."""
+    month = str(raw["month"].max())
+    latest = raw[raw["month"].astype(str) == month]
+    s1 = latest[latest["scenario_id"] == "S1"].set_index("code")
+    s2 = latest[latest["scenario_id"] == "S2"].set_index("code").reindex(s1.index)
+    view = pd.DataFrame({
+        "Compound": s1.index.astype(str),
+        "Baseline progress %": s1["baseline_progress_pct"].round(1).to_numpy(),
+        "S1 cost shock %": s1["scenario_progress_pct"].round(1).to_numpy(),
+        "S1 change (pp)": s1["delta_pp"].round(2).to_numpy(),
+        "S2 collections drop %": s2["scenario_progress_pct"].round(1).to_numpy(),
+        "S2 change (pp)": s2["delta_pp"].round(2).to_numpy(),
+    })
+    return view, month
+
+
 def level_counts(view: pd.DataFrame) -> pd.DataFrame:
     """How many compounds sit at each hypothetical level (NaN = not assessable), baseline and scenario."""
     both = pd.concat([pd.DataFrame({"case": case, "level": view[column]})
