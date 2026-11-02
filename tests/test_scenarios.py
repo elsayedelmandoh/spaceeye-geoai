@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.generator.scenarios import simulate, summary
+from src.generator.scenarios import SCENARIOS, simulate, summary
 
 
 def settings(**updates):
@@ -15,7 +15,7 @@ def settings(**updates):
         "overhead_cost_share_month": 0.0, "release_share": 1.0,
         "annual_credit_rate_pct": 0.0, "productivity_sd": 0.0,
         "collections_drop": 0.25, "shock_months": 6,
-        "usd_cost_rise": 0.30, "imported_share": 0.40, **updates,
+        "usd_cost_rise": 0.30, "material_cost_rise": 0.40, "imported_share": 0.40, **updates,
     }
 
 
@@ -36,7 +36,7 @@ def test_scenarios_have_the_same_initial_state_and_preserve_history():
     pd.testing.assert_frame_equal(history, fin.iloc[:3].reset_index(drop=True))
     assert state.initial_progress_pct.iloc[0] == 20
     assert paths.groupby("scenario_id").first().progress_before_pct.eq(20).all()
-    assert paths.month.min() == "2025-04" and len(paths) == 36
+    assert paths.month.min() == "2025-04" and len(paths) == 12 * len(SCENARIOS)
 
 
 def test_future_contamination_does_not_change_initial_state_or_paths():

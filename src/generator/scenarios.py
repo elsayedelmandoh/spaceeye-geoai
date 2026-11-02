@@ -18,7 +18,7 @@ from src.analysis.ew_features import clean_fin
 from src.pipeline.common import APP, BASE_DIR, CFG, REAL
 
 LABEL = "Synthetic - for training only"
-SCENARIOS = ("baseline", "collections_drop", "usd_cost_shock")
+SCENARIOS = ("baseline", "collections_drop", "usd_cost_shock", "material_cost_jump")
 
 
 def available_history(fin: pd.DataFrame, cutoff: str, codes: list[str]) -> pd.DataFrame:
@@ -78,13 +78,22 @@ def _validate_settings(settings: dict) -> None:
         if not 0 <= settings[key] <= 1:
             raise ValueError(f"{key} must lie in [0, 1]")
     for key in ("working_cash_months", "credit_months", "overhead_cost_share_month",
-                "annual_credit_rate_pct", "productivity_sd", "usd_cost_rise"):
+                "annual_credit_rate_pct", "productivity_sd", "usd_cost_rise", "material_cost_rise"):
         if settings[key] < 0 or not np.isfinite(settings[key]):
             raise ValueError(f"{key} must be finite and non-negative")
     if not 0 < settings["min_capacity_pct"] <= settings["max_capacity_pct"] <= 100:
         raise ValueError("Invalid monthly capacity range")
     if int(settings["shock_months"]) <= 0:
         raise ValueError("Shock duration must be positive")
+
+
+def cost_multiplier_for(scenario_id: str, step: int, settings: dict) -> float:
+    """Construction cost multiplier: S1 applies from month 0, S4 from the shock month onward."""
+    if scenario_id == "usd_cost_shock":
+        return 1 + settings["imported_share"] * settings["usd_cost_rise"]
+    if scenario_id == "material_cost_jump" and step >= settings["shock_months"]:
+        return 1 + settings["material_cost_rise"]
+    return 1.0
 
 
 def simulate(fin: pd.DataFrame, codes: list[str], settings: dict, seed: int) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -118,8 +127,7 @@ def simulate(fin: pd.DataFrame, codes: list[str], settings: dict, seed: int) -> 
                 before = progress
                 collection_multiplier = (1 - settings["collections_drop"]
                                          if scenario_id == "collections_drop" and step < settings["shock_months"] else 1.0)
-                cost_multiplier = (1 + settings["imported_share"] * settings["usd_cost_rise"]
-                                   if scenario_id == "usd_cost_shock" else 1.0)
+                cost_multiplier = cost_multiplier_for(scenario_id, step, settings)
                 collections = state.baseline_collections_egp * collection_multiplier
                 release = collections * settings["release_share"]
                 restricted += collections - release

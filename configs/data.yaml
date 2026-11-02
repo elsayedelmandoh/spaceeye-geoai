@@ -171,6 +171,8 @@ generator:
     shock_months: 6
     usd_cost_rise: 0.30
     imported_share: 0.40
+    material_cost_rise: 0.40
+    grace_months_s5: 6       # 2026-11-01: S5 warning-clock grace policy scenario.
   cost:
     usd_m2: [720, 1270]
     imported_share: 0.40
