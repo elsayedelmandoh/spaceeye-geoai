@@ -1,6 +1,6 @@
 # Current milestones and calendar
 
-As of 28 October 2026, prepared v5 data, rule/backtest, current binary evaluation and implementation evidence are delivered. The [task board](02-team-roles-and-tasks.md) records 36 implemented tasks with human review pending; 39 unresolved tasks and one excluded experiment remain.
+As of 2 November 2026, prepared v5 data, rule/backtest, current binary evaluation and implementation evidence are delivered. The [task board](02-team-roles-and-tasks.md) records 77 current IDs: 59 main tasks checked (implemented; 44 still await assigned review), 15 review records accepted, 16 open or partial tasks, and 2 failed/excluded experiments (T-NA-05, T-NA-06).
 
 Next work: dashboard and deterministic inspection workflow; verifier/final reports and complaints classifier; UI integration and KPI/value documentation; memo/deck/cross-review; accepted presentation revision and rehearsals/video. See [remaining tasks](../REMAINING_TEAM_TASKS.md).
 
