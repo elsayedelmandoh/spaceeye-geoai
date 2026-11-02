@@ -518,7 +518,8 @@ def render_summary_tiles(latest_df: pd.DataFrame, asof: str, promises: list[dict
         metric_tile("To visit this cycle", len(cycle), "compound" if len(cycle) == 1 else "compounds", f"of {len(latest_df)}", asof, ORIGIN_DERIVED)
     with tiles[1]:
         metric_tile("At level 1", int((latest_df["level"] == 1).sum()),
-                    "compound" if int((latest_df["level"] == 1).sum()) == 1 else "compounds", "inspect now", asof,
+                    "compound" if int((latest_df["level"] == 1).sum()) == 1 else "compounds",
+                    f"of {len(latest_df)} assessed compounds", asof,
                     ORIGIN_DERIVED)
     with tiles[2]:
         metric_tile("Fine-eligible months", int(round(fined.sum())), "months",
@@ -699,7 +700,7 @@ def render_kpi_tiles(row: pd.Series | None, asof: str) -> None:
     section_title("📊", "Indicators")
     get = (lambda c: None) if row is None else (lambda c: row.get(c))
 
-    tiles = st.columns(5)
+    tiles = st.columns(4)
     with tiles[0]:
         metric_tile("Priority level", level_word(get("level")), "",
                     "worst of K2, K3, K6", asof, ORIGIN_DERIVED)
@@ -721,14 +722,11 @@ def render_kpi_tiles(row: pd.Series | None, asof: str) -> None:
         else:
             _kpi_tile("K6 never started", get("K6"), "months",
                       "since first launch/promise, no construction start", asof, K_ORIGIN["K6"])
-    with tiles[4]:
-        k5, k5_status = get("K5_months"), get("K5_status")
-        if _missing(k5) and k5_status == "no_published_deadline":
-            metric_tile("K5 fine-eligible months", "no published deadline", "",
-                        "the contract decides the fine", asof, K_ORIGIN["K5"])
-        else:
-            _kpi_tile("K5 fine-eligible months", k5, "months",
-                      "the contract decides the fine", asof, K_ORIGIN["K5"])
+    k5, k5_status = get("K5_months"), get("K5_status")
+    k5_text = ("no published deadline" if _missing(k5) and k5_status == "no_published_deadline"
+               else "unknown" if _missing(k5) else f"{_fmt(k5, 0)} months")
+    st.caption(f"{K_ORIGIN['K5']} Context, not a tile: K5 fine-eligible months {k5_text} · "
+               f"the contract decides the fine · as of {asof}")
 
 
 def render_curves(code: str, history: pd.DataFrame | None, ann: pd.DataFrame | None,
@@ -845,8 +843,9 @@ def render_images(code: str) -> None:
         with big:
             st.image(str(shown["path"]), width="stretch")
         with side:
-            st.metric("Captured", date)
-            st.metric(f"Stage in {date[:4]}", frame_stage(shown, stages))
+            metric_tile("Captured", date, "", f"capture {dates.index(date) + 1} of {len(frames)}", date, ORIGIN_REAL)
+            metric_tile(f"Stage in {date[:4]}", frame_stage(shown, stages), "",
+                        "stage table, see the stage strip", date, ORIGIN_DERIVED)
             st.caption(f"{dates.index(date) + 1} of {len(frames)} captures")
         st.markdown("**Compare two captures**")
         render_frame_compare(code, frames, stages)
@@ -1163,7 +1162,7 @@ def render_strongest_claim(latest_df: pd.DataFrame, asof: str) -> None:
         render_frame_row(pair, stages, ["Nearest to the last claim", "Latest"][-len(pair):])
 
 
-def render_homes_waiting(compounds: pd.DataFrame, latest_df: pd.DataFrame) -> None:
+def render_homes_waiting(compounds: pd.DataFrame, latest_df: pd.DataFrame, asof: str) -> None:
     section_title("🏠", "Homes in compounds with fine-eligible months")
     waiting = insights.homes_waiting(compounds, latest_df)
     if not waiting["rows"]:
@@ -1181,7 +1180,8 @@ def render_homes_waiting(compounds: pd.DataFrame, latest_df: pd.DataFrame) -> No
         tooltip=["code", "units", "k5", "Level"])
     labels = base.mark_text(align="left", dx=4, color=PALETTE["text"]).encode(text="label:N")
     with st.container(border=True):
-        finding(f"<b>{waiting['homes']:,} homes</b> in {waiting['compounds']} compounds with fine-eligible months.")
+        finding(f"{ORIGIN_DERIVED} <b>{waiting['homes']:,} homes</b> in {waiting['compounds']} compounds "
+                f"with fine-eligible months, as of {asof}.")
         st.altair_chart((bars + labels).properties(height=34 * waiting["compounds"]), width="stretch")
         st.caption("Label = fine-eligible months of the compound.")
 
@@ -1211,7 +1211,7 @@ def render_late_promises(outcomes: pd.DataFrame) -> None:
         st.caption("Dashed line = median.")
 
 
-def render_fine_months(latest_df: pd.DataFrame) -> None:
+def render_fine_months(latest_df: pd.DataFrame, asof: str) -> None:
     section_title("⚖️", "Fine-eligible months")
     fines = insights.fine_months(latest_df)
     if not fines["rows"]:
@@ -1222,7 +1222,8 @@ def render_fine_months(latest_df: pd.DataFrame) -> None:
         x=alt.X("code:N", sort=list(table["code"]), title=None, axis=alt.Axis(labelAngle=0)),
         y=alt.Y("months:Q", title="Fine-eligible months"), tooltip=["code", "months"])
     with st.container(border=True):
-        finding(f"<b>{fines['total']} fine-eligible months</b> over {fines['compounds']} compounds today.")
+        finding(f"{ORIGIN_DERIVED} <b>{fines['total']} fine-eligible months</b> over {fines['compounds']} "
+                f"compounds, as of {asof}.")
         st.altair_chart(chart.properties(height=220), width="stretch")
         st.caption("The contract decides the fine.")
 
@@ -1277,10 +1278,10 @@ def screen_district(track: Track) -> None:
     render_flagged_early(insights.flagged_early(latest_df))
     render_strongest_claim(latest_df, asof)
     if compounds is not None:
-        render_homes_waiting(compounds, latest_df)
+        render_homes_waiting(compounds, latest_df, asof)
     if outcomes is not None:
         render_late_promises(outcomes)
-    render_fine_months(latest_df)
+    render_fine_months(latest_df, asof)
     if compounds is not None:
         render_developer_groups(compounds, latest_df)
     render_district_levels()
@@ -1330,7 +1331,7 @@ def render_capacity_variant(raw: pd.DataFrame, variant: str) -> None:
                 f'{html.escape(r["code"])}</span> · {html.escape(r["change"])}'
                 f'<div class="se-move-why">{html.escape(r["reason"])}</div></div>',
                 unsafe_allow_html=True)
-        st.caption(f"{label}")
+        st.caption(f"{ORIGIN_GENERATED} Generated · {label}")
 
 
 SCENARIO_TABS = {"S1": "S1 · Cost shock", "S2": "S2 · Collections drop", "S3": "S3 · Capacity"}
