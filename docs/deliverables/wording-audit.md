@@ -31,3 +31,14 @@ Not checked: other team documents, the dashboard screens, and the deck itself (n
 2. K5 keeps the spec's wording "fine exposure" and "fine-eligible". The allowed table suggests "eligible for review under contract terms for N months". Should the card titles follow it?
 3. Should the audit also cover other team documents and the dashboard screens? The task says "every doc, slide and screen"; this PR covers only the files above.
 4. A text search cannot detect an unknown name, so the codes-only rule is checked by reading, not by the search.
+
+## Added 2 November 2026: dashboard and other documents
+
+Task T-SA-07 (extension). Two further reports check the dashboard screens and the team documents against the same table in `docs/requirements/01-specs.md` section 3. Both are read-only with respect to the team documents; the verdicts are findings for the owners, and no wording was changed.
+
+- [Dashboard screens](wording-audit-dashboard.md): 79 rows (D1-D80, D11 not used). VIOLATION 0, CHECK 16, SAFE 63.
+- [Team documents](wording-audit-docs.md): 12 documents, 64 rows. VIOLATION 1, CHECK 26, SAFE 37.
+
+The one VIOLATION is `docs/deliverables/AI_AGENT_CONFIG.md` line 39: an absolute "0%" error rate for the regex extraction, with no measurement in the repo behind it. This overrides the "no violation found" result above for the earlier files, which did not include this document.
+
+The main CHECK items are the "fine-eligible" family (the allowed phrase is "eligible for review under contract terms"), the card title "Never-started clock", the progress percentages on the generated what-if screen, the action labels "Written warning" and "Fine review", the visit result "complete", person names in two document headers, and status overclaims ("completed", "100% unit-tested") before a recorded review.
