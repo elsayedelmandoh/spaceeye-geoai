@@ -1,18 +1,19 @@
 """
 src/inference/render_reports.py - Batch Render Arabic Inspection Dossiers (T-VE-06 / Deliverable 11)
 
-Generates 5 verified Arabic HTML inspection dossiers for presentation:
-- Compounds: C01, C02, C04, C07, C10 (and top cycle list compounds).
-- Integrates AI Executive Brief + 3 Inspection Questions (T-VE-04).
+Generates verified Arabic HTML inspection dossiers for presentation:
+- Compounds: the stored cycle list of the quarter (cycle_rank not null).
+- Integrates the executive brief + 3 Inspection Questions (T-VE-04).
 - Verified facts and causal safety checks (T-VE-05).
-- Rejects observation error citing 27 satellite passes (T-VE-03).
-- Mandatory footer: "مسوّدة أُعدت بالذكاء الاصطناعي، روجعت بواسطة: [الاسم]" + model + timestamp.
+- Footer: reviewer shown only when one is passed, model shown only when an LLM call happened.
 - Stores outputs in app_data/files/.
 """
 
 import sys
 from pathlib import Path
 from typing import Any
+
+import pandas as pd
 
 # Ensure project root in sys.path
 root_dir = Path(__file__).resolve().parent.parent.parent
@@ -21,24 +22,29 @@ if str(root_dir) not in sys.path:
 
 from src.inference.generate import generate_inspection_brief
 from src.inference.inspection_template import generate_deterministic_report
+from src.pipeline.common import REAL
 
-# 5 Target Compounds for Deliverable 11
-TARGET_COMPOUNDS = ["C01", "C02", "C04", "C07", "C10"]
 DEFAULT_QUARTER = "2026Q3"
-DEFAULT_REVIEWER = "م. سارة المحمدي (لجنة المتابعة الفنية)"
+
+
+def cycle_list_codes(quarter: str = DEFAULT_QUARTER) -> list[str]:
+    """Return the quarter's cycle-list compounds in cycle order."""
+    kpis = pd.read_parquet(REAL / "kpi_values.parquet", columns=["code", "quarter", "cycle_rank"])
+    cycle = kpis.loc[kpis["quarter"].eq(quarter) & kpis["cycle_rank"].notna()]
+    return cycle.sort_values("cycle_rank")["code"].tolist()
 
 
 def render_all_reports(
     compounds: list[str] | None = None,
     quarter: str = DEFAULT_QUARTER,
-    reviewer_name: str = DEFAULT_REVIEWER,
+    reviewer_name: str | None = None,
     output_dir: Path | None = None
 ) -> list[dict[str, Any]]:
     """
-    Renders official inspection HTML dossiers for all target compounds.
+    Renders official inspection HTML dossiers for the cycle-list compounds.
     """
     if compounds is None:
-        compounds = TARGET_COMPOUNDS
+        compounds = cycle_list_codes(quarter)
 
     if output_dir is None:
         output_dir = root_dir / "app_data" / "files"
@@ -61,7 +67,8 @@ def render_all_reports(
                 context=context,
                 ai_paragraph=paragraph,
                 ai_questions=questions,
-                reviewer_name=reviewer_name
+                reviewer_name=reviewer_name,
+                model=brief_data["model"],
             )
 
             # 3. Save to file

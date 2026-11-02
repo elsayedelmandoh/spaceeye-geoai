@@ -8,7 +8,7 @@ reliably offline.
 Pipeline Integration Features:
 1. Four Mandatory Report Sections:
    - ماذا حدث (What happened): Chronological facts, register parameters, and KPIs.
-   - السبب والتفسير المستبعد (Why + Rejected explanation with exact counts).
+   - سبب التصنيف (Why: the stored level reason, no causal claims).
    - ما يعنيه ذلك (What it means): Priority level determination and operational risk.
    - خطة العمل (What we do): Specific action, owner, due date, and escalation trigger.
 2. Hand-off Contract with Track A (T-AH-15):
@@ -42,9 +42,14 @@ def generate_deterministic_report(
     context: dict[str, Any],
     ai_paragraph: str | None = None,
     ai_questions: list | None = None,
-    reviewer_name: str = "م. سارة المحمدي (لجنة المتابعة الفنية)"
+    reviewer_name: str | None = None,
+    model: str | None = None,
 ) -> str:
-    """Renders a complete, professional Arabic inspection report in HTML format."""
+    """Renders a complete, professional Arabic inspection report in HTML format.
+
+    Every sentence is built from the context fields. The reviewer is shown only when
+    one is passed, and the model only when an LLM call produced the paragraph.
+    """
     code = context["compound_code"]
     quarter = context["quarter"]
     facts = context["facts"]
@@ -55,56 +60,67 @@ def generate_deterministic_report(
     level = kpis.get("level", 4)
     level_word = kpis.get("level_word_ar", f"المستوى {level}")
     reason_ar = kpis.get("reason_ar", "لا توجد أسباب مسجلة")
-    k2 = kpis.get("K2_stoppage_quarters", 0)
-    k3 = kpis.get("K3_delay_months", 0)
-    k5 = kpis.get("K5_fine_eligible_months", 0)
-    land_area = facts.get("land_area_m2", "غير محدد")
-    dev_code = facts.get("developer_code", "غير معلن")
-    first_deadline = facts.get("first_deadline") or "غير منشور رسمياً قبل تاريخ الأساس"
+    k2 = kpis.get("K2_stoppage_quarters")
+    k3 = kpis.get("K3_delay_months")
+    k5 = kpis.get("K5_fine_eligible_months")
+    activity = kpis.get("A")
+    land_area = facts.get("land_area_m2")
+    dev_code = facts.get("developer_code") or "غير معلن"
+    first_deadline = facts.get("first_deadline")
     cutoff_date = facts.get("cutoff_date", quarter)
-    cmp_count = complaints.get("total_count", 0)
+    cmp_count = complaints.get("total_count")
+
+    activity_text = f"، ودرجة النشاط ({activity:.2f})" if activity is not None else ""
+    if k2 is None:
+        activity_sentence = f"عدد أرباع التوقف (K2) غير معروف{activity_text}"
+    elif k2:
+        activity_sentence = f"لم يُرصد نشاط بناء منذ ({k2:g}) ربع (K2){activity_text}"
+    else:
+        activity_sentence = f"لم تُسجَّل أرباع توقف (K2 = 0){activity_text}"
+    if k3 is None:
+        delay_sentence = "مؤشر التأخير (K3) غير معروف"
+    elif kpis.get("handover_source") == "published first handover" and not k3:
+        delay_sentence = "التسليم معلن، ومؤشر التأخير K3 = (0) وفق القاعدة"
+    elif first_deadline:
+        delay_sentence = f"أما موعد التسليم الأول المنشور ({first_deadline})، فمؤشر التأخير K3 = ({k3:g}) شهراً"
+    else:
+        delay_sentence = f"لا يوجد موعد تسليم أول منشور في بيانات الأساس، ومؤشر التأخير K3 = ({k3:g}) شهراً"
+    if k5 is None:
+        exposure_sentence = "لا يوجد موعد تسليم منشور لاحتساب مدة التعرض للاشتراطات (K5)"
+        k5_card = "لا يوجد موعد تسليم منشور"
+    else:
+        exposure_sentence = f"مدة التعرض للاشتراطات K5 = ({k5:g}) شهراً، وهي مؤشر فحص أولي وليست غرامة مقدّرة"
+        k5_card = f"{k5:g} شهر"
+    area_sentence = f"، بمساحة أرض معتمدة ({land_area:,.0f} م²)" if land_area is not None else ""
+    complaints_sentence = (
+        f" كما سُجّل عدد ({cmp_count}) شكوى تشغيلية (بيانات محاكاة) واردة على المشروع حتى تاريخ الأساس."
+        if cmp_count is not None
+        else ""
+    )
 
     # 1. ماذا حدث (What happened)
     what_happened = (
-        f"المشروع برمز ({code}) التابع للمطور ({dev_code}) في الحي السكني R7 بالعاصمة الإدارية، بمساحة أرض معتمدة "
-        f"تبلغ ({land_area:,.0f} م²). استناداً إلى سجلات المتابعة عبر الأقمار الصناعية (Sentinel-2) حتى تاريخ الأساس ({cutoff_date})، "
-        f"سجل المشروع ركوداً إنشائياً مستمراً K2 بلغ ({k2}) أرباع سنوية متتالية بدون رصد أي صب خرساني أو تواجد لمعدات جديدة بالموقع. "
-        f"أما بالنسبة لموعد التسليم التعاقدي الأول المنشور ({first_deadline})، فقد بلغ مؤشر التأخير K3 مدة ({k3}) شهراً، "
-        f"مع احتساب تعرض مستحق لغرامات التأخير K5 بلغت ({k5}) شهراً وفق ضوابط المهل المعتمدة. "
-        f"كما تم تسجيل عدد ({cmp_count}) شكوى تشغيلية للمشترين واردة على المشروع حتى تاريخ الأساس."
-        if isinstance(land_area, (int, float)) else
-        f"المشروع برمز ({code}) للمطور ({dev_code}) في الحي R7. ركود إنشائي K2 بلغ ({k2}) أرباع سنوية."
+        f"المشروع برمز ({code}) التابع للمطور ({dev_code}) في الحي السكني R7 بالعاصمة الإدارية{area_sentence}. "
+        f"استناداً إلى سجلات المتابعة عبر الأقمار الصناعية (Sentinel-2) حتى تاريخ الأساس ({cutoff_date})، "
+        f"{activity_sentence}. {delay_sentence}؛ {exposure_sentence}.{complaints_sentence}"
     )
 
-    # 2. السبب والتفسير المستبعد (Why + Rejected alternative explanation with exact counts)
-    if level in [1, 2]:
-        why_text = (
-            f"<strong>السبب الرئيسي لتصنيف الأولوية:</strong> {reason_ar}.<br>"
-            f"<strong>التحليل السببي واستبعاد الفرضيات المنافسة:</strong><br>"
-            f"• <em>استبعاد فرضية خطأ الرصد البصري أو السحابي:</em> تم دحض هذه الفرضية بالكامل استناداً إلى ثبات أرصاد المؤشر "
-            f"عبر <strong>27 صورة قمر صناعي متتالية</strong> خلال ربع الأساس دون تسجيل أي تغير في البصمة الإنشائية للموقع.<br>"
-            f"• <em>استبعاد فرضية اكتمال المشروع الفعلي:</em> تم التحقق من عدم صدور شهادة صلاحية الإشغال للمشروع وفق المادة 62 من قانون البناء 119/2008، "
-            f"وعدم استيفاء نسبة الغطاء النباتي المعتمدة."
-        )
-    elif level == 3:
-        why_text = (
-            f"<strong>السبب:</strong> {reason_ar}.<br>"
-            f"تم استبعاد فرضية التوقف الإنشائي التام لوجود إعلانات تسليم سابقة، ولكن يلزم التحقق الميداني والمستندي "
-            f"لاستبعاد احتمال التوقف غير المعلن للأعمال الداخلية والتشطيبات."
-        )
-    else:
-        why_text = "المشروع يسير في النطاق الزمني والإنشائي الاعتيادي؛ المؤشرات مستقرة ولا توجد علامات ركود حرجة."
+    # 2. سبب التصنيف (the stored level reason; the file states indicators, not causes)
+    why_text = (
+        f"<strong>سبب التصنيف:</strong> {reason_ar.rstrip('.')}.<br>"
+        "يصف هذا الملف المؤشرات المرصودة فقط ولا يحدد سبب الوضع الميداني؛ ويحدده التحقق الميداني."
+    )
 
     # 3. ما يعنيه ذلك (What it means)
     if level == 1:
         what_it_means = (
-            "يصنف المشروع ضمن <strong>الأولوية الأولى (عاجلة جداً)</strong>؛ لوجود مؤشرات توقف إنشائي وتأخير في الوفاء بالجدول الزمني. "
-            "يتطلب تدخلاً فورياً لمراجعة حساب الضمان البنكي طبقاً للقرار 2184 وتفعيل لجان التفتيش لمنع تعثر المشروع."
+            "يصنف المشروع ضمن <strong>الأولوية الأولى (عاجلة جداً)</strong> وفق سبب التصنيف أعلاه. "
+            "يتطلب تدخلاً فورياً لمراجعة حساب الضمان البنكي طبقاً للقرار 2184 وتفعيل لجان التفتيش."
         )
     elif level == 2:
         what_it_means = (
             "يصنف المشروع ضمن <strong>الأولوية الثانية (تفتيش ومعاينة ميدانية)</strong>؛ يستوجب نزول لجنة تفتيش فنية إلى الموقع "
-            "خلال مدة أقصاها 14 يوماً للتحقق من تواجد العمال والمعدات وبحث معوقات استئناف أعمال البناء."
+            "خلال مدة أقصاها 14 يوماً للتحقق من موقف الأعمال بالموقع."
         )
     elif level == 3:
         what_it_means = (
@@ -138,9 +154,10 @@ def generate_deterministic_report(
     # AI Section (if injected)
     ai_section_html = ""
     if ai_paragraph and ai_questions:
+        ai_title = "إيجاز الذكاء الاصطناعي" if model else "ملخص آلي من قالب حتمي"
         ai_section_html = f"""
         <div class="ai-box">
-            <div class="box-title">🤖 إيجاز الذكاء الاصطناعي وأسئلة المعاينة الميدانية:</div>
+            <div class="box-title">{ai_title} وأسئلة المعاينة الميدانية:</div>
             <p class="ai-text"><strong>الملخص الفني:</strong> {ai_paragraph}</p>
             <div class="questions-title"><strong>الأسئلة الفنية المقترحة للجنة التفتيش الميداني:</strong></div>
             <ol class="questions-list">
@@ -148,6 +165,12 @@ def generate_deterministic_report(
             </ol>
         </div>
         """
+
+    reviewer_text = f"روجع بواسطة: {reviewer_name}" if reviewer_name else "لم تتم المراجعة بعد (not reviewed yet)"
+    if model:
+        footer_statement = f"مسوّدة أُعدت بالذكاء الاصطناعي — الموديل: {model} — {reviewer_text}"
+    else:
+        footer_statement = f"قالب حتمي، دون نموذج ذكاء اصطناعي (deterministic template, no AI model) — {reviewer_text}"
 
     # HTML Document with Print Stylesheet
     html_content = f"""<!DOCTYPE html>
@@ -365,19 +388,19 @@ def generate_deterministic_report(
 
         <div class="grid-stats">
             <div class="stat-card">
-                <div class="stat-val">{k2} أرباع</div>
-                <div class="stat-lbl">ركود البناء (K2)</div>
+                <div class="stat-val">{"غير معروف" if k2 is None else f"{k2:g} أرباع"}</div>
+                <div class="stat-lbl">أرباع بلا نشاط بناء (K2)</div>
             </div>
             <div class="stat-card">
-                <div class="stat-val">{k3} شهر</div>
+                <div class="stat-val">{"غير معروف" if k3 is None else f"{k3:g} شهر"}</div>
                 <div class="stat-lbl">تأخير التسليم (K3)</div>
             </div>
             <div class="stat-card">
-                <div class="stat-val">{k5} شهر</div>
-                <div class="stat-lbl">أشهر الغرامة (K5)</div>
+                <div class="stat-val">{k5_card}</div>
+                <div class="stat-lbl">مدة التعرض للاشتراطات (K5، مؤشر فحص)</div>
             </div>
             <div class="stat-card">
-                <div class="stat-val">{cmp_count} شكوى</div>
+                <div class="stat-val">{"غير متاح" if cmp_count is None else f"{cmp_count} شكوى"}</div>
                 <div class="stat-lbl">شكاوى المشترين (محاكاة)</div>
             </div>
         </div>
@@ -390,7 +413,7 @@ def generate_deterministic_report(
 
         <!-- 2. السبب والتفسير المستبعد -->
         <div class="section-box">
-            <div class="section-title">2. السبب والتفسير المستبعد (التحليل السببي بالأرقام)</div>
+            <div class="section-title">2. سبب التصنيف (من مؤشرات الربع)</div>
             <div class="section-content">{why_text}</div>
         </div>
 
@@ -430,7 +453,7 @@ def generate_deterministic_report(
         </div>
 
         <div class="footer">
-            <div>مسوّدة أُعدت بالذكاء الاصطناعي، روجعت بواسطة: {reviewer_name} — الموديل: gemini-1.5-flash</div>
+            <div>{footer_statement}</div>
             <div>نظام SpaceEye-GeoAI · تاريخ الأساس: {cutoff_date} · وقت الإنشاء: {datetime.now().strftime('%Y-%m-%d %H:%M')}</div>
         </div>
     </div>

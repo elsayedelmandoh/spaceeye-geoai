@@ -134,6 +134,31 @@ def test_ai_text_appears_only_in_the_labelled_draft_block() -> None:
     assert "Synthetic - for training only" in html
 
 
+def test_failed_checks_show_a_do_not_use_banner_on_the_draft() -> None:
+    kwargs = {"generated_at": "2026-10-30T12:00:00+00:00", "model": "fixture-model"}
+    failed = render_report_html(
+        _file(with_ai=True),
+        verification={"correct": 1, "wrong number": 1, "needs_review": True},
+        **kwargs,
+    )
+    passed = render_report_html(
+        _file(with_ai=True),
+        verification={"correct": 2, "needs_review": False},
+        **kwargs,
+    )
+    no_draft = render_report_html(
+        _file(),
+        verification={"wrong number": 1, "needs_review": True},
+        **kwargs,
+    )
+
+    assert "مسودة: فشلت الفحوصات، لا تستخدم" in failed
+    assert "Draft: failed checks, do not use" in failed
+    assert failed.index('class="do-not-use"') < failed.index('class="draft-paragraph"')
+    assert 'class="do-not-use"' not in passed
+    assert 'class="do-not-use"' not in no_draft
+
+
 def test_missing_images_are_explicit_and_never_fabricated() -> None:
     html = render_report_html(
         _file(),

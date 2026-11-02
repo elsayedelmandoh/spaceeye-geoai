@@ -1,6 +1,6 @@
 # SpaceEye handover: start here
 
-Task T-AH-21. Prepared data is available; dashboard, inspection agent and independent real-world predictive validation remain future work.
+Task T-AH-21. Prepared data is available. The dashboard and the inspection agent are implemented and their review is pending; independent real-world predictive validation remains future work.
 
 ## Use the data
 

@@ -20,7 +20,7 @@ Not checked: other team documents, the dashboard screens, and the deck itself (n
 - [x] No height number and no 2025/2026 height claim. "2026Q3" is only the reporting quarter.
 - [x] No "8 floors built". "Permitted floors" appears only as an item in the data request to ACUD.
 - [x] The retired figures 92% / 62% / 37% appear nowhere.
-- [x] No unsupported accuracy claim. Track B scores are always described as diagnostic on generated data, with the denominator (n of 4), capacity 4 and the random baseline.
+- [x] No unsupported accuracy claim. Track B scores are always described as diagnostic on generated data, with the denominator (n of 4) and capacity 4. The random baseline (0.335, 2,000 draws) is quoted on slide 8, in the memo and in the expected-questions sheet.
 - [x] Backtest quoted as counts only (1 of 6 after-start, 0 of 6 point-in-time), with the criterion of 5 cases "not lowered, not achieved".
 - [x] Value in EGP quoted only as "under these assumptions, from -0.006 to 0.098 million EGP per year", with every cost input marked as an assumption.
 - [x] Codes only, no compound or developer names (by inspection of the files; the project's own `no_names` gate covers generated outputs).

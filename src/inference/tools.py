@@ -72,6 +72,7 @@ _KPI_FIELDS = (
     ("reason", "reason"),
     ("reason_ar", "reason_ar"),
     ("may_be_complete", "may_be_complete"),
+    ("handover_source", "expected_handover_source"),
 )
 _LINK_COLUMNS = ("link", "source_link", "url")
 _ARTICLE_COLUMNS = ("article_id", "article", "article_no", "article_number", "id")

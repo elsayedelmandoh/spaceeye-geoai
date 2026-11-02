@@ -261,6 +261,9 @@ def inject_css() -> None:
         .se-pill-b {{ color: {p['accent_b']}; border-color: {p['accent_b']}; }}
         .se-move {{ padding: 0.6rem 0; border-bottom: 1px solid {p['border']}; }}
         .se-move-why {{ color: {p['muted']}; margin-top: 0.25rem; }}
+        .se-card-head {{ display: flex; justify-content: space-between; align-items: center;
+                         gap: 0.4rem; margin-top: 0.3rem; }}
+        .se-card-why {{ color: {p['muted']}; font-size: 0.92rem; line-height: 1.45; margin-top: 0.35rem; }}
         [data-testid="stMetricValue"], [data-testid="stMetricValue"] > div {{ white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.2; }}
         .synthetic-banner {{
             position: sticky; top: 0.5rem; z-index: 1000;
@@ -971,6 +974,31 @@ def _safe(label: str, fn, *args, default=None):
 # Screens
 # --------------------------------------------------------------------------- #
 
+def render_cycle_cards(latest: tuple[pd.DataFrame, str] | None) -> None:
+    """This cycle's visits as cards: the latest view from space, the level and the reason in one line."""
+    if latest is None:
+        return
+    latest_df, _ = latest
+    cycle = build_cycle_list(latest_df)
+    if cycle.empty:
+        return
+    section_title("📋", "This cycle's visits")
+    for col, (_, item) in zip(st.columns(len(cycle)), cycle.iterrows()):
+        row = latest_df[latest_df["code"] == item["code"]].iloc[0]
+        word, colour = _level_style(row["level"])
+        frames = insights.timeline_frames(item["code"], IMAGERY_DIR / "figures" / "timeline")
+        with col, st.container(border=True):
+            if frames:
+                st.image(str(frames[-1][1]), width="stretch")
+            st.markdown(
+                f'<div class="se-card-head"><b>{int(item["cycle_rank"])} · {item["code"]}</b>'
+                f'<span class="se-pill" style="border-color:{colour};color:{colour}">{word}</span></div>'
+                f'<div class="se-card-why">{html.escape(insights.short_reason(row.get("reason")))}</div>',
+                unsafe_allow_html=True)
+            if frames:
+                st.caption(f"Wayback capture {frames[-1][0]}")
+
+
 def screen_priority_map(track: Track) -> None:
     page_header("🛰️", "Priority map", "Whom should the committee visit first?")
     latest = load_latest_kpis()
@@ -979,6 +1007,7 @@ def screen_priority_map(track: Track) -> None:
         finding(cycle_headline(*latest))
         promises = load_promises_ahead(*latest)
         render_summary_tiles(*latest, promises)
+    render_cycle_cards(latest)
     render_map_slot(track, latest)
     render_visit_list(latest, track)
     if latest is not None:
