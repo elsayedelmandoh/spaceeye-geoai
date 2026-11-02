@@ -8,14 +8,14 @@ meta:
   cycle_capacity: 4
   eligible_levels: [1, 2, 3]
   origin_key: { real: green, derived: blue, generated: orange }
-  tags_note: "TODO: 2 tags per kpi_reference.csv (file not in repo; asked reviewer)"
+  tags_note: "tags from the program format table in 01-specs.md; reviewer to confirm (kpi_reference.csv is not in the repo)"
 
 kpis:
   A:
     name: Activity score
     origin: derived
     track: A
-    tags: TODO
+    tags: [Leading, Urban planning]
     fields:
       purpose: Is it building?
       unit: Probability 0-1
@@ -33,7 +33,7 @@ kpis:
     name: Quarters with no activity
     origin: derived
     track: A
-    tags: TODO
+    tags: [Leading, Urban planning]
     fields:
       purpose: For how long has it not been?
       unit: Quarters
@@ -52,7 +52,7 @@ kpis:
     name: Handover clock
     origin: real
     track: A
-    tags: TODO
+    tags: [Lagging, Housing]
     fields:
       purpose: Has it passed its first commitment?
       unit: Months
@@ -71,7 +71,7 @@ kpis:
     name: Assessability
     origin: real
     track: A
-    tags: TODO
+    tags: [Guard, Governance/data]
     fields:
       purpose: Can we trust the signal?
       unit: Yes/No
@@ -90,7 +90,7 @@ kpis:
     name: Fine exposure (policy screening months)
     origin: derived
     track: A (months) / B (EGP, generated only)
-    tags: TODO
+    tags: [Lagging, Governance/data]
     fields:
       purpose: How long has it been fine-eligible?
       unit: Months (real); EGP (generated only)
@@ -113,7 +113,7 @@ kpis:
     name: Never-started clock
     origin: derived
     track: A
-    tags: TODO
+    tags: [Leading, Urban planning]
     fields:
       purpose: Is land held without building?
       unit: Months
