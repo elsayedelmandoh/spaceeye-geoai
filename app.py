@@ -407,7 +407,21 @@ def latest_heights() -> dict[str, tuple[float, int]]:
     return {r["code"]: (float(r[COL_HEIGHT]), int(r[COL_YEAR])) for _, r in last.iterrows()}
 
 
-def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None) -> None:
+MAP_LAYER_ID = "compounds"
+MAP_KEY = "pm_map"
+
+
+def open_clicked_compound() -> None:
+    """Map click callback: runs before the rerun, so it may set the sidebar radio's key."""
+    event = st.session_state.get(MAP_KEY)
+    code = insights.picked_code(None if event is None else event.selection, MAP_LAYER_ID)
+    if code is not None and CODE_PATTERN.match(code):
+        open_compound_file(code)
+
+
+def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None,
+                    hidden: frozenset[str] = frozenset()) -> None:
+    """`hidden` holds the codes the screen-1 filters removed; boundaries without a KPI row stay grey."""
     if track.generated:
         return
     section_title("🗺️", "Priority map")
@@ -428,6 +442,8 @@ def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None) -> No
     counts = {word: 0 for word, _ in [*LEVELS.values(), NOT_ASSESSABLE]}
     for feat in geojson["features"]:
         code = feat["properties"]["code"]
+        if code in hidden:
+            continue
         word, color = _level_style(levels.get(code))
         counts[word] += 1
         outline = _geo_points(feat["geometry"])
@@ -449,10 +465,11 @@ def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None) -> No
 
     with st.container(border=True):
         if not features:
-            st.info("No R7 boundaries in the file.")
+            st.info("No compound matches the filters." if hidden else "No R7 boundaries in the file.")
             return
         layer = pdk.Layer(
             "GeoJsonLayer",
+            id=MAP_LAYER_ID,
             data={"type": "FeatureCollection", "features": features},
             get_fill_color="properties.fill_color",
             get_line_color=[232, 238, 244, 200],
@@ -475,6 +492,9 @@ def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None) -> No
                 tooltip={"text": "{code}\n{level_word}\n{height_text}"},
             ),
             width="stretch",
+            on_select=open_clicked_compound,
+            selection_mode="single-object",
+            key=MAP_KEY,
         )
         legend = "".join(
             f'<span class="se-pill" style="border-color:{color};margin-right:0.4rem">'
@@ -485,7 +505,7 @@ def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None) -> No
         st.caption(f"{ORIGIN_DERIVED} derived · as of {asof} · colour = priority level, grey = not "
                    "assessable · block height = mean building height (Google Open Buildings, latest "
                    f"year to {MAX_HEIGHT_YEAR}), drawn {MAP_HEIGHT_EXAGGERATION}× taller · "
-                   "right-drag to tilt or turn")
+                   "right-drag to tilt or turn · click a compound to open its file")
 
 
 def cycle_headline(latest_df: pd.DataFrame, asof: str) -> str:
@@ -530,10 +550,12 @@ def render_summary_tiles(latest_df: pd.DataFrame, asof: str, promises: list[dict
 
 
 def visit_table(latest_df: pd.DataFrame, cycle: pd.DataFrame) -> pd.DataFrame:
-    """The cycle list in visit order with the suggested action and the stored reason."""
+    """The listed compounds in order with the suggested action and the stored reason.
+    Rank is the stored cycle rank (blank outside the cycle list), so filtering keeps it."""
     rows = latest_df.set_index("code").loc[cycle["code"]]
     return pd.DataFrame({
-        "Rank": range(1, len(rows) + 1),
+        "Rank": (rows["cycle_rank"].astype("Int64").to_numpy() if "cycle_rank" in rows.columns
+                 else range(1, len(rows) + 1)),
         "Compound": rows.index,
         "Level": rows["level"].map(level_word).to_numpy(),
         "Suggested action": [insights.suggested_action(r)[0] for _, r in rows.iterrows()],
@@ -541,7 +563,17 @@ def visit_table(latest_df: pd.DataFrame, cycle: pd.DataFrame) -> pd.DataFrame:
     })
 
 
-def render_visit_list(latest: tuple[pd.DataFrame, str] | None, track: Track) -> None:
+def listed_codes(latest_df: pd.DataFrame, cycle_only: bool) -> pd.DataFrame:
+    """The cycle list in visit order, followed (when not cycle-only) by the other compounds by level."""
+    cycle = build_cycle_list(latest_df)
+    if cycle_only:
+        return cycle
+    rest = latest_df[~latest_df["code"].isin(cycle["code"])].copy()
+    rest["_level"] = rest["level"].map(lambda v: insights.level_number(v) or len(LEVELS) + 1)
+    return pd.concat([cycle[["code"]], rest.sort_values(["_level", "code"])[["code"]]], ignore_index=True)
+
+
+def render_visit_list(latest: tuple[pd.DataFrame, str] | None, track: Track, cycle_only: bool = True) -> None:
     section_title("📋", "Visit list")
     if latest is None:
         st.info("Waiting for real/kpi_values.parquet.")
@@ -549,12 +581,13 @@ def render_visit_list(latest: tuple[pd.DataFrame, str] | None, track: Track) -> 
 
     latest_df, asof = latest
     cycle = build_cycle_list(latest_df)
-    if cycle.empty:
-        st.info(f"No compounds in the cycle list for {asof}.")
+    listed = listed_codes(latest_df, cycle_only)
+    if listed.empty:
+        st.info(f"No compounds in the {'cycle list' if cycle_only else 'list'} for {asof}.")
         return
 
     st.caption("Suggested actions are proposals; the committee decides.")
-    st.dataframe(visit_table(latest_df, cycle), hide_index=True, width="stretch",
+    st.dataframe(visit_table(latest_df, listed), hide_index=True, width="stretch",
                  column_config={"Why": st.column_config.TextColumn("Why", width="large")})
 
     # The inspection files quote simulated buyer complaints, so only the generated track serves them.
@@ -1010,6 +1043,45 @@ def render_cycle_cards(latest: tuple[pd.DataFrame, str] | None) -> None:
                 st.caption(f"Wayback capture {frames[-1][0]}")
 
 
+def compounds_with_developer(kpis: pd.DataFrame) -> pd.DataFrame:
+    """Adds developer_code (codes only) from real/compounds.parquet when it is available."""
+    compounds = load_table("real/compounds.parquet", TRACK_A)
+    if compounds is None or not {"code", "developer_code"} <= set(compounds.columns):
+        return kpis
+    return kpis.merge(compounds[["code", "developer_code"]], on="code", how="left")
+
+
+def render_filters() -> tuple[tuple[pd.DataFrame, str] | None, frozenset[str], bool]:
+    """Search and filters for the map and the visit list (T-NA-11/12): (shown, hidden codes, cycle only)."""
+    kpis = load_table(KPI_FILE, TRACK_A)
+    if kpis is None or kpis.empty or not REQUIRED_KPI_COLUMNS <= set(kpis.columns):
+        return load_latest_kpis(), frozenset(), True
+    kpis = compounds_with_developer(kpis)
+    quarters = sorted(kpis["quarter"].dropna().astype(str).unique())
+    level_of = {word: number for number, (word, _) in LEVELS.items()}
+    developers = (sorted(kpis["developer_code"].dropna().astype(str).unique())
+                  if "developer_code" in kpis.columns else [])
+    section_title("🔎", "Search and filters")
+    with st.container(border=True):
+        top = st.columns([2, 1, 2, 2])
+        search = top[0].text_input("Search code", key="pm_search", placeholder="C10 or D05 (prefix works)")
+        asof = top[1].selectbox("As of", quarters, index=len(quarters) - 1, key="pm_quarter")
+        picked = top[2].multiselect("Priority level", list(level_of), key="pm_levels")
+        devs = top[3].multiselect("Developer", developers, key="pm_devs")
+        row = st.columns([1, 1, 1, 2])
+        k2 = row[0].number_input("Min K2 (quarters)", min_value=0, step=1, key="pm_k2")
+        k3 = row[1].number_input("Min K3 (months)", min_value=0, step=1, key="pm_k3")
+        k6 = row[2].number_input("Min K6 (months)", min_value=0, step=1, key="pm_k6")
+        cycle_only = row[3].toggle("Cycle list only", key="pm_cycle_only")
+        frame = kpis[kpis["quarter"].astype(str) == asof]
+        shown = insights.filter_compounds(
+            frame, search, tuple(level_of[w] for w in picked), tuple(devs), k2, k3, k6, cycle_only)
+        st.caption(f"Showing {len(shown)} of {len(frame)} compounds · as of {asof} · "
+                   "unknown K values stay only while their minimum is 0")
+    hidden = frozenset(frame["code"].astype(str)) - frozenset(shown["code"].astype(str))
+    return (shown.copy(), asof), hidden, cycle_only
+
+
 def screen_priority_map(track: Track) -> None:
     page_header("🛰️", "Priority map", "Whom should the committee visit first?")
     latest = load_latest_kpis()
@@ -1019,8 +1091,9 @@ def screen_priority_map(track: Track) -> None:
         promises = load_promises_ahead(*latest)
         render_summary_tiles(*latest, promises)
     render_cycle_cards(latest)
-    render_map_slot(track, latest)
-    render_visit_list(latest, track)
+    shown, hidden, cycle_only = render_filters()
+    render_map_slot(track, shown, hidden)
+    render_visit_list(shown, track, cycle_only)
     if latest is not None:
         render_changes(latest[1])
         render_promises_ahead(promises)

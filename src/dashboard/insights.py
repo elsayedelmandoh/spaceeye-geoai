@@ -407,3 +407,48 @@ def model_metrics_table(metrics: pd.DataFrame, random_at_4: dict | None = None,
             f"{random_at_4['mean']:.3f} (mean of {int(random_at_4['draws']):,} random draws)")
         table.loc["random"] = random_row
     return table.reset_index()
+
+
+def _prefix_match(values: pd.Series, search: str) -> pd.Series:
+    return values.astype("string").str.lower().str.startswith(search).fillna(False).astype(bool)
+
+
+def _at_or_above(values: pd.Series, minimum: float) -> pd.Series:
+    """Unknown values pass only when the threshold is 0 (no filter)."""
+    if minimum <= 0:
+        return pd.Series(True, index=values.index)
+    return (pd.to_numeric(values, errors="coerce") >= minimum).fillna(False).astype(bool)
+
+
+def filter_compounds(df: pd.DataFrame, search: str = "", levels: tuple[int, ...] = (),
+                     developers: tuple[str, ...] = (), k2_min: float = 0, k3_min: float = 0,
+                     k6_min: float = 0, cycle_only: bool = False) -> pd.DataFrame:
+    """Screen 1 filters. `search` is a case-insensitive prefix of the compound or developer code;
+    empty `levels`/`developers` and a zero threshold mean no filter on that field."""
+    keep = pd.Series(True, index=df.index)
+    search = search.strip().lower()
+    if search:
+        hit = _prefix_match(df["code"], search)
+        if "developer_code" in df.columns:
+            hit |= _prefix_match(df["developer_code"], search)
+        keep &= hit
+    if levels:
+        keep &= df["level"].map(level_number).isin(levels)
+    if developers and "developer_code" in df.columns:
+        keep &= df["developer_code"].astype("string").isin(developers).fillna(False).astype(bool)
+    for column, minimum in (("K2", k2_min), ("K3", k3_min), ("K6", k6_min)):
+        if column in df.columns:
+            keep &= _at_or_above(df[column], minimum)
+    if cycle_only:  # the same rule as the cycle list: stored rank, else levels 1-3
+        keep &= df["cycle_rank"].notna() if "cycle_rank" in df.columns else df["level"].isin([1, 2, 3])
+    return df[keep]
+
+
+def picked_code(selection: dict | None, layer_id: str) -> str | None:
+    """The compound code of the object clicked on a pydeck layer, or None."""
+    objects = ((selection or {}).get("objects") or {}).get(layer_id) or []
+    if not objects:
+        return None
+    props = objects[0].get("properties") or objects[0]
+    code = props.get("code")
+    return None if code is None else str(code)
