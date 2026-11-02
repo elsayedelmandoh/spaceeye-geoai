@@ -493,7 +493,7 @@ def cycle_headline(latest_df: pd.DataFrame, asof: str) -> str:
     if cycle.empty:
         return f"No compound needs a visit this cycle ({asof})."
     first = latest_df[latest_df["code"] == cycle.iloc[0]["code"]].iloc[0]
-    why = str(first.get("reason", "")).split(": ", 1)[-1].split("; observation")[0]
+    why = insights.short_reason(first.get("reason"))
     eligible = int(latest_df["level"].isin([1, 2, 3]).sum())
     waiting = eligible - len(cycle)
     rest = f" {waiting} more at levels 1-3 wait for the next cycle." if waiting > 0 else ""
