@@ -13,12 +13,12 @@ Source of every task: [`01-specs.md`](01-specs.md) (section numbers in brackets,
 
 ## Current implementation marks for human review
 
-Updated on 2 November 2026 against 77 current IDs (recounted from the checkboxes; includes PRs #62 to #66). Current approved binary scope and existing review records are preserved.
+Updated on 2 November 2026 against 80 current IDs (recounted from the checkboxes; includes PRs #62 to #66). Current approved binary scope and existing review records are preserved.
 
 | State | Count | Meaning |
 | --- | ---: | --- |
 | Main task checked | 61 | Implemented, with evidence; 46 still await assigned review |
-| Main task unchecked, open/partial | 14 | Original work/decision still unresolved (includes T-EL-13, partial; T-NA-08 and T-NA-10 partial) |
+| Main task unchecked, open/partial | 17 | Original work/decision still unresolved (includes T-EL-13, partial; T-NA-08 and T-NA-10 partial) |
 | Main task unchecked, failed/excluded | 2 | T-NA-05 and T-NA-06: screens removed by owner decision (PR #60, 2 Nov 2026) |
 | Review accepted | 15 recorded | Existing review records retained; no new reviewer acceptance inferred |
 
@@ -314,13 +314,19 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-E
 * [x] **T-NA-10** [Must] D5 · User guide (how the committee uses the four screens and the visit form) · `docs/deliverables/user-guide.md` · reviewer: salma **Implemented; review pending.** The guide is rewritten for the four screens (PR #69).
   * Evidence: [user guide](../deliverables/user-guide.md), rewritten for Priority map, Compound file, District view and Digital twin what if; every behaviour statement is traced to a function in `app.py` or `src/dashboard/`.
   * [ ] Review accepted (record reviewer, date and PR after actual review).
+
+* [ ] **T-NA-11** [Should] D5 · Search on screen 1: one box that narrows the map and the visit list to a compound code (C..) or a developer code (D..); codes only · `app.py` + test · reviewer: ahmed **Open.**
+
+* [ ] **T-NA-12** [Should] D5 · Filters on screen 1, applied to the map and the visit list: priority level (1-4), developer code, signal thresholds (K2 quarters, K3 months, K6 months), cycle list only or all compounds, and the as-of quarter · `app.py` + test · reviewer: ahmed **Open.**
+
+* [ ] **T-NA-13** [Should] D5 · Map click: clicking a compound on the priority map opens screen 2 (Compound file) with that compound selected · `app.py` + test · reviewer: ahmed **Open.**
 ---
 
 ## 8. salma: KPIs, value, governance, presentation
 
 Goal: every number in the docs and slides has a source or an origin mark and matches `kpi_values`; the story is honest (backtest failed, shown with the reason).
 
-- [ ] **T-SA-01** [Must] D1 · Compass signed (use-case canvas, 8 checks); ask the instructor rubric + presentation length · `docs/requirements/05-project-compass.md` · reviewer: ahmed **Open; the compass file is a sign-off worksheet and no instructor sign-off is recorded in it.**
+- [ ] **T-SA-01** [Must] D1 · Compass signed (use-case canvas, 8 checks); ask the instructor rubric + presentation length · `docs/requirements/05-project-compass.md` · reviewer: ahmed **Partial; the instructor rubric is received and recorded (`docs/requirements/ACUD-Rubric.md`, ten criteria summing to 100 plus a +10 transferability bonus; presentation 12 minutes, criterion 10) and mapped to project evidence with a 12-minute slide plan (`docs/deliverables/rubric-map.md`). Open: the instructor's sign-off of the compass is not recorded.**
 - [x] **T-SA-02** [Must] D2 · KPI cards (10 fields + 2 tags, A K2 K3 K4 K5 K6) + KPI tree + levels table (deliverable 1), schema of `kpi_reference.csv` · `configs/kpis.yaml` + `docs/deliverables/kpi-cards.md` · reviewer: ahmed **Implemented; review pending.** The two tags are the "Leading/lagging" and "International axis" rows of the KPI card table in `01-specs.md`, filled per KPI in `configs/kpis.yaml` and `kpi-cards.md` (PR #64). Reviewer to confirm: `kpi_reference.csv` is not in the repo.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [ ] **T-SA-03** [Must] D3 · Value in EGP, 3 settings, no double counting (§12 formula) · `configs/cost_assumptions.yaml` + "Under these assumptions, from X to Y million EGP per year" · reviewer: elsayed **Partial; operating cost, missed cases and late-detection cost are PLACEHOLDER values in `configs/cost_assumptions.yaml`, and the reviewer's values are needed.**
