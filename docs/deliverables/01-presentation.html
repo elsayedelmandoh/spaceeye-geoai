@@ -38,7 +38,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 <body>
 <header>
 <h1>Presentation: slides 1-11</h1>
-<p>Task T-SA-06. Draft text for review (the deck is built from this file). Length is still to be confirmed (spec says 12-15 min). Numbers come only from repo files and carry an origin mark: 🟢 real · 🔵 derived · 🟠 generated ("Synthetic - for training only"). Codes only, no names. The words "risk level", "distressed" (for a real compound) and any completion % are not used.</p>
+<p>Task T-SA-06. Draft text for review (the deck is built from this file). Length is still to be confirmed (spec says 12-15 min; <code>docs/requirements/01-specs.md</code> section 12). Numbers come only from repo files and carry an origin mark: 🟢 real · 🔵 derived · 🟠 generated ("Synthetic - for training only"). Codes only, no names. The words "risk level", "distressed" (for a real compound) and any completion % are not used.</p>
 </header>
 <main>
 <section id="slide-1" aria-labelledby="slide-1-title">
@@ -50,7 +50,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 </li>
 <li>About 7-8% of developers seriously late; 6 mutual terminations.
 </li>
-<li>Source: statements by the ACUD chairman (Sep-Oct 2026). These are the chairman's statements, not our measurement.
+<li>Source: statements by the ACUD chairman, as recorded in <code>docs/requirements/01-specs.md</code> (section 12, slide 1). These are the chairman's statements, not our measurement.
 </li></ul>
 <p class="note">Speaker note: a committee cannot visit everything every cycle, so the question is whom to visit first.</p>
 </section>
@@ -103,7 +103,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 </li>
 <li>Plan gap B5 (planned minus reported progress) is generated data (🟠) and appears only in Track B.
 </li>
-<li>Source: <code>docs/deliverables/kpi-cards.md</code>, <code>configs/data.yaml</code>.
+<li>Source: <code>docs/deliverables/kpi-cards.md</code> (cap count), <code>configs/data.yaml</code>, <code>docs/requirements/01-specs.md</code> (level table: 24 months right to refund).
 </li></ul>
 </section>
 <section id="slide-6" aria-labelledby="slide-6-title">
@@ -151,13 +151,15 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 <li>boosting, satellite features 4 of 4; boosting, combined features 1 of 4
 </li></ul>
 </li>
+<li>Caveat: the boosting 4 of 4 rests partly on the height column; the v2a run without height gives 1 of 4 (<code>data/EW_V2A_VS_V1.md</code>).
+</li>
 <li>Baseline: random top-4 list, 2,000 draws, mean 0.335, 95% interval 0.000 to 0.750.
 </li>
 <li>Reading: with 4 cases the methods cannot be separated, and combining ACUD-style data did not clearly help. Scores are diagnostic and do not show real-world accuracy.
 </li>
 <li>Complaints classifier: the keyword baseline scored 0.27 accuracy on the 104-row benchmark and 0.37 on the 30-item check set; TF-IDF plus logistic scored 0.22 and 0.30, respectively. Accuracy on texts written by the team does not prove accuracy on real complaints.
 </li>
-<li>Source: <code>docs/deliverables/complaints_eval.csv</code>.
+<li>Source: <code>docs/deliverables/complaints_eval.csv</code>, <code>data/EW_V2A_VS_V1.md</code>.
 </li></ul>
 </section>
 <section id="slide-8b" aria-labelledby="slide-8b-title">
@@ -171,12 +173,14 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 <li>Generated (🟠), orange banner on screen, no map.
 </li>
 <li>Not a 3D or real-time observatory.
+</li>
+<li>Source: <code>logs/review-05.md</code> (scenario row counts).
 </li></ul>
 </section>
 <section id="slide-9" aria-labelledby="slide-9-title">
 <h2 id="slide-9-title">Slide 9. Value in EGP (3 settings)</h2>
 <ul>
-<li>Visiting 4 compounds per cycle instead of all 12: 16 visits a year instead of 48.
+<li>Visiting 4 compounds per cycle instead of all 12: 16 visits a year instead of visiting every compound each cycle.
 </li>
 <li>Under these assumptions, from -0.006 to 0.098 million EGP per year.
 </li>
@@ -206,7 +210,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 </li>
 <li>The committee decides; every visit result is recorded to build real ground truth.
 </li>
-<li>Source: <code>docs/deliverables/responsible-ai.md</code>.
+<li>Source: <code>docs/deliverables/responsible-ai.md</code>, <code>docs/requirements/01-specs.md</code> (Law 151/2020).
 </li></ul>
 </section>
 <section id="slide-11" aria-labelledby="slide-11-title">
@@ -218,7 +222,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 </li>
 <li>Next step: run one cycle with the list and record visit results.
 </li>
-<li>Source: <code>docs/deliverables/data-request.md</code>.
+<li>Source: <code>docs/deliverables/data-request.md</code>, <code>docs/requirements/01-specs.md</code> (data request list, art. 54).
 </li></ul>
 </section>
 </main>

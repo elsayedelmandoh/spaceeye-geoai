@@ -822,8 +822,14 @@ def render_frame(frame: dict, stages: dict[int, str], caption: str = "") -> None
 def render_frame_compare(code: str, frames: list[dict], stages: dict[int, str]) -> None:
     dates = [f["date"] for f in frames]
     pickers = st.columns(2)
-    chosen = [pickers[0].selectbox("Compare: from", dates, index=0, key=f"cmp_from_{code}"),
-              pickers[1].selectbox("Compare: to", dates, index=len(dates) - 1, key=f"cmp_to_{code}")]
+    start = pickers[0].selectbox("Compare: from", dates, index=0, key=f"cmp_from_{code}")
+    season = insights.season_of(start)
+    same = [d for d in dates if d != start and insights.season_of(d) == season]
+    if not same:
+        st.info(f"No other {season} capture exists to compare with {start}; captures are compared within a season.")
+        return
+    chosen = [start, pickers[1].selectbox(f"Compare: to ({season} only)", same, index=len(same) - 1,
+                                          key=f"cmp_to_{code}")]
     for column, date in zip(st.columns(2), chosen):
         with column:
             render_frame(frames[dates.index(date)], stages)
@@ -1133,6 +1139,15 @@ def level_text(level: int | None) -> str:
     return NOT_ASSESSABLE[0] if level is None else f"Level {level} · {level_word(level)}"
 
 
+def render_season_pair(pair: list[dict], stages: dict[int, str], anchor_caption: str) -> None:
+    """An anchor capture beside the latest one from the same season, or a note when there is none."""
+    if not pair:
+        st.caption("No later capture from the same season, so no image pair is shown.")
+        return
+    season = insights.season_of(pair[0]["date"])
+    render_frame_row(pair, stages, [anchor_caption, f"Latest {season} capture"][-len(pair):])
+
+
 def render_frame_row(frames: list[dict], stages: dict[int, str], captions: list[str]) -> None:
     for column, frame, caption in zip(st.columns(max(len(frames), 2)), frames, captions):
         with column:
@@ -1157,7 +1172,7 @@ def render_early_warning(case: dict | None) -> None:
                         f"({level_word(case['level_at_freeze'])}).")
         reported = f", reported {case['reported']}" if case["reported"] else ""
         st.markdown(f"**What happened.** {html.escape(case['outcome'].capitalize())}{reported}.")
-        render_frame_row(pair, stages, ["First capture after the alert", "Latest"][-len(pair):])
+        render_season_pair(pair, stages, "First capture after the alert")
 
 
 def render_flagged_early(rows: list[dict]) -> None:
@@ -1201,7 +1216,7 @@ def render_strongest_claim(latest_df: pd.DataFrame, asof: str) -> None:
         finding(f"<b>{code}</b>: as of {asof}, {claim['k3']} months past the first announced handover date "
                 f"({claim['deadline']}).")
         st.dataframe(claims_table(rows), hide_index=True, width="stretch")
-        render_frame_row(pair, stages, ["Nearest to the last claim", "Latest"][-len(pair):])
+        render_season_pair(pair, stages, "Nearest to the last claim")
 
 
 def render_homes_waiting(compounds: pd.DataFrame, latest_df: pd.DataFrame, asof: str) -> None:
