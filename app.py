@@ -17,9 +17,12 @@ import pandas as pd
 import pydeck as pdk
 import streamlit as st
 
+from src.chatbot.answer import AnswerOptions, answer_question
+from src.chatbot.retrieve import get_default_retriever
 from src.dashboard import insights
 from src.dashboard.exports import export_csv
 from src.dashboard.ops_visits import load_visits, render_ops_visits_form  # T-NA-04
+from src.inference.ai_config import load_ai_yaml_config
 from src.pipeline.common import APP as PIPELINE_APP_DATA
 
 # --------------------------------------------------------------------------- #
@@ -1522,6 +1525,45 @@ SCREEN_FUNCTIONS = {
 # Sidebar + entry point
 # --------------------------------------------------------------------------- #
 
+def render_document_chatbot() -> None:
+    """Render the document-grounded Q&A control in the sidebar."""
+    with st.sidebar.expander("Ask the documents"):
+        st.caption(
+            "Answers come only from the listed documents and are not legal advice."
+        )
+        with st.form("document_chatbot_form"):
+            question = st.text_input("Question", key="document_chatbot_question")
+            submitted = st.form_submit_button("Ask")
+        if submitted:
+            cleaned_question = question.strip()
+            if not cleaned_question:
+                st.info("Enter a question about the documents.")
+            else:
+                answer = answer_question(
+                    cleaned_question,
+                    get_default_retriever(),
+                    AnswerOptions(config=load_ai_yaml_config()),
+                )
+                history = st.session_state.setdefault("document_chatbot_history", [])
+                history.append(
+                    {
+                        "question": cleaned_question,
+                        "answer": answer.text,
+                        "citations": answer.citations,
+                    }
+                )
+                st.session_state["document_chatbot_history"] = history[-5:]
+
+        for chat_record in st.session_state.get("document_chatbot_history", []):
+            st.markdown("**Question**")
+            st.text(chat_record["question"])
+            st.markdown(chat_record["answer"])
+            if chat_record["citations"]:
+                st.markdown("**Citations**")
+                for citation in chat_record["citations"]:
+                    st.text(citation)
+
+
 def render_sidebar() -> tuple[Track, str]:
     st.sidebar.markdown(
         """
@@ -1562,6 +1604,7 @@ def render_sidebar() -> tuple[Track, str]:
             f'<span class="se-pill se-pill-a">{ORIGIN_REAL} REAL · {ORIGIN_DERIVED} DERIVED</span>',
             unsafe_allow_html=True,
         )
+    render_document_chatbot()
     return track, screen
 
 

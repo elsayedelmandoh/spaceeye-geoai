@@ -15,3 +15,9 @@ gemini:
     system: prompts/system/inspection_agent.md
     inspection_paragraph: prompts/templates/inspection_paragraph.md
     visit_questions: prompts/templates/visit_questions.md
+
+# Optional model summaries for the document chatbot. The extractive RAG answer
+# remains available while approval is pending.
+chatbot:
+  approval: pending  # allowed: pending | approved
+  max_calls_total: 0
