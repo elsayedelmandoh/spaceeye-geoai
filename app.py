@@ -24,6 +24,7 @@ from src.dashboard.exports import export_csv
 from src.dashboard.ops_visits import load_visits, render_ops_visits_form  # T-NA-04
 from src.inference.ai_config import load_ai_yaml_config
 from src.pipeline.common import APP as PIPELINE_APP_DATA
+from src.pipeline.common import CFG
 
 # --------------------------------------------------------------------------- #
 # Configuration
@@ -540,7 +541,7 @@ def reason_text(row: pd.Series) -> str:
     """The short stored reason; names the phase when the first handover date was only a phase date."""
     statements = load_table("real/statements.parquet", TRACK_A)
     note = None if statements is None else insights.first_deadline_note(
-        statements, str(row.get("code")), row.get("k3_first_deadline"))
+        statements, str(row.get("code")), row.get("k3_first_deadline"), str(row.get("quarter")))
     return insights.short_reason(row.get("reason"), note)
 
 
@@ -572,8 +573,11 @@ def render_summary_tiles(latest_df: pd.DataFrame, asof: str, promises: list[dict
     compounds = load_table("real/compounds.parquet", TRACK_A)
     footprint = ""
     if compounds is not None:
-        f = insights.cycle_footprint(compounds, list(cycle["code"]))
-        footprint = f" · {f['homes']:,} published homes · {f['feddan']:g} feddan"
+        f = insights.cycle_footprint(compounds, list(cycle["code"]), CFG["compounds"]["feddan_m2"])
+        n = len(cycle)
+        footprint = (f" · {f['homes']:,} published homes"
+                     + (f" in {f['homes_compounds']} of {n}" if f["homes_compounds"] < n else "")
+                     + f" · {f['feddan']:g} feddan" + (f" in {f['land_compounds']} of {n}" if f["land_compounds"] < n else ""))
     tiles = st.columns(4)
     with tiles[0]:
         metric_tile("To visit this cycle", len(cycle), "compound" if len(cycle) == 1 else "compounds",
@@ -983,7 +987,11 @@ def render_fine_exposure(code: str, row: pd.Series, asof: str, track: Track) -> 
     value = float(land.loc[land["code"] == code, "assumed_land_value_egp"].iloc[0])
     rate = st.number_input("Fine rate (% of the land value per month): enter your contract rate", min_value=0.0,
                            max_value=5.0, value=DEFAULT_FINE_RATE_PCT, step=0.1, format="%.1f", key="fine_rate_pct")
-    months = 0 if _missing(k5) else int(k5)
+    if _missing(k5):
+        status = str(row.get("K5_status") or "unknown").replace("_", " ")
+        st.markdown(f"No exposure figure: K5 is not known for {code} ({status}). Unknown is not zero.")
+        return
+    months = int(k5)
     tiles = st.columns(3)
     with tiles[0]:
         metric_tile("Fine exposure", egp_millions(months * rate / 100 * value), "",
@@ -1010,15 +1018,15 @@ def render_developer_money(code: str, asof: str, track: Track) -> None:
                     ORIGIN_GENERATED)
 
 
-def render_complaints(code: str, track: Track) -> None:
+def render_complaints(code: str, asof: str, track: Track) -> None:
     complaints = load_table("sim_clean/complaints.parquet", track)
     if complaints is None:
         return
-    table = insights.complaints_by_quarter(complaints, code)
+    table = insights.complaints_by_quarter(complaints, code, asof)
     if table.empty:
         st.markdown("No buyer complaints on file.")
         return
-    recent = table[table["quarter"].isin(sorted(table["quarter"].unique())[-4:])]
+    recent = table[table["quarter"].isin(insights.last_quarters(asof, 4))]
     stoppage = int(recent.loc[recent["category"] == "stoppage", "complaints"].sum())
     finding(f"{ORIGIN_GENERATED} <b>{int(recent['complaints'].sum())} buyer complaints</b> in the last four quarters, "
             f"{stoppage} about work stopping. Read them beside the satellite curve above.")
@@ -1037,7 +1045,7 @@ def render_developer_file(code: str, row: pd.Series | None, asof: str, track: Tr
     section_title("📒", "Developer money")
     render_developer_money(code, asof, track)
     section_title("📣", "Buyer complaints")
-    render_complaints(code, track)
+    render_complaints(code, asof, track)
 
 
 def last_recorded_visit(code: str) -> dict | None:
@@ -1056,8 +1064,8 @@ def generated_visit(code: str, asof: str, track: Track) -> dict | None:
         & (pd.to_datetime(visits["visit_date"]) <= pd.Period(asof, "Q").end_time)].sort_values("visit_date")
     if mine is None or mine.empty:
         return None
-    return {"date": str(pd.Timestamp(mine.iloc[-1]["visit_date"]).date()),
-            "result": f"{mine.iloc[-1]['result']}, generated"}
+    return {"date": str(pd.Timestamp(mine.iloc[-1]["visit_date"]).date()), "result": str(mine.iloc[-1]["result"]),
+            "generated": True}
 
 
 def render_compound_header(row: pd.Series | None, code: str, track: Track = TRACK_A) -> None:
@@ -1067,6 +1075,8 @@ def render_compound_header(row: pd.Series | None, code: str, track: Track = TRAC
     action, why = insights.suggested_action(row)
     visit = last_recorded_visit(code) or generated_visit(code, str(row.get("quarter")), track)
     seen = "no visit recorded yet" if visit is None else f"{visit['date']} ({html.escape(visit['result'])})"
+    if visit is not None and visit.get("generated"):
+        seen = f"{ORIGIN_GENERATED} none recorded; last generated visit {seen}, not fieldwork"
     number = insights.level_number(row.get("level"))
     level = level_word(row.get("level")) if number is None else f"Level {number} · {level_word(number)}"
     finding(f"<b>{level}.</b> Suggested action: <b>{action}</b>. {html.escape(why)} Last recorded visit: {seen}.")
@@ -1440,7 +1450,7 @@ def render_strongest_claim(latest_df: pd.DataFrame, asof: str) -> None:
     index = insights.nearest_frame(frames, claim["last_claim"])
     pair = insights.frame_pair(frames, index)
     row = latest_df[latest_df["code"] == code].iloc[0]
-    note = insights.first_deadline_note(statements, code, row.get("k3_first_deadline"))
+    note = insights.first_deadline_note(statements, code, row.get("k3_first_deadline"), asof)
     with st.container(border=True):
         finding(f"<b>{code}</b>: as of {asof}, {claim['k3']} months past the first announced handover date "
                 f"({claim['deadline']}{f', {note}' if note else ''}).")
@@ -1550,13 +1560,15 @@ def render_activity_spread(latest_df: pd.DataFrame, asof: str) -> None:
         x="score:Q", text=alt.Text("score:Q", format=".2f"))
     mean = alt.Chart(pd.DataFrame({"mean": [spread["mean"]]})).mark_rule(
         color=PALETTE["text"], strokeDash=[4, 4]).encode(x="mean:Q")
-    low = spread["below_half"]
-    hidden = (f"; {', '.join(low)} {'is' if len(low) == 1 else 'are'} below half of it" if low else "")
+    statements = load_table("real/statements.parquet", TRACK_A)
+    low = [code if statements is None else f"{code}, {insights.handover_status(statements, code, asof)}"
+           for code in spread["below_half"]]
+    hidden = f". Below half of it: {'; '.join(low)}" if low else ""
     with st.container(border=True):
         finding(f"{ORIGIN_DERIVED} District average activity <b>{spread['mean']:.2f}</b> as of {asof}{hidden}.")
         st.altair_chart((bars + labels + mean).properties(height=34 * len(table) + 90), width="stretch")
-        st.caption("Dashed line = district average. Activity score = the model's probability that space saw "
-                   "building activity this quarter.")
+        st.caption("Dashed line = district average. Activity score = the model's latest probability that space "
+                   "saw building activity. Low activity after a published handover can mean finished, not stalled.")
 
 
 def render_district_levels() -> None:

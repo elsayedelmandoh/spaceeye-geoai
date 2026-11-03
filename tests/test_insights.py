@@ -460,9 +460,16 @@ def test_first_deadline_note_only_when_the_first_deadline_belongs_to_a_phase():
         "published_date": pd.to_datetime(["2021-09-25", "2021-09-25", "2019-06-03", "2021-09-21"]),
         "period_end": pd.to_datetime(["2023-07-31", "2021-12-31", "2022-12-31", "2021-12-31"]),
     })
-    assert insights.first_deadline_note(statements, "C18", "2021-12-31") == "phase 1; whole project Jul 2023"
-    assert insights.first_deadline_note(statements, "C12", "2022-12-31") is None
-    assert insights.first_deadline_note(statements, "C12", None) is None
+    assert insights.first_deadline_note(statements, "C18", "2021-12-31", "2026Q3") == "phase 1; whole project Jul 2023"
+    assert insights.first_deadline_note(statements, "C12", "2022-12-31", "2026Q3") is None
+    assert insights.first_deadline_note(statements, "C12", None, "2026Q3") is None
+    # a whole-project promise ending the same month means the date is not phase-only
+    same_month = pd.concat([statements, pd.DataFrame({
+        "code": ["C18"], "kind": ["promise"], "scope": ["project"],
+        "published_date": pd.to_datetime(["2021-09-25"]), "period_end": pd.to_datetime(["2021-12-31"])})])
+    assert insights.first_deadline_note(same_month, "C18", "2021-12-31", "2026Q3") is None
+    # promises published after the quarter shown are not used
+    assert insights.first_deadline_note(statements, "C18", "2021-12-31", "2021Q2") is None
 
 
 def test_finance_snapshot_reads_money_up_to_the_quarter():
@@ -483,18 +490,19 @@ def test_complaints_by_quarter_counts_each_category():
         "created_at": pd.to_datetime(["2026-01-05", "2026-02-01", "2026-07-01", "2026-07-02"]),
         "category": ["delay", "delay", "stoppage", "delay"],
     })
-    table = insights.complaints_by_quarter(complaints, "C18")
-    assert table.to_dict("records") == [{"quarter": "2026Q1", "category": "delay", "complaints": 2},
-                                        {"quarter": "2026Q3", "category": "stoppage", "complaints": 1}]
+    table = insights.complaints_by_quarter(complaints, "C18", "2026Q2")
+    assert table.to_dict("records") == [{"quarter": "2026Q1", "category": "delay", "complaints": 2}]
+    assert insights.last_quarters("2026Q2", 4) == ["2025Q3", "2025Q4", "2026Q1", "2026Q2"]
 
 
 
 def test_cycle_footprint_sums_published_homes_and_land_in_feddan():
     compounds = pd.DataFrame({"code": ["C18", "C07", "C01"], "units": [1600, 1000, 500],
                               "units_origin": ["real", "generated", "real"],
-                              "land_area_m2": [4200.83 * 10, 4200.83 * 5, 1.0]})
-    assert insights.cycle_footprint(compounds, ["C18", "C07"]) == {"homes": 1600, "homes_compounds": 1,
-                                                                   "feddan": 15.0}
+                              "land_area_m2": [4200.83 * 10, 4200.83 * 5, 1.0],
+                              "land_area_origin": ["real", "real", "generated"]})
+    assert insights.cycle_footprint(compounds, ["C18", "C07", "C01"], 4200.83) == {
+        "homes": 2100, "homes_compounds": 2, "feddan": 15.0, "land_compounds": 2}
 
 
 def test_activity_spread_names_compounds_far_below_the_district_mean():
@@ -556,8 +564,8 @@ def test_handover_status_reads_the_latest_published_delivery_event_up_to_the_qua
         "scope": ["project", "project", "phase1", "project", "project"],
         "published_date": pd.to_datetime(["2024-04-18", "2026-09-20", "2025-09-10", "2026-05-03", "2021-09-25"]),
     })
-    assert insights.handover_status(statements, "C12", "2026Q3") == "handed over (Sep 2026)"
-    assert insights.handover_status(statements, "C12", "2026Q2") == "handover started (Apr 2024)"
-    assert insights.handover_status(statements, "C03", "2025Q4") == "phase 1 handover started (Sep 2025)"
-    assert insights.handover_status(statements, "C03", "2026Q3") == "handover in progress (May 2026)"
+    assert insights.handover_status(statements, "C12", "2026Q3") == "handed over (published Sep 2026)"
+    assert insights.handover_status(statements, "C12", "2026Q2") == "handover started (published Apr 2024)"
+    assert insights.handover_status(statements, "C03", "2025Q4") == "phase 1 handover started (published Sep 2025)"
+    assert insights.handover_status(statements, "C03", "2026Q3") == "handover in progress (published May 2026)"
     assert insights.handover_status(statements, "C18", "2026Q3") == "none published"

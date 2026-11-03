@@ -155,7 +155,7 @@ HANDOVER_WORDS = {"delivery_complete": "handed over", "delivery_progress": "hand
 
 
 def handover_status(statements: pd.DataFrame, code: str, asof: str) -> str:
-    """The latest published handover event up to the quarter, with its scope and month."""
+    """The latest published handover event up to the quarter, with its scope and publication month."""
     events = statements[(statements["code"] == code) & statements["subtype"].isin(list(HANDOVER_WORDS))
                         & (pd.to_datetime(statements["published_date"]) <= pd.Period(asof, "Q").end_time)]
     if events.empty:
@@ -163,7 +163,7 @@ def handover_status(statements: pd.DataFrame, code: str, asof: str) -> str:
     last = events.sort_values("published_date").iloc[-1]
     phase = re.fullmatch(r"phase(\d+)", str(last["scope"]))
     words = HANDOVER_WORDS[last["subtype"]]
-    return f"{f'phase {phase[1]} ' if phase else ''}{words} ({month_text(last['published_date'])})"
+    return f"{f'phase {phase[1]} ' if phase else ''}{words} (published {month_text(last['published_date'])})"
 
 
 def developer_groups(compounds: pd.DataFrame, latest: pd.DataFrame) -> list[dict]:
@@ -358,13 +358,14 @@ def short_reason(text: object, deadline_note: str | None = None) -> str:
     return "; ".join(clauses)
 
 
-def first_deadline_note(statements: pd.DataFrame, code: str, deadline: object) -> str | None:
-    """"phase N; whole project <month>" when the stored first handover date is a phase date: a phase promise ends
-    that month and no whole-project promise does. None otherwise."""
+def first_deadline_note(statements: pd.DataFrame, code: str, deadline: object, asof: str) -> str | None:
+    """"phase N; whole project <month>" when the stored first handover date is a phase date: a phase promise
+    published by the quarter ends that month and no whole-project promise does. None otherwise."""
     if is_missing(deadline):
         return None
     promises = statements[(statements["code"] == code) & (statements["kind"] == "promise")
-                          & statements["period_end"].notna()]
+                          & statements["period_end"].notna()
+                          & (pd.to_datetime(statements["published_date"]) <= pd.Period(asof, "Q").end_time)]
     month = pd.Timestamp(deadline).to_period("M")
     ends = pd.to_datetime(promises["period_end"]).dt.to_period("M")
     phase = promises[(ends == month) & promises["scope"].astype(str).str.fullmatch(r"phase\d+")]
@@ -388,22 +389,25 @@ def finance_snapshot(fin: pd.DataFrame, code: str, asof: str) -> dict | None:
             "cover_balance": float(mine.iloc[-1]["cover_balance_egp"])}
 
 
-def complaints_by_quarter(complaints: pd.DataFrame, code: str) -> pd.DataFrame:
-    mine = complaints[complaints["code"] == code]
+def last_quarters(asof: str, n: int) -> list[str]:
+    return [str(q) for q in pd.period_range(end=pd.Period(asof, "Q"), periods=n, freq="Q")]
+
+
+def complaints_by_quarter(complaints: pd.DataFrame, code: str, asof: str) -> pd.DataFrame:
+    created = pd.to_datetime(complaints["created_at"])
+    mine = complaints[(complaints["code"] == code) & (created <= pd.Period(asof, "Q").end_time)]
     quarters = pd.to_datetime(mine["created_at"]).dt.to_period("Q").astype(str)
     return (mine.assign(quarter=quarters).groupby(["quarter", "category"]).size()
             .rename("complaints").reset_index())
 
 
-FEDDAN_M2 = 4200.83  # configs/data.yaml compounds.feddan_m2
-
-
-def cycle_footprint(compounds: pd.DataFrame, codes: list[str]) -> dict:
-    """Published homes (generated unit counts left out) and land, in feddan, of the listed compounds."""
+def cycle_footprint(compounds: pd.DataFrame, codes: list[str], feddan_m2: float) -> dict:
+    """Published homes and land, in feddan, of the listed compounds; generated counts and areas are left out,
+    so each total says how many compounds it covers."""
     mine = compounds[compounds["code"].isin(codes)]
-    published = mine[mine["units_origin"] == "real"]
-    return {"homes": int(published["units"].sum()), "homes_compounds": len(published),
-            "feddan": round(float(mine["land_area_m2"].sum()) / FEDDAN_M2, 1)}
+    homes, land = mine[mine["units_origin"] == "real"], mine[mine["land_area_origin"] == "real"]
+    return {"homes": int(homes["units"].sum()), "homes_compounds": len(homes),
+            "feddan": round(float(land["land_area_m2"].sum()) / feddan_m2, 1), "land_compounds": len(land)}
 
 
 def activity_spread(latest: pd.DataFrame) -> dict:
