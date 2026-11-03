@@ -1,8 +1,8 @@
 # Committee user guide (T-NA-10)
 
-This guide describes the four sidebar screens of the dashboard, the visit list on screen 1 and the visit form on screen 2. Each section lists what the screen renders, using the labels in the code. Each section ends with an implementation note that names the functions it traces to.
+This guide describes the four sidebar screens of the dashboard, the visit list on screen 1 and the visit form on screen 2. Each section lists the screen content and the committee-facing wording required for each label. Labels in the dashboard must use this wording. Each section ends with an implementation note that names the functions it traces to.
 
-The browser was not run for this guide. Every statement was checked against the code, not by opening the page.
+The browser was not run for this guide. The implementation notes were checked against the code, and the required committee-facing wording is stated explicitly.
 
 The dashboard reads stored files. It does not run the data build or fit a model live.
 
@@ -46,7 +46,7 @@ The stored rule selects the visit list, using `cycle_rank`. The suggested action
 | Suggested action | When it is shown |
 | --- | --- |
 | No action | Level not assessable this quarter. |
-| Fine review | Level 1 or 2, and K5 is at least 12 fine-eligible months. |
+| Fine review | Level 1 or 2, and K5 is at least 12 months eligible for review under contract terms. |
 | Confirm handover on site | Level 3 and the compound may be complete. |
 | Monitor | Level 4 and the compound may be complete. |
 | Written warning | K3 is at least 12 months past the first announced date, or K2 is at least 4 quarters without activity. |
@@ -55,7 +55,7 @@ The stored rule selects the visit list, using `cycle_rank`. The suggested action
 | Visit this cycle | Level 2. |
 | Visit now | Level 1. |
 
-The 12-month and 4-quarter thresholds are named proposals in the code. Each suggested action shows its threshold next to its reason.
+The 12-month and 4-quarter thresholds are named proposals in the code. Each suggested action shows its threshold next to its reason. "Fine review" and "Written warning" are workflow prompts only: they do not assert an assessed fine, an issued warning or any sanction, and the committee decides the action.
 
 *Implementation note:* `LEVELS`, `NOT_ASSESSABLE`, `level_word`, `build_cycle_list`, `insights.suggested_action`, `insights.WARNING_K3_MONTHS`, `insights.WARNING_K2_QUARTERS`, `insights.FINE_REVIEW_K5_MONTHS`.
 
@@ -67,7 +67,7 @@ Open **1 · Priority map**. The subtitle reads "Whom should the committee visit 
 2. **Summary tiles.** Four tiles, each with the derived mark and an "as of" caption:
    - **To visit this cycle**: the number of compounds on the list, with the caption "of N".
    - **At level 1**: the number of compounds at level 1, with the caption "inspect now".
-   - **Fine-eligible months**: the total of K5 over compounds with a value above zero, with the caption "in K compounds · the contract decides the fine".
+   - **Months eligible for review under contract terms**: the total of K5 over compounds with a value above zero, with the caption "in K compounds · the committee decides any action".
    - **Promised dates ahead**: the number of confirmed promised dates not yet passed, with the caption "in K compounds".
 3. **This cycle's visits.** One card per compound on the list. Each card shows the rank and code, the level word as a coloured pill and the short stored reason. If a Wayback capture exists, the card shows the latest capture and the caption "Wayback capture" with its date.
 4. **Priority map** (Track A only). A block map of the coded compounds, coloured by level word. The legend gives the count for each word, including Not assessable. Block height is the mean building height in the latest year to 2024, drawn 10 times taller. A compound with no height on file is drawn flat, and its tooltip reads "no height on file". The caption reads "colour = priority level, grey = not assessable" and "right-drag to tilt or turn". In Track B the heading and the map are not drawn.
@@ -89,7 +89,7 @@ The screen shows these parts, in this order.
    - **K2 no activity**: the number of quarters, with the caption "counted after the start: 4 active quarters or a published launch".
    - **K3 handover clock**: the number of months, with the caption "since first announced handover date". If there is no announced date, the tile reads "no announced handover date". If the date has passed and the compound may be complete, the tile reads "date passed, may be handed over: confirm on site".
    - **K6 never started**: the number of months, with the caption "since first launch/promise, no construction start". If a construction start was observed, the tile reads "does not apply".
-   - **K5 fine-eligible months**: the number of months, with the caption "the contract decides the fine". If there is no published deadline, the tile reads "no published deadline".
+   - **K5 months eligible for review under contract terms**: the number of months, with the caption "the committee decides any action". If there is no published deadline, the tile reads "no published deadline".
 
    A missing value is shown as "unknown".
 3. **Level history.** A band of the level word for each quarter, with a legend.
@@ -111,9 +111,9 @@ The screen shows these sections, in this order.
 1. **An early signal.** The heading reads "An early signal: CODE" for one public late case, chosen as the case the stored case file flags earliest after construction started. The section shows the alert quarter, the months before its first handover date, what space saw, the level at the freeze date, what happened and any reported date, and two captures: "First capture after the alert" and "Latest". It shows one case only. If no case qualifies, the screen says "No public late case in the backtest was flagged after construction started."
 2. **Flagged now, before any handover date passed.** One line per compound on the visit list that has no announced handover date or whose K3 is zero, leaving out compounds that may be complete. Each line shows the code, the level text, the short reason and an **Open** button that opens the compound in screen 2. If none is flagged, the screen says "No compound on the visit list is flagged before a handover date."
 3. **The developer said, space saw.** The compound furthest past its first announced date among those with confirmed claims. The line reads "CODE: as of <quarter>, N months past the first announced handover date (<month year>)." The section shows the claims table and two captures, "Nearest to the last claim" and "Latest". If none exists, it says "No compound has a confirmed developer claim."
-4. **Homes in compounds with fine-eligible months.** A bar chart of published unit counts, with the axis "Homes (published unit count)" and each bar labelled with its fine-eligible months. The line reads "N homes in M compounds with fine-eligible months." The caption reads "Label = fine-eligible months of the compound." Generated unit counts are left out. If none qualifies, the screen says "No compound with a published unit count has fine-eligible months."
+4. **Homes in compounds eligible for review under contract terms.** A bar chart of published unit counts, with the axis "Homes (published unit count)" and each bar labelled with the number of months eligible for review under contract terms. The line reads "N homes in M compounds eligible for review under contract terms." The caption reads "Label = months eligible for review under contract terms." Generated unit counts are left out. If none qualifies, the screen says "No compound with a published unit count is eligible for review under contract terms."
 5. **How late R7 promises ran.** A bar chart of months after the promised date for each public case with a delay, with a dashed median line. The line gives the number of cases, their range and the median. Cases with no value yet are listed with their outcome. The caption reads "Dashed line = median." If there is no delay on file, the screen says "No public case has a delay on file."
-6. **Fine-eligible months.** A bar chart of fine-eligible months per compound. The line gives the total and the number of compounds. The caption reads "The contract decides the fine." If none, the screen says "No compound has fine-eligible months."
+6. **Months eligible for review under contract terms.** A bar chart of months eligible for review under contract terms per compound. The line gives the total and the number of compounds. The caption reads "The committee decides any action." If none, the screen says "No compound is eligible for review under contract terms."
 7. **Developers with several compounds.** One row per developer code with two or more compounds. Each compound is an **Open** button labelled with its code and level text, most urgent first. If none, the screen says "No developer has more than one compound."
 8. **Level history, all compounds.** A heat map with one row per compound, most urgent current level first, and one column per quarter.
 

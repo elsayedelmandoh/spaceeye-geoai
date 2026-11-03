@@ -1,6 +1,6 @@
 # SpaceEye handover: start here
 
-Task T-AH-21. Prepared data is available. The dashboard and the inspection agent are implemented and their review is pending; independent real-world predictive validation remains future work.
+Task T-AH-21. Prepared data is available. The dashboard and inspection agent remain unfinished; independent real-world predictive validation remains future work.
 
 ## Use the data
 
@@ -19,7 +19,7 @@ Download the current ZIP from [ready-data](../../releases/ready-data/README.md),
 
 Scope is 12 R7 codes. Capacity is 4. Unknown values stay null. Join on the complete declared key, including quarter/month. Public statements require publication-date cutoffs. Keys, private truth, labels and post-cutoff observations never enter model X. Keep generated results distinct from real observations. Do not publish name mappings or private answer keys.
 
-The extended ML data has 180 rows and 40 features. The approved classifier is binary distressed/not_distressed; use its normalized probabilities and current evaluation report. Use the current capacity-4 report; older experiment results do not validate the present schema. Annual heights after 2024 are not approved measurements; an older height carried into a feature is still an older value.
+The extended ML data has 180 rows and 40 features. For generated Track B data, the approved classifier is binary distressed/not_distressed; use its normalized probabilities and current evaluation report. Use the current capacity-4 report; older experiment results do not validate the present schema. Annual heights after 2024 are not approved measurements; an older height carried into a feature is still an older value.
 
 ## Continue development
 
