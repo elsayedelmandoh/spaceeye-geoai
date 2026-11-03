@@ -1,6 +1,6 @@
 # Presentation palette (ACUD logo)
 
-Applies to `01-presentation.pptx` and any file generated from `01-presentation.md`. Source: colors sampled from `ACUD_logo.png` (red, black, white). Hex values are written without `#` in OOXML (`<a:srgbClr val="E31B23"/>`) and in pptxgenjs (`color: "E31B23"`). Never use `#` or 8-digit hex there.
+Applies to `presentation.pptx` and any file generated from `presentation.md`. Source: colors sampled from `ACUD_logo.png` (red, black, white). Hex values are written without `#` in OOXML (`<a:srgbClr val="E31B23"/>`) and in pptxgenjs (`color: "E31B23"`). Never use `#` or 8-digit hex there.
 
 ## Core colors
 

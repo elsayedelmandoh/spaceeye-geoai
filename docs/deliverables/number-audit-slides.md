@@ -2,7 +2,7 @@
 
 Task T-SA-08, slides sheet.
 
-Source checked: `docs/deliverables/01-presentation.md`. Line numbers refer to that file. Verdict counts and open items are at the end.
+Source checked: `docs/deliverables/01-presentation/presentation.md`. Line numbers refer to that file. Verdict counts and open items are at the end.
 
 | # | Line | Number as written | Verdict | Source (file:line) and note |
 |---|---|---|---|---|
