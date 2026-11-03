@@ -9,7 +9,7 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 3:** a specific challenge placed in the frame (type × pillar × condition); its goal and size measured from a source; decision owner and affected parties named.
 - **Level 4:** links the challenge to stability, sustainability or citizen satisfaction as a chain: number → problem → measured impact; explains why now.
 - **Evidence:** `docs/requirements/01-specs.md` section 0 (compass cell preventive · Buildings & Facilities · normal · stability; decision owner; decision served); slide 1 figures (more than 400 developers, more than 500 projects, about 7-8% seriously late, 6 mutual terminations) are ACUD chairman statements recorded in `docs/requirements/01-specs.md` section 12.
-- **Added for level 4:** `docs/deliverables/decision-memo.md` (English and Arabic): chain from R7 counts (5 of 6 late cases, 18-33 months) to problem (delay seen late) to impact (6,474 homes, up to 153,816 home-months; 3 compounds, 3,624 homes past the 24-month refund line of Decree 2184/2022 art. 5) and an assumed money figure (5,000 EGP rent per home-month, labelled assumption, about 0.77 bn EGP); "why now" in three points. Slide 1 adds the R7 line and the why-now speaker note.
+- **Added for level 4:** `docs/deliverables/decision-memo.md` (English and Arabic): chain from R7 counts (5 of 6 late cases, 18-33 months) to problem (delay seen late) to impact (6,474 homes, up to 153,816 home-months; 3 compounds, 3,624 homes past the 24-month refund line of Decree 2184/2022 art. 5) and an assumed money figure (5,000 EGP rent per home-month, labelled assumption, about 0.77 bn EGP); "why now" in three points.
 - **Gap to level 4:** the money figure rests on an assumed rent; delays are counted from published promises, not contract dates.
 - **Slide:** 1, 2.
 
@@ -44,9 +44,9 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 3:** roadmap with phases, owners and resources; includes risks and training.
 - **Level 4:** phased transition before execution with progress indicators, criteria for moving between phases, and a rollback plan.
 - **Evidence:** next step "run one cycle with the list and record visit results" (slide 11); data request ordered by impact `docs/deliverables/data-request.md`; quarterly monitoring procedure `docs/deliverables/technical-track-a.md`; risks and fallbacks `docs/requirements/01-specs.md` section 13; roles `docs/requirements/01-specs.md` section 10.
-- **Added for level 4:** `docs/deliverables/transition-plan.md`: three phases (pilot cycle, ACUD data, quarterly operation then R8) with scope, owner roles, resources and training; proposed gate criteria between phases; six progress indicators counted each quarter; rollback table with triggers (the fixed 3-month review keeps running through phase 2, so rollback costs at most one rerun). Slide 11 points to it.
+- **Added for level 4:** `docs/deliverables/transition-plan.md`: three phases (pilot cycle, ACUD data, quarterly operation then R8) with scope, owner roles, resources and training; proposed gate criteria between phases; six progress indicators counted each quarter; rollback table with triggers (the fixed 3-month review keeps running through phase 2, so rollback costs at most one rerun).
 - **Gap to level 4:** all of it is proposed: people, dates and the committee's own gate numbers need ACUD; nothing has been executed yet.
-- **Slide:** 11 (three-phase roadmap; gates and rollback in the plan).
+- **Slide:** 11 (three-phase roadmap only; gates and rollback are in the plan, not on the slide).
 
 ## 6. Solution effectiveness: preventive (weight 12)
 

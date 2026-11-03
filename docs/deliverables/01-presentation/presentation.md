@@ -17,11 +17,11 @@ Speaker note: 0:15 · opening. Name the project and the slogan, thank the superv
 - 🟢 Real statement: Field review every 3 months.
 - 🟢 Real statement: About 7-8% of developers seriously late; 6 mutual terminations.
 - A committee cannot visit everything every cycle: whom to visit first?
-- These are the chairman's statements, not our measurement. 🔵 R7, our count: 5 of 6 public late cases ran 18-33 months past the promise (median 25); their 6,474 homes waited about 153,816 home-months if all shared the first promised date; 3 ran more than 24 months past the published promise (Decree 2184/2022 art. 5 counts its 24-month refund line from the contract date). Chain and why now: `docs/deliverables/decision-memo.md`.
+- These are the chairman's statements, not our measurement.
 - Visual: five stat callouts (more than 400 developers · more than 500 projects · field review every 3 months · about 7-8% seriously late · 6 mutual terminations).
-- Source: statements by the ACUD chairman, as recorded in `docs/requirements/01-specs.md` (section 12, slide 1); R7 counts from the release tables `real/eval_outcomes` and `real/compounds` (as of 2026Q3).
+- Source: statements by the ACUD chairman, as recorded in `docs/requirements/01-specs.md` (section 12, slide 1).
 
-Speaker note: 0:45 · criterion 1. A committee cannot visit everything every cycle, so the question is whom to visit first. Why now: Decree 2184/2022 art. 5 applies to projects under way, and two R7 clocks run today (C18 57 months past its first date, C14 moved its date twice).
+Speaker note: 0:45 · criterion 1. A committee cannot visit everything every cycle, so the question is whom to visit first.
 
 ## Slide 2. The question and the decision
 
@@ -169,10 +169,10 @@ Speaker note: 0:30 · criteria 5, 9. Technical launch only; phases are on the ne
   - Phase 1 · Pilot cycle: Run one cycle with the list; record every visit result. Owner: Committee decides; Track A owner prepares the list. Risk: Little ground truth; no accuracy claim. Rollback: The current 3-month review continues.
   - Phase 2 · ACUD data: Coded export ordered by impact; small verified sample first. Owner: ACUD data custodian keeps the identity mapping. Risk: Access and approval not yet given. Rollback: Stay on public data; missing stays unknown.
   - Phase 3 · Quarterly operation: Quarterly monitoring; thresholds and capacity change only by reviewed decision. Owner: Proposed: Track A owner operates, another team member reviews. Risk: Activity score A fails on new quarters. Rollback: Fall back to K1; prior releases stay available.
-- Gates between phases, progress indicators, rollback triggers and training: `docs/deliverables/transition-plan.md` (proposed). The fixed 3-month review keeps running through phases 1 and 2, so rollback costs at most one rerun. People and dates: to be agreed with ACUD.
+- Training of committee users, dates, phase-gate criteria and signed owners: to be agreed with ACUD.
 - Transfer: thresholds and capacity are configuration; another region needs its boundaries and statements. Only R7 has been run; no transfer is proven.
 - Next step: run one cycle with the list and record visit results.
 - Visual: decision box and three-phase roadmap.
-- Source: `docs/deliverables/decision-memo.md` (decision requested), `docs/deliverables/data-request.md`, `docs/requirements/01-specs.md` (data request list, art. 54; section 13 risks and fallbacks), `docs/deliverables/technical-track-a.md` (quarterly monitoring procedure), `docs/deliverables/transition-plan.md` (gates, indicators, rollback).
+- Source: `docs/deliverables/decision-memo.md` (decision requested), `docs/deliverables/data-request.md`, `docs/requirements/01-specs.md` (data request list, art. 54; section 13 risks and fallbacks), `docs/deliverables/technical-track-a.md` (quarterly monitoring procedure).
 
 Speaker note: 0:45 · criteria 5, 10, bonus. Open with the decision, name the first phase and close on the next step. Total 12:00. For questions: the ACUD export is ordered by impact (dated inspection and handover outcomes, contract register, parcel geometry first); any STOP in the monitoring procedure writes no manifest.
