@@ -64,7 +64,7 @@ These numbers are the chairman's spoken statements, not project measurements. Th
 Before the end card the video shows a Vision 2030 card naming the two goals the project supports: goal 4, knowledge and innovation (geographic AI that reads satellite images), and goal 6, governance (field inspections directed by data with a known source). Goal 5 (environment) is left out because the project does not compute NDVI; it uses the Dynamic World vegetation share.
 
 - `intro-human-voice.mp4` (80 s): the recorded narration cannot take new words, so the card is a silent 5.5 s beat between the last shot and the end card; everything after it moves together, so the slogan stays in sync.
-- `intro-ai-voice.mp4`: the AI narration replaces "والقرار يبقى للجنة" with: "القاعدة ترتّب الأولوية وتشرح السبب، فتختصر على اللجنة وقتَ الزيارات، وتساعدها على اختيار زيارتها التالية ببياناتٍ معروفةِ المصدر. هكذا يخدم سبيس آي رؤيةَ مصر 2030 في الحوكمة والتحوّل الرقمي." The card is on screen while the Vision 2030 sentence is spoken.
+- `intro-ai-voice.mp4` (75 s): for now it shows the same silent 5.5 s card. Planned next: a new AI narration that replaces "والقرار يبقى للجنة" with: "القاعدة ترتّب الأولوية وتشرح السبب، فتختصر على اللجنة وقتَ الزيارات، وتساعدها على اختيار زيارتها التالية ببياناتٍ معروفةِ المصدر. هكذا يخدم سبيس آي رؤيةَ مصر 2030 في الحوكمة والتحوّل الرقمي." The card will then be on screen while the Vision 2030 sentence is spoken (needs a new Renoise text-to-speech run).
 
 ## How it was made and what it is not
 

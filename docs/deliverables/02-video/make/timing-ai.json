@@ -39,5 +39,11 @@
     "../khaled-abbas-1.mp4",
     "../khaled-abbas-2.mp4",
     "../khaled-abbas-3.mp4"
+  ],
+  "cards_before_end": [
+    {
+      "card": "vision",
+      "seconds": 5.5
+    }
   ]
 }
