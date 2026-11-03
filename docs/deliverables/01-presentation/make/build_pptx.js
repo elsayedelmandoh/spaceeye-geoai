@@ -369,28 +369,28 @@ slides.push({
   title: "Value in EGP (3 settings)", time: "1:30",
   md: [
     "- Visiting 4 compounds per cycle instead of all 12: 16 visits a year instead of visiting every compound each cycle.",
-    "- Under these assumptions, from -0.006 to 0.098 million EGP per year.",
-    "- Every cost input is an assumption. The conservative setting is negative.",
-    "- Cost per visit (2,000 / 3,000 / 4,000 EGP) is an assumption based on a team of 3 at published engineer pay plus assumed transport. Operating cost, missed cases and cost of a late case are placeholders.",
+    "- Under these assumptions, from 0.007 to 0.102 million EGP per year.",
+    "- Cost inputs are public proxies or assumptions. Even the conservative setting is positive, but small.",
+    "- Cost per visit (2,000 / 3,000 / 4,000 EGP) is an assumption based on a team of 3 at published engineer pay plus assumed transport. Operating cost and missed cases are public proxies (CBE, Hetzner, WageIndicator, chairman's 7-8% statement); the cost of a late case is a placeholder.",
     "- The cost of a false alarm against the cost of a missed case has not been measured.",
     "- Not a measured saving.",
-    "- Visual: two stat callouts (-0.006 and 0.098 million EGP per year) and a three-setting table (cost per visit, operating cost, missed cases per year).",
+    "- Visual: two stat callouts (0.007 and 0.102 million EGP per year) and a three-setting table (cost per visit, operating cost, missed cases per year).",
   ],
-  source: ["`configs/cost_assumptions.yaml` (the same file holds the three settings and the placeholder values); `docs/deliverables/01-presentation/rubric-map.md` (criterion 6 gap)."],
-  note: "Speaker note: 1:30 · criterion 7. Compare with the current policy of visiting all 12; say the conservative setting is negative. The cost of a late case is a placeholder of 20,000 EGP per missed case in all three settings.",
+  source: ["`configs/cost_assumptions.yaml` (the same file holds the three settings, the proxy values and the placeholder); `docs/deliverables/01-presentation/rubric-map.md` (criterion 6 gap)."],
+  note: "Speaker note: 1:30 · criterion 7. Compare with the current policy of visiting all 12; say the conservative setting is positive but small. The cost of a late case is a placeholder of 20,000 EGP per missed case in all three settings.",
   build(s) {
-    stat(s, "s9 lo", MX, TOP + 0.05, 3.0, 1.9, "-0.006", "million EGP per year, low end");
-    stat(s, "s9 hi", MX + 3.2, TOP + 0.05, 3.0, 1.9, "0.098", "million EGP per year, high end");
+    stat(s, "s9 lo", MX, TOP + 0.05, 3.0, 1.9, "0.007", "million EGP per year, low end");
+    stat(s, "s9 hi", MX + 3.2, TOP + 0.05, 3.0, 1.9, "0.102", "million EGP per year, high end");
     table(s, "s9 table", [
-      ["Setting", "Cost per visit (EGP)", "Operating cost (EGP/yr, placeholder)", "Missed cases per year (placeholder)"],
-      ["Conservative", "2,000", "30,000", "2"],
-      ["Central", "3,000", "20,000", "1"],
-      ["Optimistic", "4,000", "10,000", "1"],
+      ["Setting", "Cost per visit (EGP)", "Operating cost (EGP/yr, proxy)", "Missed cases per year (proxy)"],
+      ["Conservative", "2,000", "16,800", "2"],
+      ["Central", "3,000", "9,700", "1"],
+      ["Optimistic", "4,000", "6,000", "1"],
     ], MX + 6.6, TOP + 0.05, W - 6.6, [1.35, 1.2, 1.5, W - 6.6 - 4.05], 12, 0.5);
     bullets(s, "s9 bullets", [
       "Visiting 4 compounds per cycle instead of all 12: 16 visits a year.",
-      "Every cost input is an assumption; the conservative setting is negative. Not a measured saving.",
-      "Cost per visit (assumption): a team of 3 at published engineer pay plus assumed transport. Operating cost, missed cases and cost of a late case are placeholders.",
+      "Cost inputs are public proxies or assumptions; the conservative setting is positive but small. Not a measured saving.",
+      "Cost per visit (assumption): a team of 3 at published engineer pay plus assumed transport. Operating cost and missed cases are public proxies; the cost of a late case is a placeholder.",
       "The cost of a false alarm against the cost of a missed case has not been measured.",
     ], MX, 3.6, W, 2.8, 16);
   },
