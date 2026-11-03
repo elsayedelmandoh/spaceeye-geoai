@@ -36,7 +36,8 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 3:** designed for a named audience (operator, decision maker, leadership); answers its question; shows current against target with thresholds and alerts.
 - **Level 4:** leads from alert to action; tested with audience representatives and changed after the test.
 - **Evidence:** `app.py` (`SCREENS`: 1 Priority map, 2 Compound file, 3 District view, 4 Digital twin what if; track switch); committee guide `docs/deliverables/user-guide.md`; display-rules check and fixes `docs/deliverables/display-rules-check.md`; alert → action path: level → cycle list → inspection file → visit form (`docs/requirements/01-specs.md` sections 7 and 9).
-- **Gap to level 4:** the ten-second test was taken by someone outside the team but its answer sheet and timings are not recorded in the repo (`docs/REMAINING_TEAM_TASKS.md`, T-NA-08); no change log "after the test".
+- **Added for level 4:** `docs/deliverables/audience-test.md`: change log of what the teammate reviews found and what changed (PR #101, PR #102), and a ten-second test sheet for screen 1 with an answer key from the current release.
+- **Gap to level 4:** the reviewers were team members, not committee members; the ten-second test with a real committee member still has to be run and recorded on the sheet (T-NA-08).
 - **Slide:** 6 (live demo).
 
 ## 5. Transition from current to target (weight 10)
@@ -70,7 +71,8 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 3:** clear ownership of data, indicators and model; permissions; quality and privacy controls (Law 151 of 2020) (unclear in the source).
 - **Level 4:** an integrated system: change and version control, audit log, periodic review, risk management with owners.
 - **Evidence:** ownership, access and sharing per data group plus "Version and change controls" (`docs/deliverables/governance-cards.md`); quality gates and run id (`docs/deliverables/quality-report.md`); privacy, masking, Law 151/2020 note (`docs/deliverables/responsible-ai.md`); recorded reviews (`logs/review-05.md`); risks with fallbacks (`docs/requirements/01-specs.md` section 13).
-- **Gap to level 4:** owner roles are proposed, not approved by ACUD (`docs/deliverables/governance-cards.md`); one quality FLAG still open (`docs/deliverables/quality-report.md`: 1 FLAG, 10 PASS); risks have fallbacks but no named owner role per risk; no periodic review schedule agreed.
+- **Added for level 4:** `docs/deliverables/governance.md`: RACI over nine activities, risk register with an owner role and early sign per risk, review schedule (quarterly to yearly), decision log (2026-10-26 to PR #107), and the 2019Q2 FLAG explained (1 compound with a level, so 1 of 1) with a proposed review decision.
+- **Gap to level 4:** roles, schedule and the FLAG decision are proposals; the second reviewer and ACUD have not signed them.
 - **Slide:** 10.
 
 ## 9. Documentation and knowledge transfer (weight 6)
@@ -86,7 +88,8 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 3:** a clear story from current to target state and a summary with the decision requested; 12 minutes; accurate and transparent answers (unclear in the source).
 - **Level 4:** leadership-level persuasion: conveys the value strongly and handles hard questions with evidence and alternatives.
 - **Evidence:** decision requested in `docs/deliverables/decision-memo.md` and slide 11; prepared answers `docs/deliverables/expected-questions.md`; deck text `docs/deliverables/presentation.md`.
-- **Gap to level 4:** the deck is written for 12-15 minutes and must fit 12; the as-is to to-be story has no slide (criteria 2, 5); timed rehearsals are still open (`docs/REMAINING_TEAM_TASKS.md`, T-ALL-05).
+- **Added for level 4:** eight prepared answers for the new material (as-is and to-be, why now, buyers affected, when it fails, false alarm vs missed case, safe start, responsibility, other districts) in `docs/deliverables/expected-questions.md`; the one-page decision is `docs/deliverables/decision-memo.md`.
+- **Gap to level 4:** the deck was kept as it was (owner, 2026-11-04), so the as-is to to-be story has no slide of its own; timed rehearsals are still open (T-ALL-05).
 - **Slide:** all; decision on 11.
 
 ## Bonus: transferability, scalability, sustainability (+10)
@@ -94,7 +97,8 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **4-7:** transferable to another region or pillar with an alternative.
 - **8-10:** proven transfer with a sustainability plan. (0-3: solution confined to one case.)
 - **Evidence:** thresholds and capacity in configuration (`configs/data.yaml` per `docs/requirements/01-specs.md` section 2); public satellite sources not tied to R7; quarterly procedure (`docs/deliverables/technical-track-a.md`).
-- **Gap:** only R7 is run (R8 excluded, `docs/requirements/01-specs.md` section 0); no transfer shown. State the transfer path (another region needs boundaries and statements) honestly; claim no proven transfer.
+- **Added:** transfer path in `docs/deliverables/knowledge-transfer.md` ("Use it in another district"): five steps (coded boundaries, dated statements, satellite windows, configuration, checks before use).
+- **Gap:** only R7 is run; no dry run on another district (its source caches are not in the checkout); no transfer is claimed.
 - **Slide:** no slide yet (one line on slide 11).
 
 ## Presentation plan for 12 minutes
