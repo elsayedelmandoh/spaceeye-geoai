@@ -11,6 +11,8 @@ from pathlib import Path
 import pandas as pd
 
 LEVEL_NUMBERS = (1, 2, 3, 4)
+LEVEL_WORDS = {1: "Inspect now", 2: "Inspect this cycle", 3: "Document review", 4: "Routine"}
+NOT_ASSESSABLE_WORD = "Not assessable"
 
 # Proposals for the committee to set, not stored rules: they only raise the suggested action.
 WARNING_K3_MONTHS = 12
@@ -37,6 +39,23 @@ def level_number(level: object) -> int | None:
         return int(level) if int(level) in LEVEL_NUMBERS else None
     except (TypeError, ValueError):
         return None
+
+
+def level_word(level: object) -> str:
+    """The stored priority level as a word, or the explicit not-assessable label."""
+    number = level_number(level)
+    return LEVEL_WORDS.get(number, NOT_ASSESSABLE_WORD) if number is not None else NOT_ASSESSABLE_WORD
+
+
+def level_word_for_row(row: pd.Series) -> str:
+    """The dashboard level word for one KPI row, preserving its stored no-level state."""
+    if not is_missing(row.get("level")):
+        return level_word(row.get("level"))
+    for column in ("level_label", "level_word"):
+        stored_state = row.get(column)
+        if not is_missing(stored_state) and str(stored_state).strip():
+            return str(stored_state).strip().capitalize()
+    return NOT_ASSESSABLE_WORD
 
 
 def month_text(value: object) -> str:
@@ -130,6 +149,19 @@ def timeline_frames(code: str, root: Path) -> list[tuple[str, Path]]:
     return sorted(hits)
 
 
+def capture_rows(frames: list[dict], stages: dict[int, str]) -> list[dict]:
+    """Stored capture dates with their stored construction stage, oldest first."""
+    rows = []
+    for capture in sorted(frames, key=lambda stored_frame: str(stored_frame.get("date", ""))):
+        date = str(capture.get("date", ""))
+        try:
+            year = int(date[:4])
+        except (TypeError, ValueError):
+            year = 0
+        rows.append({"date": date, "stage": stages.get(year, "stage not on file")})
+    return rows
+
+
 def nearest_frame(frames: list[dict], when: pd.Timestamp) -> int | None:
     gaps = [abs((pd.Timestamp(f["date"]) - when).days) for f in frames]
     return None if not gaps or min(gaps) > FRAME_NEAR_DAYS else gaps.index(min(gaps))
@@ -198,6 +230,55 @@ def suggested_action(row: pd.Series) -> tuple[str, str]:
     if level == 2:
         return "Visit this cycle", "On the visit list this quarter."
     return "Visit now", "Highest priority this quarter."
+
+
+def _count_with_unit(value: object, unit: str) -> str:
+    if is_missing(value):
+        return "unknown"
+    number = float(value)
+    amount = f"{int(number):,}" if number.is_integer() else f"{number:,.1f}"
+    return f"{amount} {unit}{'' if abs(number) == 1 else 's'}"
+
+
+def compound_panel_rows(row: pd.Series, asof: str, frames: list[dict],
+                        stages: dict[int, str]) -> list[dict]:
+    """The selected compound's sidebar details, built only from stored values."""
+    captures = capture_rows(frames, stages)
+    latest_capture = captures[-1] if captures else None
+    if row.get("K6_status") == "not_applicable_started" and is_missing(row.get("K6")):
+        k6 = "does not apply"
+    else:
+        k6 = _count_with_unit(row.get("K6"), "month")
+    reason = row.get("reason_ar")
+    return [
+        {"label": "Code", "value": str(row.get("code", ""))},
+        {"label": "Priority level", "value": level_word_for_row(row), "detail": f"as of {asof}"},
+        {"label": "K2 no activity", "value": _count_with_unit(row.get("K2"), "quarter")},
+        {"label": "K3 handover clock", "value": _count_with_unit(row.get("K3"), "month")},
+        {"label": "K6 never started", "value": k6},
+        {"label": "Reason", "value": "not stored" if is_missing(reason) else str(reason), "direction": "rtl"},
+        {"label": "Suggested next action", "value": suggested_action(row)[0]},
+        {"label": "Latest capture",
+         "value": ("no capture stored" if latest_capture is None
+                   else f"{latest_capture['date']} · {latest_capture['stage']}")},
+    ]
+
+
+def signal_history_table(kpis: pd.DataFrame, code: str) -> pd.DataFrame:
+    """One compound's level and K2/K3/K6 by quarter, oldest quarter first."""
+    columns = ["Quarter", "Level", "K2 (quarters)", "K3 (months)", "K6 (months)"]
+    if not {"code", "quarter"} <= set(kpis.columns):
+        return pd.DataFrame(columns=columns)
+    compound_kpis = kpis[kpis["code"].astype(str) == str(code)].copy()
+    compound_kpis["quarter"] = compound_kpis["quarter"].astype(str)
+    compound_kpis = compound_kpis.sort_values("quarter")
+    table = pd.DataFrame({"Quarter": compound_kpis["quarter"].to_numpy()})
+    table["Level"] = [level_word_for_row(stored_row) for _, stored_row in compound_kpis.iterrows()]
+    for source, target in (("K2", "K2 (quarters)"), ("K3", "K3 (months)"), ("K6", "K6 (months)")):
+        table[target] = (pd.to_numeric(compound_kpis[source], errors="coerce").to_numpy()
+                         if source in compound_kpis else [float("nan")] * len(compound_kpis))
+    return table.reset_index(drop=True)
+
 
 OUTCOME_WORDS = {
     "partial_delivery_late_completion_postponed": "partly handed over late, completion postponed",

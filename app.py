@@ -62,6 +62,15 @@ TRACK_A = Track("A", "Track A: images", generated=False)
 TRACK_B = Track("B", "Track B: images + numbers (generated)", generated=True)
 TRACKS = {t.label: t for t in (TRACK_A, TRACK_B)}  # Track A first = default
 
+
+@dataclass(frozen=True)
+class SelectedCompound:
+    latest_row: pd.Series
+    asof: str
+    quarterly_kpis: pd.DataFrame
+    capture_frames: list[dict]
+    capture_stages: dict[int, str]
+
 SCREENS = [
     "1 · Priority map",
     "2 · Compound file",
@@ -294,12 +303,12 @@ def render_banner(track: Track) -> None:
 # --------------------------------------------------------------------------- #
 
 LEVELS: dict[int, tuple[str, str]] = {
-    1: ("Inspect now", "#EF4444"),
-    2: ("Inspect this cycle", "#F97316"),
-    3: ("Document review", "#EAB308"),
-    4: ("Routine", "#22C55E"),
+    1: (insights.level_word(1), "#EF4444"),
+    2: (insights.level_word(2), "#F97316"),
+    3: (insights.level_word(3), "#EAB308"),
+    4: (insights.level_word(4), "#22C55E"),
 }
-NOT_ASSESSABLE: tuple[str, str] = ("Not assessable", "#6B7280")  # grey
+NOT_ASSESSABLE: tuple[str, str] = (insights.NOT_ASSESSABLE_WORD, "#6B7280")  # grey
 
 REQUIRED_KPI_COLUMNS = {"code", "quarter", "level"}
 
@@ -312,7 +321,7 @@ def _level_style(level: object) -> tuple[str, str]:
 
 
 def level_word(level: object) -> str:
-    return _level_style(level)[0]
+    return insights.level_word(level)
 
 
 def _hex_to_rgba(hex_color: str, alpha: int = 175) -> list[int]:
@@ -409,14 +418,30 @@ def latest_heights() -> dict[str, tuple[float, int]]:
 
 MAP_LAYER_ID = "compounds"
 MAP_KEY = "pm_map"
+SELECTED_COMPOUND_KEY = "selected_compound"
+VISIT_SELECTION_KEY = "pm_visit_selection"
 
 
 def open_clicked_compound() -> None:
-    """Map click callback: runs before the rerun, so it may set the sidebar radio's key."""
+    """Map click callback: select the compound; the sidebar panel owns navigation."""
     event = st.session_state.get(MAP_KEY)
     code = insights.picked_code(None if event is None else event.selection, MAP_LAYER_ID)
     if code is not None and CODE_PATTERN.match(code):
-        open_compound_file(code)
+        st.session_state[SELECTED_COMPOUND_KEY] = code
+
+
+def select_visit_compound() -> None:
+    """Visit-list callback: select a code, or clear the panel for the empty choice."""
+    code = st.session_state.get(VISIT_SELECTION_KEY)
+    if code is not None and CODE_PATTERN.match(str(code)):
+        st.session_state[SELECTED_COMPOUND_KEY] = str(code)
+    else:
+        st.session_state[SELECTED_COMPOUND_KEY] = None
+
+
+def clear_selected_compound() -> None:
+    """Remove the selected compound and its sidebar panel."""
+    st.session_state[SELECTED_COMPOUND_KEY] = None
 
 
 def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None,
@@ -505,7 +530,7 @@ def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None,
         st.caption(f"{ORIGIN_DERIVED} derived · as of {asof} · colour = priority level, grey = not "
                    "assessable · block height = mean building height (Google Open Buildings, latest "
                    f"year to {MAX_HEIGHT_YEAR}), drawn {MAP_HEIGHT_EXAGGERATION}× taller · "
-                   "right-drag to tilt or turn · click a compound to open its file")
+                   "right-drag to tilt or turn · click a compound to select it in the sidebar")
 
 
 def cycle_headline(latest_df: pd.DataFrame, asof: str) -> str:
@@ -589,6 +614,13 @@ def render_visit_list(latest: tuple[pd.DataFrame, str] | None, track: Track, cyc
     st.caption("Suggested actions are proposals; the committee decides.")
     st.dataframe(visit_table(latest_df, listed), hide_index=True, width="stretch",
                  column_config={"Why": st.column_config.TextColumn("Why", width="large")})
+    options = ["Select a compound", *sorted(listed["code"].astype(str))]
+    st.selectbox(
+        "Select compound",
+        options=options,
+        key=VISIT_SELECTION_KEY,
+        on_change=select_visit_compound,
+    )
 
     # The inspection files quote simulated buyer complaints, so only the generated track serves them.
     files = []
@@ -1591,6 +1623,73 @@ SCREEN_FUNCTIONS = {
 }
 
 
+def selected_compound_context(code: str) -> SelectedCompound | None:
+    """Load the stored details needed for one selected compound."""
+    kpis = load_table(KPI_FILE, TRACK_A)
+    if kpis is None or kpis.empty or not {"code", "quarter"} <= set(kpis.columns):
+        return None
+    compound_kpis = kpis[kpis["code"].astype(str) == code].copy()
+    compound_kpis["quarter"] = compound_kpis["quarter"].astype(str)
+    if compound_kpis.empty:
+        latest_row = pd.Series({"code": code, "level": None})
+        asof = str(kpis["quarter"].astype(str).max())
+    else:
+        latest_row = compound_kpis.sort_values("quarter").iloc[-1]
+        asof = str(latest_row["quarter"])
+    return SelectedCompound(latest_row, asof, kpis, space_frames(code), stage_of_year(code))
+
+
+def render_compound_details(panel_rows: list[dict]) -> None:
+    """Render the selected compound's labelled stored values."""
+    for panel_row in panel_rows:
+        if panel_row["label"] == "Reason":
+            st.markdown(
+                f'<b>Reason</b><div dir="rtl" class="se-rtl">{html.escape(str(panel_row["value"]))}</div>',
+                unsafe_allow_html=True,
+            )
+            continue
+        detail = f" · {panel_row['detail']}" if panel_row.get("detail") else ""
+        st.markdown(f"**{panel_row['label']}:** {html.escape(str(panel_row['value']))}{detail}")
+
+
+def render_compound_drilldowns(signal_history: pd.DataFrame, capture_history: list[dict]) -> None:
+    """Render the selected compound's history and capture expanders."""
+    with st.expander("Signal history"):
+        if signal_history.empty:
+            st.info("no signal history stored")
+        else:
+            st.dataframe(signal_history, hide_index=True, width="stretch")
+    with st.expander("Captures"):
+        if not capture_history:
+            st.info("no capture stored")
+        else:
+            st.dataframe(pd.DataFrame(capture_history), hide_index=True, width="stretch")
+
+
+def render_selected_compound_panel() -> None:
+    """Selected compound details and drill-downs in the sidebar."""
+    selected_code = st.session_state.get(SELECTED_COMPOUND_KEY)
+    if selected_code is None or not CODE_PATTERN.match(str(selected_code)):
+        return
+    code = str(selected_code)
+    compound_context = selected_compound_context(code)
+    if compound_context is None:
+        return
+    panel_rows = insights.compound_panel_rows(
+        compound_context.latest_row, compound_context.asof,
+        compound_context.capture_frames, compound_context.capture_stages)
+    signal_history = insights.signal_history_table(compound_context.quarterly_kpis, code)
+    capture_history = insights.capture_rows(
+        compound_context.capture_frames, compound_context.capture_stages)
+    with st.sidebar, st.container(border=True):
+        st.markdown("**Selected compound**")
+        render_compound_details(panel_rows)
+        st.button("Open compound file", key=f"selected_open_{code}",
+                  on_click=open_compound_file, args=(code,))
+        render_compound_drilldowns(signal_history, capture_history)
+        st.button("Clear selection", key="clear_selected_compound", on_click=clear_selected_compound)
+
+
 # --------------------------------------------------------------------------- #
 # Sidebar + entry point
 # --------------------------------------------------------------------------- #
@@ -1635,6 +1734,8 @@ def render_sidebar() -> tuple[Track, str]:
             f'<span class="se-pill se-pill-a">{ORIGIN_REAL} REAL · {ORIGIN_DERIVED} DERIVED</span>',
             unsafe_allow_html=True,
         )
+    if screen == SCREENS[0]:
+        render_selected_compound_panel()
     return track, screen
 
 
