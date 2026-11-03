@@ -114,10 +114,10 @@ slides.push({
     "- 🟢 Real statement: Field review every 3 months.",
     "- 🟢 Real statement: About 7-8% of developers seriously late; 6 mutual terminations.",
     "- A committee cannot visit everything every cycle: whom to visit first?",
-    "- These are the chairman's statements, not our measurement. 🔵 R7, our count: 5 of 6 public late cases ran 18-33 months past the promise (median 25); their 6,474 homes waited up to 153,816 home-months; 3 passed the 24-month refund line of Decree 2184/2022 art. 5. Chain and why now: `docs/deliverables/decision-memo.md`.",
+    "- These are the chairman's statements, not our measurement. 🔵 R7, our count: 5 of 6 public late cases ran 18-33 months past the promise (median 25); their 6,474 homes waited about 153,816 home-months if all shared the first promised date; 3 ran more than 24 months past the published promise (Decree 2184/2022 art. 5 counts its 24-month refund line from the contract date). Chain and why now: `docs/deliverables/decision-memo.md`.",
     "- Visual: five stat callouts (more than 400 developers · more than 500 projects · field review every 3 months · about 7-8% seriously late · 6 mutual terminations).",
   ],
-  source: ["statements by the ACUD chairman, as recorded in `docs/requirements/01-specs.md` (section 12, slide 1)."],
+  source: ["statements by the ACUD chairman, as recorded in `docs/requirements/01-specs.md` (section 12, slide 1); R7 counts from the release tables `real/eval_outcomes` and `real/compounds` (as of 2026Q3)."],
   note: "Speaker note: 0:45 · criterion 1. A committee cannot visit everything every cycle, so the question is whom to visit first. Why now: Decree 2184/2022 art. 5 applies to projects under way, and two R7 clocks run today (C18 57 months past its first date, C14 moved its date twice).",
   build(s) {
     const stats = [[">400", "developers"], [">500", "projects"], ["3 months", "between field reviews"], ["7-8%", "of developers seriously late"], ["6", "mutual terminations"]];
@@ -125,7 +125,7 @@ slides.push({
     stats.forEach(([b, c], i) => stat(s, "s1 stat " + i, MX + i * (w + 0.2), TOP + 0.2, w, 1.9, b, c));
     bullets(s, "s1 bullets", [
       "A committee cannot visit everything every cycle: whom to visit first?",
-      "Top row: the chairman's statements. R7, our count: 5 of 6 public late cases ran 18-33 months late; 3 passed the 24-month refund line.",
+      "Top row: the chairman's statements. R7, our count: 5 of 6 public late cases ran 18-33 months past the published promise.",
     ], MX, 3.9, W, 1.8, 18);
   },
 });
