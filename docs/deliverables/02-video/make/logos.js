@@ -1,5 +1,5 @@
 // Render the logo overlay: a transparent 1920x1080 PNG laid over every shot.
-// Top left: digilians-program, ACUD_logo. Top right: MCIT, Egyptian_Military_Academy.
+// Top left: logo-digilians, logo-ACUD. Top right: logo-MCIT, logo-egyptian-military-academy.
 // Each logo sits on a white rounded backdrop so it stays readable on dark and photo frames.
 // Run: NODE_PATH=<dir with playwright> node logos.js <out_dir>
 const fs = require("fs");
@@ -17,8 +17,8 @@ const logo = (f) =>
 const css = `html,body{margin:0;width:1920px;height:1080px;background:transparent;position:relative;overflow:hidden}
 .row{position:absolute;top:${MARGIN}px;display:flex;gap:${GAP}px}.l{left:${MARGIN}px}.r{right:${MARGIN}px}
 .row img{height:${LOGO_H}px;width:auto;display:block;box-sizing:content-box;padding:${PAD}px;background:#fff;border-radius:${RADIUS}px;box-shadow:0 2px 8px rgba(0,0,0,.35)}`;
-const html = `<div class="row l">${logo("digilians-program.png")}${logo("ACUD_logo.png")}</div>
-<div class="row r">${logo("MCIT.png")}${logo("Egyptian_Military_Academy.png")}</div>`;
+const html = `<div class="row l">${logo("logo-digilians.png")}${logo("logo-ACUD.png")}</div>
+<div class="row r">${logo("logo-MCIT.png")}${logo("logo-egyptian-military-academy.png")}</div>`;
 
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });

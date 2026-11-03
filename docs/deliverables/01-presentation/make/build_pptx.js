@@ -25,11 +25,28 @@ function check(label, texts, pt, wIn, hIn, gap = 0.08) {
   if (need > hIn) warnings.push(`${label}: needs ~${need.toFixed(2)}in, has ${hIn}in`);
 }
 
+// ---------- logos (aspect ratios from the PNG pixel sizes) ----------
+const LOGO_ACUD = path.join(__dirname, "..", "..", "02-video", "logo-ACUD.png");     // 400x207, drawn mark 171 px high
+const LOGO_DIG = path.join(__dirname, "..", "..", "02-video", "logo-digilians.png"); // 500x500, drawn mark 321 px high (white margins)
+const ACUD_AR = 400 / 207;
+const DIG_SCALE = (171 / 207) * (500 / 321); // Digilians image height per ACUD image height, so the drawn marks match
+function logos(slide, acudH, rightX, cy, gap) {
+  const digH = acudH * DIG_SCALE, acudW = acudH * ACUD_AR;
+  const x0 = rightX - (acudW + gap + digH);
+  slide.addImage({ path: LOGO_ACUD, x: x0, y: cy - acudH / 2, w: acudW, h: acudH });
+  slide.addImage({ path: LOGO_DIG, x: x0 + acudW + gap, y: cy - digH / 2, w: digH, h: digH });
+}
+const LOGO_H_SMALL = 0.5, LOGO_GAP_SMALL = 0.1;
+const LOGO_BLOCK_W = LOGO_H_SMALL * ACUD_AR + LOGO_GAP_SMALL + LOGO_H_SMALL * DIG_SCALE;
+
 // ---------- helpers (fresh option objects on every call) ----------
 function base(slide, title, source, dark = false) {
   slide.background = { color: dark ? C.navy : C.sand };
+  const logoX = MX + W - LOGO_BLOCK_W;
+  if (dark) slide.addShape(pres.ShapeType.roundRect, { x: logoX - 0.1, y: 0.35, w: LOGO_BLOCK_W + 0.2, h: 0.8, rectRadius: 0.1, fill: { color: C.white }, line: { color: C.white } });
+  logos(slide, LOGO_H_SMALL, MX + W, 0.75, LOGO_GAP_SMALL);
   slide.addText(title, {
-    x: MX, y: 0.4, w: W, h: 0.85, fontFace: HEAD, fontSize: 36, bold: true,
+    x: MX, y: 0.4, w: logoX - 0.2 - MX, h: 0.85, fontFace: HEAD, fontSize: 36, bold: true,
     color: dark ? C.white : C.text, align: "left", valign: "middle", margin: 0,
   });
   slide.addText("Source: " + source.join(" | ").replace(/`/g, ""), {
@@ -96,6 +113,7 @@ slides.push({
   source: [],
   note: "Speaker note: 0:15 · opening. Name the project and the slogan, thank the supervisor, introduce the team in one line.",
   build(s) {
+    logos(s, 1.0, MX + W / 2 + (ACUD_AR + 0.3 + DIG_SCALE) / 2, 0.95, 0.3);
     s.addText("SpaceEye GeoAI", { x: MX, y: 1.7, w: W, h: 1.2, fontFace: HEAD, fontSize: 54, bold: true, color: C.text, align: "center", valign: "middle", margin: 0 });
     s.addShape(pres.ShapeType.rect, { x: MX + W / 2 - 1.6, y: 3.0, w: 3.2, h: 0.08, fill: { color: C.red }, line: { color: C.red } });
     s.addText("New Capital Radar: a company that owns a city.", { x: MX, y: 3.25, w: W, h: 0.8, fontFace: HEAD, fontSize: 28, color: C.red, align: "center", valign: "middle", margin: 0 });
@@ -249,7 +267,7 @@ slides.push({
 
 // 6
 slides.push({
-  title: "Live demo (Track A)", time: "1:30",
+  title: "Live demo (Track A)", time: "1:15",
   md: [
     "- Priority map, cycle list (capacity 4, levels 1-3), open one compound, read its reason sentence, open the inspection file, record a visit result.",
     "- Everything on screen in Track A is real or derived. No generated number appears on the map.",
@@ -257,7 +275,7 @@ slides.push({
     "- Visual: five-step flow (priority map → cycle list → reason sentence → inspection file → visit result).",
   ],
   source: ["`docs/deliverables/user-guide.md`; board task T-AH-19 in `docs/requirements/02-team-roles-and-tasks.md`."],
-  note: "Speaker note: 1:30 · criterion 4. Follow the alert to the action: level, cycle list, inspection file, visit form.",
+  note: "Speaker note: 1:15 · criterion 4. Follow the alert to the action: level, cycle list, inspection file, visit form.",
   build(s) {
     const steps = ["Priority map", "Cycle list (capacity 4, levels 1-3)", "Compound reason sentence", "Inspection file", "Visit result recorded"];
     const bw = 1.95, gap = (W - 5 * bw) / 4;
@@ -274,7 +292,7 @@ slides.push({
 
 // 7
 slides.push({
-  title: "Backtest: 1 of 6 and why", time: "1:45",
+  title: "Backtest: 1 of 6 and why", time: "1:30",
   md: [
     "- Six public R7 cases, checked with the clock frozen. Codes only, even on this slide.",
     "- Early alert in 1 of 6 cases (after-start reading, case C21) and 0 of 6 (point-in-time reading).",
@@ -285,7 +303,7 @@ slides.push({
     "- Visual: three stat callouts (1 of 6 · 0 of 6 · 5 required, not achieved).",
   ],
   source: ["`data/BACKTEST_CURRENT.md`, `data/experiments/35_backtest_diagnosis/DIAGNOSIS.md`."],
-  note: "Speaker note: 1:45 · criterion 6. Lead with the miss, and say the target was fixed before computing.",
+  note: "Speaker note: 1:30 · criterion 6. Lead with the miss, and say the target was fixed before computing.",
   build(s) {
     const w = (W - 0.4) / 3;
     stat(s, "s7 a", MX, TOP + 0.05, w, 1.45, "1 of 6", "early alert, after-start reading (C21)");
@@ -421,6 +439,35 @@ slides.push({
   },
 });
 
+// 10b
+slides.push({
+  title: "Launching in production", time: "0:30",
+  md: [
+    "- What runs: the Streamlit dashboard (`uv run --locked streamlit run app.py`), the quarterly data run (`uv run --locked --offline python -m src.pipeline.team_run`) and prepared data v7 (`releases/ready-data`).",
+    "- Where (proposed, not deployed): a server or VM managed by ACUD, inside ACUD's network, to be agreed with ACUD. Data stays with ACUD; exports use codes only; private mappings never leave the data custodian.",
+    "- Controls: thresholds and capacity change only by reviewed decision; chatbot model calls stay off until approved with a call budget (`configs/ai.yaml`); every visit result is recorded in ops_visits.",
+    "- Monitoring: the quarterly procedure and its quality gates; any STOP keeps outputs for diagnosis, writes no manifest and blocks packaging.",
+    "- Rollback: switch the activity source to K1 (a recorded decision) and keep prior releases available, as slide 11 says.",
+    "- Visual: four-step flow (prepare data → run rule → publish dashboard → committee visits and records).",
+  ],
+  source: ["`README.md`, `CLAUDE.md`, `docs/deliverables/technical-track-a.md` (quarterly monitoring procedure, STOP, K1 switch; states no deployment is implied), `docs/deliverables/data-request.md`, `docs/deliverables/responsible-ai.md`, `docs/deliverables/governance-cards.md`, `configs/ai.yaml`, `src/dashboard/ops_visits.py`."],
+  note: "Speaker note: 0:30 · criteria 5, 9. Technical launch only; phases are on the next slide. Hosting is a proposal to agree with ACUD, not a deployed system. Any STOP writes no manifest; the fallback is K1 and the prior release.",
+  build(s) {
+    const steps = ["Prepare data (v7, codes only)", "Run rule (quarterly team_run)", "Publish dashboard (Streamlit)", "Committee visits and records (ops_visits)"];
+    const bw = 2.6, gap = (W - 4 * bw) / 3;
+    steps.forEach((t, i) => {
+      box(s, "s10b step " + i, MX + i * (bw + gap), TOP + 0.05, bw, 1.0, t, { fill: i === 3 ? C.red : C.navy, pt: 14 });
+      if (i < 3) arrow(s, MX + i * (bw + gap) + bw + (gap - 0.3) / 2, TOP + 0.35, 0.3, 0.4);
+    });
+    bullets(s, "s10b bullets", [
+      "Runs: Streamlit dashboard, quarterly team_run, prepared data v7 (releases/ready-data).",
+      "Where (proposed, not deployed): ACUD-managed server or VM inside ACUD's network. Data stays with ACUD; codes only; private mappings stay with the custodian.",
+      "Controls: thresholds and capacity change only by reviewed decision; chatbot model calls off until approved with a call budget; every visit result recorded.",
+      "Monitoring: quarterly gates; a STOP writes no manifest. Rollback: K1 and the prior release.",
+    ], MX, 2.75, W, 3.6, 16);
+  },
+});
+
 // 11
 const PH = [
   ["1 · Pilot cycle", "Run one cycle with the list; record every visit result.", "Committee decides; Track A owner prepares the list.", "Little ground truth; no accuracy claim.", "The current 3-month review continues."],
@@ -478,9 +525,9 @@ slides.forEach((sp) => {
 });
 
 // ---------- markdown ----------
-const labels = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "8b", "9", "10", "11"];
+const labels = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "8b", "9", "10", "10b", "11"];
 const md = [
-  "# Presentation: 13 slides (title slide 0, then 1-11 with 8b after 8)",
+  "# Presentation: 14 slides (title slide 0, then 1-11 with 8b after 8 and 10b after 10)",
   "",
   "Tasks T-SA-06 and T-EL-25. Draft text for review. This file holds the on-slide content and speaker notes of `presentation.pptx`, slide for slide in the same order. Length: 12 min, the limit set by criterion 10 of the instructor rubric (`docs/requirements/ACUD-Rubric.md`); the time budget and the criteria each slide answers follow `docs/deliverables/01-presentation/rubric-map.md` (presentation plan) and are stated in each speaker note (total 12:00). Numbers come only from repo files and carry an origin mark: 🟢 real · 🔵 derived · 🟠 generated (\"Synthetic - for training only\"). Compounds and developers appear as codes only; the only names are the supervisor and team on the title slide. The words \"risk level\", \"distressed\" (for a real compound) and any completion % are not used. Some caveats are in the speaker notes.",
   "",
@@ -515,7 +562,7 @@ const sections = slides.map((sp, i) => {
   const id = `slide-${labels[i]}`;
   if (sp.cover) {
     const [name, slogan, ...rest] = sp.md.map((l) => l.replace(/^- /, ""));
-    return `<section id="${id}" class="cover" aria-label="Slide ${labels[i]}">\n<h1 dir="auto">${inline(name)}</h1>\n<p class="slogan" dir="auto">${inline(slogan)}</p>\n${rest.map((r) => `<p dir="auto">${inline(r)}</p>`).join("\n")}\n<p class="note" dir="auto">${inline(sp.note)}</p>\n</section>`;
+    return `<section id="${id}" class="cover" aria-label="Slide ${labels[i]}">\n<p class="logos"><img src="../02-video/logo-ACUD.png" alt="ACUD" height="48"> <img src="../02-video/logo-digilians.png" alt="Digilians" height="62"></p>\n<h1 dir="auto">${inline(name)}</h1>\n<p class="slogan" dir="auto">${inline(slogan)}</p>\n${rest.map((r) => `<p dir="auto">${inline(r)}</p>`).join("\n")}\n<p class="note" dir="auto">${inline(sp.note)}</p>\n</section>`;
   }
   const lines = sp.md.filter((l) => !l.includes(SYN_TEXT));
   const banner = sp.md.some((l) => l.includes(SYN_TEXT)) ? `<p class="banner">${esc(SYN)}</p>\n` : "";
@@ -530,6 +577,7 @@ section.dark{background:#111111;color:#FFFFFF}
 h1{font-size:2.4em;margin:.3em 0;text-align:center}
 h2{font-family:Cambria,Georgia,serif;font-size:1.7em;margin:0 0 .6em;border-bottom:3px solid #E31B23;padding-bottom:.2em}
 .cover{text-align:center;padding-top:48px}
+.logos{margin:0;display:flex;justify-content:center;align-items:center;gap:16px}
 .slogan{color:#E31B23;font-size:1.5em;font-family:Cambria,Georgia,serif}
 .banner{display:inline-block;background:#E31B23;color:#FFFFFF;font-weight:bold;padding:4px 14px;margin:0 0 .8em}
 ul{padding-left:1.3em}li{margin:.35em 0}

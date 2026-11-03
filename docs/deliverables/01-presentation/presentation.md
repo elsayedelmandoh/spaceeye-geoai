@@ -1,4 +1,4 @@
-# Presentation: 13 slides (title slide 0, then 1-11 with 8b after 8)
+# Presentation: 14 slides (title slide 0, then 1-11 with 8b after 8 and 10b after 10)
 
 Tasks T-SA-06 and T-EL-25. Draft text for review. This file holds the on-slide content and speaker notes of `presentation.pptx`, slide for slide in the same order. Length: 12 min, the limit set by criterion 10 of the instructor rubric (`docs/requirements/ACUD-Rubric.md`); the time budget and the criteria each slide answers follow `docs/deliverables/01-presentation/rubric-map.md` (presentation plan) and are stated in each speaker note (total 12:00). Numbers come only from repo files and carry an origin mark: 🟢 real · 🔵 derived · 🟠 generated ("Synthetic - for training only"). Compounds and developers appear as codes only; the only names are the supervisor and team on the title slide. The words "risk level", "distressed" (for a real compound) and any completion % are not used. Some caveats are in the speaker notes.
 
@@ -78,7 +78,7 @@ Speaker note: 1:00 · criteria 3, 4. The worst signal sets the level, without we
 - Visual: five-step flow (priority map → cycle list → reason sentence → inspection file → visit result).
 - Source: `docs/deliverables/user-guide.md`; board task T-AH-19 in `docs/requirements/02-team-roles-and-tasks.md`.
 
-Speaker note: 1:30 · criterion 4. Follow the alert to the action: level, cycle list, inspection file, visit form.
+Speaker note: 1:15 · criterion 4. Follow the alert to the action: level, cycle list, inspection file, visit form.
 
 ## Slide 7. Backtest: 1 of 6 and why
 
@@ -91,7 +91,7 @@ Speaker note: 1:30 · criterion 4. Follow the alert to the action: level, cycle 
 - Visual: three stat callouts (1 of 6 · 0 of 6 · 5 required, not achieved).
 - Source: `data/BACKTEST_CURRENT.md`, `data/experiments/35_backtest_diagnosis/DIAGNOSIS.md`.
 
-Speaker note: 1:45 · criterion 6. Lead with the miss, and say the target was fixed before computing.
+Speaker note: 1:30 · criterion 6. Lead with the miss, and say the target was fixed before computing.
 
 ## Slide 8. Track B: generated data
 
@@ -148,6 +148,18 @@ Speaker note: 1:30 · criterion 7. Compare with the current policy of visiting a
 - Source (knowledge transfer): `docs/deliverables/technical-track-a.md`, `docs/deliverables/user-guide.md`, `docs/deliverables/knowledge-transfer.md`, `docs/deliverables/method-card.md`, `docs/deliverables/final-checklist.md`.
 
 Speaker note: 1:00 · criteria 8, 9. A level sets the visit order and finds nothing against anyone. Then give one line on the handover documents. The committee decides, and every visit result is recorded to build real ground truth. The user guide was checked against the code, not in a browser.
+
+## Slide 10b. Launching in production
+
+- What runs: the Streamlit dashboard (`uv run --locked streamlit run app.py`), the quarterly data run (`uv run --locked --offline python -m src.pipeline.team_run`) and prepared data v7 (`releases/ready-data`).
+- Where (proposed, not deployed): a server or VM managed by ACUD, inside ACUD's network, to be agreed with ACUD. Data stays with ACUD; exports use codes only; private mappings never leave the data custodian.
+- Controls: thresholds and capacity change only by reviewed decision; chatbot model calls stay off until approved with a call budget (`configs/ai.yaml`); every visit result is recorded in ops_visits.
+- Monitoring: the quarterly procedure and its quality gates; any STOP keeps outputs for diagnosis, writes no manifest and blocks packaging.
+- Rollback: switch the activity source to K1 (a recorded decision) and keep prior releases available, as slide 11 says.
+- Visual: four-step flow (prepare data → run rule → publish dashboard → committee visits and records).
+- Source: `README.md`, `CLAUDE.md`, `docs/deliverables/technical-track-a.md` (quarterly monitoring procedure, STOP, K1 switch; states no deployment is implied), `docs/deliverables/data-request.md`, `docs/deliverables/responsible-ai.md`, `docs/deliverables/governance-cards.md`, `configs/ai.yaml`, `src/dashboard/ops_visits.py`.
+
+Speaker note: 0:30 · criteria 5, 9. Technical launch only; phases are on the next slide. Hosting is a proposal to agree with ACUD, not a deployed system. Any STOP writes no manifest; the fallback is K1 and the prior release.
 
 ## Slide 11. Decision, transition and next step
 
