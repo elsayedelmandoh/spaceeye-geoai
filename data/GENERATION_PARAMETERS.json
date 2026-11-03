@@ -17,7 +17,7 @@
   "cycle_capacity": 4,
   "fines": {
     "assumption": true,
-    "fine_rate_month": 0.01,
+    "fine_rate_month": 0.005,
     "land_price_egp_m2": [
       2500,
       12000
@@ -226,7 +226,9 @@
       "collections_drop": 0.25,
       "shock_months": 6,
       "usd_cost_rise": 0.3,
-      "imported_share": 0.4
+      "imported_share": 0.4,
+      "material_cost_rise": 0.4,
+      "grace_months_s5": 6
     },
     "cost": {
       "usd_m2": [
