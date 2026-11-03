@@ -5,7 +5,7 @@ const path = require("path");
 const PptxGenJS = require("/home/aang/.claude/jobs/3f2c8eda/tmp/media/node_modules/pptxgenjs");
 
 const REPO = process.cwd();
-const C = { navy: "141414", sand: "FFFFFF", card: "E9E9E9", slate: "3A3A3A", orange: "B84F08", ink: "141414", white: "FFFFFF", red: "E8161E" };
+const C = { navy: "111111", sand: "FFFFFF", card: "F1F1F1", slate: "111111", orange: "E31B23", ink: "1A1A1A", text: "1A1A1A", white: "FFFFFF", red: "E31B23" };
 const HEAD = "Cambria", BODY = "Calibri";
 const MX = 0.6, W = 12.13, TOP = 1.4;
 const SYN = "🟠 Synthetic - for training only";
@@ -30,10 +30,10 @@ function base(slide, title, source, dark = false) {
   slide.background = { color: dark ? C.navy : C.sand };
   slide.addText(title, {
     x: MX, y: 0.4, w: W, h: 0.85, fontFace: HEAD, fontSize: 36, bold: true,
-    color: dark ? C.white : C.navy, align: "left", valign: "middle", margin: 0,
+    color: dark ? C.white : C.text, align: "left", valign: "middle", margin: 0,
   });
   slide.addText("Source: " + source.join(" | ").replace(/`/g, ""), {
-    x: MX, y: 6.5, w: W, h: 0.5, fontFace: BODY, fontSize: 10, color: dark ? C.card : C.slate,
+    x: MX, y: 6.5, w: W, h: 0.5, fontFace: BODY, fontSize: 10, color: dark ? C.card : C.red,
     align: "left", valign: "top", margin: 0,
   });
 }
@@ -124,7 +124,7 @@ slides.push({
     const bw = 5.5;
     box(s, "s2 asis", MX, TOP + 0.1, bw, 1.7, "Today (as-is): every one of the 12 compounds gets a field review every 3 months, 4 visits a year each.", { fill: C.slate, pt: 16 });
     arrow(s, MX + bw + 0.3, TOP + 0.75, 0.5, 0.5);
-    box(s, "s2 tobe", MX + bw + 1.1, TOP + 0.1, bw + 0.03, 1.7, "Tomorrow (to-be): a cycle list of at most 4 compounds from levels 1-3, each with a reason sentence. The committee decides.", { fill: C.navy, pt: 16 });
+    box(s, "s2 tobe", MX + bw + 1.1, TOP + 0.1, bw + 0.03, 1.7, "Tomorrow (to-be): a cycle list of at most 4 compounds from levels 1-3, each with a reason sentence. The committee decides.", { fill: C.red, pt: 16 });
     bullets(s, "s2 bullets", [
       "Question: which R7 compounds should the committee visit first next cycle, and why?",
       "The observatory ranks; the committee decides.",
@@ -206,7 +206,7 @@ slides.push({
     [["K2", "Quarters with no activity after construction started"], ["K3", "Months since the first announced handover date"], ["K6", "Months since first launch or promise, no confirmed start"]].forEach(([k, t], i) =>
       box(s, "s5 " + k, MX + i * (kw + 0.12), y, kw, h, k + ": " + t, { pt: 14 }));
     arrow(s, MX + 3 * (kw + 0.12), y + 0.4, 0.4, 0.4);
-    box(s, "s5 worst", MX + 3 * (kw + 0.12) + 0.5, y, W - (3 * (kw + 0.12) + 0.5), h, "Worst signal sets the level (no weights); a \"may be complete\" cap holds it at 3 or less", { fill: C.slate, pt: 14 });
+    box(s, "s5 worst", MX + 3 * (kw + 0.12) + 0.5, y, W - (3 * (kw + 0.12) + 0.5), h, "Worst signal sets the level (no weights); a \"may be complete\" cap holds it at 3 or less", { fill: C.red, pt: 14 });
     table(s, "s5 table", [
       ["Level", "Action"],
       ["1", "Inspect now"],
@@ -422,13 +422,13 @@ slides.push({
     s.addShape(pres.ShapeType.rect, { x: MX, y: TOP, w: W, h: 0.95, fill: { color: C.sand }, line: { color: C.sand } });
     const dec = "Decision requested: use the inspection priority list to choose which R7 compounds the committee visits first next cycle. The system recommends; the committee decides.";
     check("s11 decision", [dec], 18, W - 0.4, 0.95);
-    s.addText(dec, { x: MX + 0.2, y: TOP + 0.05, w: W - 0.4, h: 0.85, fontFace: BODY, fontSize: 18, bold: true, color: C.navy, align: "left", valign: "middle", margin: 0 });
+    s.addText(dec, { x: MX + 0.2, y: TOP + 0.05, w: W - 0.4, h: 0.85, fontFace: BODY, fontSize: 18, bold: true, color: C.text, align: "left", valign: "middle", margin: 0 });
     const pw = (W - 0.3) / 3;
     PH.forEach(([t, d, o, r, b], i) => {
       const x = MX + i * (pw + 0.15), y = TOP + 1.1, h = 2.5;
       s.addShape(pres.ShapeType.rect, { x, y, w: pw, h, fill: { color: C.card }, line: { color: C.card } });
       const runs = [
-        { text: "Phase " + t, options: { bold: true, fontFace: HEAD, fontSize: 16, color: C.navy, breakLine: true } },
+        { text: "Phase " + t, options: { bold: true, fontFace: HEAD, fontSize: 16, color: C.text, breakLine: true } },
         { text: d, options: { breakLine: true } },
         { text: "Owner: " + o, options: { breakLine: true } },
         { text: "Risk: " + r, options: { breakLine: true } },
