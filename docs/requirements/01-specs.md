@@ -331,7 +331,7 @@ Inspection procedure (proposed; ACUD sets the real one): confirm with a second s
 | S4 | Material cost jump | Rebar + cement +40% | Next |
 | S5 | Grace change | Handover grace 12 → 6 months (policy test) | Next |
 
-**Display rules:** ≤ 4 main tiles; each tile = value + unit + denominator + "as of" + origin; no card = no colour; never colour alone (level written as a word); the 5 forbidden mistakes (% without denominator, truncated axis, different-season comparison, average hiding spread, unannounced coverage change); the ten-second test on screen 1.
+**Display rules:** ≤ 4 main tiles; each tile = value + unit + denominator + "as of" + origin; no card = no colour; never colour alone (level written as a word); the 4 forbidden mistakes (% without denominator, truncated axis, average hiding spread, unannounced coverage change; image comparisons across seasons are allowed since 3 November 2026, owner decision); the ten-second test on screen 1.
 
 ---
 
