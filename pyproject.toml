@@ -5,10 +5,10 @@ build-backend = "hatchling.build"
 [project]
 name = "spaceeye-geoai"
 version = "0.1.0"
-description = "SpaceEye: R7 digital twin and inspection priority observatory (New Administrative Capital). Which compounds should the inspection committee visit first, and why."
+description = "رادار العاصمة الجديدة: شركة تمتلك مدينة. SpaceEye: R7 inspection priority observatory (New Administrative Capital) with a Streamlit dashboard and a document Q&A chatbot. Which compounds should the inspection committee visit first, and why."
 readme = "README.md"
 license = {text = "MIT"}
-keywords = ["smart city", "New Administrative Capital", "dynamic world", "sentinel-2", "inspection priority", "digital twin"]
+keywords = ["smart city", "New Administrative Capital", "dynamic world", "sentinel-2", "inspection priority", "digital twin", "streamlit dashboard", "RAG chatbot"]
 authors = [
     {name = "elsayed elmandoh", email = "elsayedelmandoh7@gmail.com"},
     {name = "verina fouad"},

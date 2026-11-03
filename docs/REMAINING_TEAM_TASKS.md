@@ -39,7 +39,8 @@ The descriptions below preserve the current board requirements; an unchecked tas
 | T-EL-06 | [Must] D4 · Arabic HTML/PDF output with footer "Drafted by AI, reviewed by [name]" + model + time; 5 stored files for the presentation (deliverable 11) · `app_data/files/` · depends: T-AH-15 · reviewer: salma |
 | T-EL-08 | [Should] D4 · Complaints classifier: 5 classes (delay, stoppage, payment, quality, other) vs keyword baseline; extra test on `complaints_30.csv`; state that texts we wrote do not prove real accuracy · reviewer: elsayed |
 | T-EL-12 | [Could] D4 · S4 material cost +40%, S5 grace 12 → 6 months · reviewer: nada |
-| T-EL-24 | [Should] D5 · Document Q&A chatbot (normal RAG with citations) over project docs, cited laws, ACUD public pages, satellite data docs, ISO 37120/37122 summaries and the SLA note; answers only from retrieved passages; model calls need owner approval · reviewer: verina |
+| T-SA-11 | [Should] D2 · Update `docs/requirements/04-timeline.md` with today's program day and this board's D-days · owner: elsayed (moved from salma) · reviewer: ahmed |
+| T-SA-12 | [Could] D3 · Blind labeller for the finishing test (T-AH-17): label ~50 held-out compound-images without seeing the model output · owner: elsayed (moved from salma) · reviewer: ahmed |
 
 ### Nada: dashboard
 
@@ -68,8 +69,6 @@ The descriptions below preserve the current board requirements; an unchecked tas
 | T-SA-08 | [Must] D4 · Number audit: every number on slides and memo traced to `kpi_values`, `EW_REPORT.md` or `ai_verification_log` · reviewer: ahmed |
 | T-SA-09 | [Must] D5 · Expected questions sheet (§12) with one-line answers · reviewer: elsayed |
 | T-SA-10 | [Must] D5 · Final submission checklist: 13 deliverables (§11) ready, "done when" list (§14) ticked · reviewer: all |
-| T-SA-11 | [Should] D2 · Update `docs/requirements/04-timeline.md` with today's program day and this board's D-days · reviewer: ahmed |
-| T-SA-12 | [Could] D3 · Blind labeller for the finishing test (T-AH-17): label ~50 held-out compound-images without seeing the model output · reviewer: ahmed |
 
 ## Implemented outputs: review and reuse
 
