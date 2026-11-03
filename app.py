@@ -971,7 +971,6 @@ def render_inspection_button(code: str, asof: str) -> None:
 # Every value here is generated (sim_clean/); the fine rate is an illustrative input, not a contract rate.
 # --------------------------------------------------------------------------- #
 
-DEFAULT_FINE_RATE_PCT = 0.5
 COMPLAINT_COLOURS = {"stoppage": "#F87171", "delay": "#F28C38", "quality": "#F2C14E", "payment": "#60A5FA",
                      "other": "#9DB3C8"}
 
@@ -985,9 +984,12 @@ def render_fine_exposure(code: str, row: pd.Series, asof: str, track: Track) -> 
     k5 = None if row is None else row.get("K5_months")
     if land is None or land[land["code"] == code].empty:
         return
-    value = float(land.loc[land["code"] == code, "assumed_land_value_egp"].iloc[0])
+    mine = land[land["code"] == code].iloc[0]
+    value = float(mine["assumed_land_value_egp"])
+    # The default is the release's illustrative rate (0.5% since 3 November 2026); the committee enters its own.
     rate = st.number_input("Fine rate (% of the land value per month): enter your contract rate", min_value=0.0,
-                           max_value=5.0, value=DEFAULT_FINE_RATE_PCT, step=0.1, format="%.1f", key="fine_rate_pct")
+                           max_value=5.0, value=float(mine["fine_rate_month"]) * 100, step=0.1, format="%.1f",
+                           key="fine_rate_pct")
     if _missing(k5):
         status = str(row.get("K5_status") or "unknown").replace("_", " ")
         st.markdown(f"No exposure figure: K5 is not known for {code} ({status}). Unknown is not zero.")
