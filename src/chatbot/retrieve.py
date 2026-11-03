@@ -22,11 +22,13 @@ _CHARACTER_VECTORIZER_OPTIONS = {
 
 @dataclass(frozen=True)
 class RetrievedPassage:
-    """A passage paired with its BM25 relevance score and support flag."""
+    """A passage with its score, support flag, and direct query matches."""
 
     passage: Passage
     score: float
     supported: bool = True
+    matched_terms: frozenset[str] = frozenset()
+    heading_matched: bool = False
 
 
 def _build_character_vectorizer() -> TfidfVectorizer:
@@ -87,6 +89,7 @@ class TfidfRetriever:
         scored = self._ranker.score_all(question)
         word_scores = [score for score, _ in scored]
         support_flags = [supported for _, supported in scored]
+        term_matches = self._ranker.term_matches(question)
         character_scores = self._character_scores(question)
         ranked_indices = _ranked_indices(
             word_scores,
@@ -98,6 +101,8 @@ class TfidfRetriever:
                 passage=self.passages[index],
                 score=word_scores[index],
                 supported=support_flags[index],
+                matched_terms=term_matches[index][0],
+                heading_matched=term_matches[index][1],
             )
             for index in ranked_indices
         ]

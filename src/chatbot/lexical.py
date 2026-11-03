@@ -57,8 +57,26 @@ _ARABIC_STOP_WORDS = frozenset(
         "لدى",
         "عبر",
         "هي",
+        "اي",
+        "مين",
+        "لي",  # "اللي" after ال stripping
     }
 )
+
+# Query-only Arabic/Egyptian words (after ال and ه/ح future-prefix stripping)
+# mapped to words that already exist in the corpus vocabulary.
+_QUERY_TERM_MAP = {
+    "كمبوند": ("compound",),
+    "كمبوندا": ("compound",),
+    "كمبوندات": ("compound",),
+    "زور": ("visit", "list"),
+    "زوره": ("visit", "list"),
+    "ازور": ("visit", "list"),
+    "نزور": ("visit", "list"),
+    "زياره": ("visit", "list"),
+    "اول": ("first", "rank"),
+    "اولا": ("first", "rank"),
+}
 
 _BODY_WEIGHT = 1
 _TITLE_WEIGHT = 3
@@ -87,6 +105,8 @@ class _PassageFields:
 
     weighted_terms: tuple[str, ...]
     lexical_terms: frozenset[str]
+    body_terms: frozenset[str]
+    heading_terms: frozenset[str]
     identity_terms: frozenset[str]
 
 
@@ -110,6 +130,16 @@ def _normalize_token(token: str) -> str:
     if _ARABIC_PATTERN.search(normalized):
         normalized = _strip_arabic_prefix(normalized)
     return normalized
+
+
+def _query_terms(raw_token: str) -> tuple[str, ...]:
+    """Normalize a query token; map known dialect words to corpus terms."""
+
+    term = _normalize_token(raw_token)
+    for variant in (term, term[1:] if term[:1] in "هح" else term):
+        if variant in _QUERY_TERM_MAP:
+            return _QUERY_TERM_MAP[variant]
+    return (term,)
 
 
 def _token_kind(token: str) -> str:
@@ -212,6 +242,8 @@ class Bm25Ranker:
         return _PassageFields(
             weighted_terms=weighted_terms,
             lexical_terms=frozenset(body_tokens + title_tokens + heading_tokens),
+            body_terms=frozenset(body_tokens + heading_tokens),
+            heading_terms=frozenset(heading_tokens),
             identity_terms=frozenset(
                 title_tokens + heading_tokens + _tokens(passage.path)
             ),
@@ -283,20 +315,27 @@ class Bm25Ranker:
 
         tokens: dict[str, _QueryToken] = {}
         for raw_token in _raw_tokens(question):
-            term = _normalize_token(raw_token)
-            if not term or _is_stop_word(term):
-                continue
-            query_token = _QueryToken(term=term, kind=_token_kind(raw_token))
-            existing = tokens.get(term)
-            if existing is None or query_token.kind != "word":
-                tokens[term] = query_token
+            for term in _query_terms(raw_token):
+                if not term or _is_stop_word(term):
+                    continue
+                query_token = _QueryToken(term=term, kind=_token_kind(raw_token))
+                existing = tokens.get(term)
+                if existing is None or query_token.kind != "word":
+                    tokens[term] = query_token
         return tuple(tokens.values())
 
     def _scoring_tokens(self, question: str) -> tuple[_QueryToken, ...]:
         """Return unigrams and adjacent word pairs for BM25 matching."""
 
         unigrams = self._query_tokens(question)
-        query_bigrams = _bigrams(_content_tokens(question))
+        query_bigrams = _bigrams(
+            [
+                term
+                for raw_token in _raw_tokens(question)
+                for term in _query_terms(raw_token)
+                if not _is_stop_word(term)
+            ]
+        )
         return unigrams + tuple(
             _QueryToken(term=term, kind="word") for term in query_bigrams
         )
@@ -413,6 +452,8 @@ class Bm25Ranker:
             for token in tokens
             if self._counts_for_coverage(token)
         ]
+        if not coverage_terms:  # only common terms: judge on all of them
+            coverage_terms = [(token, self._coverage_weight(token)) for token in tokens]
         total_weight = sum(weight for _, weight in coverage_terms)
         matched_weight = sum(
             weight
@@ -462,6 +503,19 @@ class Bm25Ranker:
         return (
             self._has_identity_anchor(tokens, passage_fields)
             and coverage >= _MIN_IDENTITY_COVERAGE
+        )
+
+    def term_matches(
+        self, question: str
+    ) -> tuple[tuple[frozenset[str], bool], ...]:
+        """Return per passage: meaningful query terms in body/heading, heading hit."""
+
+        terms = {
+            t.term for t in self._query_tokens(question) if self._counts_for_coverage(t)
+        }
+        return tuple(
+            (frozenset(terms & f.body_terms), bool(terms & f.heading_terms))
+            for f in self._fields
         )
 
     def score_all(self, question: str) -> list[tuple[float, bool]]:
