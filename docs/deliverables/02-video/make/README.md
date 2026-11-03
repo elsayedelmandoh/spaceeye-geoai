@@ -1,6 +1,7 @@
 Video rebuild kit (02-video/)
 - cards.js -> out/title.png, end.png (from text/*.txt)
 - logos.js -> out/logos.png
-- assemble.py -> out/intro.mp4 (reads timing.json, stills/, out/*, narration)
-- Run order: node cards.js out; node logos.js out; python assemble.py out; copy out/intro.mp4 to ../intro.mp4
+- assemble.py [out_dir] [timing_file] -> out_dir/intro.mp4 (reads the timing file, stills/, out/*, narration); timing_file defaults to timing.json
+- Two versions, identical pictures: timing.json = human voice (gamal-ramzy-cloned-voice.wav) -> ../intro-human-voice.mp4; timing-ai.json = AI voice (ai-voice-narration.wav) -> ../intro-ai-voice.mp4
+- Run order: node cards.js out; node logos.js out; python assemble.py out; copy out/intro.mp4 to ../intro-human-voice.mp4; then python assemble.py out timing-ai.json and copy out/intro.mp4 to ../intro-ai-voice.mp4
 - Env: NODE_PATH=/.../node_modules; FFMPEG=/.../ffmpeg-static/ffmpeg

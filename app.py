@@ -570,8 +570,8 @@ def render_summary_tiles(latest_df: pd.DataFrame, asof: str, promises: list[dict
                     f"of {len(latest_df)} assessed compounds", asof,
                     ORIGIN_DERIVED)
     with tiles[2]:
-        metric_tile("Fine-eligible months", int(round(fined.sum())), "months",
-                    f"in {len(fined)} compounds · the contract decides the fine", asof, ORIGIN_DERIVED)
+        metric_tile("Months eligible for review under contract terms", int(round(fined.sum())), "months",
+                    f"in {len(fined)} compounds · the committee decides any action", asof, ORIGIN_DERIVED)
     with tiles[3]:
         metric_tile("Promised dates ahead", len(promises), "dates",
                     f"in {len({p['code'] for p in promises})} compounds", asof, ORIGIN_DERIVED)
@@ -793,8 +793,8 @@ def render_kpi_tiles(row: pd.Series | None, asof: str) -> None:
     k5, k5_status = get("K5_months"), get("K5_status")
     k5_text = ("no published deadline" if _missing(k5) and k5_status == "no_published_deadline"
                else "unknown" if _missing(k5) else f"{_fmt(k5, 0)} months")
-    st.caption(f"{K_ORIGIN['K5']} Context, not a tile: K5 fine-eligible months {k5_text} · "
-               f"the contract decides the fine · as of {asof}")
+    st.caption(f"{K_ORIGIN['K5']} Context, not a tile: K5 months eligible for review under contract terms "
+               f"{k5_text} · the committee decides any action · as of {asof}")
 
 
 def render_curves(code: str, history: pd.DataFrame | None, ann: pd.DataFrame | None,
@@ -1328,10 +1328,10 @@ def render_strongest_claim(latest_df: pd.DataFrame, asof: str) -> None:
 
 
 def render_homes_waiting(compounds: pd.DataFrame, latest_df: pd.DataFrame, asof: str) -> None:
-    section_title("🏠", "Homes in compounds with fine-eligible months")
+    section_title("🏠", "Homes in compounds eligible for review under contract terms")
     waiting = insights.homes_waiting(compounds, latest_df)
     if not waiting["rows"]:
-        st.info("No compound with a published unit count has fine-eligible months.")
+        st.info("No compound with a published unit count is eligible for review under contract terms.")
         return
     words, colours = level_scale()
     table = pd.DataFrame(waiting["rows"])
@@ -1345,10 +1345,10 @@ def render_homes_waiting(compounds: pd.DataFrame, latest_df: pd.DataFrame, asof:
         tooltip=["code", "units", "k5", "Level"])
     labels = base.mark_text(align="left", dx=4, color=PALETTE["text"]).encode(text="label:N")
     with st.container(border=True):
-        finding(f"{ORIGIN_DERIVED} <b>{waiting['homes']:,} homes</b> in {waiting['compounds']} compounds "
-                f"with fine-eligible months, as of {asof}.")
+        finding(f"{ORIGIN_DERIVED} <b>{waiting['homes']:,} homes</b> in {waiting['compounds']} "
+                f"compounds eligible for review under contract terms, as of {asof}.")
         st.altair_chart((bars + labels).properties(height=34 * waiting["compounds"]), width="stretch")
-        st.caption("Label = fine-eligible months of the compound.")
+        st.caption("Label = months eligible for review under contract terms.")
 
 
 def render_late_promises(outcomes: pd.DataFrame) -> None:
@@ -1377,20 +1377,20 @@ def render_late_promises(outcomes: pd.DataFrame) -> None:
 
 
 def render_fine_months(latest_df: pd.DataFrame, asof: str) -> None:
-    section_title("⚖️", "Fine-eligible months")
+    section_title("⚖️", "Months eligible for review under contract terms")
     fines = insights.fine_months(latest_df)
     if not fines["rows"]:
-        st.info("No compound has fine-eligible months.")
+        st.info("No compound has months eligible for review under contract terms.")
         return
     table = pd.DataFrame(fines["rows"])
     chart = alt.Chart(table).mark_bar(color=PALETTE["accent"]).encode(
         x=alt.X("code:N", sort=list(table["code"]), title=None, axis=alt.Axis(labelAngle=0)),
-        y=alt.Y("months:Q", title="Fine-eligible months"), tooltip=["code", "months"])
+        y=alt.Y("months:Q", title="months eligible for review under contract terms"), tooltip=["code", "months"])
     with st.container(border=True):
-        finding(f"{ORIGIN_DERIVED} <b>{fines['total']} fine-eligible months</b> over {fines['compounds']} "
-                f"compounds, as of {asof}.")
+        finding(f"{ORIGIN_DERIVED} <b>{fines['total']} months eligible for review under contract terms</b> "
+                f"over {fines['compounds']} compounds, as of {asof}.")
         st.altair_chart(chart.properties(height=220), width="stretch")
-        st.caption("The contract decides the fine.")
+        st.caption("The committee decides any action.")
 
 
 def render_developer_groups(compounds: pd.DataFrame, latest_df: pd.DataFrame) -> None:

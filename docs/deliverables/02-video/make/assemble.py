@@ -1,8 +1,8 @@
 """Assemble intro.mp4 from the stills, the rendered cards, the logo overlay and the narration.
 
-Shot lengths come from timing.json (each shot spans one spoken part of the narration).
+Shot lengths come from the timing file (default timing.json; timing-ai.json for the AI voice; each shot spans one spoken part of the narration).
 Run cards.js and logos.js first, then:
-    FFMPEG=/path/to/ffmpeg python assemble.py [out_dir]
+    FFMPEG=/path/to/ffmpeg python assemble.py [out_dir] [timing_file]
 """
 
 from __future__ import annotations
@@ -41,7 +41,8 @@ def shot_clip(image: Path, seconds: float, zoom: str, crop: str | None, out: Pat
 def main() -> None:
     out_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else HERE / "out"
     out_dir.mkdir(parents=True, exist_ok=True)
-    timing = json.loads((HERE / "timing.json").read_text(encoding="utf-8"))
+    timing_file = Path(sys.argv[2]) if len(sys.argv) > 2 else HERE / "timing.json"
+    timing = json.loads(timing_file.read_text(encoding="utf-8"))
     plan = [(out_dir / "title.png", timing["title_seconds"], "in", None)]
     plan += [(HERE / "stills" / s["still"], s["seconds"], s["zoom"], s.get("crop")) for s in timing["shots"]]
     plan.append((out_dir / "end.png", timing["end_seconds"], "in", None))

@@ -13,12 +13,12 @@ Source of every task: [`01-specs.md`](01-specs.md) (section numbers in brackets,
 
 ## Current implementation marks for human review
 
-Updated on 3 November 2026 against 88 current IDs (recounted from the checkboxes; includes PRs #84 to #88 and branch `docs/T-EL-28-video-deck-v2`). Current approved binary scope and existing review records are preserved.
+Updated on 3 November 2026 against 88 current IDs (recounted from the checkboxes; includes PRs #84 to #88 and branches `docs/T-EL-28-video-deck-v2` and `fix/T-SA-07-k5-wording`). Current approved binary scope and existing review records are preserved.
 
 | State | Count | Meaning |
 | --- | ---: | --- |
-| Main task checked | 71 | Implemented, with evidence; 56 still await assigned review |
-| Main task unchecked, open/partial | 15 | Original work/decision still unresolved (includes T-EL-13, partial; T-EL-24 open; T-NA-08 and T-NA-10 partial) |
+| Main task checked | 73 | Implemented, with evidence; 52 still await assigned review (exact count of unchecked review lines) |
+| Main task unchecked, open/partial | 13 | Original work/decision still unresolved (includes T-EL-13, partial; T-NA-08 and T-NA-10 partial) |
 | Main task unchecked, failed/excluded | 2 | T-NA-05 and T-NA-06: screens removed by owner decision (PR #60, 2 Nov 2026) |
 | Review accepted | 15 recorded | Existing review records retained; no new reviewer acceptance inferred |
 
@@ -42,7 +42,7 @@ These are task counts, not effort percentages. Legacy D-day labels remain planni
 | -------------------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
 | **ahmed abdelhamid** | **Track A: images → rule → cycle list** (real data)                       | R1 data pipeline + R3 GIS and satellites + R4 Track A rule and backtest | `src/pipeline/`, `configs/data.yaml`                                         |
 | **verina fouad**     | **Track B: generated ACUD data → `ml_dataset` → classifier → what-if** | R2 data and generator + R4 Track B classifier and early warning | `src/generator/`, `src/analysis/` |
-| **elsayed elmandoh** | **AI component: inspection file agent + verification log + complaints classifier** | R4 agent part | `src/inference/`, `prompts/` |
+| **elsayed elmandoh** | **AI component: inspection file agent + verification log + complaints classifier**; also dashboard search/filters/map click (T-NA-11/12/13), timeline (T-SA-11) and blind-labelling (T-SA-12), reassigned 3 Nov 2026 | R4 agent part | `src/inference/`, `prompts/` |
 | **nada shady**       | Dashboard (4 screens after the owner decision of 2 Nov 2026: Priority map, Compound file, District view, Digital twin what if; track switch) + cycle list download + `ops_visits` form   | R5 dashboard part                                                       | `app.py`, `src/dashboard/`                                                   |
 | **salma magdy**      | KPI cards, value in EGP, governance docs, memo, presentation, independent checks  | R5 presentation part + doc parts of R1/R2/R3                            | `docs/deliverables/`, `configs/cost_assumptions.yaml`, `configs/kpis.yaml` |
 
@@ -278,15 +278,27 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-E
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-EL-23** [Should] D5 · Compound details on map click: a sidebar panel with level, K2, K3, K6, reason, next action and the latest capture, each part opening a deeper view (compound file, signal history, images) · `app.py` + test · reviewer: ahmed **Implemented; review pending.** Merged in PR #87; rows without a level show their stored state (not started, start unknown, not assessable).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [ ] **T-EL-24** [Should] D5 · Document Q&A chatbot (normal RAG with citations) answering from the project docs, the cited Egyptian laws (Decree 2184/2022, Law 119/2008 art. 54, Law 151/2020), ACUD public pages, the satellite data docs (Dynamic World, Open Buildings, Wayback) and public summaries of ISO 37120/37122 and the SLA notion behind the KPIs; answers only from retrieved passages; any model call needs owner approval · `src/chatbot/` + sidebar + tests · reviewer: verina **Open; PR #90 awaits review (427 tests pass; 15-question evaluation table passes; nine sourced documents in `data/knowledge/`). Known misses on unseen questions are listed in the PR.**
+- [x] **T-EL-24** [Should] D5 · Document Q&A chatbot (normal RAG with citations) answering from the project docs, the cited Egyptian laws (Decree 2184/2022, Law 119/2008 art. 54, Law 151/2020), ACUD public pages, the satellite data docs (Dynamic World, Open Buildings, Wayback) and public summaries of ISO 37120/37122 and the SLA notion behind the KPIs; answers only from retrieved passages; any model call needs owner approval · `src/chatbot/` + sidebar + tests · reviewer: verina **Implemented; review pending.** Merged in PR #90 (sidebar "Ask the documents"; 427 tests pass; 15-question evaluation table passes; model calls off until approved). Known misses on unseen questions are listed in PR #90.
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-EL-25** [Must] D5 · PowerPoint deck built from the instructor rubric (`docs/requirements/ACUD-Rubric.md`) and the team's rubric deck; the slide content is kept in `docs/deliverables/01-presentation/presentation.md` · `presentation.pptx` · reviewer: salma **Implemented; review pending.** Merged in PR #84; colors follow `docs/deliverables/01-presentation/palette.md` (T-EL-28); rebuilt with `01-presentation/make/build_pptx.js`.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-EL-26** [Could] D5 · Intro video before the ACUD discussion: Arabic narration, no compound or developer names · `docs/deliverables/02-video/intro.mp4` · reviewer: salma **Implemented; review pending.** First version merged in PR #85; rebuilt in T-EL-28 (56 s, team-supplied narration, cuts on narration pauses).
+- [x] **T-EL-26** [Could] D5 · Intro video before the ACUD discussion: Arabic narration, no compound or developer names · `docs/deliverables/02-video/intro-human-voice.mp4` / `intro-ai-voice.mp4` · reviewer: salma **Implemented; review pending.** First version merged in PR #85; rebuilt in T-EL-28 (56 s, team-supplied narration, cuts on narration pauses).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-EL-27** [Must] D5 · Salma's tasks: record what is finished on this board and carry out the open parts that do not need a human (wording fixes from the T-SA-07 audit, the checklist follow-ups) · reviewer: salma **Implemented; review pending.** Merged in PR #86. Four dashboard labels in `app.py` still read "fine-eligible months"; the rename is open under T-SA-07.
+- [x] **T-EL-27** [Must] D5 · Salma's tasks: record what is finished on this board and carry out the open parts that do not need a human (wording fixes from the T-SA-07 audit, the checklist follow-ups) · reviewer: salma **Implemented; review pending.** Merged in PR #86. At that point four dashboard labels in `app.py` still read "fine-eligible months"; that rename is implemented on branch `fix/T-SA-07-k5-wording` and awaits review under T-SA-07.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-EL-28** [Should] D5 · Deliverables v2: presentation files in `docs/deliverables/01-presentation/`, video files in `docs/deliverables/02-video/` with references updated; project slogan "رادار العاصمة الجديدة: شركة تمتلك مدينة."; intro video re-cut to the team narration with slogan title card, supervisor and team credits, partner logos (MCIT, Egyptian Military Academy, Digilians, ACUD), ACUD palette and crossfades; deck recolored to `palette.md`; both rebuildable from their `make/` folders · reviewer: salma **Implemented; review pending.** Branch `docs/T-EL-28-video-deck-v2`; every video cut lands on a narration pause (3.5 s title + pause midpoint); deck renders 12 slides, 12 notes.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
+
+### Reassigned 3 November 2026 to elsayed (he did or now owns this work; IDs unchanged)
+
+- [x] **T-NA-11** [Should] D5 · Search on screen 1: one box that narrows the map and the visit list to a compound code (C..) or a developer code (D..); codes only · `app.py` + test · owner: elsayed (moved from nada, 3 Nov 2026) · reviewer: ahmed **Implemented; review pending.** Merged in PR #87 (search box, four filters, map click selects the compound; 394 tests pass; real-browser click on C04 checked on 3 Nov 2026).
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
+- [x] **T-NA-12** [Should] D5 · Filters on screen 1, applied to the map and the visit list: priority level (1-4), developer code, signal thresholds (K2 quarters, K3 months, K6 months), cycle list only or all compounds, and the as-of quarter · `app.py` + test · owner: elsayed (moved from nada, 3 Nov 2026) · reviewer: ahmed **Implemented; review pending.** Merged in PR #87 (search box, four filters, map click selects the compound; 394 tests pass; real-browser click on C04 checked on 3 Nov 2026).
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
+- [x] **T-NA-13** [Should] D5 · Map click: clicking a compound on the priority map opens screen 2 (Compound file) with that compound selected · `app.py` + test · owner: elsayed (moved from nada, 3 Nov 2026) · reviewer: ahmed **Implemented; review pending.** Merged in PR #87 (search box, four filters, map click selects the compound; 394 tests pass; real-browser click on C04 checked on 3 Nov 2026).
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
+- [ ] **T-SA-11** [Should] D2 · Update `docs/requirements/04-timeline.md` with today's program day and this board's D-days · owner: elsayed (moved from salma, 3 Nov 2026) · reviewer: ahmed **Partial; the timeline is refreshed to the board counts of 2 Nov 2026 (PR #68). Open: today's program day is still unconfirmed, so the D-day update is not done.**
+- [ ] **T-SA-12** [Could] D3 · Blind labeller for the finishing test (T-AH-17): label ~50 held-out compound-images without seeing the model output · owner: elsayed (moved from salma, 3 Nov 2026) · reviewer: ahmed
 
 ---
 
@@ -333,14 +345,6 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-E
   * Evidence: [user guide](../deliverables/user-guide.md), rewritten for Priority map, Compound file, District view and Digital twin what if; every behaviour statement is traced to a function in `app.py` or `src/dashboard/`.
   * [ ] Review accepted (record reviewer, date and PR after actual review).
 
-* [x] **T-NA-11** [Should] D5 · Search on screen 1: one box that narrows the map and the visit list to a compound code (C..) or a developer code (D..); codes only · `app.py` + test · reviewer: ahmed **Implemented; review pending.** Merged in PR #87 (search box, four filters, map click selects the compound; 394 tests pass; real-browser click on C04 checked on 3 Nov 2026).
-  * [ ] Review accepted (record reviewer, date and PR after actual review).
-
-* [x] **T-NA-12** [Should] D5 · Filters on screen 1, applied to the map and the visit list: priority level (1-4), developer code, signal thresholds (K2 quarters, K3 months, K6 months), cycle list only or all compounds, and the as-of quarter · `app.py` + test · reviewer: ahmed **Implemented; review pending.** Merged in PR #87 (search box, four filters, map click selects the compound; 394 tests pass; real-browser click on C04 checked on 3 Nov 2026).
-  * [ ] Review accepted (record reviewer, date and PR after actual review).
-
-* [x] **T-NA-13** [Should] D5 · Map click: clicking a compound on the priority map opens screen 2 (Compound file) with that compound selected · `app.py` + test · reviewer: ahmed **Implemented; review pending.** Merged in PR #87 (search box, four filters, map click selects the compound; 394 tests pass; real-browser click on C04 checked on 3 Nov 2026).
-  * [ ] Review accepted (record reviewer, date and PR after actual review).
 ---
 
 ## 8. salma: KPIs, value, governance, presentation
@@ -358,15 +362,14 @@ Goal: every number in the docs and slides has a source or an origin mark and mat
   - Evidence: [decision memo](../deliverables/decision-memo.md) has an English and an Arabic section, each citing its source files. Page length and the same-order check were not verified.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [ ] **T-SA-06** [Must] D4 · Slides 1-11 (§12): backtest slide is the only place real names may appear; slide 8 always quotes the denominator, the baseline, the scope and "generated data" · `docs/deliverables/01-presentation/presentation.md` + deck · reviewer: all **Partial; slide notes closed (PR #65), deck HTML on main (12 sections, PR #72), every figure sourced or reworded and the slide-8 caveat added (PR #76). Open: no browser or print-preview check yet, and the deck length (12-15 min) is not confirmed.**
-- [ ] **T-SA-07** [Must] D4 · Wording audit of every doc, slide and screen against §3 allowed/forbidden table ("priority level" not "risk level", no "distressed" on a real compound, no completion %) · checklist in PR · reviewer: verina **Partial; the audit is done (`wording-audit-dashboard.md`, `wording-audit-docs.md`, PR #71): dashboard 0 violations and 16 checks; documents 1 violation and 26 checks. Open: the violation at `AI_AGENT_CONFIG.md:39` (a 0% error claim, Elsayed's document, not changed) and the checks.**
+- [x] **T-SA-07** [Must] D4 · Wording audit of every doc, slide and screen against §3 allowed/forbidden table ("priority level" not "risk level", no "distressed" on a real compound, no completion %) · checklist in PR · reviewer: verina **Implemented; review pending.** The audit and documented fixes are complete ([wording audit](../deliverables/wording-audit.md), [dashboard screens](../deliverables/wording-audit-dashboard.md), [team documents](../deliverables/wording-audit-docs.md)); the final K5 dashboard wording is applied in `app.py` and `src/dashboard/insights.py` on branch `fix/T-SA-07-k5-wording`. Evidence: `tests/test_dashboard_wording.py`; full suite 428 passed, 1 skipped; `git diff --check` clean.
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-SA-08** [Must] D4 · Number audit: every number on slides and memo traced to `kpi_values`, `EW_REPORT.md` or `ai_verification_log` · reviewer: ahmed **Implemented; review pending.** The number audits are in `number-audit-slides.md`, `number-audit-questions.md` and `number-audit-memo.md` (PR #70). Every slide figure now has a source or was reworded (PR #76): 16 sourced, 2 reworded (the Sep-Oct 2026 dates and "48 visits"), and slide 8 carries the height caveat. The questions sheet is corrected (PR #75). Caveats: the slide 1 figures rest on the spec, which records them as the ACUD chairman's statements; "0 invented" is the spec's figure, not a recount.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-SA-09** [Must] D5 · Expected questions sheet (§12) with one-line answers · reviewer: elsayed **Implemented; review pending.**
   - Evidence: [expected questions](../deliverables/expected-questions.md): 14 questions, each with a one-line answer and a named source file. PR #66 corrected the complaints answer to the `complaints_eval.csv` figures; branch `fix/display-rules-20261102` replaces the unsourced satellite claims ("5 pre-registered tests", r about 0.96) with the T1-T3 result from `data/K1_FALLBACK_CHECK.md`. Caveat: the EGP answer quotes the placeholder range from `configs/cost_assumptions.yaml`, so it must change when T-SA-03 gets real values.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [ ] **T-SA-10** [Must] D5 · Final submission checklist: 13 deliverables (§11) ready, "done when" list (§14) ticked · reviewer: all **Partial; the checklist matches the repo (PR #68): item 10 points to the `make run` target, and the deck HTML is now on main (item 13, PR #72). Open: the §14 done-when items are still not met.**
-- [ ] **T-SA-11** [Should] D2 · Update `docs/requirements/04-timeline.md` with today's program day and this board's D-days · reviewer: ahmed **Partial; the timeline is refreshed to the board counts of 2 Nov 2026 (PR #68). Open: today's program day is still unconfirmed, so the D-day update is not done.**
-- [ ] **T-SA-12** [Could] D3 · Blind labeller for the finishing test (T-AH-17): label ~50 held-out compound-images without seeing the model output · reviewer: ahmed
 
 ---
 
