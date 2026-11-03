@@ -65,7 +65,6 @@ The descriptions below preserve the current board requirements; an unchecked tas
 | T-SA-03 | [Must] D3 · Value in EGP, 3 settings, no double counting (§12 formula) · `configs/cost_assumptions.yaml` + "Under these assumptions, from X to Y million EGP per year" · reviewer: elsayed |
 | T-SA-05 | [Must] D4 · Decision memo, one page Arabic + one page English, same facts and order (deliverable 8) · `docs/deliverables/decision-memo.md` · reviewer: verina |
 | T-SA-06 | [Must] D4 · Slides 1-11 (§12): backtest slide is the only place real names may appear; slide 8 always quotes the denominator, the baseline, the scope and "generated data" · `docs/deliverables/01-presentation/presentation.md` + deck · reviewer: all |
-| T-SA-07 | [Must] D4 · Wording audit of every doc, slide and screen against §3 allowed/forbidden table ("priority level" not "risk level", no "distressed" on a real compound, no completion %) · checklist in PR · reviewer: verina |
 | T-SA-08 | [Must] D4 · Number audit: every number on slides and memo traced to `kpi_values`, `EW_REPORT.md` or `ai_verification_log` · reviewer: ahmed |
 | T-SA-09 | [Must] D5 · Expected questions sheet (§12) with one-line answers · reviewer: elsayed |
 | T-SA-10 | [Must] D5 · Final submission checklist: 13 deliverables (§11) ready, "done when" list (§14) ticked · reviewer: all |
@@ -79,6 +78,6 @@ The descriptions below preserve the current board requirements; an unchecked tas
 | Ahmed: Track A | T-AH-01, T-AH-02, T-AH-03, T-AH-04, T-AH-05, T-AH-06, T-AH-07, T-AH-08, T-AH-09, T-AH-10, T-AH-11, T-AH-12, T-AH-13, T-AH-14, T-AH-15, T-AH-16, T-AH-20, T-AH-21, T-AH-22 | T-AH-01, T-AH-02, T-AH-03, T-AH-04, T-AH-05, T-AH-06, T-AH-07, T-AH-08, T-AH-09, T-AH-10, T-AH-11, T-AH-12, T-AH-16, T-AH-20, T-AH-21 |
 | Verina: Track B | T-VE-01, T-VE-02, T-VE-03, T-VE-04, T-VE-05, T-VE-06, T-VE-07, T-VE-08, T-VE-09, T-VE-10, T-VE-11, T-VE-12, T-VE-13, T-VE-14 | None recorded |
 | Elsayed: AI and scenarios | T-EL-01, T-EL-02, T-EL-03, T-EL-04, T-EL-05, T-EL-07, T-EL-09, T-EL-10, T-EL-11, T-EL-14 | None recorded |
-| Salma: value and delivery | T-SA-04 | None recorded |
+| Salma: value and delivery | T-SA-04, T-SA-07 | None recorded |
 
 Keep the board's separate Review accepted boxes pending until an actual review is recorded. The image code has an independent focused review and regression fixes, but that does not sign the assigned task reviewer on their behalf.
