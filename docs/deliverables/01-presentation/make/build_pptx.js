@@ -434,12 +434,12 @@ slides.push({
     "- Message: this is what public data alone can do. Give us your data and the demo parts become real operation.",
     "- Transition roadmap (phase · what · owner role · risk · rollback):",
     ...PH.map(([t, d, o, r, b]) => `  - Phase ${t}: ${d} Owner: ${o} Risk: ${r} Rollback: ${b}`),
-    "- Training of committee users, dates, phase-gate criteria and signed owners: to be agreed with ACUD.",
+    "- Gates between phases, progress indicators, rollback triggers and training: `docs/deliverables/transition-plan.md` (proposed). The fixed 3-month review keeps running through phases 1 and 2, so rollback costs at most one rerun. People and dates: to be agreed with ACUD.",
     "- Transfer: thresholds and capacity are configuration; another region needs its boundaries and statements. Only R7 has been run; no transfer is proven.",
     "- Next step: run one cycle with the list and record visit results.",
     "- Visual: decision box and three-phase roadmap.",
   ],
-  source: ["`docs/deliverables/decision-memo.md` (decision requested), `docs/deliverables/data-request.md`, `docs/requirements/01-specs.md` (data request list, art. 54; section 13 risks and fallbacks), `docs/deliverables/technical-track-a.md` (quarterly monitoring procedure)."],
+  source: ["`docs/deliverables/decision-memo.md` (decision requested), `docs/deliverables/data-request.md`, `docs/requirements/01-specs.md` (data request list, art. 54; section 13 risks and fallbacks), `docs/deliverables/technical-track-a.md` (quarterly monitoring procedure), `docs/deliverables/transition-plan.md` (gates, indicators, rollback)."],
   note: "Speaker note: 0:45 · criteria 5, 10, bonus. Open with the decision, name the first phase and close on the next step. Total 12:00. For questions: the ACUD export is ordered by impact (dated inspection and handover outcomes, contract register, parcel geometry first); any STOP in the monitoring procedure writes no manifest.",
   build(s) {
     s.addShape(pres.ShapeType.rect, { x: MX, y: TOP, w: W, h: 0.95, fill: { color: C.sand }, line: { color: C.sand } });
@@ -462,7 +462,7 @@ slides.push({
     });
     bullets(s, "s11 bullets", [
       "Message: this is what public data alone can do. Give us your data and the demo parts become real operation.",
-      "Training, dates, phase-gate criteria and signed owners: to be agreed with ACUD. Only R7 has been run; no transfer is proven.",
+      "Gates, indicators and rollback: transition-plan.md (proposed). Only R7 has been run; no transfer is proven.",
       "Next step: run one cycle with the list and record visit results.",
     ], MX, 5.3, W, 1.15, 13, C.white);
   },

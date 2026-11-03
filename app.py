@@ -16,6 +16,7 @@ import altair as alt  # ships with Streamlit
 import pandas as pd
 import pydeck as pdk
 import streamlit as st
+import yaml
 
 from src.chatbot.answer import AnswerOptions, answer_question
 from src.chatbot.retrieve import get_default_retriever
@@ -793,7 +794,6 @@ def find_inspection_file(code: str, asof: str) -> Path | None:
 # ---- screen 2 renderers ----------------------------------------------------- #
 
 def render_kpi_tiles(row: pd.Series | None, asof: str) -> None:
-    section_title("📊", "Indicators")
     get = (lambda c: None) if row is None else (lambda c: row.get(c))
 
     tiles = st.columns(4)
@@ -826,7 +826,7 @@ def render_kpi_tiles(row: pd.Series | None, asof: str) -> None:
 
 
 def render_curves(code: str, history: pd.DataFrame | None, ann: pd.DataFrame | None,
-                  row: pd.Series | None) -> None:
+                  row: pd.Series | None, height: int = 300) -> None:
     section_title("📈", "Satellite curves")
     with st.container(border=True):
         wanted = {COL_A: "Activity score A", COL_DW: "Dynamic World built probability"}
@@ -863,7 +863,7 @@ def render_curves(code: str, history: pd.DataFrame | None, ann: pd.DataFrame | N
                     rules = alt.Chart(marks).mark_rule(color=MARKER_COLOR, strokeDash=[4, 4]).encode(
                         x=alt.X("quarter:N", sort=order), tooltip=["quarter", "label"])
                     chart = lines + rules
-        st.altair_chart(chart.properties(height=300), width="stretch")
+        st.altair_chart(chart.properties(height=height), width="stretch")
 
         # The same first deadline that K3 counts from (kpi_values.k3_first_deadline).
         first = None if row is None else row.get("k3_first_deadline")
@@ -1031,7 +1031,7 @@ def render_complaints(code: str, asof: str, track: Track) -> None:
     recent = table[table["quarter"].isin(insights.last_quarters(asof, 4))]
     stoppage = int(recent.loc[recent["category"] == "stoppage", "complaints"].sum())
     finding(f"{ORIGIN_GENERATED} <b>{int(recent['complaints'].sum())} buyer complaints</b> in the last four quarters, "
-            f"{stoppage} about work stopping. Read them beside the satellite curve above.")
+            f"{stoppage} about work stopping. Read them beside the satellite curve.")
     chart = alt.Chart(table).mark_bar().encode(
         x=alt.X("quarter:N", title=None, axis=alt.Axis(labelAngle=0)),
         y=alt.Y("complaints:Q", title="Complaints", axis=alt.Axis(tickMinStep=1)),
@@ -1042,12 +1042,24 @@ def render_complaints(code: str, asof: str, track: Track) -> None:
 
 
 def render_developer_file(code: str, row: pd.Series | None, asof: str, track: Track) -> None:
+    """Fine exposure and developer money; buyer complaints sit beside the site image at the top."""
     section_title("💰", "Fine exposure")
     render_fine_exposure(code, row, asof, track)
     section_title("📒", "Developer money")
     render_developer_money(code, asof, track)
-    section_title("📣", "Buyer complaints")
-    render_complaints(code, asof, track)
+
+
+def render_site_now(code: str, asof: str, track: Track) -> None:
+    """The latest capture and, in Track B, buyer complaints: the visual check beside the satellite curve."""
+    section_title("🛰️", "The site now")
+    frames = space_frames(code)
+    with st.container(border=True):
+        if frames:
+            render_frame(frames[-1], stage_of_year(code), "Latest capture · ")
+        else:
+            st.info(f"No Wayback capture for {code} in data/imagery/figures/timeline.")
+        if track.generated:
+            render_complaints(code, asof, track)
 
 
 def last_recorded_visit(code: str) -> dict | None:
@@ -1070,8 +1082,9 @@ def generated_visit(code: str, asof: str, track: Track) -> dict | None:
             "generated": True}
 
 
-def render_compound_header(row: pd.Series | None, code: str, track: Track = TRACK_A) -> None:
-    """Level, suggested action and last recorded visit in one line."""
+def render_compound_header(row: pd.Series | None, code: str, track: Track = TRACK_A,
+                           reason: str | None = None) -> None:
+    """Level, suggested action, last recorded visit and the reason for the level in one card."""
     if row is None:
         return
     action, why = insights.suggested_action(row)
@@ -1081,7 +1094,9 @@ def render_compound_header(row: pd.Series | None, code: str, track: Track = TRAC
         seen = f"{ORIGIN_GENERATED} none recorded; last generated visit {seen}, not fieldwork"
     number = insights.level_number(row.get("level"))
     level = level_word(row.get("level")) if number is None else f"Level {number} · {level_word(number)}"
-    finding(f"<b>{level}.</b> Suggested action: <b>{action}</b>. {html.escape(why)} Last recorded visit: {seen}.")
+    because = f"<br><b>Why:</b> {html.escape(reason)}" if reason else ""
+    finding(f"<b>{level}.</b> Suggested action: <b>{action}</b>. {html.escape(why)} Last recorded visit: {seen}."
+            f"{because}")
     st.caption("The action is a suggestion; the committee decides.")
 
 
@@ -1309,7 +1324,7 @@ def screen_compound_file(track: Track) -> None:
             if not ranked.empty and str(ranked.iloc[0]["code"]) in codes:
                 default = codes.index(str(ranked.iloc[0]["code"]))
 
-        pick, _ = st.columns([1, 2])
+        pick, decision = st.columns([1, 3])
         # A default index next to a value already in session state raises a Streamlit warning.
         start = {} if "compound_code" in st.session_state else {"index": default}
         code = pick.selectbox(
@@ -1322,23 +1337,30 @@ def screen_compound_file(track: Track) -> None:
         row = now.iloc[0] if not now.empty else None
         ann = load_announcements(code, asof)
 
-        if row is None:
-            st.warning(f"{code} has no KPI row for {asof}: shown as not assessable.")
-        render_compound_header(row, code, track)
         reason = None if row is None else reason_text(row)
-        if not _missing(reason) and str(reason).strip():
-            st.markdown(f'<b>Why:</b> {html.escape(str(reason))}', unsafe_allow_html=True)
+        with decision:
+            if row is None:
+                st.warning(f"{code} has no KPI row for {asof}: shown as not assessable.")
+            render_compound_header(row, code, track,
+                                   None if _missing(reason) or not str(reason).strip() else str(reason))
 
         render_kpi_tiles(row, asof)
-        render_level_history(code)
-        render_curves(code, history, ann, row)
-        render_stage_strip(code)
-        render_images(code)
-        render_claims(code, ann, asof)
-        if track.generated:
-            render_developer_file(code, row, asof, track)
-            render_classifier(code, track)
-            render_inspection_button(code, asof)
+        # Decision, curve and image in one view; the rest of the evidence opens on demand.
+        site_col, curve_col = st.columns([2, 3])
+        with site_col:
+            render_site_now(code, asof, track)
+        with curve_col:
+            render_curves(code, history, ann, row, height=260)
+        with st.expander("More evidence: level history, image timeline, developer statements"
+                         + (", money and classifier" if track.generated else "")):
+            render_level_history(code)
+            render_stage_strip(code)
+            render_images(code)
+            render_claims(code, ann, asof)
+            if track.generated:
+                render_developer_file(code, row, asof, track)
+                render_classifier(code, track)
+                render_inspection_button(code, asof)
 
         section_title("📝", "Visit form")
         render_ops_visits_form(codes, code)
@@ -1401,6 +1423,72 @@ def render_early_warning(case: dict | None) -> None:
         reported = f", reported {case['reported']}" if case["reported"] else ""
         st.markdown(f"**What happened.** {html.escape(case['outcome'].capitalize())}{reported}.")
         render_frame_pair(pair, stages, "First capture after the alert")
+
+
+DIAGNOSIS_FILE = "data/experiments/35_backtest_diagnosis/DIAGNOSIS.md"
+# From DIAGNOSIS_FILE (summary table). The case codes are the five public late cases the rule missed.
+FAILURE_MODES = """| What the late case looked like | Cases | Why the rule missed it |
+| --- | --- | --- |
+| Building every quarter, but too slowly for the promised date | C14, C12, C19 | The site never stopped, so the stall rule had nothing to count. No indicator compares pace with the promised date. |
+| Structure nearly done; the delay sat in finishing or handover | C10, C02 | Finishing work and handover are not visible from space. |
+"""
+
+
+def render_failures(cases: pd.DataFrame | None, kpis: pd.DataFrame | None) -> None:
+    section_title("🧭", "When the solution fails")
+    with st.container(border=True):
+        if cases is not None:
+            caught, total = insights.caught_cases(cases)
+            finding(f"At least 6 months before the first handover date, the rule flagged <b>{caught} of {total}</b> public late "
+                    "cases after construction started. The bar set before testing was 5 of 6.")
+        st.markdown(FAILURE_MODES)
+        if kpis is not None:
+            k2_min = CFG["levels"]["k2_l2"]
+            codes = insights.stall_codes(kpis, k2_min)
+            st.markdown(f"**What it can do.** A stall seen from space raises the level: a stall count of {k2_min:g} "
+                        f"quarters or more gave level 1 or 2 in {len(codes)} of {kpis['code'].nunique()} compounds "
+                        f"at some quarter since 2019 ({', '.join(codes)}). No real late case yet confirms a stall "
+                        "caught during construction. Imagery was never the limit in the six cases: every quarter "
+                        "before the cutoff had 10 or more images.")
+        st.markdown("**What could close the gap (untested).** A pace-against-promise indicator, fixed and "
+                    "recorded before scoring, built from data outside these six cases.")
+        st.caption(f"Source: {DIAGNOSIS_FILE}")
+
+
+@st.cache_data(show_spinner=False)
+def load_cost_assumptions() -> dict:
+    return yaml.safe_load((REPO_DIR / "configs" / "cost_assumptions.yaml").read_text(encoding="utf-8"))
+
+
+def render_alarm_tradeoff() -> None:
+    section_title("⚖️", "A false alarm against a missed case")
+    costs = load_cost_assumptions()
+    central = costs["settings"]["central"]
+    with st.container(border=True):
+        st.caption("Assumptions, not data · defaults from configs/cost_assumptions.yaml (central "
+                   "setting). Most are placeholders until a reviewer sets them. Change any input.")
+        cols = st.columns(4)
+        visit = cols[0].number_input("Cost of a false alarm (EGP)", min_value=0, help="One wasted visit.",
+                                     value=int(central["cost_per_visit"]), step=500)
+        missed_cost = cols[1].number_input("Cost of one missed case (EGP)", min_value=0,
+                                           value=int(central["cost_late_detection"]), step=5000)
+        false_alarms = cols[2].number_input("False alarms per year", min_value=0,
+                                            value=int(costs["false_alarms_per_year"]), step=1)
+        missed = cols[3].number_input("Missed cases per year", min_value=0,
+                                      value=int(central["missed_cases"]), step=1)
+        t = insights.alarm_tradeoff(visit, missed_cost, false_alarms, missed)
+        if t["break_even"] is not None:
+            finding(f"One missed case costs as much as <b>{t['break_even']:,.1f} false alarms</b>. "
+                    f"An extra alert is worth a visit if at least 1 in {t['break_even']:,.1f} flagged "
+                    "compounds is a real case.")
+        tiles = st.columns(3)
+        for col, label, key in zip(tiles, ("False alarms", "Missed cases", "Total"),
+                                   ("false_alarms", "missed", "total")):
+            with col, st.container(border=True):
+                st.metric(label=label, value=f"{t[key]:,.0f} EGP")
+                st.caption("per year, under these assumed inputs")
+        st.caption("No false-alarm rate on real cases exists yet: all six backtest cases were late, "
+                   "so the backtest can count misses but not false alarms.")
 
 
 def render_flagged_early(rows: list[dict]) -> None:
@@ -1594,6 +1682,8 @@ def screen_district(track: Track) -> None:
     compounds = load_table("real/compounds.parquet", TRACK_A)
     outcomes = load_table("real/eval_outcomes.parquet", TRACK_A)
     render_early_warning(None if cases is None else insights.warning_case(cases))
+    render_failures(cases, load_table(KPI_FILE, TRACK_A))
+    render_alarm_tradeoff()
     render_flagged_early(insights.flagged_early(latest_df))
     render_strongest_claim(latest_df, asof)
     render_activity_spread(latest_df, asof)

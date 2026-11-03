@@ -17,7 +17,8 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 3:** measured baseline for the indicators; a process map (who does what, when); pain points in numbers (times, volumes, errors).
 - **Level 4:** root cause shown with evidence; comparison across areas or groups; shows what averages hide.
 - **Evidence:** current practice "field review every 3 months" for all projects (`docs/requirements/01-specs.md` section 12 and the visit formula; `configs/cost_assumptions.yaml` `visits_per_year: 4`, `projects: 12`); per-compound K2/K3/K6 baselines in `docs/deliverables/kpi-cards.md`; per-case root-cause diagnosis of the backtest in `data/experiments/35_backtest_diagnosis/DIAGNOSIS.md`.
-- **Gap to level 4:** no process map of today's inspection practice and no measured pain points (visit time, missed cases) from ACUD; the root-cause work covers the rule's misses, not the current process.
+- **Added for level 4:** `docs/deliverables/as-is.md`: process map rebuilt from public sources (mermaid, who/when/what is unknown); baseline in numbers (48 reviews a year; 5 of 6 public late cases 18-33 months late, median 25; 7 of 12 compounds with 106 fine-eligible months and 9,937 homes; level counts 1/2/3/6); three root causes with evidence (even effort, developer-sourced progress: C19 70% claimed vs 28% of built area at 20 m+, no pace-vs-promise check: C14 35% three months before its date); what the average hides (activity 0.03-0.90 around a 0.61 mean, developers with compounds at levels 1 and 4, delay range).
+- **Gap to level 4:** no ACUD records (visit logs, visit time, warnings, supervisor reports); the process map must be confirmed with ACUD.
 - **Slide:** no slide yet (slide 1 states the review cycle only).
 
 ## 3. Target state, to-be (weight 10)
@@ -41,15 +42,17 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 3:** roadmap with phases, owners and resources; includes risks and training.
 - **Level 4:** phased transition before execution with progress indicators, criteria for moving between phases, and a rollback plan.
 - **Evidence:** next step "run one cycle with the list and record visit results" (slide 11); data request ordered by impact `docs/deliverables/data-request.md`; quarterly monitoring procedure `docs/deliverables/technical-track-a.md`; risks and fallbacks `docs/requirements/01-specs.md` section 13; roles `docs/requirements/01-specs.md` section 10.
-- **Gap to level 4:** no written roadmap with phases, owners, resources, training, phase-gate criteria or rollback for ACUD adoption; this is the weakest documented criterion.
-- **Slide:** no slide yet (slide 11 has one next step only).
+- **Added for level 4:** `docs/deliverables/transition-plan.md`: three phases (pilot cycle, ACUD data, quarterly operation then R8) with scope, owner roles, resources and training; proposed gate criteria between phases; six progress indicators counted each quarter; rollback table with triggers (the fixed 3-month review keeps running through phase 2, so rollback costs at most one rerun). Slide 11 points to it.
+- **Gap to level 4:** all of it is proposed: people, dates and the committee's own gate numbers need ACUD; nothing has been executed yet.
+- **Slide:** 11 (three-phase roadmap; gates and rollback in the plan).
 
 ## 6. Solution effectiveness: preventive (weight 12)
 
 - **Level 3:** effectiveness measured for the solution type: reactive (time to detect and respond), preventive/predictive (precision, recall and false-alarm rate; unclear in the source), on past data.
 - **Level 4:** adds feasibility (when the solution stays valid) and the trade-off between the cost of a false alarm and the cost of a missed event (unclear in the source).
 - **Evidence:** frozen-clock backtest on six real R7 cases: 1 of 6 after-start, 0 of 6 point-in-time; criterion of 5 not lowered (`data/BACKTEST_CURRENT.md`); diagnosis of misses (`data/experiments/35_backtest_diagnosis/DIAGNOSIS.md`); generated-data recall@4 per method against random mean 0.335 (2,000 draws) (`data/EW_REPORT_CURRENT.md`); per-class recall and macro-F1 (`data/CURRENT_MODEL_METRICS.csv`, e.g. logistic_combined macro-F1 0.615); `docs/deliverables/method-card.md`.
-- **Gap to level 4:** the real-case criterion was not met (1 of 6); the test holds only 4 distressed rows (`data/EW_REPORT_CURRENT.md`); no false-alarm rate on real cases and no false-alarm vs missed-case cost trade-off.
+- **Added for level 4:** District view sections "When the solution fails" (failure modes per case, what the stall rule can do, with no real case confirming it) and "A false alarm against a missed case" (calculator with labelled assumptions; break-even of about 6.7 false alarms per missed case at the central setting); same text in `docs/deliverables/technical-track-a.md` ("When the rule fails and what an error costs").
+- **Gap to level 4:** the real-case criterion was not met (1 of 6); the test holds only 4 distressed rows (`data/EW_REPORT_CURRENT.md`); no false-alarm rate on real cases (all six backtest cases were late); cost inputs are assumptions.
 - **Slide:** 7, 8, 8b.
 
 ## 7. Return on investment (weight 12)
