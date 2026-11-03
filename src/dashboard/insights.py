@@ -418,6 +418,29 @@ def activity_spread(latest: pd.DataFrame) -> dict:
     return {"mean": mean, "below_half": list(low["code"].astype(str))}
 
 
+SOURCE_KINDS = {"event": "Event", "promise": "Promise", "progress": "Progress claim",
+                "eval_outcome": "Outcome (check case)", "eval_promise": "Promise (check case)",
+                "eval_revision": "Revised date (check case)", "eval_progress": "Progress (check case)"}
+
+
+def source_rows(sources: pd.DataFrame, code: str) -> pd.DataFrame:
+    """One compound's public sources, oldest first, for the names-and-sources screen."""
+    mine = sources[sources["code"] == code].sort_values(["published_date", "record_id"])
+    return pd.DataFrame({"Published": mine["published_date"].astype(str).str[:10],
+                         "What": mine["kind"].map(lambda k: SOURCE_KINDS.get(k, str(k).replace("_", " "))),
+                         "Publisher": mine["publisher"], "Says": mine["quote"], "Link": mine["url"],
+                         "Record": mine["record_id"]}).reset_index(drop=True)
+
+
+def generated_elsewhere(compound: pd.Series) -> list[str]:
+    """What the other screens show for this compound from generated data, not from public sources."""
+    items = [f"{name} ({col.split('_')[0]})" if col == "units_origin" else name
+             for col, name in (("units_origin", "home count"), ("land_area_origin", "land area"))
+             if compound.get(col) == "generated"]
+    return items + ["land value and fine exposure", "collections and cover balance", "buyer complaints",
+                    "inspection visits", "classifier probabilities and what-if scenarios"]
+
+
 def what_space_saw(why: object) -> str:
     """`short_reason` as a sentence start."""
     text = short_reason(why)

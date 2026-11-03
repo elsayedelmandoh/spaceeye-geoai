@@ -512,6 +512,28 @@ def test_activity_spread_names_compounds_far_below_the_district_mean():
     assert spread["below_half"] == ["C12"]
 
 
+
+def test_source_rows_are_one_compound_oldest_first_with_plain_kinds():
+    sources = pd.DataFrame({
+        "code": ["C18", "C18", "C07"], "kind": ["promise", "eval_outcome", "event"],
+        "record_id": ["R7-2", "R7-1", "R7-3"], "published_date": ["2022-05-25", "2021-09-25", "2020-01-01"],
+        "publisher": ["A", "B", "C"], "url": ["https://a", "https://b", "https://c"], "quote": ["q2", "q1", "q3"],
+    })
+    rows = insights.source_rows(sources, "C18")
+    assert list(rows["Published"]) == ["2021-09-25", "2022-05-25"]
+    assert list(rows["What"]) == ["Outcome (check case)", "Promise"]
+    assert list(rows["Link"]) == ["https://b", "https://a"]
+    assert insights.source_rows(sources, "C99").empty
+
+
+def test_generated_elsewhere_lists_stand_ins_for_one_compound():
+    row = pd.Series({"units_origin": "generated", "land_area_origin": "real"})
+    items = insights.generated_elsewhere(row)
+    assert "home count (units)" in items
+    assert "land area" not in items
+    assert "land value and fine exposure" in items
+
+
 def _metrics_raw():
     return pd.DataFrame({
         "method": ["logistic_combined"] * 4 + ["public_rule", "logistic_combined"],

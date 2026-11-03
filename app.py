@@ -80,6 +80,7 @@ SCREENS = [
     "2 · Compound file",
     "3 · District view",
     "4 · Digital twin what if",
+    "5 · Real names and sources",
 ]
 
 # --------------------------------------------------------------------------- #
@@ -1790,11 +1791,151 @@ def screen_what_if(track: Track) -> None:
                 render_capacity_variant(raw, variant)
 
 
+# --------------------------------------------------------------------------- #
+# Screen 5: real names and sources (only what public sources and satellites gave us)
+# --------------------------------------------------------------------------- #
+# names/ holds the R7 code-to-name map and the public sources behind every statement. It sits outside data/
+# on purpose: the release and data/ stay codes only, and the no_names gate keeps scanning them.
+
+NAMES_DIR = REPO_DIR / "names"
+NAMES_MAP_KEY, NAMES_LAYER_ID, NAMES_CODE_KEY = "names_map", "named", "names_code"
+
+
+@st.cache_data(show_spinner=False)
+def load_names() -> tuple[pd.DataFrame, pd.DataFrame] | None:
+    compounds, sources = NAMES_DIR / "compounds.csv", NAMES_DIR / "sources.csv"
+    if not (compounds.exists() and sources.exists()):
+        return None
+    return pd.read_csv(compounds, encoding="utf-8"), pd.read_csv(sources, encoding="utf-8")
+
+
+def pick_named_compound() -> None:
+    event = st.session_state.get(NAMES_MAP_KEY)
+    code = insights.picked_code(None if event is None else event.selection, NAMES_LAYER_ID)
+    if code is not None and CODE_PATTERN.match(code):
+        st.session_state[NAMES_CODE_KEY] = code
+
+
+def render_names_map(names: pd.DataFrame, chosen: str) -> None:
+    geojson = load_boundaries()
+    if geojson is None:
+        return
+    label_of = dict(zip(names["code"], names["name_en"]))
+    features, points, labels = [], [], []
+    for feat in geojson["features"]:
+        code = feat["properties"]["code"]
+        if code not in label_of:
+            continue
+        outline = _geo_points(feat["geometry"])
+        points += outline
+        if outline:
+            labels.append({"text": f"{code} · {label_of[code]}",
+                           "position": [sum(x for x, _ in outline) / len(outline),
+                                        sum(y for _, y in outline) / len(outline)]})
+        colour = PALETTE["accent"] if code == chosen else PALETTE["muted"]
+        features.append({"type": "Feature", "geometry": feat["geometry"],
+                         "properties": {"code": code, "name": label_of[code], "fill_color": _hex_to_rgba(colour)}})
+    layer = pdk.Layer("GeoJsonLayer", id=NAMES_LAYER_ID, data={"type": "FeatureCollection", "features": features},
+                      get_fill_color="properties.fill_color", get_line_color=[232, 238, 244, 200],
+                      line_width_min_pixels=1, stroked=True, filled=True, pickable=True)
+    text = pdk.Layer("TextLayer", data=labels, get_position="position", get_text="text", get_size=13,
+                     get_color=[233, 239, 245, 255], get_alignment_baseline="'bottom'", billboard=True)
+    view = pdk.data_utils.compute_view(points, view_proportion=0.9) if points else None
+    with st.container(border=True):
+        st.pydeck_chart(pdk.Deck(layers=[layer, text], initial_view_state=view, map_style="dark",
+                                 tooltip={"text": "{code}\n{name}"}),
+                        width="stretch", on_select=pick_named_compound, selection_mode="single-object",
+                        key=NAMES_MAP_KEY)
+        st.caption("Click a compound, or pick it below. Highlighted = the compound shown.")
+
+
+def render_named_compound(code: str, names: pd.DataFrame, sources: pd.DataFrame) -> None:
+    who = names.set_index("code").loc[code]
+    compounds = load_table("real/compounds.parquet", TRACK_A)
+    facts = None if compounds is None else compounds.set_index("code").loc[code]
+    st.markdown(f'<div class="se-title" style="font-size:1.6rem">{html.escape(who["name_en"])} · '
+                f'<span dir="rtl">{html.escape(who["name_ar"])}</span></div>', unsafe_allow_html=True)
+    tiles = st.columns(4)
+    with tiles[0]:
+        metric_tile("Developer", who["developer"], "", f"code {who['developer_code']}", code, ORIGIN_REAL)
+    with tiles[1]:
+        metric_tile("District", who["district"], "", "New Administrative Capital", code, ORIGIN_REAL)
+    if facts is not None:
+        with tiles[2]:
+            real = facts["land_area_origin"] == "real"
+            metric_tile("Land area", f"{facts['land_area_m2'] / CFG['compounds']['feddan_m2']:,.0f}" if real
+                        else "not published", "feddan" if real else "",
+                        "published" if real else "generated on other screens", code,
+                        ORIGIN_REAL if real else ORIGIN_GENERATED)
+        with tiles[3]:
+            real = facts["units_origin"] == "real"
+            metric_tile("Homes", f"{int(facts['units']):,}" if real else "not published", "",
+                        "published unit count" if real else "generated on other screens", code,
+                        ORIGIN_REAL if real else ORIGIN_GENERATED)
+
+    section_title("🛰️", "What space saw")
+    latest = load_latest_kpis()
+    if latest is not None:
+        latest_df, asof = latest
+        now = latest_df[latest_df["code"] == code]
+        if not now.empty:
+            row = now.iloc[0]
+            started = row.get("observed_start_quarter")
+            finding(f"{ORIGIN_DERIVED} As of {asof}: <b>{level_word(row.get('level'))}</b>. "
+                    f"{html.escape(reason_text(row))}."
+                    + ("" if _missing(started) else f" Construction start seen in {started}."))
+    frames = space_frames(code)
+    if frames:
+        pair = st.columns(2)
+        with pair[0]:
+            render_frame(frames[0], stage_of_year(code), "First capture · ")
+        with pair[1]:
+            render_frame(frames[-1], stage_of_year(code), "Latest capture · ")
+
+    section_title("📰", "What public sources said")
+    rows = insights.source_rows(sources, code)
+    if rows.empty:
+        st.markdown("We found no public statement about this compound: everything on file for it comes from space.")
+    else:
+        finding(f"{ORIGIN_REAL} <b>{len(rows)} public statements</b>, {rows['Published'].iloc[0][:4]} to "
+                f"{rows['Published'].iloc[-1][:4]}, from {rows['Publisher'].nunique()} publishers.")
+        st.dataframe(rows, hide_index=True, width="stretch", column_config={
+            "Says": st.column_config.TextColumn("Says", width="large"),
+            "Link": st.column_config.LinkColumn("Link", display_text="open")})
+        if rows["What"].str.contains("check case").any():
+            st.caption('"Check case" rows are the published outcomes used to test the method.')
+
+    section_title("🟠", "Generated on the other screens for this compound")
+    st.markdown("These stand in for ACUD's own files and are not facts about the compound: "
+                + "; ".join(insights.generated_elsewhere(facts if facts is not None else pd.Series(dtype=object)))
+                + ".")
+
+
+def screen_names(track: Track) -> None:
+    page_header("🪪", "Real names and sources", "Who are these compounds, what did we learn, and where from?")
+    finding("The other screens use codes. Here are the real compounds behind them, with only what public sources "
+            "and satellites gave us. Orange values elsewhere are generated stand-ins for ACUD's own files.")
+    loaded = load_names()
+    if loaded is None:
+        st.info("names/compounds.csv and names/sources.csv are not in this checkout.")
+        return
+    names, sources = loaded
+    codes = list(names["code"])
+    if st.session_state.get(NAMES_CODE_KEY) not in codes:
+        st.session_state[NAMES_CODE_KEY] = codes[0]
+    render_names_map(names, st.session_state[NAMES_CODE_KEY])
+    label_of = dict(zip(names["code"], names["name_en"]))
+    pick, _ = st.columns([1, 2])
+    code = pick.selectbox("Compound", codes, key=NAMES_CODE_KEY, format_func=lambda c: f"{c} · {label_of[c]}")
+    render_named_compound(code, names, sources)
+
+
 SCREEN_FUNCTIONS = {
     SCREENS[0]: screen_priority_map,
     SCREENS[1]: screen_compound_file,
     SCREENS[2]: screen_district,
     SCREENS[3]: screen_what_if,
+    SCREENS[4]: screen_names,
 }
 
 
