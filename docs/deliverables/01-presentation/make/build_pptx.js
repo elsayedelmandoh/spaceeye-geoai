@@ -1,4 +1,4 @@
-// Builds docs/deliverables/01-presentation.pptx AND 01-presentation.md from one spec,
+// Builds presentation.pptx AND presentation.md (both in docs/deliverables/01-presentation/) from one spec,
 // so deck and markdown cannot drift. Run from the repo root: node make/build_pptx.js
 const fs = require("fs");
 const path = require("path");
@@ -353,7 +353,7 @@ slides.push({
     "- Not a measured saving.",
     "- Visual: two stat callouts (-0.006 and 0.098 million EGP per year) and a three-setting table (cost per visit, operating cost, missed cases per year).",
   ],
-  source: ["`configs/cost_assumptions.yaml` (the same file holds the three settings and the placeholder values); `docs/deliverables/rubric-map.md` (criterion 6 gap)."],
+  source: ["`configs/cost_assumptions.yaml` (the same file holds the three settings and the placeholder values); `docs/deliverables/01-presentation/rubric-map.md` (criterion 6 gap)."],
   note: "Speaker note: 1:45 · criterion 7. Compare with the current policy of visiting all 12; say the conservative setting is negative. The cost of a late case is a placeholder of 20,000 EGP per missed case in all three settings.",
   build(s) {
     stat(s, "s9 lo", MX, TOP + 0.05, 3.0, 1.9, "-0.006", "million EGP per year, low end");
@@ -458,7 +458,7 @@ const labels = ["1", "2", "3", "4", "5", "6", "7", "8", "8b", "9", "10", "11"];
 const md = [
   "# Presentation: 12 slides (numbered 1-11, with 8b after 8)",
   "",
-  "Tasks T-SA-06 and T-EL-25. Draft text for review. This file holds the on-slide content and speaker notes of `01-presentation.pptx`, slide for slide in the same order. Length: 12 min, the limit set by criterion 10 of the instructor rubric (`docs/requirements/ACUD-Rubric.md`); the time budget and the criteria each slide answers follow `docs/deliverables/rubric-map.md` (presentation plan) and are stated in each speaker note (total 12:00). Numbers come only from repo files and carry an origin mark: 🟢 real · 🔵 derived · 🟠 generated (\"Synthetic - for training only\"). Codes only, no names. The words \"risk level\", \"distressed\" (for a real compound) and any completion % are not used. Some caveats are in the speaker notes.",
+  "Tasks T-SA-06 and T-EL-25. Draft text for review. This file holds the on-slide content and speaker notes of `presentation.pptx`, slide for slide in the same order. Length: 12 min, the limit set by criterion 10 of the instructor rubric (`docs/requirements/ACUD-Rubric.md`); the time budget and the criteria each slide answers follow `docs/deliverables/01-presentation/rubric-map.md` (presentation plan) and are stated in each speaker note (total 12:00). Numbers come only from repo files and carry an origin mark: 🟢 real · 🔵 derived · 🟠 generated (\"Synthetic - for training only\"). Codes only, no names. The words \"risk level\", \"distressed\" (for a real compound) and any completion % are not used. Some caveats are in the speaker notes.",
   "",
 ];
 slides.forEach((sp, i) => {
