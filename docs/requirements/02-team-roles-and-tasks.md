@@ -17,8 +17,8 @@ Updated on 3 November 2026 against 88 current IDs (recounted from the checkboxes
 
 | State | Count | Meaning |
 | --- | ---: | --- |
-| Main task checked | 71 | Implemented, with evidence; 56 still await assigned review |
-| Main task unchecked, open/partial | 15 | Original work/decision still unresolved (includes T-EL-13, partial; T-EL-24 open; T-NA-08 and T-NA-10 partial) |
+| Main task checked | 72 | Implemented, with evidence; 51 still await assigned review (exact count of unchecked review lines) |
+| Main task unchecked, open/partial | 14 | Original work/decision still unresolved (includes T-EL-13, partial; T-NA-08 and T-NA-10 partial) |
 | Main task unchecked, failed/excluded | 2 | T-NA-05 and T-NA-06: screens removed by owner decision (PR #60, 2 Nov 2026) |
 | Review accepted | 15 recorded | Existing review records retained; no new reviewer acceptance inferred |
 
@@ -278,7 +278,8 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-E
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-EL-23** [Should] D5 · Compound details on map click: a sidebar panel with level, K2, K3, K6, reason, next action and the latest capture, each part opening a deeper view (compound file, signal history, images) · `app.py` + test · reviewer: ahmed **Implemented; review pending.** Merged in PR #87; rows without a level show their stored state (not started, start unknown, not assessable).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [ ] **T-EL-24** [Should] D5 · Document Q&A chatbot (normal RAG with citations) answering from the project docs, the cited Egyptian laws (Decree 2184/2022, Law 119/2008 art. 54, Law 151/2020), ACUD public pages, the satellite data docs (Dynamic World, Open Buildings, Wayback) and public summaries of ISO 37120/37122 and the SLA notion behind the KPIs; answers only from retrieved passages; any model call needs owner approval · `src/chatbot/` + sidebar + tests · reviewer: verina **Open; PR #90 awaits review (427 tests pass; 15-question evaluation table passes; nine sourced documents in `data/knowledge/`). Known misses on unseen questions are listed in the PR.**
+- [x] **T-EL-24** [Should] D5 · Document Q&A chatbot (normal RAG with citations) answering from the project docs, the cited Egyptian laws (Decree 2184/2022, Law 119/2008 art. 54, Law 151/2020), ACUD public pages, the satellite data docs (Dynamic World, Open Buildings, Wayback) and public summaries of ISO 37120/37122 and the SLA notion behind the KPIs; answers only from retrieved passages; any model call needs owner approval · `src/chatbot/` + sidebar + tests · reviewer: verina **Implemented; review pending.** Merged in PR #90 (sidebar "Ask the documents"; 427 tests pass; 15-question evaluation table passes; model calls off until approved). Known misses on unseen questions are listed in PR #90.
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-EL-25** [Must] D5 · PowerPoint deck built from the instructor rubric (`docs/requirements/ACUD-Rubric.md`) and the team's rubric deck; the slide content is kept in `docs/deliverables/01-presentation/presentation.md` · `presentation.pptx` · reviewer: salma **Implemented; review pending.** Merged in PR #84; colors follow `docs/deliverables/01-presentation/palette.md` (T-EL-28); rebuilt with `01-presentation/make/build_pptx.js`.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-EL-26** [Could] D5 · Intro video before the ACUD discussion: Arabic narration, no compound or developer names · `docs/deliverables/02-video/intro.mp4` · reviewer: salma **Implemented; review pending.** First version merged in PR #85; rebuilt in T-EL-28 (56 s, team-supplied narration, cuts on narration pauses).
