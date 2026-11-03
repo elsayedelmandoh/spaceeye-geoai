@@ -93,7 +93,8 @@ def main() -> None:
 
 def duration(path: Path) -> float:
     """Length in seconds, read from ffmpeg's input summary (ffprobe is not always shipped)."""
-    info = subprocess.run([FFMPEG, "-hide_banner", "-i", str(path)], capture_output=True, text=True).stderr
+    # ffmpeg exits non-zero when given no output file; the summary on stderr is all we need.
+    info = subprocess.run([FFMPEG, "-hide_banner", "-i", str(path)], capture_output=True, text=True, check=False).stderr
     h, m, s = info.split("Duration: ")[1].split(",")[0].split(":")
     return int(h) * 3600 + int(m) * 60 + float(s)
 
