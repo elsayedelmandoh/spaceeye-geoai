@@ -117,6 +117,133 @@ def test_level_history_is_tidy_and_marks_missing_levels():
     assert history["level"].iloc[:2].tolist() == [3.0, 2.0] and np.isnan(history["level"].iloc[2])
 
 
+def test_compound_panel_rows_include_the_stored_code_priority_signals_reason_action_and_latest_capture():
+    row = pd.Series({
+        "code": "C01",
+        "quarter": "2026Q3",
+        "level": 1,
+        "K2": 5,
+        "K3": 24,
+        "K6": None,
+        "K6_status": "not_applicable_started",
+        "reason_ar": "سبب تجريبي مخزن",
+        "K5_months": None,
+        "may_be_complete": False,
+    })
+    frames = [{"date": "2025-07-23"}, {"date": "2026-01-10"}]
+    stages = {2025: "under construction", 2026: "complete"}
+
+    rows = insights.compound_panel_rows(row, "2026Q3", frames, stages)
+    by_label = {panel_row["label"]: panel_row for panel_row in rows}
+
+    assert by_label["Code"]["value"] == "C01"
+    assert by_label["Priority level"]["value"] == "Inspect now"
+    assert by_label["Priority level"]["detail"] == "as of 2026Q3"
+    assert by_label["K2 no activity"]["value"] == "5 quarters"
+    assert by_label["K3 handover clock"]["value"] == "24 months"
+    assert by_label["K6 never started"]["value"] == "does not apply"
+    assert by_label["Reason"]["value"] == "سبب تجريبي مخزن"
+    assert by_label["Reason"]["direction"] == "rtl"
+    assert by_label["Suggested next action"]["value"] == "Written warning"
+    assert by_label["Latest capture"]["value"] == "2026-01-10 · complete"
+
+
+def test_compound_panel_rows_keep_unknown_signals_unknown_and_report_no_capture():
+    row = pd.Series({
+        "code": "C02",
+        "level": None,
+        "K2": np.nan,
+        "K3": np.nan,
+        "K6": np.nan,
+        "K6_status": "",
+        "reason_ar": None,
+        "K5_months": None,
+        "may_be_complete": False,
+    })
+
+    rows = insights.compound_panel_rows(row, "2026Q3", [], {})
+    by_label = {panel_row["label"]: panel_row for panel_row in rows}
+
+    assert by_label["Priority level"]["value"] == "Not assessable"
+    assert by_label["K2 no activity"]["value"] == "unknown"
+    assert by_label["K3 handover clock"]["value"] == "unknown"
+    assert by_label["K6 never started"]["value"] == "unknown"
+    assert by_label["Reason"]["value"] == "not stored"
+    assert by_label["Latest capture"]["value"] == "no capture stored"
+
+
+@pytest.mark.parametrize(("level_label", "level_word", "expected"), [
+    ("not started", "not started", "Not started"),
+    ("start unknown", "start unknown", "Start unknown"),
+    (None, "not started", "Not started"),
+    (None, None, "Not assessable"),
+])
+def test_compound_panel_rows_preserve_the_stored_no_level_state(level_label, level_word, expected):
+    row = pd.Series({
+        "code": "C01",
+        "level": np.nan,
+        "level_label": level_label,
+        "level_word": level_word,
+        "K2": np.nan,
+        "K3": np.nan,
+        "K6": np.nan,
+        "K6_status": "",
+        "reason_ar": None,
+        "K5_months": None,
+        "may_be_complete": False,
+    })
+
+    rows = insights.compound_panel_rows(row, "2026Q3", [], {})
+
+    assert rows[1]["value"] == expected
+
+
+def test_capture_rows_are_date_ordered_and_keep_the_stored_stage():
+    frames = [{"date": "2026-01-10"}, {"date": "2025-07-23"}]
+    rows = insights.capture_rows(frames, {2025: "under construction"})
+    assert rows == [
+        {"date": "2025-07-23", "stage": "under construction"},
+        {"date": "2026-01-10", "stage": "stage not on file"},
+    ]
+
+
+def test_signal_history_table_scopes_to_one_code_and_orders_quarters_with_units():
+    kpis = pd.DataFrame({
+        "code": ["C01", "C01", "C02"],
+        "quarter": ["2026Q3", "2026Q2", "2026Q3"],
+        "level": [1, 3, 4],
+        "K2": [5, 2, 0],
+        "K3": [24, 8, 0],
+        "K6": [None, 12, 0],
+    })
+
+    table = insights.signal_history_table(kpis, "C01")
+
+    assert list(table.columns) == ["Quarter", "Level", "K2 (quarters)", "K3 (months)", "K6 (months)"]
+    assert table["Quarter"].tolist() == ["2026Q2", "2026Q3"]
+    assert table["Level"].tolist() == ["Document review", "Inspect now"]
+    assert table["K2 (quarters)"].tolist() == [2, 5]
+    assert table["K3 (months)"].tolist() == [8, 24]
+    assert table["K6 (months)"].iloc[0] == 12 and pd.isna(table["K6 (months)"].iloc[1])
+
+
+def test_signal_history_table_preserves_the_stored_no_level_state():
+    kpis = pd.DataFrame({
+        "code": ["C01", "C01", "C02"],
+        "quarter": ["2026Q2", "2026Q3", "2026Q3"],
+        "level": [np.nan, np.nan, 1],
+        "level_label": ["not started", None, None],
+        "level_word": ["not started", "start unknown", None],
+        "K2": [0, 0, 0],
+        "K3": [0, 0, 0],
+        "K6": [None, None, None],
+    })
+
+    table = insights.signal_history_table(kpis, "C01")
+
+    assert table["Level"].tolist() == ["Not started", "Start unknown"]
+
+
 def _row(**fields) -> pd.Series:
     base = {"level": 2, "K2": 0, "K3": 0, "K5_months": None, "may_be_complete": False,
             "k3_first_deadline": pd.Timestamp("2022-12-31")}
