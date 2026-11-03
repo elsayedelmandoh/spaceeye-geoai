@@ -44,7 +44,8 @@ def main() -> None:
     timing_file = Path(sys.argv[2]) if len(sys.argv) > 2 else HERE / "timing.json"
     timing = json.loads(timing_file.read_text(encoding="utf-8"))
     plan = [(out_dir / "title.png", timing["title_seconds"], "in", None)]
-    plan += [(HERE / "stills" / s["still"], s["seconds"], s["zoom"], s.get("crop")) for s in timing["shots"]]
+    plan += [(out_dir / f"{s['card']}.png" if "card" in s else HERE / "stills" / s["still"],
+              s["seconds"], s["zoom"], s.get("crop")) for s in timing["shots"]]
     plan.append((out_dir / "end.png", timing["end_seconds"], "in", None))
 
     # Clip i spans [B(i-1)-X/2, B(i)+X/2] so the crossfade at boundary B(i) is centred on it;
@@ -82,10 +83,76 @@ def main() -> None:
     print("cuts (s):", [round(b, 2) for b in bounds[:-1]])
     graph.append(f"[{n}:a]aformat=channel_layouts=stereo,adelay={delay_ms}|{delay_ms},apad,"
                  f"afade=t=out:st={total - 1}:d=1[a]")
+    spliced = timing.get("inserts") or timing.get("cards_before_end")
+    base = out_dir / ("base.mp4" if spliced else "intro.mp4")
     run([*inputs, "-filter_complex", ";".join(graph), "-map", "[v]", "-map", "[a]",
          "-c:v", "libx264", "-preset", "veryfast", "-crf", "22", "-c:a", "aac", "-b:a", "160k",
-         "-t", f"{total}", "-movflags", "+faststart", str(out_dir / "intro.mp4")])
+         "-t", f"{total}", "-movflags", "+faststart", str(base)])
+    current = base
+    if timing.get("cards_before_end"):  # silent cards between the last shot and the end card
+        cards = [card_part(out_dir, c["card"], c["seconds"], i) for i, c in enumerate(timing["cards_before_end"])]
+        current = splice(current, bounds[-2] - half, cards, out_dir / "stage_cards.mp4")
+    if timing.get("inserts"):  # interview clips right after the title card
+        clips_in = [insert_part(HERE / clip, out_dir, i) for i, clip in enumerate(timing["inserts"])]
+        current = splice(current, timing["title_seconds"] - half, clips_in, out_dir / "stage_inserts.mp4")
+    if spliced:
+        current.replace(out_dir / "intro.mp4")
     print(out_dir / "intro.mp4")
+
+
+def duration(path: Path) -> float:
+    """Length in seconds, read from ffmpeg's input summary (ffprobe is not always shipped)."""
+    # ffmpeg exits non-zero when given no output file; the summary on stderr is all we need.
+    info = subprocess.run([FFMPEG, "-hide_banner", "-i", str(path)], capture_output=True, text=True, check=False).stderr
+    h, m, s = info.split("Duration: ")[1].split(",")[0].split(":")
+    return int(h) * 3600 + int(m) * 60 + float(s)
+
+
+def insert_part(clip: Path, out_dir: Path, index: int) -> Path:
+    """One interview clip with its own sound, short fades, the speaker caption and the logos."""
+    length = duration(clip)
+    part = out_dir / f"insert_{index:02d}.mp4"
+    graph = (f"[0:v]scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2,"
+             f"fps={FPS},format=yuv420p[b];[b][1:v]overlay=0:0[c];[c][2:v]overlay=0:0,"
+             f"fade=t=in:st=0:d=0.3,fade=t=out:st={length - 0.3:.3f}:d=0.3[v];"
+             f"[0:a]aformat=channel_layouts=stereo:sample_rates=48000,loudnorm=I=-18:TP=-2,"
+             f"afade=t=in:st=0:d=0.15,afade=t=out:st={length - 0.25:.3f}:d=0.25[a]")
+    run(["-i", str(clip), "-i", str(out_dir / "insert_caption.png"), "-i", str(out_dir / "logos.png"),
+         "-filter_complex", graph, "-map", "[v]", "-map", "[a]", "-t", f"{length:.3f}",
+         "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "aac", "-b:a", "160k", str(part)])
+    return part
+
+
+def card_part(out_dir: Path, card: str, seconds: float, index: int) -> Path:
+    """A rendered card (out_dir/<card>.png) with the logos and silent audio, faded in and out."""
+    part = out_dir / f"card_{index:02d}.mp4"
+    graph = (f"[0:v]scale=1920:1080,fps={FPS},format=yuv420p[b];[b][1:v]overlay=0:0,"
+             f"fade=t=in:st=0:d=0.4,fade=t=out:st={seconds - 0.4:.3f}:d=0.4[v]")
+    run(["-loop", "1", "-t", f"{seconds:.3f}", "-i", str(out_dir / f"{card}.png"), "-i", str(out_dir / "logos.png"),
+         "-f", "lavfi", "-t", f"{seconds:.3f}", "-i", "anullsrc=channel_layout=stereo:sample_rate=48000",
+         "-filter_complex", graph, "-map", "[v]", "-map", "2:a", "-t", f"{seconds:.3f}",
+         "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "aac", "-b:a", "160k", str(part)])
+    return part
+
+
+def splice(base: Path, cut: float, parts: list[Path], out: Path) -> Path:
+    """Insert parts into base at `cut` seconds; picture and narration after the cut shift together."""
+    pieces = [(base, 0.0, cut), *[(p, None, None) for p in parts], (base, cut, None)]
+    inputs = []
+    for src, start, end in pieces:
+        if start is not None:
+            inputs += ["-ss", f"{start:.3f}"]
+        if end is not None:
+            inputs += ["-t", f"{end - start:.3f}"]
+        inputs += ["-i", str(src)]
+    n = len(pieces)
+    graph = (";".join(f"[{i}:a]aformat=channel_layouts=stereo:sample_rates=48000[a{i}]" for i in range(n))
+             + ";" + "".join(f"[{i}:v][a{i}]" for i in range(n)) + f"concat=n={n}:v=1:a=1[v][a]")
+    run([*inputs, "-filter_complex", graph, "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-preset",
+         "veryfast", "-crf", "22", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart", str(out)])
+    shift = sum(duration(p) for p in parts)
+    print(f"spliced {len(parts)} part(s), {shift:.2f} s, at {cut:.2f} s; later times move by that much")
+    return out
 
 
 if __name__ == "__main__":
