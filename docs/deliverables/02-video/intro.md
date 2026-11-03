@@ -16,7 +16,7 @@ Task T-EL-26. File: `03-intro.mp4` (1920x1080, 52 s). Shown before the discussio
 |---|---|
 | 0:00-0:03.5 | Title card: SpaceEye GeoAI, "مرصد أولوية التفتيش · الحي السكني السابع" |
 | 0:03.5-0:48 | Six illustrative stills, each cut at a pause in the narration: new city from the air, a review team, an observation satellite, a plot grid, a priority-coloured map, a committee table |
-| 0:48-0:52 | End card: "من الفضاء… إلى قرار الزيارة" |
+| 0:48-0:52 | End card: "رادار العاصمة الجديدة - شركة تمتلك مدينة." |
 
 ## How it was made and what it is not
 
