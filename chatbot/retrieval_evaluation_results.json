@@ -1,0 +1,288 @@
+[
+  {
+    "name": "Project information C18",
+    "query": "project details C18",
+    "intent": "project_info",
+    "evidence_count": 5,
+    "document_types": {
+      "published_statement": 4,
+      "synthetic_complaint": 1
+    },
+    "type_check": "N/A",
+    "compound_check": "PASS",
+    "duplicate_check": "PASS",
+    "distance_check": "PASS",
+    "distances": [
+      0.1616126298904419,
+      0.16292428970336914,
+      0.16358435153961182,
+      0.16416871547698975,
+      0.16602766513824463
+    ],
+    "evidence": [
+      {
+        "id": "statement:S0039",
+        "type": "published_statement",
+        "compound": "C18",
+        "origin": "real",
+        "distance": 0.1616126298904419
+      },
+      {
+        "id": "statement:S0038",
+        "type": "published_statement",
+        "compound": "C18",
+        "origin": "real",
+        "distance": 0.16292428970336914
+      },
+      {
+        "id": "statement:S0037",
+        "type": "published_statement",
+        "compound": "C18",
+        "origin": "real",
+        "distance": 0.16358435153961182
+      },
+      {
+        "id": "statement:S0035",
+        "type": "published_statement",
+        "compound": "C18",
+        "origin": "real",
+        "distance": 0.16416871547698975
+      },
+      {
+        "id": "complaint:CMP-000858",
+        "type": "synthetic_complaint",
+        "compound": "C18",
+        "origin": "synthetic",
+        "distance": 0.16602766513824463
+      }
+    ]
+  },
+  {
+    "name": "Published delivery statements C18",
+    "query": "delivery date C18",
+    "intent": "published_statements",
+    "evidence_count": 5,
+    "document_types": {
+      "published_statement": 5
+    },
+    "type_check": "PASS",
+    "compound_check": "PASS",
+    "duplicate_check": "PASS",
+    "distance_check": "PASS",
+    "distances": [
+      0.13869667053222656,
+      0.1412266492843628,
+      0.16868281364440918,
+      0.18680709600448608,
+      0.1982487440109253
+    ],
+    "evidence": [
+      {
+        "id": "statement:S0038",
+        "type": "published_statement",
+        "compound": "C18",
+        "origin": "real",
+        "distance": 0.13869667053222656
+      },
+      {
+        "id": "statement:S0037",
+        "type": "published_statement",
+        "compound": "C18",
+        "origin": "real",
+        "distance": 0.1412266492843628
+      },
+      {
+        "id": "statement:S0036",
+        "type": "published_statement",
+        "compound": "C18",
+        "origin": "real",
+        "distance": 0.16868281364440918
+      },
+      {
+        "id": "statement:S0035",
+        "type": "published_statement",
+        "compound": "C18",
+        "origin": "real",
+        "distance": 0.18680709600448608
+      },
+      {
+        "id": "statement:S0039",
+        "type": "published_statement",
+        "compound": "C18",
+        "origin": "real",
+        "distance": 0.1982487440109253
+      }
+    ]
+  },
+  {
+    "name": "Delivery delay rules",
+    "query": "rules about delivery delay",
+    "intent": "rules",
+    "evidence_count": 5,
+    "document_types": {
+      "rule_summary": 5
+    },
+    "type_check": "PASS",
+    "compound_check": "N/A",
+    "duplicate_check": "PASS",
+    "distance_check": "PASS",
+    "distances": [
+      0.12889337539672852,
+      0.13436269760131836,
+      0.16751623153686523,
+      0.1730804443359375,
+      0.17409712076187134
+    ],
+    "evidence": [
+      {
+        "id": "rule:R13",
+        "type": "rule_summary",
+        "compound": null,
+        "origin": "real",
+        "distance": 0.12889337539672852
+      },
+      {
+        "id": "rule:R12",
+        "type": "rule_summary",
+        "compound": null,
+        "origin": "real",
+        "distance": 0.13436269760131836
+      },
+      {
+        "id": "rule:R06",
+        "type": "rule_summary",
+        "compound": null,
+        "origin": "real",
+        "distance": 0.16751623153686523
+      },
+      {
+        "id": "rule:R07",
+        "type": "rule_summary",
+        "compound": null,
+        "origin": "real",
+        "distance": 0.1730804443359375
+      },
+      {
+        "id": "rule:R15",
+        "type": "rule_summary",
+        "compound": null,
+        "origin": "real",
+        "distance": 0.17409712076187134
+      }
+    ]
+  },
+  {
+    "name": "Complaints C18",
+    "query": "complaints C18",
+    "intent": "complaints",
+    "evidence_count": 5,
+    "document_types": {
+      "synthetic_complaint": 5
+    },
+    "type_check": "PASS",
+    "compound_check": "PASS",
+    "duplicate_check": "PASS",
+    "distance_check": "PASS",
+    "distances": [
+      0.12828141450881958,
+      0.12881338596343994,
+      0.1301327347755432,
+      0.13014674186706543,
+      0.133436381816864
+    ],
+    "evidence": [
+      {
+        "id": "complaint:CMP-001273",
+        "type": "synthetic_complaint",
+        "compound": "C18",
+        "origin": "synthetic",
+        "distance": 0.12828141450881958
+      },
+      {
+        "id": "complaint:CMP-000764",
+        "type": "synthetic_complaint",
+        "compound": "C18",
+        "origin": "synthetic",
+        "distance": 0.12881338596343994
+      },
+      {
+        "id": "complaint:CMP-001267",
+        "type": "synthetic_complaint",
+        "compound": "C18",
+        "origin": "synthetic",
+        "distance": 0.1301327347755432
+      },
+      {
+        "id": "complaint:CMP-000858",
+        "type": "synthetic_complaint",
+        "compound": "C18",
+        "origin": "synthetic",
+        "distance": 0.13014674186706543
+      },
+      {
+        "id": "complaint:CMP-000556",
+        "type": "synthetic_complaint",
+        "compound": "C18",
+        "origin": "synthetic",
+        "distance": 0.133436381816864
+      }
+    ]
+  },
+  {
+    "name": "Inspection visits C18",
+    "query": "inspection visits C18",
+    "intent": "inspection_visits",
+    "evidence_count": 5,
+    "document_types": {
+      "synthetic_visit": 5
+    },
+    "type_check": "PASS",
+    "compound_check": "PASS",
+    "duplicate_check": "PASS",
+    "distance_check": "PASS",
+    "distances": [
+      0.1529935598373413,
+      0.15465617179870605,
+      0.15473097562789917,
+      0.1557888388633728,
+      0.15591001510620117
+    ],
+    "evidence": [
+      {
+        "id": "visit:V-2025Q4-C18",
+        "type": "synthetic_visit",
+        "compound": "C18",
+        "origin": "synthetic",
+        "distance": 0.1529935598373413
+      },
+      {
+        "id": "visit:V-2025Q3-C18",
+        "type": "synthetic_visit",
+        "compound": "C18",
+        "origin": "synthetic",
+        "distance": 0.15465617179870605
+      },
+      {
+        "id": "visit:V-2026Q1-C18",
+        "type": "synthetic_visit",
+        "compound": "C18",
+        "origin": "synthetic",
+        "distance": 0.15473097562789917
+      },
+      {
+        "id": "visit:V-2024Q3-C18",
+        "type": "synthetic_visit",
+        "compound": "C18",
+        "origin": "synthetic",
+        "distance": 0.1557888388633728
+      },
+      {
+        "id": "visit:V-2026Q2-C18",
+        "type": "synthetic_visit",
+        "compound": "C18",
+        "origin": "synthetic",
+        "distance": 0.15591001510620117
+      }
+    ]
+  }
+]

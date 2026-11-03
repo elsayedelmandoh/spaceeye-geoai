@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b1120" />
+    <title>SpaceEye | المساعد الذكي</title>
+
+    <link rel="stylesheet" href="/static/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <div class="app-container">
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <div class="brand">
+            <div class="brand-icon">S</div>
+            <div>
+              <h2>SpaceEye</h2>
+              <span>AI Urban Intelligence</span>
+            </div>
+          </div>
+
+          <button
+            class="icon-button close-sidebar"
+            id="closeSidebar"
+            aria-label="إغلاق القائمة"
+          >
+            ✕
+          </button>
+        </div>
+
+        <button class="new-chat-button" id="newChatButton">
+          <span>＋</span>
+          محادثة جديدة
+        </button>
+
+        <div class="sidebar-section">
+          <p class="section-label">المحادثات</p>
+          <div id="chatHistory" class="chat-history">
+            <div class="empty-history">لا توجد محادثات سابقة</div>
+          </div>
+        </div>
+
+        <div class="sidebar-footer">
+          <div class="system-status">
+            <span class="status-dot"></span>
+            <div>
+              <strong>النظام متصل</strong>
+              <small>SpaceEye AI Assistant</small>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <header class="topbar">
+          <button
+            class="icon-button menu-button"
+            id="menuButton"
+            aria-label="فتح القائمة"
+          >
+            ☰
+          </button>
+
+          <div class="topbar-title">
+            <span class="online-indicator"></span>
+            <span>المساعد الذكي</span>
+          </div>
+
+          <div class="topbar-badge">
+            <span>✦</span>
+            Hybrid RAG
+          </div>
+        </header>
+
+        <!-- Chat Area -->
+        <section class="chat-area" id="chatArea">
+          <div class="welcome-screen" id="welcomeScreen">
+            <div class="welcome-icon">
+              <div class="welcome-icon-inner">S</div>
+              <span class="orbit orbit-one"></span>
+              <span class="orbit orbit-two"></span>
+            </div>
+
+            <span class="welcome-label">SPACE EYE INTELLIGENCE</span>
+
+            <h1>
+              أهلاً بيكي في
+              <span>SpaceEye</span>
+            </h1>
+
+            <p class="welcome-description">
+              أنا مساعد SpaceEye الذكي، أقدر أساعدك في استكشاف بيانات ومؤشرات
+              مشروعات التنمية العمرانية.
+              <br />
+              أقدر أساعدك إزاي؟
+            </p>
+
+            <!-- <div class="suggestions">
+              <button
+                class="suggestion-card"
+                data-question="اعرض تفاصيل المشروع C18"
+              >
+                <span class="suggestion-icon">⌂</span>
+                <strong>تفاصيل مشروع</strong>
+                <small>اعرف بيانات المشروع C18</small>
+              </button>
+
+              <button
+                class="suggestion-card"
+                data-question="ما آخر مؤشرات الأداء للمشروع C18؟"
+              >
+                <span class="suggestion-icon">▥</span>
+                <strong>مؤشرات الأداء</strong>
+                <small>استفسر عن أحدث KPIs</small>
+              </button>
+
+              <button
+                class="suggestion-card"
+                data-question="ما التصريحات المنشورة عن موعد التسليم للمشروع C18؟"
+              >
+                <span class="suggestion-icon">▤</span>
+                <strong>مواعيد التسليم</strong>
+                <small>ابحث في التصريحات المنشورة</small>
+              </button>
+
+              <button
+                class="suggestion-card"
+                data-question="ما القواعد المتعلقة بتأخير التسليم؟"
+              >
+                <span class="suggestion-icon">⚖</span>
+                <strong>القواعد التنظيمية</strong>
+                <small>ابحث في ملخصات القواعد</small>
+              </button>
+            </div> -->
+          </div>
+
+          <div class="messages-container" id="messagesContainer"></div>
+        </section>
+
+        <!-- Input Area -->
+        <footer class="chat-footer">
+          <div class="input-wrapper">
+            <textarea
+              id="questionInput"
+              placeholder="اكتبي سؤالك عن المشروعات العمرانية..."
+              rows="1"
+              maxlength="2000"
+            ></textarea>
+
+            <div class="input-bottom">
+              <div class="input-hint">
+                <span>↵</span>
+                اضغطي Enter للإرسال
+              </div>
+
+              <button class="send-button" id="sendButton" disabled>
+                <span>إرسال</span>
+                <span class="send-icon">➤</span>
+              </button>
+            </div>
+          </div>
+
+          <p class="disclaimer">
+            قد تحتوي الإجابات على بيانات محسوبة أو افتراضية؛ تحققي دائمًا من
+            مصدر المعلومة.
+          </p>
+        </footer>
+      </main>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
