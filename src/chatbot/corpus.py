@@ -19,6 +19,7 @@ PROJECT_DOCUMENT_PATHS = (
     "data/EW_REPORT_CURRENT.md",
     "data/SCENARIO_CONTRACT_CURRENT.md",
     "docs/deliverables/method-card.md",
+    "docs/deliverables/INSPECTION_DOSSIERS.md",
     "docs/deliverables/user-guide.md",
     "docs/deliverables/decision-memo.md",
     "docs/deliverables/responsible-ai.md",

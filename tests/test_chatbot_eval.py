@@ -155,6 +155,80 @@ def test_real_corpus_retrieval_and_refusal_cases(
         assert top_cited.passage.heading != forbidden_heading
 
 
+@pytest.mark.parametrize(
+    ("question", "expected_citations", "allowed_paths", "required_terms"),
+    [
+        pytest.param(
+            "اي هو SLA",
+            (
+                (
+                    "data/knowledge/external/sla-and-kpi-note-team.md · "
+                    "SLA (Service Level Agreement) in this project"
+                ),
+            ),
+            (),
+            (),
+            id="arabic-sla-single-section",
+        ),
+        pytest.param(
+            "What is SLA?",
+            (
+                (
+                    "data/knowledge/external/sla-and-kpi-note-team.md · "
+                    "SLA (Service Level Agreement) in this project"
+                ),
+            ),
+            (),
+            (),
+            id="english-sla-single-section",
+        ),
+        pytest.param(
+            "مين الكمبوندا اللي هزوره الاول",
+            None,
+            ("INSPECTION_DOSSIERS.md", "user-guide.md"),
+            ("cycle list", "priority level", "visit list"),
+            id="arabic-dialect-first-visit",
+        ),
+        pytest.param(
+            "Which compound should the committee visit first?",
+            None,
+            ("INSPECTION_DOSSIERS.md", "user-guide.md"),
+            ("cycle list", "priority level", "visit list"),
+            id="english-first-visit",
+        ),
+    ],
+)
+def test_precision_cases_return_only_relevant_citations(
+    question: str,
+    expected_citations: tuple[str, ...] | None,
+    allowed_paths: tuple[str, ...],
+    required_terms: tuple[str, ...],
+    real_corpus_retriever: TfidfRetriever,
+) -> None:
+    """Keep SLA precise and answer first-visit questions from project guidance."""
+
+    answer = answer_question(question, real_corpus_retriever)
+
+    if expected_citations is not None:
+        assert answer.citations == expected_citations
+        return
+
+    assert answer.text != NOT_FOUND_ANSWER
+    assert answer.citations
+    assert any(
+        allowed_path in citation
+        for citation in answer.citations
+        for allowed_path in allowed_paths
+    )
+    cited_passages = [
+        result.passage
+        for result in real_corpus_retriever.search(question, top_k=15)
+        if result.passage.citation in answer.citations
+    ]
+    cited_text = "\n".join(passage.text for passage in cited_passages).casefold()
+    assert any(term.casefold() in cited_text for term in required_terms)
+
+
 def test_arabic_data_protection_question_never_returns_the_rubric(
     real_corpus_retriever: TfidfRetriever,
 ) -> None:
@@ -170,3 +244,43 @@ def test_arabic_data_protection_question_never_returns_the_rubric(
     else:
         assert answer.citations
         assert "law-151-2020-personal-data-protection-en.md" in answer.citations[0]
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        "مين الكمبوندا اللي هزوره الاول",
+        "Which compound should the committee visit first?",
+    ],
+)
+def test_first_visit_top_citation_states_the_visit_order(
+    question: str,
+    real_corpus_retriever: TfidfRetriever,
+) -> None:
+    """Lead with the cycle list or priority map, not a per-compound screen."""
+
+    answer = answer_question(question, real_corpus_retriever)
+
+    assert answer.text != NOT_FOUND_ANSWER
+    assert any(
+        marker in answer.citations[0]
+        for marker in (
+            "INSPECTION_DOSSIERS.md",
+            "Screen 1: Priority map",
+            "0. The plan on one page",
+        )
+    )
+
+
+def test_inspection_capacity_question_cites_capacity_four(
+    real_corpus_retriever: TfidfRetriever,
+) -> None:
+    """Answer the capacity question from a passage that states capacity 4."""
+
+    answer = answer_question(
+        "What is the inspection capacity?",
+        real_corpus_retriever,
+    )
+
+    assert answer.text != NOT_FOUND_ANSWER
+    assert "capacity 4" in answer.text.casefold()

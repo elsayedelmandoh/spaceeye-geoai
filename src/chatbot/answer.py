@@ -13,6 +13,7 @@ from src.inference.ai_config import CallBudget, require_chatbot_approved
 
 NOT_FOUND_ANSWER = "Not found in the documents"
 DEFAULT_MIN_SCORE = 0.08
+_MIN_RELATIVE_SCORE = 0.70
 
 _LOGGER = logging.getLogger(__name__)
 _BUDGET_LOCK = threading.Lock()
@@ -212,20 +213,54 @@ def _model_summary(
     return _call_summarizer(summarizer, system, prompt, settings)
 
 
+def _is_relevant_followup(
+    candidate: RetrievedPassage,
+    top_passage: RetrievedPassage,
+) -> bool:
+    """Return whether a candidate is close-scoring and directly relevant."""
+
+    return (
+        candidate.score >= top_passage.score * _MIN_RELATIVE_SCORE
+        and bool(candidate.matched_terms)
+        # A heading hit on the top passage means siblings must match there too.
+        and (candidate.heading_matched or not top_passage.heading_matched)
+    )
+
+
+def _prune_relevant_passages(
+    candidates: list[RetrievedPassage],
+    top_k: int,
+) -> list[RetrievedPassage]:
+    """Keep the top passage and only close-scoring direct matches."""
+
+    if top_k < 1 or not candidates:
+        return []
+    kept = [candidates[0]]
+    for candidate in candidates[1:]:
+        if len(kept) >= top_k:
+            break
+        if candidate.score < kept[0].score * _MIN_RELATIVE_SCORE:
+            break
+        if _is_relevant_followup(candidate, kept[0]):
+            kept.append(candidate)
+    return kept
+
+
 def _supported_passages(
     question: str,
     retriever: TfidfRetriever,
     top_k: int,
 ) -> list[RetrievedPassage]:
-    """Return the best supported passages from a wider candidate pool."""
+    """Return the best supported and directly relevant passages."""
 
     candidate_count = max(top_k * 5, top_k, 1)
     candidates = retriever.search(question, top_k=candidate_count)
-    return [
+    supported = [
         ranked_passage
         for ranked_passage in candidates
         if getattr(ranked_passage, "supported", True)
-    ][:top_k]
+    ]
+    return _prune_relevant_passages(supported, top_k)
 
 
 def answer_question(

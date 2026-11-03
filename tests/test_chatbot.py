@@ -191,6 +191,65 @@ def test_retrieval_ranks_the_right_passage_first_for_arabic() -> None:
     assert results[0].score > 0
 
 
+def test_answer_pruning_keeps_only_scored_directly_relevant_passages() -> None:
+    shared_title = "SLA and how the project KPIs relate to it"
+    retriever = TfidfRetriever(
+        [
+            Passage(
+                path="docs/sla-note.md",
+                heading="SLA definition",
+                text=(
+                    "SLA stands for Service Level Agreement (SLA). Work orders "
+                    "use the agreed completion time."
+                ),
+                title=shared_title,
+            ),
+            Passage(
+                path="docs/sla-note.md",
+                heading="SLA timing",
+                text=(
+                    "SLA measures whether each work order is completed within "
+                    "its agreed time."
+                ),
+                title=shared_title,
+            ),
+            Passage(
+                path="docs/sla-note.md",
+                heading="ISO",
+                text=(
+                    "ISO is the International Organization for Standardization "
+                    "and publishes city indicator standards."
+                ),
+                title=shared_title,
+            ),
+            Passage(
+                path="docs/operations.md",
+                heading="Work-order timing",
+                text=(
+                    "Operations records work-order timing for audit purposes. "
+                    + "The public note explains the operational background. " * 20
+                    + "SLA appears once in this longer passage."
+                ),
+                title="Operations reference",
+            ),
+        ]
+    )
+
+    answer = answer_question(
+        "What is SLA?",
+        retriever,
+        AnswerOptions(
+            min_score=0.01,
+            config={"chatbot": {"approval": "pending", "max_calls_total": 0}},
+        ),
+    )
+
+    assert answer.citations == (
+        "docs/sla-note.md · SLA definition",
+        "docs/sla-note.md · SLA timing",
+    )
+
+
 def test_low_score_answer_is_not_found_without_citations() -> None:
     retriever = TfidfRetriever(_retrieval_corpus())
 
