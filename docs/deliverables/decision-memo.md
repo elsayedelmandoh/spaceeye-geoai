@@ -12,7 +12,7 @@ Task T-SA-05. Draft for review. All counts come from `data/BACKTEST_CURRENT.md`,
 
 **What generated data shows.** Track B uses synthetic data only ("Synthetic - for training only"). The capacity-4 test holds 4 distressed rows, so statistical power is very low. Recall at capacity 4 ranges from 1 of 4 to 4 of 4 across the models, against a random-list baseline of 0.335 (2,000 draws). Scores are diagnostic and show nothing about real-world accuracy.
 
-**Value.** Under these assumptions, from -0.006 to 0.098 million EGP per year. Every cost input is an assumption, and the conservative setting is negative.
+**Value.** Under these assumptions, from 0.007 to 0.102 million EGP per year. Operating cost and missed cases are public proxies; the cost of late detection is a placeholder that needs ACUD. Even the conservative setting is positive, but small.
 
 **Proposed next steps.** (1) Use the list as a prioritisation aid; the visit confirms. (2) Record every visit result to build real ground truth. (3) Request ACUD data: supervisor reports, contractual dates, field review records, escrow balances.
 
@@ -28,7 +28,7 @@ Task T-SA-05. Draft for review. All counts come from `data/BACKTEST_CURRENT.md`,
 
 **ما تُظهره البيانات المولّدة.** المسار B يعتمد على بيانات مولّدة فقط ("مولّد - للتدريب والعرض فقط"). يحتوي اختبار السعة 4 على 4 صفوف متعثرة فقط، فالقوة الإحصائية منخفضة جداً. يتراوح الاسترجاع عند السعة 4 بين 1 من 4 و4 من 4 حسب النموذج، مقابل خط أساس عشوائي 0.335 (2,000 سحبة). الدرجات تشخيصية ولا تدل على دقة في الواقع.
 
-**القيمة.** تحت هذه الافتراضات، من -0.006 إلى 0.098 مليون جنيه سنوياً. كل مدخلات التكلفة افتراضات، والإعداد المتحفظ سالب.
+**القيمة.** تحت هذه الافتراضات، من 0.007 إلى 0.102 مليون جنيه سنوياً. تكلفة التشغيل والحالات الفائتة مقاييس بديلة من مصادر عامة، وتكلفة الكشف المتأخر قيمة مؤقتة تحتاج إلى بيانات من شركة العاصمة الإدارية. حتى الإعداد المتحفظ موجب لكنه صغير.
 
 **الخطوات المقترحة.** (1) استخدام القائمة كأداة ترتيب أولويات، والزيارة هي التي تؤكد. (2) تسجيل نتيجة كل زيارة لبناء حقيقة ميدانية. (3) طلب بيانات ACUD: تقارير المشرف، والمواعيد التعاقدية، وسجلات المراجعة الميدانية، وأرصدة الضمان.
 

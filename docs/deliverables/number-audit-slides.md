@@ -69,8 +69,8 @@ Source checked: `docs/deliverables/01-presentation/presentation.md`. Line number
 | S-61 | 82 | "all 12" compounds | MATCH | configs/cost_assumptions.yaml:6 projects: 12. |
 | S-62 | 82 | "16 visits a year" | MATCH | Derived: configs/cost_assumptions.yaml:7 visits_per_year: 4 times :8 cycle_list_visits: 4 = 16. |
 | S-63 | 82 | "48" visits a year (all 12) | NO SOURCE | Derived as 12 x 4 from configs/cost_assumptions.yaml:6-7. "48 visits" is not stated; searched "48 visits": none. |
-| S-64 | 83 | "-0.006" million EGP per year | MATCH | configs/cost_assumptions.yaml:31 wording. |
-| S-65 | 83 | "0.098" million EGP per year | MATCH | configs/cost_assumptions.yaml:31 wording. |
+| S-64 | 83 | "0.007" million EGP per year | MATCH | configs/cost_assumptions.yaml:39 wording. |
+| S-65 | 83 | "0.102" million EGP per year | MATCH | configs/cost_assumptions.yaml:39 wording. |
 | S-66 | 85 | cost per visit "2,000 EGP" | MATCH | configs/cost_assumptions.yaml:15 conservative cost_per_visit: 2000 (assumption). |
 | S-67 | 85 | cost per visit "3,000 EGP" | MATCH | configs/cost_assumptions.yaml:20 central cost_per_visit: 3000 (assumption). |
 | S-68 | 85 | cost per visit "4,000 EGP" | MATCH | configs/cost_assumptions.yaml:25 optimistic cost_per_visit: 4000 (assumption). |
