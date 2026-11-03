@@ -129,6 +129,43 @@ def upcoming_promises(statements: pd.DataFrame, codes: list[str], asof: str) -> 
     return sorted(rows, key=lambda r: (r["end"], r["code"]))
 
 
+def visit_ranks(frame: pd.DataFrame) -> pd.Series:
+    """Visit order for every compound of a quarter: the stored cycle list first, then the others by the
+    pipeline's own order (level, K2 and K3 descending, then code), unassessed last."""
+    in_cycle = frame["cycle_rank"].notna() if "cycle_rank" in frame.columns else pd.Series(False, index=frame.index)
+    rest = frame[~in_cycle].assign(_level=lambda d: d["level"].map(lambda v: level_number(v) or 99),
+                                   _k2=lambda d: d["K2"].fillna(0) if "K2" in d else 0,
+                                   _k3=lambda d: d["K3"].fillna(0) if "K3" in d else 0)
+    order = [*frame[in_cycle].sort_values("cycle_rank").index,
+             *rest.sort_values(["_level", "_k2", "_k3", "code"], ascending=[True, False, False, True]).index]
+    return pd.Series(range(1, len(order) + 1), index=order, dtype="Int64").reindex(frame.index)
+
+
+def list_status(row: pd.Series) -> str:
+    level = level_number(row.get("level"))
+    if not is_missing(row.get("cycle_rank")):
+        return "This cycle"
+    if level is None:
+        return "Not assessable"
+    return "Monitor" if level == 4 else "Next in line"
+
+
+HANDOVER_WORDS = {"delivery_complete": "handed over", "delivery_progress": "handover in progress",
+                  "delivery_start": "handover started"}
+
+
+def handover_status(statements: pd.DataFrame, code: str, asof: str) -> str:
+    """The latest published handover event up to the quarter, with its scope and publication month."""
+    events = statements[(statements["code"] == code) & statements["subtype"].isin(list(HANDOVER_WORDS))
+                        & (pd.to_datetime(statements["published_date"]) <= pd.Period(asof, "Q").end_time)]
+    if events.empty:
+        return "none published"
+    last = events.sort_values("published_date").iloc[-1]
+    phase = re.fullmatch(r"phase(\d+)", str(last["scope"]))
+    words = HANDOVER_WORDS[last["subtype"]]
+    return f"{f'phase {phase[1]} ' if phase else ''}{words} (published {month_text(last['published_date'])})"
+
+
 def developer_groups(compounds: pd.DataFrame, latest: pd.DataFrame) -> list[dict]:
     """Developers with more than one compound: one meeting can cover all of them, most urgent first."""
     levels = dict(zip(latest["code"], latest["level"]))
@@ -303,14 +340,105 @@ def outcome_text(outcome_type: object) -> str:
     return OUTCOME_WORDS.get(kind, kind.replace("_", " "))
 
 
-def short_reason(text: object) -> str:
-    """A stored English level reason without the level prefix, the activity score or the image count."""
+def short_reason(text: object, deadline_note: str | None = None) -> str:
+    """A stored English level reason without the level prefix, the activity score or the image count.
+
+    K2 counts quarters without new building change, so "no building activity" reads "no new building activity";
+    `deadline_note` (see `first_deadline_note`) says when the first handover date was only for a phase.
+    """
     if is_missing(text):
         return ""
     body = re.sub(r"\s*\(activity score [^)]*\)", "", str(text).split(": ", 1)[-1])
     body = re.sub(r"(\d+) quarter\(s\)", lambda m: f"{m[1]} quarter{'' if m[1] == '1' else 's'}", body)
+    body = body.replace("no building activity", "no new building activity")
+    if deadline_note:
+        body = re.sub(r"first announced handover date \((\w+ \d{4})\)",
+                      lambda m: f"first announced handover date ({m[1]}, {deadline_note})", body)
     clauses = [c.strip(" .") for c in body.split(";") if c.strip(" .") and not c.strip().startswith("observation")]
     return "; ".join(clauses)
+
+
+def first_deadline_note(statements: pd.DataFrame, code: str, deadline: object, asof: str) -> str | None:
+    """"phase N; whole project <month>" when the stored first handover date is a phase date: a phase promise
+    published by the quarter ends that month and no whole-project promise does. None otherwise."""
+    if is_missing(deadline):
+        return None
+    promises = statements[(statements["code"] == code) & (statements["kind"] == "promise")
+                          & statements["period_end"].notna()
+                          & (pd.to_datetime(statements["published_date"]) <= pd.Period(asof, "Q").end_time)]
+    month = pd.Timestamp(deadline).to_period("M")
+    ends = pd.to_datetime(promises["period_end"]).dt.to_period("M")
+    phase = promises[(ends == month) & promises["scope"].astype(str).str.fullmatch(r"phase\d+")]
+    project = promises[promises["scope"] == "project"]
+    if phase.empty or (ends[project.index] == month).any():
+        return None
+    note = f"phase {str(phase.iloc[0]['scope'])[5:]}"
+    if not project.empty:
+        note += f"; whole project {month_text(project.sort_values('published_date').iloc[0]['period_end'])}"
+    return note
+
+
+def finance_snapshot(fin: pd.DataFrame, code: str, asof: str) -> dict | None:
+    """One compound's generated monthly money at the quarter's last month: collections over the last 12 months
+    and the cover balance."""
+    end = str(pd.Period(asof, "Q").asfreq("M", "end"))
+    mine = fin[(fin["code"] == code) & (fin["month"].astype(str) <= end)].sort_values("month")
+    if mine.empty:
+        return None
+    return {"month": str(mine.iloc[-1]["month"]), "collections_12m": float(mine.tail(12)["collections_egp"].sum()),
+            "cover_balance": float(mine.iloc[-1]["cover_balance_egp"])}
+
+
+def last_quarters(asof: str, n: int) -> list[str]:
+    return [str(q) for q in pd.period_range(end=pd.Period(asof, "Q"), periods=n, freq="Q")]
+
+
+def complaints_by_quarter(complaints: pd.DataFrame, code: str, asof: str) -> pd.DataFrame:
+    created = pd.to_datetime(complaints["created_at"])
+    mine = complaints[(complaints["code"] == code) & (created <= pd.Period(asof, "Q").end_time)]
+    quarters = pd.to_datetime(mine["created_at"]).dt.to_period("Q").astype(str)
+    return (mine.assign(quarter=quarters).groupby(["quarter", "category"]).size()
+            .rename("complaints").reset_index())
+
+
+def cycle_footprint(compounds: pd.DataFrame, codes: list[str], feddan_m2: float) -> dict:
+    """Published homes and land, in feddan, of the listed compounds; generated counts and areas are left out,
+    so each total says how many compounds it covers."""
+    mine = compounds[compounds["code"].isin(codes)]
+    homes, land = mine[mine["units_origin"] == "real"], mine[mine["land_area_origin"] == "real"]
+    return {"homes": int(homes["units"].sum()), "homes_compounds": len(homes),
+            "feddan": round(float(land["land_area_m2"].sum()) / feddan_m2, 1), "land_compounds": len(land)}
+
+
+def activity_spread(latest: pd.DataFrame) -> dict:
+    """District mean activity score and the compounds under half of it: what the average hides."""
+    scores = latest.dropna(subset=["activity_prob"])
+    mean = float(scores["activity_prob"].mean())
+    low = scores[scores["activity_prob"] < mean / 2].sort_values("activity_prob")
+    return {"mean": mean, "below_half": list(low["code"].astype(str))}
+
+
+SOURCE_KINDS = {"event": "Event", "promise": "Promise", "progress": "Progress claim",
+                "eval_outcome": "Outcome (check case)", "eval_promise": "Promise (check case)",
+                "eval_revision": "Revised date (check case)", "eval_progress": "Progress (check case)"}
+
+
+def source_rows(sources: pd.DataFrame, code: str) -> pd.DataFrame:
+    """One compound's public sources, oldest first, for the names-and-sources screen."""
+    mine = sources[sources["code"] == code].sort_values(["published_date", "record_id"])
+    return pd.DataFrame({"Published": mine["published_date"].astype(str).str[:10],
+                         "What": mine["kind"].map(lambda k: SOURCE_KINDS.get(k, str(k).replace("_", " "))),
+                         "Publisher": mine["publisher"], "Says": mine["quote"], "Link": mine["url"],
+                         "Record": mine["record_id"]}).reset_index(drop=True)
+
+
+def generated_elsewhere(compound: pd.Series) -> list[str]:
+    """What the other screens show for this compound from generated data, not from public sources."""
+    items = [f"{name} ({col.split('_')[0]})" if col == "units_origin" else name
+             for col, name in (("units_origin", "home count"), ("land_area_origin", "land area"))
+             if compound.get(col) == "generated"]
+    return items + ["land value and fine exposure", "collections and cover balance", "buyer complaints",
+                    "inspection visits", "classifier probabilities and what-if scenarios"]
 
 
 def what_space_saw(why: object) -> str:
@@ -339,29 +467,15 @@ def first_frame_after(frames: list[dict], when: pd.Timestamp) -> int | None:
     return next((i for i, f in enumerate(frames) if pd.Timestamp(f["date"]) > when), None)
 
 
-def season_of(date: object) -> str:
-    """Meteorological season of a capture date: Dec-Feb winter, Mar-May spring, Jun-Aug summer, Sep-Nov autumn."""
-    return ("winter", "spring", "summer", "autumn")[pd.Timestamp(date).month % 12 // 3]
-
-
-def latest_same_season(frames: list[dict], anchor: int) -> int | None:
-    """Index of the latest capture after `frames[anchor]` in the same season, or None."""
-    when, season = pd.Timestamp(frames[anchor]["date"]), season_of(frames[anchor]["date"])
-    later = [i for i, f in enumerate(frames) if pd.Timestamp(f["date"]) > when and season_of(f["date"]) == season]
-    return max(later, key=lambda i: pd.Timestamp(frames[i]["date"]), default=None)
-
-
 def frame_pair(frames: list[dict], index: int | None) -> list[dict]:
-    """The frame at `index` and the latest capture in its season (the spec forbids cross-season comparisons).
+    """The frame at `index` beside the latest capture, in any season (owner decision, 3 November 2026).
 
-    Just the latest frame when there is no index or the index is the latest; empty when no later capture
-    shares the anchor's season."""
+    Just the latest frame when there is no index or the index is the latest."""
     if not frames:
         return []
     if index is None or index == len(frames) - 1:
         return frames[-1:]
-    later = latest_same_season(frames, index)
-    return [] if later is None else [frames[index], frames[later]]
+    return [frames[index], frames[-1]]
 
 
 def flagged_early(latest: pd.DataFrame) -> list[dict]:

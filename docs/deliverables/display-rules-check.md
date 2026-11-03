@@ -1,5 +1,7 @@
 # T-NA-08 display-rules check of the four screens
 
+Update, 3 November 2026: the owner lifted forbidden mistake 3 (different-season comparison). Image comparisons now accept any two dates; the rows on that rule below are kept as the record of the earlier check.
+
 Scope: the four sidebar screens in `app.py` (`SCREENS`, app.py:65-70) checked against the display rules and forbidden mistakes in `docs/requirements/01-specs.md` section 9 (line 312 onward, "Display rules" paragraph). Code basis: branch `docs/T-NA-08-display-20261102`, based on `origin/main` (4543426). Read-only check; no code changed.
 
 Not covered by this check: the ten-second test with a person outside the team (recorded separately). Also not in the four screens: the spec's "Data trust" screen (spec screen 4) has no entry in `SCREENS`; the spec's screen 3 name "Would it have warned?" is "3 · District view" in code.

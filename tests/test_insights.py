@@ -303,7 +303,7 @@ WHY = ("Level 1: no building activity for 6 quarter(s) (activity score 0.30); fi
 
 
 def test_what_space_saw_drops_the_level_prefix_and_the_observation_clause():
-    assert insights.what_space_saw(WHY) == ("No building activity for 6 quarters; "
+    assert insights.what_space_saw(WHY) == ("No new building activity for 6 quarters; "
                                             "first announced handover date (Dec 2023) is still ahead")
 
 
@@ -329,26 +329,12 @@ def test_outcome_text_words_known_types_and_guards_a_missing_one():
     assert insights.outcome_text(np.nan) == "outcome not on file"
 
 
-def test_season_of_each_month():
-    seasons = ["winter"] * 2 + ["spring"] * 3 + ["summer"] * 3 + ["autumn"] * 3 + ["winter"]
-    assert [insights.season_of(f"2024-{m:02d}-15") for m in range(1, 13)] == seasons
-
-
-def test_latest_same_season_picks_the_latest_later_capture_in_the_anchor_season():
-    frames = [{"date": "2019-04-01"}, {"date": "2020-12-20"}, {"date": "2022-05-30"},
-              {"date": "2023-01-10"}, {"date": "2024-03-03"}, {"date": "2025-07-23"}]
-    assert insights.latest_same_season(frames, 0) == 4  # spring 2019 -> spring 2024, not summer 2025
-    assert insights.latest_same_season(frames, 1) == 3  # December and January are both winter
-    assert insights.latest_same_season(frames, 4) is None  # no later spring capture
-    assert insights.latest_same_season(frames, 5) is None
-
-
-def test_frame_pair_is_the_chosen_frame_and_the_latest_same_season_capture():
+def test_frame_pair_is_the_chosen_frame_and_the_latest_capture_in_any_season():
     frames = [{"date": "2019-01-01"}, {"date": "2021-04-09"}, {"date": "2024-05-02"}, {"date": "2025-07-23"}]
     index = insights.first_frame_after(frames, pd.Timestamp("2020-09-30"))
     assert index == 1
-    assert [f["date"] for f in insights.frame_pair(frames, index)] == ["2021-04-09", "2024-05-02"]
-    assert insights.frame_pair(frames, 0) == []  # no later winter capture
+    assert [f["date"] for f in insights.frame_pair(frames, index)] == ["2021-04-09", "2025-07-23"]
+    assert [f["date"] for f in insights.frame_pair(frames, 0)] == ["2019-01-01", "2025-07-23"]
     frames = frames[:2] + frames[3:]
     assert [f["date"] for f in insights.frame_pair(frames, 2)] == ["2025-07-23"]
     assert insights.first_frame_after(frames, pd.Timestamp("2026-01-01")) is None
@@ -443,6 +429,98 @@ def test_short_reason_drops_the_level_prefix_score_and_observation_clause():
         "building activity detected; first announced handover date (Dec 2021) passed by 57 months")
 
 
+
+def test_short_reason_says_new_activity_and_names_a_phase_first_deadline():
+    reason = ("Level 1: no building activity for 1 quarter(s) (activity score 0.53); first announced handover date "
+              "(Dec 2021) passed by 57 months.")
+    assert insights.short_reason(reason, "phase 1; whole project Jul 2023") == (
+        "no new building activity for 1 quarter; first announced handover date (Dec 2021, phase 1; whole project "
+        "Jul 2023) passed by 57 months")
+
+
+def test_first_deadline_note_only_when_the_first_deadline_belongs_to_a_phase():
+    statements = pd.DataFrame({
+        "code": ["C18", "C18", "C12", "C12"],
+        "kind": ["promise"] * 4,
+        "scope": ["project", "phase1", "project", "phase1"],
+        "published_date": pd.to_datetime(["2021-09-25", "2021-09-25", "2019-06-03", "2021-09-21"]),
+        "period_end": pd.to_datetime(["2023-07-31", "2021-12-31", "2022-12-31", "2021-12-31"]),
+    })
+    assert insights.first_deadline_note(statements, "C18", "2021-12-31", "2026Q3") == "phase 1; whole project Jul 2023"
+    assert insights.first_deadline_note(statements, "C12", "2022-12-31", "2026Q3") is None
+    assert insights.first_deadline_note(statements, "C12", None, "2026Q3") is None
+    # a whole-project promise ending the same month means the date is not phase-only
+    same_month = pd.concat([statements, pd.DataFrame({
+        "code": ["C18"], "kind": ["promise"], "scope": ["project"],
+        "published_date": pd.to_datetime(["2021-09-25"]), "period_end": pd.to_datetime(["2021-12-31"])})])
+    assert insights.first_deadline_note(same_month, "C18", "2021-12-31", "2026Q3") is None
+    # promises published after the quarter shown are not used
+    assert insights.first_deadline_note(statements, "C18", "2021-12-31", "2021Q2") is None
+
+
+def test_finance_snapshot_reads_money_up_to_the_quarter():
+    fin = pd.DataFrame({
+        "code": ["C18"] * 4,
+        "month": ["2026-07", "2026-08", "2026-09", "2026-10"],
+        "collections_egp": [1e6, 2e6, 3e6, 4e6],
+        "cover_balance_egp": [5e6, 6e6, 7e6, 8e6],
+    })
+    snap = insights.finance_snapshot(fin, "C18", "2026Q3")
+    assert snap == {"month": "2026-09", "collections_12m": 6e6, "cover_balance": 7e6}
+    assert insights.finance_snapshot(fin, "C99", "2026Q3") is None
+
+
+def test_complaints_by_quarter_counts_each_category():
+    complaints = pd.DataFrame({
+        "code": ["C18", "C18", "C18", "C07"],
+        "created_at": pd.to_datetime(["2026-01-05", "2026-02-01", "2026-07-01", "2026-07-02"]),
+        "category": ["delay", "delay", "stoppage", "delay"],
+    })
+    table = insights.complaints_by_quarter(complaints, "C18", "2026Q2")
+    assert table.to_dict("records") == [{"quarter": "2026Q1", "category": "delay", "complaints": 2}]
+    assert insights.last_quarters("2026Q2", 4) == ["2025Q3", "2025Q4", "2026Q1", "2026Q2"]
+
+
+
+def test_cycle_footprint_sums_published_homes_and_land_in_feddan():
+    compounds = pd.DataFrame({"code": ["C18", "C07", "C01"], "units": [1600, 1000, 500],
+                              "units_origin": ["real", "generated", "real"],
+                              "land_area_m2": [4200.83 * 10, 4200.83 * 5, 1.0],
+                              "land_area_origin": ["real", "real", "generated"]})
+    assert insights.cycle_footprint(compounds, ["C18", "C07", "C01"], 4200.83) == {
+        "homes": 2100, "homes_compounds": 2, "feddan": 15.0, "land_compounds": 2}
+
+
+def test_activity_spread_names_compounds_far_below_the_district_mean():
+    latest = pd.DataFrame({"code": ["C01", "C02", "C12", "C03"], "activity_prob": [0.9, 0.8, 0.03, 0.4]})
+    spread = insights.activity_spread(latest)
+    assert spread["mean"] == pytest.approx(0.5325)
+    assert spread["below_half"] == ["C12"]
+
+
+
+def test_source_rows_are_one_compound_oldest_first_with_plain_kinds():
+    sources = pd.DataFrame({
+        "code": ["C18", "C18", "C07"], "kind": ["promise", "eval_outcome", "event"],
+        "record_id": ["R7-2", "R7-1", "R7-3"], "published_date": ["2022-05-25", "2021-09-25", "2020-01-01"],
+        "publisher": ["A", "B", "C"], "url": ["https://a", "https://b", "https://c"], "quote": ["q2", "q1", "q3"],
+    })
+    rows = insights.source_rows(sources, "C18")
+    assert list(rows["Published"]) == ["2021-09-25", "2022-05-25"]
+    assert list(rows["What"]) == ["Outcome (check case)", "Promise"]
+    assert list(rows["Link"]) == ["https://b", "https://a"]
+    assert insights.source_rows(sources, "C99").empty
+
+
+def test_generated_elsewhere_lists_stand_ins_for_one_compound():
+    row = pd.Series({"units_origin": "generated", "land_area_origin": "real"})
+    items = insights.generated_elsewhere(row)
+    assert "home count (units)" in items
+    assert "land area" not in items
+    assert "land value and fine exposure" in items
+
+
+
 def _metrics_raw():
     return pd.DataFrame({
         "method": ["logistic_combined"] * 4 + ["public_rule", "logistic_combined"],
@@ -471,3 +549,32 @@ def test_model_metrics_table_appends_the_stored_random_baseline_row():
     table = insights.model_metrics_table(_metrics_raw(), {"draws": 2000, "mean": 0.335375}).set_index("Method")
     assert table.loc["random", "🟠 Distressed in top 4 (recall@4)"] == "0.335 (mean of 2,000 random draws)"
     assert table.loc["random", "🟠 Distressed recall"] == "not stored"
+
+
+def test_visit_ranks_cover_every_compound_with_the_cycle_first_then_the_pipeline_order():
+    frame = pd.DataFrame({
+        "code": ["C12", "C03", "C21", "C18", "C01", "C20"],
+        "level": [3, 3, 3, 1, 4, None],
+        "cycle_rank": [None, 2, None, 1, None, None],
+        "K2": [6, 6, 2, 0, 0, None],
+        "K3": [0, 0, 0, 57, 0, None],
+    })
+    ranks = insights.visit_ranks(frame)
+    assert dict(zip(frame["code"], ranks)) == {"C18": 1, "C03": 2, "C12": 3, "C21": 4, "C01": 5, "C20": 6}
+    assert [insights.list_status(r) for _, r in frame.iterrows()] == [
+        "Next in line", "This cycle", "Next in line", "This cycle", "Monitor", "Not assessable"]
+
+
+def test_handover_status_reads_the_latest_published_delivery_event_up_to_the_quarter():
+    statements = pd.DataFrame({
+        "code": ["C12", "C12", "C03", "C03", "C18"],
+        "subtype": ["delivery_start", "delivery_complete", "delivery_start", "delivery_progress",
+                    "promised_delivery"],
+        "scope": ["project", "project", "phase1", "project", "project"],
+        "published_date": pd.to_datetime(["2024-04-18", "2026-09-20", "2025-09-10", "2026-05-03", "2021-09-25"]),
+    })
+    assert insights.handover_status(statements, "C12", "2026Q3") == "handed over (published Sep 2026)"
+    assert insights.handover_status(statements, "C12", "2026Q2") == "handover started (published Apr 2024)"
+    assert insights.handover_status(statements, "C03", "2025Q4") == "phase 1 handover started (published Sep 2025)"
+    assert insights.handover_status(statements, "C03", "2026Q3") == "handover in progress (published May 2026)"
+    assert insights.handover_status(statements, "C18", "2026Q3") == "none published"

@@ -24,6 +24,7 @@ from src.dashboard.exports import export_csv
 from src.dashboard.ops_visits import load_visits, render_ops_visits_form  # T-NA-04
 from src.inference.ai_config import load_ai_yaml_config
 from src.pipeline.common import APP as PIPELINE_APP_DATA
+from src.pipeline.common import CFG
 
 # --------------------------------------------------------------------------- #
 # Configuration
@@ -43,7 +44,7 @@ ORIGIN_DERIVED = "🔵"    # derived from real data
 ORIGIN_GENERATED = "🟠"  # generated (stand-in for ACUD data)
 
 # Folders under app_data/ whose content is generated (separation rule).
-GENERATED_PREFIXES = ("sim/", "ml/", "scenarios/")
+GENERATED_PREFIXES = ("sim/", "sim_clean/", "component_data/", "ml/", "scenarios/")
 
 # Columns that could carry names: dropped before anything is rendered.
 FORBIDDEN_COLUMNS = {
@@ -79,6 +80,7 @@ SCREENS = [
     "2 · Compound file",
     "3 · District view",
     "4 · Digital twin what if",
+    "5 · Real names and sources",
 ]
 
 # --------------------------------------------------------------------------- #
@@ -233,7 +235,7 @@ def inject_css() -> None:
             color: {p['muted']} !important; font-size: 0.86rem !important; font-weight: 500;
             white-space: normal !important;
         }}
-        [data-testid="stMetricValue"] div {{
+        [data-testid="stMetricValue"] div, [data-testid="stMetricValue"] p {{
             font-variant-numeric: tabular-nums lining-nums;
             font-weight: 700; color: {p['text']};
             font-size: clamp(1.15rem, 1.6vw, 1.6rem) !important;
@@ -536,13 +538,21 @@ def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None,
                    "right-drag to tilt or turn · click a compound to select it in the sidebar")
 
 
+def reason_text(row: pd.Series) -> str:
+    """The short stored reason; names the phase when the first handover date was only a phase date."""
+    statements = load_table("real/statements.parquet", TRACK_A)
+    note = None if statements is None else insights.first_deadline_note(
+        statements, str(row.get("code")), row.get("k3_first_deadline"), str(row.get("quarter")))
+    return insights.short_reason(row.get("reason"), note)
+
+
 def cycle_headline(latest_df: pd.DataFrame, asof: str) -> str:
     """One sentence that states the cycle decision, built only from the stored level and reason."""
     cycle = build_cycle_list(latest_df)
     if cycle.empty:
         return f"No compound needs a visit this cycle ({asof})."
     first = latest_df[latest_df["code"] == cycle.iloc[0]["code"]].iloc[0]
-    why = insights.short_reason(first.get("reason"))
+    why = reason_text(first)
     eligible = int(latest_df["level"].isin([1, 2, 3]).sum())
     waiting = eligible - len(cycle)
     rest = f" {waiting} more at levels 1-3 wait for the next cycle." if waiting > 0 else ""
@@ -561,9 +571,18 @@ def render_summary_tiles(latest_df: pd.DataFrame, asof: str, promises: list[dict
     cycle = build_cycle_list(latest_df)
     months = latest_df["K5_months"].dropna() if "K5_months" in latest_df.columns else pd.Series(dtype=float)
     fined = months[months > 0]
+    compounds = load_table("real/compounds.parquet", TRACK_A)
+    footprint = ""
+    if compounds is not None:
+        f = insights.cycle_footprint(compounds, list(cycle["code"]), CFG["compounds"]["feddan_m2"])
+        n = len(cycle)
+        footprint = (f" · {f['homes']:,} published homes"
+                     + (f" in {f['homes_compounds']} of {n}" if f["homes_compounds"] < n else "")
+                     + f" · {f['feddan']:g} feddan" + (f" in {f['land_compounds']} of {n}" if f["land_compounds"] < n else ""))
     tiles = st.columns(4)
     with tiles[0]:
-        metric_tile("To visit this cycle", len(cycle), "compound" if len(cycle) == 1 else "compounds", f"of {len(latest_df)}", asof, ORIGIN_DERIVED)
+        metric_tile("To visit this cycle", len(cycle), "compound" if len(cycle) == 1 else "compounds",
+                    f"of {len(latest_df)}{footprint}", asof, ORIGIN_DERIVED)
     with tiles[1]:
         metric_tile("At level 1", int((latest_df["level"] == 1).sum()),
                     "compound" if int((latest_df["level"] == 1).sum()) == 1 else "compounds",
@@ -577,18 +596,24 @@ def render_summary_tiles(latest_df: pd.DataFrame, asof: str, promises: list[dict
                     f"in {len({p['code'] for p in promises})} compounds", asof, ORIGIN_DERIVED)
 
 
-def visit_table(latest_df: pd.DataFrame, cycle: pd.DataFrame) -> pd.DataFrame:
+def visit_table(latest_df: pd.DataFrame, cycle: pd.DataFrame, statements: pd.DataFrame | None = None,
+                asof: str = "") -> pd.DataFrame:
     """The listed compounds in order with the suggested action and the stored reason.
-    Rank is the stored cycle rank (blank outside the cycle list), so filtering keeps it."""
+    Rank is the visit order of the whole quarter (set before filtering), so filtering keeps it."""
     rows = latest_df.set_index("code").loc[cycle["code"]]
-    return pd.DataFrame({
-        "Rank": (rows["cycle_rank"].astype("Int64").to_numpy() if "cycle_rank" in rows.columns
-                 else range(1, len(rows) + 1)),
+    ranks = rows["visit_rank"] if "visit_rank" in rows.columns else insights.visit_ranks(rows.reset_index()).to_numpy()
+    table = {
+        "Rank": pd.array(ranks, dtype="Int64"),
         "Compound": rows.index,
+        "List": [insights.list_status(r) for _, r in rows.iterrows()],
         "Level": rows["level"].map(level_word).to_numpy(),
         "Suggested action": [insights.suggested_action(r)[0] for _, r in rows.iterrows()],
-        "Why": rows["reason"].map(insights.short_reason).to_numpy(),
-    })
+        "Why": [reason_text(r) for _, r in rows.reset_index().iterrows()],
+    }
+    table = pd.DataFrame(table)
+    if statements is not None:
+        table.insert(4, "Handover", [insights.handover_status(statements, code, asof) for code in rows.index])
+    return table
 
 
 def listed_codes(latest_df: pd.DataFrame, cycle_only: bool) -> pd.DataFrame:
@@ -596,9 +621,8 @@ def listed_codes(latest_df: pd.DataFrame, cycle_only: bool) -> pd.DataFrame:
     cycle = build_cycle_list(latest_df)
     if cycle_only:
         return cycle
-    rest = latest_df[~latest_df["code"].isin(cycle["code"])].copy()
-    rest["_level"] = rest["level"].map(lambda v: insights.level_number(v) or len(LEVELS) + 1)
-    return pd.concat([cycle[["code"]], rest.sort_values(["_level", "code"])[["code"]]], ignore_index=True)
+    ranks = latest_df["visit_rank"] if "visit_rank" in latest_df.columns else insights.visit_ranks(latest_df)
+    return latest_df.assign(_rank=ranks).sort_values("_rank")[["code"]].reset_index(drop=True)
 
 
 def render_visit_list(latest: tuple[pd.DataFrame, str] | None, track: Track, cycle_only: bool = True) -> None:
@@ -614,9 +638,13 @@ def render_visit_list(latest: tuple[pd.DataFrame, str] | None, track: Track, cyc
         st.info(f"No compounds in the {'cycle list' if cycle_only else 'list'} for {asof}.")
         return
 
-    st.caption("Suggested actions are proposals; the committee decides.")
-    st.dataframe(visit_table(latest_df, listed), hide_index=True, width="stretch",
-                 column_config={"Why": st.column_config.TextColumn("Why", width="large")})
+    st.caption("Suggested actions are proposals; the committee decides. Rank = visit order as of "
+               f"{asof}: level first, then quarters without activity (K2), then months past the first "
+               "handover date (K3); remaining ties go by code. \"This cycle\" = the visits capacity allows now.")
+    statements = load_table("real/statements.parquet", TRACK_A)
+    # Tall enough for every row, so no compound hides behind the table's own scroll bar.
+    st.dataframe(visit_table(latest_df, listed, statements, asof), hide_index=True, width="stretch",
+                 height=35 * (len(listed) + 1) + 3, column_config={"Why": st.column_config.TextColumn("Why", width="large")})
     options = ["Select a compound", *sorted(listed["code"].astype(str))]
     st.selectbox(
         "Select compound",
@@ -889,14 +917,13 @@ def render_frame(frame: dict, stages: dict[int, str], caption: str = "") -> None
 
 def render_frame_compare(code: str, frames: list[dict], stages: dict[int, str]) -> None:
     dates = [f["date"] for f in frames]
-    pickers = st.columns(2)
-    start = pickers[0].selectbox("Compare: from", dates, index=0, key=f"cmp_from_{code}")
-    season = insights.season_of(start)
-    same = [d for d in dates if d != start and insights.season_of(d) == season]
-    if not same:
-        st.info(f"No other {season} capture exists to compare with {start}; captures are compared within a season.")
+    if len(dates) < 2:
+        st.info("Only one capture on file, so there is nothing to compare.")
         return
-    chosen = [start, pickers[1].selectbox(f"Compare: to ({season} only)", same, index=len(same) - 1,
+    pickers = st.columns(2)
+    start = pickers[0].selectbox("Compare: from", dates[:-1], index=0, key=f"cmp_from_{code}")
+    later = [d for d in dates if d > start]
+    chosen = [start, pickers[1].selectbox("Compare: to", later, index=len(later) - 1,
                                           key=f"cmp_to_{code}")]
     for column, date in zip(st.columns(2), chosen):
         with column:
@@ -938,6 +965,91 @@ def render_inspection_button(code: str, asof: str) -> None:
                        data=path.read_bytes(), file_name=path.name, mime="text/html", key=f"insp_{code}")
 
 
+# --------------------------------------------------------------------------- #
+# Generated developer file (Track B): what the screen shows once ACUD's own files are connected.
+# Every value here is generated (sim_clean/); the fine rate is an illustrative input, not a contract rate.
+# --------------------------------------------------------------------------- #
+
+COMPLAINT_COLOURS = {"stoppage": "#F87171", "delay": "#F28C38", "quality": "#F2C14E", "payment": "#60A5FA",
+                     "other": "#9DB3C8"}
+
+
+def egp_millions(value: float) -> str:
+    return f"EGP {value / 1e6:,.1f} M"
+
+
+def render_fine_exposure(code: str, row: pd.Series, asof: str, track: Track) -> None:
+    land = load_table("sim_clean/fine_assumptions.parquet", track)
+    k5 = None if row is None else row.get("K5_months")
+    if land is None or land[land["code"] == code].empty:
+        return
+    mine = land[land["code"] == code].iloc[0]
+    value = float(mine["assumed_land_value_egp"])
+    # The default is the release's illustrative rate (0.5% since 3 November 2026); the committee enters its own.
+    rate = st.number_input("Fine rate (% of the land value per month): enter your contract rate", min_value=0.0,
+                           max_value=5.0, value=float(mine["fine_rate_month"]) * 100, step=0.1, format="%.1f",
+                           key="fine_rate_pct")
+    if _missing(k5):
+        status = str(row.get("K5_status") or "unknown").replace("_", " ")
+        st.markdown(f"No exposure figure: K5 is not known for {code} ({status}). Unknown is not zero.")
+        return
+    months = int(k5)
+    tiles = st.columns(3)
+    with tiles[0]:
+        metric_tile("Fine exposure", egp_millions(months * rate / 100 * value), "",
+                    f"{months} months x {rate:.1f}% x land value", asof, ORIGIN_GENERATED)
+    with tiles[1]:
+        metric_tile("Assumed land value", egp_millions(value), "", "generated assumption", asof, ORIGIN_GENERATED)
+    with tiles[2]:
+        metric_tile("K5 months", months, "months", "eligible for review under contract terms", asof, K_ORIGIN["K5"])
+    st.caption("Exposure = K5 months x rate x land value. Generated land value and an illustrative rate: "
+               "a screening figure, not an assessed fine. The contract and the committee decide.")
+
+
+def render_developer_money(code: str, asof: str, track: Track) -> None:
+    fin = load_table("sim_clean/fin_monthly.parquet", track)
+    snap = None if fin is None else insights.finance_snapshot(fin, code, asof)
+    if snap is None:
+        return
+    tiles = st.columns(2)
+    with tiles[0]:
+        metric_tile("Collections", egp_millions(snap["collections_12m"]), "", "from buyers, last 12 months", asof,
+                    ORIGIN_GENERATED)
+    with tiles[1]:
+        metric_tile("Cover balance", egp_millions(snap["cover_balance"]), "", "escrow for construction", asof,
+                    ORIGIN_GENERATED)
+
+
+def render_complaints(code: str, asof: str, track: Track) -> None:
+    complaints = load_table("sim_clean/complaints.parquet", track)
+    if complaints is None:
+        return
+    table = insights.complaints_by_quarter(complaints, code, asof)
+    if table.empty:
+        st.markdown("No buyer complaints on file.")
+        return
+    recent = table[table["quarter"].isin(insights.last_quarters(asof, 4))]
+    stoppage = int(recent.loc[recent["category"] == "stoppage", "complaints"].sum())
+    finding(f"{ORIGIN_GENERATED} <b>{int(recent['complaints'].sum())} buyer complaints</b> in the last four quarters, "
+            f"{stoppage} about work stopping. Read them beside the satellite curve above.")
+    chart = alt.Chart(table).mark_bar().encode(
+        x=alt.X("quarter:N", title=None, axis=alt.Axis(labelAngle=0)),
+        y=alt.Y("complaints:Q", title="Complaints", axis=alt.Axis(tickMinStep=1)),
+        color=alt.Color("category:N", title=None, legend=alt.Legend(orient="bottom"),
+                        scale=alt.Scale(domain=list(COMPLAINT_COLOURS), range=list(COMPLAINT_COLOURS.values()))),
+        tooltip=["quarter", "category", "complaints"])
+    st.altair_chart(chart.properties(height=240), width="stretch")
+
+
+def render_developer_file(code: str, row: pd.Series | None, asof: str, track: Track) -> None:
+    section_title("💰", "Fine exposure")
+    render_fine_exposure(code, row, asof, track)
+    section_title("📒", "Developer money")
+    render_developer_money(code, asof, track)
+    section_title("📣", "Buyer complaints")
+    render_complaints(code, asof, track)
+
+
 def last_recorded_visit(code: str) -> dict | None:
     visits = load_visits()
     if visits is None or visits.empty:
@@ -946,13 +1058,27 @@ def last_recorded_visit(code: str) -> dict | None:
     return None if mine.empty else {"date": str(mine.iloc[-1]["date"]), "result": str(mine.iloc[-1]["result"])}
 
 
-def render_compound_header(row: pd.Series | None, code: str) -> None:
+def generated_visit(code: str, asof: str, track: Track) -> dict | None:
+    """Track B only: the latest generated visit up to the quarter, standing in for ACUD's visit records."""
+    visits = load_table("component_data/synthetic_visits.parquet", track) if track.generated else None
+    mine = None if visits is None else visits[
+        (visits["code"] == code)
+        & (pd.to_datetime(visits["visit_date"]) <= pd.Period(asof, "Q").end_time)].sort_values("visit_date")
+    if mine is None or mine.empty:
+        return None
+    return {"date": str(pd.Timestamp(mine.iloc[-1]["visit_date"]).date()), "result": str(mine.iloc[-1]["result"]),
+            "generated": True}
+
+
+def render_compound_header(row: pd.Series | None, code: str, track: Track = TRACK_A) -> None:
     """Level, suggested action and last recorded visit in one line."""
     if row is None:
         return
     action, why = insights.suggested_action(row)
-    visit = last_recorded_visit(code)
+    visit = last_recorded_visit(code) or generated_visit(code, str(row.get("quarter")), track)
     seen = "no visit recorded yet" if visit is None else f"{visit['date']} ({html.escape(visit['result'])})"
+    if visit is not None and visit.get("generated"):
+        seen = f"{ORIGIN_GENERATED} none recorded; last generated visit {seen}, not fieldwork"
     number = insights.level_number(row.get("level"))
     level = level_word(row.get("level")) if number is None else f"Level {number} · {level_word(number)}"
     finding(f"<b>{level}.</b> Suggested action: <b>{action}</b>. {html.escape(why)} Last recorded visit: {seen}.")
@@ -1072,7 +1198,7 @@ def render_cycle_cards(latest: tuple[pd.DataFrame, str] | None) -> None:
             st.markdown(
                 f'<div class="se-card-head"><b>{int(item["cycle_rank"])} · {item["code"]}</b>'
                 f'<span class="se-pill" style="border-color:{colour};color:{colour}">{word}</span></div>'
-                f'<div class="se-card-why">{html.escape(insights.short_reason(row.get("reason")))}</div>',
+                f'<div class="se-card-why">{html.escape(reason_text(row))}</div>',
                 unsafe_allow_html=True)
             if frames:
                 st.caption(f"Wayback capture {frames[-1][0]}")
@@ -1109,6 +1235,7 @@ def render_filters() -> tuple[tuple[pd.DataFrame, str] | None, frozenset[str], b
         k6 = row[2].number_input("Min K6 (months)", min_value=0, step=1, key="pm_k6")
         cycle_only = row[3].toggle("Cycle list only", key="pm_cycle_only")
         frame = kpis[kpis["quarter"].astype(str) == asof]
+        frame = frame.assign(visit_rank=insights.visit_ranks(frame))
         shown = insights.filter_compounds(
             frame, search, tuple(level_of[w] for w in picked), tuple(devs), k2, k3, k6, cycle_only)
         st.caption(f"Showing {len(shown)} of {len(frame)} compounds · as of {asof} · "
@@ -1136,18 +1263,14 @@ def screen_priority_map(track: Track) -> None:
 
 # Track B model outputs, stored in the v7 release (never refitted here).
 ML_CURRENT = "tables/current/ml_current.parquet"
-ML_DATASET = "training/ml_dataset_extended.parquet"
 MODEL_METRICS = "docs/CURRENT_MODEL_METRICS.csv"
 MODEL_METADATA = "docs/CURRENT_MODEL_METADATA.json"
 
 
-def _fmt_egp(value: object) -> str:
-    return "not stored for this quarter" if _missing(value) else f"{float(value):,.0f} EGP"
-
-
 def render_classifier(code: str, track: Track) -> None:
-    """Track B: the stored distressed / not_distressed probabilities of all four methods and K5 in EGP."""
-    section_title("🟠", f"{ORIGIN_GENERATED} Classifier probabilities and K5 in EGP (generated)")
+    """Track B: the stored distressed / not_distressed probabilities of all four methods (K5 in EGP is in
+    the fine exposure section, at the rate the committee enters)."""
+    section_title("🟠", f"{ORIGIN_GENERATED} Classifier probabilities (generated)")
     probs = _safe(ML_CURRENT, load_table, ML_CURRENT, track, READY_DATA)
     rows = None if probs is None else probs[probs["code"].astype(str) == code]
     if rows is None or rows.empty:
@@ -1162,17 +1285,11 @@ def render_classifier(code: str, track: Track) -> None:
         "🟠 P(distressed)": latest["p_distressed"].round(2),
         "🟠 P(not_distressed)": latest["p_not_distressed"].round(2),
     })
-    data = _safe(ML_DATASET, load_table, ML_DATASET, track, READY_DATA)
-    k5 = None if data is None else data[(data["code"].astype(str) == code)
-                                        & (data["quarter"].astype(str) == quarter)]
-    k5_text = "not stored" if k5 is None or k5.empty else _fmt_egp(k5.iloc[0]["K5_egp"])
     with st.container(border=True):
         st.caption(f"{ORIGIN_GENERATED} Generated · {BANNER_TEXT} · {code} · {quarter}")
         st.dataframe(view, width="stretch", hide_index=True)
-        st.markdown(f"{ORIGIN_GENERATED} **K5 screening exposure:** {k5_text}")
         st.caption("satellite = images; combined = images + numbers. The rule, not these probabilities, "
-                   "selects the cycle list. Not_distressed does not mean completed or financially healthy. "
-                   "K5 = screening months × assumed land value × assumed monthly rate; not an assessed fine.")
+                   "selects the cycle list. Not_distressed does not mean completed or financially healthy.")
 
 
 def screen_compound_file(track: Track) -> None:
@@ -1207,8 +1324,8 @@ def screen_compound_file(track: Track) -> None:
 
         if row is None:
             st.warning(f"{code} has no KPI row for {asof}: shown as not assessable.")
-        render_compound_header(row, code)
-        reason = None if row is None else insights.short_reason(row.get("reason"))
+        render_compound_header(row, code, track)
+        reason = None if row is None else reason_text(row)
         if not _missing(reason) and str(reason).strip():
             st.markdown(f'<b>Why:</b> {html.escape(str(reason))}', unsafe_allow_html=True)
 
@@ -1219,6 +1336,7 @@ def screen_compound_file(track: Track) -> None:
         render_images(code)
         render_claims(code, ann, asof)
         if track.generated:
+            render_developer_file(code, row, asof, track)
             render_classifier(code, track)
             render_inspection_button(code, asof)
 
@@ -1247,13 +1365,12 @@ def level_text(level: int | None) -> str:
     return NOT_ASSESSABLE[0] if level is None else f"Level {level} · {level_word(level)}"
 
 
-def render_season_pair(pair: list[dict], stages: dict[int, str], anchor_caption: str) -> None:
-    """An anchor capture beside the latest one from the same season, or a note when there is none."""
+def render_frame_pair(pair: list[dict], stages: dict[int, str], anchor_caption: str) -> None:
+    """An anchor capture beside the latest one, or the latest alone."""
     if not pair:
-        st.caption("No later capture from the same season, so no image pair is shown.")
+        st.caption("No capture near this date.")
         return
-    season = insights.season_of(pair[0]["date"])
-    render_frame_row(pair, stages, [anchor_caption, f"Latest {season} capture"][-len(pair):])
+    render_frame_row(pair, stages, [anchor_caption, "Latest capture"][-len(pair):])
 
 
 def render_frame_row(frames: list[dict], stages: dict[int, str], captions: list[str]) -> None:
@@ -1270,17 +1387,20 @@ def render_early_warning(case: dict | None) -> None:
     code = case["code"]
     section_title("⏰", f"An early signal: {code}")
     frames, stages = space_frames(code), stage_of_year(code)
-    pair = insights.frame_pair(frames, insights.first_frame_after(frames, pd.Period(case["alert"], "Q").end_time))
+    index = insights.first_frame_after(frames, pd.Period(case["alert"], "Q").end_time)
+    pair = insights.frame_pair(frames, index)
     with st.container(border=True):
         finding(f"<b>{code}</b> was first flagged in {case['alert']}, {case['months']} months before its first "
                 f"handover date ({case['deadline']}).")
-        st.markdown(f"**What space saw.** {html.escape(case['saw'])}.")
+        # The backtest reads the clock as it stood then; today's history may differ after later images.
+        st.markdown(f"**What space saw in {case['alert']}**, with the data available then: "
+                    f"{html.escape(case['saw'][:1].lower() + case['saw'][1:])}.")
         if case["level_at_freeze"] is not None:
             st.markdown(f"By the freeze date ({case['freeze']}) it was back at level {case['level_at_freeze']} "
                         f"({level_word(case['level_at_freeze'])}).")
         reported = f", reported {case['reported']}" if case["reported"] else ""
         st.markdown(f"**What happened.** {html.escape(case['outcome'].capitalize())}{reported}.")
-        render_season_pair(pair, stages, "First capture after the alert")
+        render_frame_pair(pair, stages, "First capture after the alert")
 
 
 def render_flagged_early(rows: list[dict]) -> None:
@@ -1319,12 +1439,15 @@ def render_strongest_claim(latest_df: pd.DataFrame, asof: str) -> None:
     code = claim["code"]
     frames, stages = space_frames(code), stage_of_year(code)
     rows = insights.promise_rows(statements[statements["code"] == code], frames, stages, asof)
-    pair = insights.frame_pair(frames, insights.nearest_frame(frames, claim["last_claim"]))
+    index = insights.nearest_frame(frames, claim["last_claim"])
+    pair = insights.frame_pair(frames, index)
+    row = latest_df[latest_df["code"] == code].iloc[0]
+    note = insights.first_deadline_note(statements, code, row.get("k3_first_deadline"), asof)
     with st.container(border=True):
         finding(f"<b>{code}</b>: as of {asof}, {claim['k3']} months past the first announced handover date "
-                f"({claim['deadline']}).")
+                f"({claim['deadline']}{f', {note}' if note else ''}).")
         st.dataframe(claims_table(rows), hide_index=True, width="stretch")
-        render_season_pair(pair, stages, "Nearest to the last claim")
+        render_frame_pair(pair, stages, "Nearest to the last claim")
 
 
 def render_homes_waiting(compounds: pd.DataFrame, latest_df: pd.DataFrame, asof: str) -> None:
@@ -1337,7 +1460,8 @@ def render_homes_waiting(compounds: pd.DataFrame, latest_df: pd.DataFrame, asof:
     table = pd.DataFrame(waiting["rows"])
     table["Level"] = table["level"].map(level_word)
     table["label"] = table["k5"].astype(str) + " months"
-    base = alt.Chart(table).encode(y=alt.Y("code:N", sort=list(table["code"]), title=None),
+    base = alt.Chart(table).encode(y=alt.Y("code:N", sort=list(table["code"]), title=None,
+                                           axis=alt.Axis(labelOverlap=False)),
                                    x=alt.X("units:Q", title="Homes (published unit count)"))
     bars = base.mark_bar().encode(
         color=alt.Color("Level:N", title=None, legend=alt.Legend(orient="bottom"),
@@ -1347,7 +1471,8 @@ def render_homes_waiting(compounds: pd.DataFrame, latest_df: pd.DataFrame, asof:
     with st.container(border=True):
         finding(f"{ORIGIN_DERIVED} <b>{waiting['homes']:,} homes</b> in {waiting['compounds']} "
                 f"compounds eligible for review under contract terms, as of {asof}.")
-        st.altair_chart((bars + labels).properties(height=34 * waiting["compounds"]), width="stretch")
+        # Streamlit counts the axis and legend inside the height, so add room for them.
+        st.altair_chart((bars + labels).properties(height=34 * waiting["compounds"] + 90), width="stretch")
         st.caption("Label = months eligible for review under contract terms.")
 
 
@@ -1359,7 +1484,8 @@ def render_late_promises(outcomes: pd.DataFrame) -> None:
         return
     table = pd.DataFrame(delays["rows"])
     median = delays["median"]
-    base = alt.Chart(table).encode(y=alt.Y("code:N", sort=list(table["code"]), title=None))
+    base = alt.Chart(table).encode(y=alt.Y("code:N", sort=list(table["code"]), title=None,
+                                           axis=alt.Axis(labelOverlap=False)))
     bars = base.mark_bar(color=PALETTE["accent"]).encode(x=alt.X("months:Q", title="Months after the promised date"),
                                                          tooltip=["code", "months"])
     labels = base.mark_text(align="left", dx=4, color=PALETTE["text"]).encode(x="months:Q", text="months:Q")
@@ -1369,7 +1495,7 @@ def render_late_promises(outcomes: pd.DataFrame) -> None:
     with st.container(border=True):
         finding(f"{words} R7 compounds began handing over {table['months'].min()}-{table['months'].max()} months after "
                 f"the promised date (median {median:g}).")
-        st.altair_chart((bars + labels + rule).properties(height=34 * len(table)), width="stretch")
+        st.altair_chart((bars + labels + rule).properties(height=34 * len(table) + 50), width="stretch")
         kinds = outcomes.set_index("code")["outcome_type"]
         for code in delays["pending"]:
             st.markdown(f"**{code}**: {insights.outcome_text(kinds.get(code))}.")
@@ -1409,6 +1535,34 @@ def render_developer_groups(compounds: pd.DataFrame, latest_df: pd.DataFrame) ->
                     open_button(item["code"], f"dev{group['developer']}", f"{item['code']} · {level_text(item['level'])}")
 
 
+def render_activity_spread(latest_df: pd.DataFrame, asof: str) -> None:
+    section_title("📉", "What the district average hides")
+    spread = insights.activity_spread(latest_df)
+    table = latest_df.dropna(subset=["activity_prob"]).sort_values("activity_prob", ascending=False)
+    table = table.assign(Level=table["level"].map(level_word), score=table["activity_prob"].round(2))
+    words, colours = level_scale()
+    base = alt.Chart(table).encode(y=alt.Y("code:N", sort=list(table["code"]), title=None,
+                                           axis=alt.Axis(labelOverlap=False)))
+    bars = base.mark_bar().encode(
+        x=alt.X("score:Q", title="Building activity score (0-1)", scale=alt.Scale(domain=[0, 1])),
+        color=alt.Color("Level:N", title=None, legend=alt.Legend(orient="bottom"),
+                        scale=alt.Scale(domain=words, range=colours)),
+        tooltip=["code", "score", "Level"])
+    labels = base.mark_text(align="left", dx=4, color=PALETTE["text"]).encode(
+        x="score:Q", text=alt.Text("score:Q", format=".2f"))
+    mean = alt.Chart(pd.DataFrame({"mean": [spread["mean"]]})).mark_rule(
+        color=PALETTE["text"], strokeDash=[4, 4]).encode(x="mean:Q")
+    statements = load_table("real/statements.parquet", TRACK_A)
+    low = [code if statements is None else f"{code}, {insights.handover_status(statements, code, asof)}"
+           for code in spread["below_half"]]
+    hidden = f". Below half of it: {'; '.join(low)}" if low else ""
+    with st.container(border=True):
+        finding(f"{ORIGIN_DERIVED} District average activity <b>{spread['mean']:.2f}</b> as of {asof}{hidden}.")
+        st.altair_chart((bars + labels + mean).properties(height=34 * len(table) + 90), width="stretch")
+        st.caption("Dashed line = district average. Activity score = the model's latest probability that space "
+                   "saw building activity. Low activity after a published handover can mean finished, not stalled.")
+
+
 def render_district_levels() -> None:
     section_title("🗓️", "Level history, all compounds")
     kpis = load_table(KPI_FILE, TRACK_A)
@@ -1442,6 +1596,7 @@ def screen_district(track: Track) -> None:
     render_early_warning(None if cases is None else insights.warning_case(cases))
     render_flagged_early(insights.flagged_early(latest_df))
     render_strongest_claim(latest_df, asof)
+    render_activity_spread(latest_df, asof)
     if compounds is not None:
         render_homes_waiting(compounds, latest_df, asof)
     if outcomes is not None:
@@ -1528,6 +1683,13 @@ def render_capacity_variant(raw: pd.DataFrame, variant: str) -> None:
 
 SCENARIO_TABS = {"S1": "S1 · Cost shock", "S2": "S2 · Collections drop", "S3": "S3 · Capacity"}
 SCENARIO_NOTES = {"S1": "Imported cost +30%.", "S2": "Collections -25% for six months."}
+SCENARIO_EFFECTS = {
+    "S1": "What changes: generated costs, so progress, a compound's hypothetical level and the list can move. "
+          "Real satellite readings stay as they are.",
+    "S2": "What changes: generated collections, so progress, a compound's hypothetical level and the list can move. "
+          "Real satellite readings stay as they are.",
+    "S3": "What changes: only who fits on the visit list. Levels, reasons and project data stay the same.",
+}
 
 
 def hypothetical_text(level: float) -> str:
@@ -1605,6 +1767,8 @@ def screen_what_if(track: Track) -> None:
         return
     render_progress_vs_baseline(track)
     tabs = st.tabs(list(SCENARIO_TABS.values()))
+    for tab, scenario in zip(tabs, SCENARIO_TABS):
+        tab.markdown(SCENARIO_EFFECTS[scenario])
     for tab, scenario in zip(tabs[:2], ("S1", "S2")):
         with tab:
             render_finance_scenario(scenario, track)
@@ -1618,11 +1782,149 @@ def screen_what_if(track: Track) -> None:
                 render_capacity_variant(raw, variant)
 
 
+# --------------------------------------------------------------------------- #
+# Screen 5: real names and sources (only what public sources and satellites gave us)
+# --------------------------------------------------------------------------- #
+# names/ holds the R7 code-to-name map and the public sources behind every statement. It sits outside data/
+# on purpose: the release and data/ stay codes only, and the no_names gate keeps scanning them.
+
+NAMES_DIR = REPO_DIR / "names"
+NAMES_MAP_KEY, NAMES_LAYER_ID, NAMES_CODE_KEY = "names_map", "named", "names_code"
+
+
+@st.cache_data(show_spinner=False)
+def load_names() -> tuple[pd.DataFrame, pd.DataFrame] | None:
+    compounds, sources = NAMES_DIR / "compounds.csv", NAMES_DIR / "sources.csv"
+    if not (compounds.exists() and sources.exists()):
+        return None
+    return pd.read_csv(compounds, encoding="utf-8"), pd.read_csv(sources, encoding="utf-8")
+
+
+def pick_named_compound() -> None:
+    event = st.session_state.get(NAMES_MAP_KEY)
+    code = insights.picked_code(None if event is None else event.selection, NAMES_LAYER_ID)
+    if code is not None and CODE_PATTERN.match(code):
+        st.session_state[NAMES_CODE_KEY] = code
+
+
+def render_names_map(names: pd.DataFrame, chosen: str) -> None:
+    geojson = load_boundaries()
+    if geojson is None:
+        return
+    label_of = dict(zip(names["code"], names["name_en"]))
+    features, points, labels = [], [], []
+    for feat in geojson["features"]:
+        code = feat["properties"]["code"]
+        if code not in label_of:
+            continue
+        outline = _geo_points(feat["geometry"])
+        points += outline
+        if outline:
+            labels.append({"text": f"{code} · {label_of[code]}",
+                           "position": [sum(x for x, _ in outline) / len(outline),
+                                        sum(y for _, y in outline) / len(outline)]})
+        colour = PALETTE["accent"] if code == chosen else PALETTE["muted"]
+        features.append({"type": "Feature", "geometry": feat["geometry"],
+                         "properties": {"code": code, "name": label_of[code], "fill_color": _hex_to_rgba(colour)}})
+    layer = pdk.Layer("GeoJsonLayer", id=NAMES_LAYER_ID, data={"type": "FeatureCollection", "features": features},
+                      get_fill_color="properties.fill_color", get_line_color=[232, 238, 244, 200],
+                      line_width_min_pixels=1, stroked=True, filled=True, pickable=True)
+    text = pdk.Layer("TextLayer", data=labels, get_position="position", get_text="text", get_size=13,
+                     get_color=[233, 239, 245, 255], get_alignment_baseline="'bottom'", billboard=True)
+    view = pdk.data_utils.compute_view(points, view_proportion=0.9) if points else None
+    with st.container(border=True):
+        st.pydeck_chart(pdk.Deck(layers=[layer, text], initial_view_state=view, map_style="dark",
+                                 tooltip={"text": "{code}\n{name}"}),
+                        width="stretch", on_select=pick_named_compound, selection_mode="single-object",
+                        key=NAMES_MAP_KEY)
+        st.caption("Click a compound, or pick it below. Highlighted = the compound shown.")
+
+
+def render_named_compound(code: str, names: pd.DataFrame, sources: pd.DataFrame) -> None:
+    who = names.set_index("code").loc[code]
+    latest = load_latest_kpis()
+    asof = latest[1] if latest is not None else "the latest quarter"
+    compounds = load_table("real/compounds.parquet", TRACK_A)
+    facts = None if compounds is None else compounds.set_index("code").loc[code]
+    st.markdown(f'<div class="se-title" style="font-size:1.6rem">{html.escape(who["name_en"])} · '
+                f'<bdi dir="rtl">{html.escape(who["name_ar"])}</bdi></div>', unsafe_allow_html=True)
+    tiles = st.columns(4)
+    with tiles[0]:
+        metric_tile("Developer", who["developer"], "", f"code {who['developer_code']}", asof, ORIGIN_REAL)
+    with tiles[1]:
+        metric_tile("District", who["district"], "", "New Administrative Capital", asof, ORIGIN_REAL)
+    if facts is not None:
+        with tiles[2]:
+            real = facts["land_area_origin"] == "real"
+            metric_tile("Land area", f"{facts['land_area_m2'] / CFG['compounds']['feddan_m2']:,.0f}" if real
+                        else "not published", "feddan" if real else "",
+                        "published" if real else "generated on other screens", asof,
+                        ORIGIN_REAL if real else ORIGIN_GENERATED)
+        with tiles[3]:
+            real = facts["units_origin"] == "real"
+            metric_tile("Homes", f"{int(facts['units']):,}" if real else "not published", "",
+                        "published unit count" if real else "generated on other screens", asof,
+                        ORIGIN_REAL if real else ORIGIN_GENERATED)
+
+    section_title("🛰️", "What space saw")
+    if latest is not None:
+        latest_df = latest[0]
+        now = latest_df[latest_df["code"] == code]
+        if not now.empty:
+            row = now.iloc[0]
+            started = row.get("observed_start_quarter")
+            finding(f"{ORIGIN_DERIVED} As of {asof}: <b>{level_word(row.get('level'))}</b>. "
+                    f"{html.escape(reason_text(row))}."
+                    + ("" if _missing(started) else f" Construction start seen in {started}."))
+    frames = space_frames(code)
+    if frames:
+        with st.container(border=True):
+            render_frame_compare(code, frames, stage_of_year(code))
+
+    section_title("📰", "What public sources said")
+    rows = insights.source_rows(sources, code)
+    if rows.empty:
+        st.markdown("We found no public statement about this compound: everything on file for it comes from space.")
+    else:
+        finding(f"{ORIGIN_REAL} <b>{len(rows)} public statements</b>, {rows['Published'].iloc[0][:4]} to "
+                f"{rows['Published'].iloc[-1][:4]}, from {rows['Publisher'].nunique()} publishers.")
+        st.dataframe(rows, hide_index=True, width="stretch", column_config={
+            "Says": st.column_config.TextColumn("Says", width="large"),
+            "Link": st.column_config.LinkColumn("Link", display_text="open")})
+        if rows["What"].str.contains("check case").any():
+            st.caption('"Check case" rows are the published outcomes used to test the method.')
+
+    section_title("🟠", "Generated on the other screens for this compound")
+    st.markdown("These stand in for ACUD's own files and are not facts about the compound: "
+                + "; ".join(insights.generated_elsewhere(facts if facts is not None else pd.Series(dtype=object)))
+                + ".")
+
+
+def screen_names(track: Track) -> None:
+    page_header("🪪", "Real names and sources", "Who are these compounds, what did we learn, and where from?")
+    finding("The other screens use codes. Here are the real compounds behind them, with only what public sources "
+            "and satellites gave us. Orange values elsewhere are generated stand-ins for ACUD's own files.")
+    loaded = load_names()
+    if loaded is None:
+        st.info("names/compounds.csv and names/sources.csv are not in this checkout.")
+        return
+    names, sources = loaded
+    codes = list(names["code"])
+    if st.session_state.get(NAMES_CODE_KEY) not in codes:
+        st.session_state[NAMES_CODE_KEY] = codes[0]
+    render_names_map(names, st.session_state[NAMES_CODE_KEY])
+    label_of = dict(zip(names["code"], names["name_en"]))
+    pick, _ = st.columns([1, 2])
+    code = pick.selectbox("Compound", codes, key=NAMES_CODE_KEY, format_func=lambda c: f"{c} · {label_of[c]}")
+    render_named_compound(code, names, sources)
+
+
 SCREEN_FUNCTIONS = {
     SCREENS[0]: screen_priority_map,
     SCREENS[1]: screen_compound_file,
     SCREENS[2]: screen_district,
     SCREENS[3]: screen_what_if,
+    SCREENS[4]: screen_names,
 }
 
 

@@ -22,4 +22,4 @@ def test_capacity_view_lists_joins_and_leaves_with_the_short_english_reason():
     view, label = app.whatif_view(raw, reasons)
     assert label == "2026Q3"
     assert list(view["change"]) == ["leaves the list", "joins the list", "unchanged"]
-    assert view.loc[0, "reason"] == "no building activity for 6 quarters; handover announced"
+    assert view.loc[0, "reason"] == "no new building activity for 6 quarters; handover announced"

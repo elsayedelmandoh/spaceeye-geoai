@@ -102,7 +102,7 @@ K4 needs at least 6 Dynamic World images in the quarter plus a boundary with a r
 | Origin             | 🔵 derived (months) / 🟠 generated (EGP) |
 | Tags               | Lagging; Governance/data                  |
 
-K5 is illustrative policy screening, **not an assessed legal fine**. It never sets a priority level. K5 uses calendar months. Illustrative assumptions (from `configs/data.yaml`, `assumption: true`): monthly rate 1% of assumed land value, land price EGP 2,500-12,000 per m², allocation lag 6-18 months. EGP amounts exist only on generated data (Track B) and are not actual fines or verified losses.
+K5 is illustrative policy screening, **not an assessed legal fine**. It never sets a priority level. K5 uses calendar months. Illustrative assumptions (from `configs/data.yaml`, `assumption: true`): monthly rate 0.5% of assumed land value, land price EGP 2,500-12,000 per m², allocation lag 6-18 months. EGP amounts exist only on generated data (Track B) and are not actual fines or verified losses.
 Compounds without a published delivery date show an empty K5 with a stated reason; a separate display-only assumed K5 (marked "assumption") may be shown beside it. It is never a real K5 value and never sets a level.
 
 ## Card K6: No-construction-start clock

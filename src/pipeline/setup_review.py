@@ -11,7 +11,7 @@ from src.pipeline.common import APP, BASE_DIR, PRIVATE
 from src.pipeline.portable_io import install_files, relative_file, sha256
 
 PACKAGE = BASE_DIR / "releases/ready-data/SpaceEye_R7_READY_DATA_2026-10-31_v7.zip"
-PACKAGE_SHA256 = "c470f9884be5681d2b6d2ff0a5530d05e5e0eb07a959a2a78f84762764a38343"
+PACKAGE_SHA256 = "b45b7ec443b9a5f148e8443620734f20d3e43b70e267acb168706bc087c57e2c"
 REVIEW = BASE_DIR / "releases/ready-data/review"
 
 
