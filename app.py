@@ -1265,10 +1265,19 @@ def level_text(level: int | None) -> str:
     return NOT_ASSESSABLE[0] if level is None else f"Level {level} · {level_word(level)}"
 
 
-def render_season_pair(pair: list[dict], stages: dict[int, str], anchor_caption: str) -> None:
-    """An anchor capture beside the latest one from the same season, or a note when there is none."""
+def render_season_pair(pair: list[dict], stages: dict[int, str], anchor_caption: str,
+                       frames: list[dict], index: int | None) -> None:
+    """An anchor capture beside the latest one from the same season. With no later same-season capture, the
+    anchor alone: the display rules forbid comparing across seasons, but the evidence should still show."""
     if not pair:
-        st.caption("No later capture from the same season, so no image pair is shown.")
+        if index is None:
+            st.caption("No capture near this date.")
+            return
+        anchor, latest = frames[index], frames[-1]
+        render_frame_row([anchor], stages, [anchor_caption])
+        st.caption(f"Only one capture is shown: no later {insights.season_of(anchor['date'])} capture exists, and "
+                   f"captures are compared only within a season. Latest capture: {latest['date']} "
+                   f"({insights.season_of(latest['date'])}), in the compound file.")
         return
     season = insights.season_of(pair[0]["date"])
     render_frame_row(pair, stages, [anchor_caption, f"Latest {season} capture"][-len(pair):])
@@ -1288,7 +1297,8 @@ def render_early_warning(case: dict | None) -> None:
     code = case["code"]
     section_title("⏰", f"An early signal: {code}")
     frames, stages = space_frames(code), stage_of_year(code)
-    pair = insights.frame_pair(frames, insights.first_frame_after(frames, pd.Period(case["alert"], "Q").end_time))
+    index = insights.first_frame_after(frames, pd.Period(case["alert"], "Q").end_time)
+    pair = insights.frame_pair(frames, index)
     with st.container(border=True):
         finding(f"<b>{code}</b> was first flagged in {case['alert']}, {case['months']} months before its first "
                 f"handover date ({case['deadline']}).")
@@ -1300,7 +1310,7 @@ def render_early_warning(case: dict | None) -> None:
                         f"({level_word(case['level_at_freeze'])}).")
         reported = f", reported {case['reported']}" if case["reported"] else ""
         st.markdown(f"**What happened.** {html.escape(case['outcome'].capitalize())}{reported}.")
-        render_season_pair(pair, stages, "First capture after the alert")
+        render_season_pair(pair, stages, "First capture after the alert", frames, index)
 
 
 def render_flagged_early(rows: list[dict]) -> None:
@@ -1339,14 +1349,15 @@ def render_strongest_claim(latest_df: pd.DataFrame, asof: str) -> None:
     code = claim["code"]
     frames, stages = space_frames(code), stage_of_year(code)
     rows = insights.promise_rows(statements[statements["code"] == code], frames, stages, asof)
-    pair = insights.frame_pair(frames, insights.nearest_frame(frames, claim["last_claim"]))
+    index = insights.nearest_frame(frames, claim["last_claim"])
+    pair = insights.frame_pair(frames, index)
     row = latest_df[latest_df["code"] == code].iloc[0]
     note = insights.first_deadline_note(statements, code, row.get("k3_first_deadline"))
     with st.container(border=True):
         finding(f"<b>{code}</b>: as of {asof}, {claim['k3']} months past the first announced handover date "
                 f"({claim['deadline']}{f', {note}' if note else ''}).")
         st.dataframe(claims_table(rows), hide_index=True, width="stretch")
-        render_season_pair(pair, stages, "Nearest to the last claim")
+        render_season_pair(pair, stages, "Nearest to the last claim", frames, index)
 
 
 def render_homes_waiting(compounds: pd.DataFrame, latest_df: pd.DataFrame, asof: str) -> None:
