@@ -1564,6 +1564,13 @@ def render_capacity_variant(raw: pd.DataFrame, variant: str) -> None:
 
 SCENARIO_TABS = {"S1": "S1 · Cost shock", "S2": "S2 · Collections drop", "S3": "S3 · Capacity"}
 SCENARIO_NOTES = {"S1": "Imported cost +30%.", "S2": "Collections -25% for six months."}
+SCENARIO_EFFECTS = {
+    "S1": "What changes: generated costs, so progress, a compound's hypothetical level and the list can move. "
+          "Real satellite readings stay as they are.",
+    "S2": "What changes: generated collections, so progress, a compound's hypothetical level and the list can move. "
+          "Real satellite readings stay as they are.",
+    "S3": "What changes: only who fits on the visit list. Levels, reasons and project data stay the same.",
+}
 
 
 def hypothetical_text(level: float) -> str:
@@ -1641,6 +1648,8 @@ def screen_what_if(track: Track) -> None:
         return
     render_progress_vs_baseline(track)
     tabs = st.tabs(list(SCENARIO_TABS.values()))
+    for tab, scenario in zip(tabs, SCENARIO_TABS):
+        tab.markdown(SCENARIO_EFFECTS[scenario])
     for tab, scenario in zip(tabs[:2], ("S1", "S2")):
         with tab:
             render_finance_scenario(scenario, track)
