@@ -1842,32 +1842,33 @@ def render_names_map(names: pd.DataFrame, chosen: str) -> None:
 
 def render_named_compound(code: str, names: pd.DataFrame, sources: pd.DataFrame) -> None:
     who = names.set_index("code").loc[code]
+    latest = load_latest_kpis()
+    asof = latest[1] if latest is not None else "the latest quarter"
     compounds = load_table("real/compounds.parquet", TRACK_A)
     facts = None if compounds is None else compounds.set_index("code").loc[code]
     st.markdown(f'<div class="se-title" style="font-size:1.6rem">{html.escape(who["name_en"])} · '
-                f'<span dir="rtl">{html.escape(who["name_ar"])}</span></div>', unsafe_allow_html=True)
+                f'<bdi dir="rtl">{html.escape(who["name_ar"])}</bdi></div>', unsafe_allow_html=True)
     tiles = st.columns(4)
     with tiles[0]:
-        metric_tile("Developer", who["developer"], "", f"code {who['developer_code']}", code, ORIGIN_REAL)
+        metric_tile("Developer", who["developer"], "", f"code {who['developer_code']}", asof, ORIGIN_REAL)
     with tiles[1]:
-        metric_tile("District", who["district"], "", "New Administrative Capital", code, ORIGIN_REAL)
+        metric_tile("District", who["district"], "", "New Administrative Capital", asof, ORIGIN_REAL)
     if facts is not None:
         with tiles[2]:
             real = facts["land_area_origin"] == "real"
             metric_tile("Land area", f"{facts['land_area_m2'] / CFG['compounds']['feddan_m2']:,.0f}" if real
                         else "not published", "feddan" if real else "",
-                        "published" if real else "generated on other screens", code,
+                        "published" if real else "generated on other screens", asof,
                         ORIGIN_REAL if real else ORIGIN_GENERATED)
         with tiles[3]:
             real = facts["units_origin"] == "real"
             metric_tile("Homes", f"{int(facts['units']):,}" if real else "not published", "",
-                        "published unit count" if real else "generated on other screens", code,
+                        "published unit count" if real else "generated on other screens", asof,
                         ORIGIN_REAL if real else ORIGIN_GENERATED)
 
     section_title("🛰️", "What space saw")
-    latest = load_latest_kpis()
     if latest is not None:
-        latest_df, asof = latest
+        latest_df = latest[0]
         now = latest_df[latest_df["code"] == code]
         if not now.empty:
             row = now.iloc[0]
@@ -1877,11 +1878,8 @@ def render_named_compound(code: str, names: pd.DataFrame, sources: pd.DataFrame)
                     + ("" if _missing(started) else f" Construction start seen in {started}."))
     frames = space_frames(code)
     if frames:
-        pair = st.columns(2)
-        with pair[0]:
-            render_frame(frames[0], stage_of_year(code), "First capture · ")
-        with pair[1]:
-            render_frame(frames[-1], stage_of_year(code), "Latest capture · ")
+        with st.container(border=True):
+            render_frame_compare(code, frames, stage_of_year(code))
 
     section_title("📰", "What public sources said")
     rows = insights.source_rows(sources, code)
