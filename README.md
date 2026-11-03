@@ -1,4 +1,5 @@
 # SpaceEye: R7 inspection priority observatory
+رادار العاصمة الجديدة: شركة تمتلك مدينة. (New Capital radar: a company that owns a city.)
 
 **Observed imagery:** [view/rebuild guide](data/imagery/README.md), [source comparison](data/IMAGERY_COMPARISON.md) and [frame metadata](data/imagery/wayback_timeline.csv). The 100 Wayback / 528 Sentinel figures stay outside Git; the numerical v6 release is separate.
 
