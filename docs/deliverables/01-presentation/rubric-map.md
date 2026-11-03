@@ -96,6 +96,7 @@ Slide numbers refer to [presentation.md](presentation.md).
 
 | Order | Slide | Criteria | Time |
 | --- | --- | --- | ---: |
+| 0 | 0 Title: project, slogan, supervisor, team | - | 0:15 |
 | 1 | 1 Problem in numbers | 1 | 0:45 |
 | 2 | 2 Question and decision (add as-is → to-be in one line) | 1, 2, 3 | 0:45 |
 | 3 | 3 Data | 2, 8 | 0:45 |
@@ -105,7 +106,7 @@ Slide numbers refer to [presentation.md](presentation.md).
 | 7 | 7 Backtest: 1 of 6 and why | 6 | 1:45 |
 | 8 | 8 Track B (generated) | 6 | 1:00 |
 | 9 | 8b What-if scenario | 6 | 0:30 |
-| 10 | 9 Value in EGP | 7 | 1:45 |
+| 10 | 9 Value in EGP | 7 | 1:30 |
 | 11 | 10 Risks and governance | 8, 9 | 1:00 |
 | 12 | 11 Ask, transition step and next step | 5, 10, bonus | 0:45 |
 | | **Total** | | **12:00** |
