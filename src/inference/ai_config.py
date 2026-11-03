@@ -80,6 +80,13 @@ def load_ai_config(
     return config
 
 
+def load_ai_yaml_config(config_path: str | Path | None = None) -> dict[str, Any]:
+    """Load the AI YAML without consulting environment-backed credential settings."""
+
+    config_file = Path(config_path) if config_path is not None else DEFAULT_CONFIG_PATH
+    return _read_yaml_config(config_file)
+
+
 def get_api_key(env_path: str | Path | None = None) -> str:
     """Return the API key from the process environment or the local environment file."""
 
@@ -109,6 +116,28 @@ def require_approved(config: Mapping[str, Any]) -> None:
             isinstance(field_value, str) and not field_value.strip()
         ):
             raise RuntimeError(f"AI configuration is missing required field: gemini.{field}")
+
+
+def require_chatbot_approved(config: Mapping[str, Any]) -> None:
+    """Require independent chatbot approval and a positive total-call budget."""
+
+    chatbot = config.get("chatbot")
+    if not isinstance(chatbot, Mapping):
+        raise RuntimeError("AI configuration must contain a chatbot block")  # noqa: TRY004
+    if chatbot.get("approval") != "approved":
+        raise RuntimeError(
+            "Chatbot model calls are not approved: set chatbot.approval to 'approved' "
+            "after owner confirmation"
+        )
+    max_calls_total = chatbot.get("max_calls_total")
+    if (
+        isinstance(max_calls_total, bool)
+        or not isinstance(max_calls_total, int)
+        or max_calls_total <= 0
+    ):
+        raise RuntimeError(
+            "Chatbot configuration requires a positive integer: chatbot.max_calls_total"
+        )
 
 
 class CallBudget:
