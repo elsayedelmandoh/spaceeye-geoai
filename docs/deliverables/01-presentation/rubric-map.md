@@ -59,8 +59,8 @@ Slide numbers refer to [presentation.md](presentation.md).
 
 - **Level 3:** return measured in at least one unit (cost reduced or removed, work hours, resolution time), direct or indirect, with its cost (effort, cycles) (unclear in the source).
 - **Level 4:** return in several units with a sensitivity calculation (best/worst) and a comparison with an alternative (doing nothing or another solution).
-- **Evidence:** `configs/cost_assumptions.yaml`: three settings; "Under these assumptions, from -0.006 to 0.098 million EGP per year"; compared with the current policy of visiting all 12 compounds 4 times a year; formula in `docs/requirements/01-specs.md` section 12; `docs/deliverables/decision-memo.md`.
-- **Gap to level 4:** one unit only (EGP); operating cost, missed cases and cost of late detection are PLACEHOLDER values (`configs/cost_assumptions.yaml`, T-SA-03); the conservative setting is negative; no work-hour or time-to-resolution unit.
+- **Evidence:** `configs/cost_assumptions.yaml`: three settings; "Under these assumptions, from 0.007 to 0.102 million EGP per year"; compared with the current policy of visiting all 12 compounds 4 times a year; formula in `docs/requirements/01-specs.md` section 12; `docs/deliverables/decision-memo.md`.
+- **Gap to level 4:** one unit only (EGP); operating cost and missed cases are labelled public proxies and cost of late detection is a PLACEHOLDER (`configs/cost_assumptions.yaml`, T-SA-03); no work-hour or time-to-resolution unit.
 - **Slide:** 9.
 
 ## 8. Governance (weight 10)

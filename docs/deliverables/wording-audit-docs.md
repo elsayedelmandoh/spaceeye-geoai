@@ -53,7 +53,7 @@ Note on E1: the file says the "0%" error is a property of the extraction method.
 | X4 | expected-questions.md | 14 | "Why no completion %?" "Images see roofs, not plaster and ceramics..." | Denial | SAFE |
 | X5 | expected-questions.md | 17 | "Is K5 a fine?" "No: K5 counts months that would make a compound eligible for review under contract terms..." | Uses the allowed wording | SAFE |
 | X6 | expected-questions.md | 21 | Complaints accuracy 0.27 / 0.22 / 0.37 / 0.30 | Accuracy figures on team-written texts; the same line says they do not prove real accuracy and that the model is a capability demo | SAFE |
-| X7 | expected-questions.md | 16 | "from -0.006 to 0.098 million EGP per year ... every cost input is an assumption" | Caveat present | SAFE |
+| X7 | expected-questions.md | 16 | "from 0.007 to 0.102 million EGP per year ... every cost input is an assumption" | Caveat present | SAFE |
 
 ### E. decision-memo.md (English and Arabic)
 
@@ -62,7 +62,7 @@ Note on E1: the file says the "0%" error is a property of the extraction method.
 | DM1 | decision-memo.md | 9, 25 | "assigns a priority level (1-4)"; Arabic "مستوى أولوية" | Allowed term | SAFE |
 | DM2 | decision-memo.md | 13, 29 | "The capacity-4 test holds 4 distressed rows" (Arabic: "4 صفوف متعثرة") | Generated data, labelled in the same paragraph | SAFE |
 | DM3 | decision-memo.md | 19, 35 | "No compound is called distressed." Arabic: "لا نصف أي كومباوند بأنه متعثر" | Denial | SAFE |
-| DM4 | decision-memo.md | 15, 31 | "from -0.006 to 0.098 million EGP per year ... every cost input is an assumption" | Caveat present | SAFE |
+| DM4 | decision-memo.md | 15, 31 | "from 0.007 to 0.102 million EGP per year ... every cost input is an assumption" | Caveat present | SAFE |
 | DM5 | decision-memo.md | 19, 35 | "no completion % is given" | Denial | SAFE |
 
 ### F. responsible-ai.md
@@ -118,7 +118,7 @@ Note on E1: the file says the "0%" error is a property of the extraction method.
 | P9 | 01-presentation.md | 76 | "0 of 216 rows each"; "45 of 744 rows change list membership: 28 ... 17" | Counts; 28 + 17 = 45 | SAFE |
 | P10 | 01-presentation.md | 78 | "Not a 3D or real-time observatory." | Denial | SAFE |
 | P11 | 01-presentation.md | 85 | "Cost per visit (2,000 / 3,000 / 4,000 EGP) comes from a team of 3 at published engineer pay plus assumed transport." | The pay source is not cited on the slide. Cite it or mark the cost as an assumption. | CHECK |
-| P12 | 01-presentation.md | 83, 86 | "from -0.006 to 0.098 million EGP per year"; "Not a measured saving." | Caveat present | SAFE |
+| P12 | 01-presentation.md | 83, 86 | "from 0.007 to 0.102 million EGP per year"; "Not a measured saving." | Caveat present | SAFE |
 | P13 | 01-presentation.md | 90, 95, 96 | "not a finding of misconduct, legal distress, contractual breach or a verified fine"; "Masking ... does not prove that every real name is removed"; "This is not legal advice." | Denials and caveats | SAFE |
 
 ### K. final-checklist.md

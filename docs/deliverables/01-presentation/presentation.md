@@ -122,15 +122,15 @@ Speaker note: 0:30 · criterion 6. Show S3 only; say S1 and S2 change nothing.
 ## Slide 9. Value in EGP (3 settings)
 
 - Visiting 4 compounds per cycle instead of all 12: 16 visits a year instead of visiting every compound each cycle.
-- Under these assumptions, from -0.006 to 0.098 million EGP per year.
-- Every cost input is an assumption. The conservative setting is negative.
-- Cost per visit (2,000 / 3,000 / 4,000 EGP) is an assumption based on a team of 3 at published engineer pay plus assumed transport. Operating cost, missed cases and cost of a late case are placeholders.
+- Under these assumptions, from 0.007 to 0.102 million EGP per year.
+- Cost inputs are public proxies or assumptions. Even the conservative setting is positive, but small.
+- Cost per visit (2,000 / 3,000 / 4,000 EGP) is an assumption based on a team of 3 at published engineer pay plus assumed transport. Operating cost and missed cases are public proxies (CBE, Hetzner, WageIndicator, chairman's 7-8% statement); the cost of a late case is a placeholder.
 - The cost of a false alarm against the cost of a missed case has not been measured.
 - Not a measured saving.
-- Visual: two stat callouts (-0.006 and 0.098 million EGP per year) and a three-setting table (cost per visit, operating cost, missed cases per year).
-- Source: `configs/cost_assumptions.yaml` (the same file holds the three settings and the placeholder values); `docs/deliverables/01-presentation/rubric-map.md` (criterion 6 gap).
+- Visual: two stat callouts (0.007 and 0.102 million EGP per year) and a three-setting table (cost per visit, operating cost, missed cases per year).
+- Source: `configs/cost_assumptions.yaml` (the same file holds the three settings, the proxy values and the placeholder); `docs/deliverables/01-presentation/rubric-map.md` (criterion 6 gap).
 
-Speaker note: 1:30 · criterion 7. Compare with the current policy of visiting all 12; say the conservative setting is negative. The cost of a late case is a placeholder of 20,000 EGP per missed case in all three settings.
+Speaker note: 1:30 · criterion 7. Compare with the current policy of visiting all 12; say the conservative setting is positive but small. The cost of a late case is a placeholder of 20,000 EGP per missed case in all three settings.
 
 ## Slide 10. Risks and responsible use
 
