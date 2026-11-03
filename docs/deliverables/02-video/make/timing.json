@@ -1,0 +1,13 @@
+{
+  "narration": "../gamal-ramzy-intro.wav",
+  "title_seconds": 3.5,
+  "end_seconds": 4.2,
+  "shots": [
+    {"still": "s1.png", "seconds": 5.5, "zoom": "in"},
+    {"still": "s2.png", "seconds": 8.9, "zoom": "out"},
+    {"still": "s3.png", "seconds": 9.4, "zoom": "in"},
+    {"still": "s4.png", "seconds": 7.5, "zoom": "out"},
+    {"still": "s5.png", "seconds": 5.7, "zoom": "in", "crop": "iw*0.55:ih*0.55:iw*0.02:ih*0.2"},
+    {"still": "s6.png", "seconds": 7.4, "zoom": "in"}
+  ]
+}
