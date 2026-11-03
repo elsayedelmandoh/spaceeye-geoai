@@ -157,10 +157,10 @@ Speaker note: 1:00 · criteria 8, 9. A level sets the visit order and finds noth
   - Phase 1 · Pilot cycle: Run one cycle with the list; record every visit result. Owner: Committee decides; Track A owner prepares the list. Risk: Little ground truth; no accuracy claim. Rollback: The current 3-month review continues.
   - Phase 2 · ACUD data: Coded export ordered by impact; small verified sample first. Owner: ACUD data custodian keeps the identity mapping. Risk: Access and approval not yet given. Rollback: Stay on public data; missing stays unknown.
   - Phase 3 · Quarterly operation: Quarterly monitoring; thresholds and capacity change only by reviewed decision. Owner: Proposed: Track A owner operates, another team member reviews. Risk: Activity score A fails on new quarters. Rollback: Fall back to K1; prior releases stay available.
-- Training of committee users, dates, phase-gate criteria and signed owners: to be agreed with ACUD.
+- Gates between phases, progress indicators, rollback triggers and training: `docs/deliverables/transition-plan.md` (proposed). The fixed 3-month review keeps running through phases 1 and 2, so rollback costs nothing. People and dates: to be agreed with ACUD.
 - Transfer: thresholds and capacity are configuration; another region needs its boundaries and statements. Only R7 has been run; no transfer is proven.
 - Next step: run one cycle with the list and record visit results.
 - Visual: decision box and three-phase roadmap.
-- Source: `docs/deliverables/decision-memo.md` (decision requested), `docs/deliverables/data-request.md`, `docs/requirements/01-specs.md` (data request list, art. 54; section 13 risks and fallbacks), `docs/deliverables/technical-track-a.md` (quarterly monitoring procedure).
+- Source: `docs/deliverables/decision-memo.md` (decision requested), `docs/deliverables/data-request.md`, `docs/requirements/01-specs.md` (data request list, art. 54; section 13 risks and fallbacks), `docs/deliverables/technical-track-a.md` (quarterly monitoring procedure), `docs/deliverables/transition-plan.md` (gates, indicators, rollback).
 
 Speaker note: 0:45 · criteria 5, 10, bonus. Open with the decision, name the first phase and close on the next step. Total 12:00. For questions: the ACUD export is ordered by impact (dated inspection and handover outcomes, contract register, parcel geometry first); any STOP in the monitoring procedure writes no manifest.
