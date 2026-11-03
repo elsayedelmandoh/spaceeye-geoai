@@ -35,7 +35,7 @@ Slide numbers refer to [presentation.md](presentation.md).
 
 - **Level 3:** designed for a named audience (operator, decision maker, leadership); answers its question; shows current against target with thresholds and alerts.
 - **Level 4:** leads from alert to action; tested with audience representatives and changed after the test.
-- **Evidence:** `app.py` (`SCREENS`: 1 Priority map, 2 Compound file, 3 District view, 4 Digital twin what if; track switch); committee guide `docs/deliverables/user-guide.md`; display-rules check and fixes `docs/deliverables/display-rules-check.md`; alert → action path: level → cycle list → inspection file → visit form (`docs/requirements/01-specs.md` sections 7 and 9).
+- **Evidence:** `app.py` (`SCREENS`: 1 Priority map, 2 Compound file, 3 District view, 4 Digital twin what if, 5 Real names and sources; track switch); committee guide `docs/deliverables/user-guide.md`; display-rules check and fixes `docs/deliverables/display-rules-check.md`; alert → action path: level → cycle list → inspection file → visit form (`docs/requirements/01-specs.md` sections 7 and 9).
 - **Added for level 4:** `docs/deliverables/audience-test.md`: change log of what the teammate reviews found and what changed (PR #101, PR #102), and a ten-second test sheet for screen 1 with an answer key from the current release.
 - **Gap to level 4:** the reviewers were team members, not committee members; the ten-second test with a real committee member still has to be run and recorded on the sheet (T-NA-08).
 - **Slide:** 6 (live demo).
@@ -47,7 +47,7 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Evidence:** next step "run one cycle with the list and record visit results" (slide 11); data request ordered by impact `docs/deliverables/data-request.md`; quarterly monitoring procedure `docs/deliverables/technical-track-a.md`; risks and fallbacks `docs/requirements/01-specs.md` section 13; roles `docs/requirements/01-specs.md` section 10.
 - **Added for level 4:** `docs/deliverables/transition-plan.md`: three phases (pilot cycle, ACUD data, quarterly operation then R8) with scope, owner roles, resources and training; proposed gate criteria between phases; six progress indicators counted each quarter; rollback table with triggers (the fixed 3-month review keeps running through phase 2, so rollback costs at most one rerun).
 - **Gap to level 4:** all of it is proposed: people, dates and the committee's own gate numbers need ACUD; nothing has been executed yet.
-- **Slide:** 11 (three-phase roadmap only; gates and rollback are in the plan, not on the slide).
+- **Slide:** 11 (phases with owner, risk and rollback per phase; gate criteria and indicators are in the plan).
 
 ## 6. Solution effectiveness: preventive (weight 12)
 

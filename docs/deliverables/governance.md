@@ -49,9 +49,9 @@ R = does the work, A = accountable (one per row), C = consulted, I = informed.
 | Date | Decision | Where it is recorded |
 | --- | --- | --- |
 | 2026-10-26 | Backtest success criterion fixed before any computation (5 cases; not lowered after the result) | `docs/requirements/01-specs.md` (success criterion), `data/BACKTEST_CURRENT.md` |
-| 2026-10-29 | Level thresholds fixed before any score was seen | `configs/data.yaml` (`levels`) |
+| 2026-10-29 | Level thresholds fixed before any score was seen, as stated by the person who set them (recorded 2026-10-28 in commit ca24988; git cannot prove the order) | `configs/data.yaml` (`levels`) |
 | 2026-10-30 | Review round 03 decisions on the Track A run | `docs/deliverables/technical-track-a.md` (recorded decisions) |
-| 2026-11-03 | Illustrative fine rate 1% to 0.5% (Track B), protocol frozen before the refit | `data/EW_PROTOCOL_RATE05.md` and its `.sha256` |
+| 2026-11-03 | Assumed rate for the Track B K5 screening exposure 1% to 0.5%, protocol frozen before the refit | `data/EW_PROTOCOL_RATE05.md` and its `.sha256` |
 | 2026-11-03 | Image comparisons allowed across seasons (owner) | PR #101 |
 | 2026-11-03 | Teammate dashboard review fixed and merged | PR #101 |
 | 2026-11-03 | Failure modes, error costs, as-is, transition plan and one-view compound file merged after an independent review | PR #102 |
@@ -61,6 +61,6 @@ Add a row for every later decision; never edit an old row, add a new one that su
 
 ## Open quality FLAG: 2019Q2 `data_or_city`
 
-The gate flags a quarter when more than 30% of the compounds with a level show K2 = 1 at the same time (`src/pipeline/gates.py`, `g_data_or_city`). In 2019Q2 only one compound had a level (C03, K2 = 1), so the share is 1 of 1. One compound cannot show a source-wide event, so the FLAG reflects a small denominator, not a data problem.
+The gate flags a quarter when more than 30% of the compounds with a level show K2 = 1 at the same time (`src/pipeline/gates.py`, `g_data_or_city`). In 2019Q2 only one compound had a level (C03, K2 = 1), so the share is 1 of 1. With one compound the gate cannot tell a source event from one compound's stall, so the FLAG says nothing either way about the data.
 
-Proposed review decision (pending the second reviewer's sign-off): accept as explained and keep it visible. Proposed for the next protocol, not applied: run this gate only when at least 4 compounds have a level (2019Q1 to 2020Q2 had 1 or 2).
+Proposed review decision (pending the second reviewer's sign-off): accept as explained and keep it visible. Proposed for the next protocol, to be recorded before it is used and not applied now: run this gate only when at least 4 compounds have a level (2019Q1 to 2020Q2 had 1 or 2).

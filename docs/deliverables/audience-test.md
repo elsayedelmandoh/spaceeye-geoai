@@ -2,7 +2,7 @@
 
 ## Changed after review
 
-Team members outside the dashboard role reviewed the screens as stand-ins for the committee (`logs/debate-03-dashboard.pdf`, `logs/debate-04-vital cards.pdf`). They are not committee members; a test with a real committee member is still needed (sheet below).
+Team members outside the dashboard role reviewed the screens as stand-ins for the committee (`logs/debate-03-dashboard.pdf`, `logs/debate-04-vital cards.pdf`). They are not committee members. The project supervisor, who is outside the team, took a ten-second test (reported 2026-11-01), but no answer sheet or timings were recorded; the sheet below is for recording the next one.
 
 | What the reviewer saw | What changed | Where |
 | --- | --- | --- |
@@ -12,7 +12,7 @@ Team members outside the dashboard role reviewed the screens as stand-ins for th
 | C21 "stalled 6 quarters" on one screen, "2" on another | Both are right at different dates (2020Q3 and 2026Q3); the date now sits next to each number | PR #101 |
 | Rank shown for the first 4 only; tie rule and handover status unclear | Rank for every compound, tie rule stated, handover status shown, one line per scenario on what changes | PR #101 |
 | Image pair missing because of the same-season rule | Any two capture dates, any season (owner decision) | PR #101 |
-| Fine impact of 45 months not visible | K5 months in the decision card; fine exposure in EGP on Track B with the assumed rate labelled | PR #101 |
+| K5 (months eligible for contract review, 45 for C18) not visible | K5 months in the decision card; screening exposure in EGP on Track B with the assumed rate labelled | PR #101 |
 | Decision, chart and image on one screen without scrolling (split view) | Compound file shows decision card, tiles, latest capture and satellite curve in one view; the rest opens on demand | PR #102 |
 
 Not taken up, because the numbers had no source: an "effort saved" percentage without a baseline and a cost matrix without sources. A rubric screen inside the dashboard was also left out.
