@@ -1,9 +1,9 @@
 # Intro video (Arabic narration, human and AI voice)
 
-Task T-EL-26. Shown before the discussion with ACUD starts (1920x1080). Two versions with identical pictures and text cards, differing only in the voice:
+Task T-EL-26. Shown before the discussion with ACUD starts (1920x1080). Two versions with the same pictures, interview clips and text cards:
 
-- `intro-human-voice.mp4` (56 s): team recording `gamal-ramzy-cloned-voice.wav`; timing in `make/timing.json`.
-- `intro-ai-voice.mp4` (51 s): AI voice `ai-voice-narration.wav` (Gemini 3.8 Flash TTS, voice Sulafat, via Renoise); timing in `make/timing-ai.json`.
+- `intro-human-voice.mp4` (80 s): team recording `gamal-ramzy-cloned-voice.wav`; timing in `make/timing.json`.
+- `intro-ai-voice.mp4` (80 s): AI voice `ai-voice-narration.wav` (Gemini 3.8 Flash TTS, voice Sulafat, via Renoise); timing in `make/timing-ai.json`.
 
 Rebuild them with the kit in [`make/`](make/README.md): `python make/assemble.py make/out` (human) and `python make/assemble.py make/out make/timing-ai.json` (AI).
 
