@@ -42,3 +42,33 @@ Task T-SA-07 (extension). Two further reports check the dashboard screens and th
 The one VIOLATION is `docs/deliverables/AI_AGENT_CONFIG.md` line 39: an absolute "0%" error rate for the regex extraction, with no measurement in the repo behind it. This overrides the "no violation found" result above for the earlier files, which did not include this document.
 
 The main CHECK items are the "fine-eligible" family (the allowed phrase is "eligible for review under contract terms"), the card title "Never-started clock", the progress percentages on the generated what-if screen, the action labels "Written warning" and "Fine review", the visit result "complete", person names in two document headers, and status overclaims ("completed", "100% unit-tested") before a recorded review.
+
+## Resolutions, 2 November 2026
+
+- `docs/deliverables/AI_AGENT_CONFIG.md:39` — fixed — Removed the unsupported error-rate claim while retaining the extraction benefit.
+- `docs/deliverables/AI_AGENT_CONFIG.md:11` — fixed — Replaced the completion claim with implemented and review-pending status.
+- `docs/deliverables/AI_AGENT_CONFIG.md:31` — fixed — Marked the original capacity range as historical and pointed to the current approved scope without changing its values.
+- `docs/deliverables/method-card.md:3` — fixed — Replaced the personal reviewer name with a role.
+- `docs/deliverables/knowledge-transfer.md:3` — fixed — Aligned the dashboard and inspection-agent status with the current unfinished scope.
+- `docs/deliverables/knowledge-transfer.md:22` — fixed — Limited the approved classifier wording to generated Track B data.
+- `docs/deliverables/expected-questions.md:9` — kept — The merged text already removes the unsupported correlation and verification placeholder.
+- `docs/deliverables/governance-cards.md:14` — fixed — Replaced "financial-priority" with "financial scenario".
+- `docs/deliverables/user-guide.md:70` — fixed — Used the allowed contract-review eligibility wording.
+- `docs/deliverables/user-guide.md:58` — fixed — Clarified that the two action labels are workflow prompts, not findings or sanctions.
+- `docs/deliverables/user-guide.md:114` — fixed — Used the allowed contract-review eligibility wording for the chart and caption.
+- `docs/deliverables/user-guide.md:115` — kept — The merged heading already matches the dashboard wording.
+- `docs/deliverables/user-guide.md:122` — kept — The merged heading already matches the dashboard wording.
+- `docs/deliverables/user-guide.md:148` — kept — "complete" is an observed field-visit result, not a completion percentage or prediction.
+- `docs/deliverables/kpi-cards.md:88` — fixed — Replaced the fine-exposure title and purpose with the allowed contract-review wording.
+- `docs/deliverables/kpi-cards.md:133` — fixed — Used the allowed contract-review eligibility wording for the tactical indicator.
+- `docs/deliverables/kpi-cards.md:108` — fixed — Replaced the permanent "never-started" title with the allowed no-construction-start wording.
+- `docs/deliverables/01-presentation.md:7` — fixed — Added origin marks to the statement figures and mirrored the change in the HTML deck.
+- `docs/deliverables/01-presentation.md:22` — fixed — Removed the unsupported invented-fact claim and mirrored the change in the HTML deck.
+- `docs/deliverables/01-presentation.md:30` — fixed — Used the approved height-context wording and mirrored the change in the HTML deck.
+- `docs/deliverables/01-presentation.md:77` — kept — The scenario names match the approved scenario table and do not breach the wording rules.
+- `docs/deliverables/01-presentation.md:87` — fixed — Labelled the visit cost as an assumption and mirrored the change in the HTML deck.
+- `docs/deliverables/INSPECTION_DOSSIERS.md:5` — fixed — Replaced the personal owner name with a role.
+- `docs/deliverables/INSPECTION_DOSSIERS.md:7` — fixed — Replaced the completion and absolute test claim with implemented and review-pending status.
+- `docs/deliverables/INSPECTION_DOSSIERS.md:49` — fixed — States that unavailable permitted floors remain unknown.
+- `docs/deliverables/INSPECTION_DOSSIERS.md:76` — fixed — Removed the unsupported historical test count and points to the current repository test run.
+- `docs/deliverables/INSPECTION_DOSSIERS.md:35` — kept — The item is a table-formatting defect, not a breach of the wording table.

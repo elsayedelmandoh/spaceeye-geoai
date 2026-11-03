@@ -85,11 +85,11 @@ The data table also holds display-only assumed dates (marked "assumption", with 
 
 K4 needs at least 6 Dynamic World images in the quarter plus a boundary with a reviewed confidence label. No numeric confidence threshold is defined. If K4 fails, the result is **Not assessable** and no level is assigned.
 
-## Card K5: Fine exposure (policy screening months)
+## Card K5: Contract review eligibility (policy screening months)
 
 | Field              | Value                                    |
 | ------------------ | ---------------------------------------- |
-| Purpose            | How long has it been fine-eligible?      |
+| Purpose            | How long has it been eligible for review under contract terms? |
 | Unit               | Months (real); EGP (generated only)      |
 | Source             | K3, K6 + contract fine rate (assumed)    |
 | Frequency          | Quarterly                                |
@@ -105,7 +105,7 @@ K4 needs at least 6 Dynamic World images in the quarter plus a boundary with a r
 K5 is illustrative policy screening, **not an assessed legal fine**. It never sets a priority level. K5 uses calendar months. Illustrative assumptions (from `configs/data.yaml`, `assumption: true`): monthly rate 1% of assumed land value, land price EGP 2,500-12,000 per m², allocation lag 6-18 months. EGP amounts exist only on generated data (Track B) and are not actual fines or verified losses.
 Compounds without a published delivery date show an empty K5 with a stated reason; a separate display-only assumed K5 (marked "assumption") may be shown beside it. It is never a real K5 value and never sets a level.
 
-## Card K6: Never-started clock
+## Card K6: No-construction-start clock
 
 | Field              | Value                          |
 | ------------------ | ------------------------------ |
@@ -130,7 +130,7 @@ The table also has a K6 status column: it says whether K6 has a value, does not 
 | Level       | Indicators                                                       | Owner (role)                       |
 | ----------- | ---------------------------------------------------------------- | ---------------------------------- |
 | Strategic   | Reliable handover in R7                                          | Buildings & Facilities pillar lead |
-| Tactical    | Share of compounds in level 1-2, K3 overruns, K5 eligible months | Head of the inspection committee   |
+| Tactical    | Share of compounds in level 1-2, K3 overruns, K5 months eligible for review under contract terms | Head of the inspection committee   |
 | Operational | A, K2, K6, K4 (guard), share of cycle-list visits done           | Observatory team                   |
 
 ## Priority levels

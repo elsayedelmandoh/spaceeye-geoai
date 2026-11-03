@@ -4,9 +4,9 @@ Tasks T-SA-06 and T-EL-25. Draft text for review. This file holds the on-slide c
 
 ## Slide 1. Problem in numbers
 
-- More than 400 developers and more than 500 projects.
-- Field review every 3 months.
-- About 7-8% of developers seriously late; 6 mutual terminations.
+- 🟢 Real statement: More than 400 developers and more than 500 projects.
+- 🟢 Real statement: Field review every 3 months.
+- 🟢 Real statement: About 7-8% of developers seriously late; 6 mutual terminations.
 - A committee cannot visit everything every cycle: whom to visit first?
 - These are the chairman's statements, not our measurement.
 - Visual: five stat callouts (more than 400 developers · more than 500 projects · field review every 3 months · about 7-8% seriously late · 6 mutual terminations).
@@ -28,7 +28,7 @@ Speaker note: 0:45 · criteria 1, 2, 3. One sentence from today's practice to th
 
 ## Slide 3. Data
 
-- 1,009 of 1,026 documented facts passed independent review; 0 invented. This is the figure stated in the spec, not a recount.
+- 1,009 of 1,026 documented facts passed independent review. This is the figure stated in the spec, not a recount.
 - Origin key on every number: 🟢 real, 🔵 derived, 🟠 generated.
 - Real: satellite series, statements, laws. Generated: finance, supervisor reports, meters, complaints (only ACUD holds the real ones).
 - Visual: stat callout (1,009 of 1,026) and origin-key table.
@@ -39,7 +39,7 @@ Speaker note: 0:45 · criteria 2, 8. Point to the origin key; it is used on ever
 ## Slide 4. Seeing construction from space
 
 - Dynamic World gives a quarterly built probability per compound; the activity score A is the probability that the compound is building this quarter.
-- Open Buildings gives yearly heights to 2023; the 2024 value is an estimate, shown as context only, never part of a priority level.
+- Open Buildings gives yearly heights to 2023; approved height context extends through 2024 and is shown only as context, never part of a priority level.
 - Wayback before/after images (with capture date and attribution) are for display; Esri terms to be confirmed before use.
 - A quarter is assessable only with at least 6 Dynamic World images and a boundary with a reviewed confidence label (K4).
 - Limit: satellites show whether building is happening, not interior finishing. No completion % or finishing % is given.
@@ -115,7 +115,7 @@ Speaker note: 0:30 · criterion 6. Show S3 only; say S1 and S2 change nothing.
 - Visiting 4 compounds per cycle instead of all 12: 16 visits a year instead of visiting every compound each cycle.
 - Under these assumptions, from -0.006 to 0.098 million EGP per year.
 - Every cost input is an assumption. The conservative setting is negative.
-- Cost per visit (2,000 / 3,000 / 4,000 EGP) comes from a team of 3 at published engineer pay plus assumed transport. Operating cost, missed cases and cost of a late case are placeholders.
+- Cost per visit (2,000 / 3,000 / 4,000 EGP) is an assumption based on a team of 3 at published engineer pay plus assumed transport. Operating cost, missed cases and cost of a late case are placeholders.
 - The cost of a false alarm against the cost of a missed case has not been measured.
 - Not a measured saving.
 - Visual: two stat callouts (-0.006 and 0.098 million EGP per year) and a three-setting table (cost per visit, operating cost, missed cases per year).
