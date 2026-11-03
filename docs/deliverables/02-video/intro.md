@@ -45,6 +45,20 @@ AI-voice version (51 s), same shots:
 
 Every cut is placed at the middle of a pause in the narration, so the picture changes as the spoken part changes.
 
+## Chairman clips (inserted after the title card)
+
+Three short excerpts of a public TV interview with Eng. Khaled Abbas, chairman of ACUD (YouTube `UlKa_Bh0twI`), play between the title card and the narration, each with a caption naming him and the source. Wording was checked against the video's Arabic captions.
+
+| File | Interview time | Length | What he says |
+|---|---|---|---|
+| `khaled-abbas-1.mp4` | 25:29.3-25:35.4 | 6.1 s | About 500 real-estate developers and about 600 projects |
+| `khaled-abbas-2.mp4` | 29:14.6-29:23.9 | 9.4 s | Asked how many are late: of the 500, no more than 7-8%, about 10-12 companies |
+| `khaled-abbas-3.mp4` | 39:27.6-39:30.6 | 3.0 s | Data is the most important thing |
+
+The clips add 18.5 s: `intro-human-voice.mp4` is 74.5 s and `intro-ai-voice.mp4` is 69.6 s. Every shot time in the tables above moves later by 18.5 s; narration and pictures move together, so each cut still lands on its narration pause. The kit adds them from the `inserts` list in `make/timing.json` and `make/timing-ai.json`.
+
+These numbers are the chairman's spoken statements, not project measurements. The footage belongs to the broadcaster: the excerpts are for showing in the presentation with credit, not for publishing the edited video.
+
 ## How it was made and what it is not
 
 - Narration: the team-supplied recording gamal-ramzy-cloned-voice.wav (human version, 50.9 s) or ai-voice-narration.wav (AI version, 46.0 s); every cut is placed at a pause in the narration so the picture changes with the spoken part. Stills: Higgsfield `z_image`. A full video remake (480 Renoise credits; 35 Higgsfield credits per 5 s clip) was beyond the available balance.
