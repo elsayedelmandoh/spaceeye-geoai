@@ -1,6 +1,15 @@
-# Presentation: 12 slides (numbered 1-11, with 8b after 8)
+# Presentation: 13 slides (title slide 0, then 1-11 with 8b after 8)
 
-Tasks T-SA-06 and T-EL-25. Draft text for review. This file holds the on-slide content and speaker notes of `presentation.pptx`, slide for slide in the same order. Length: 12 min, the limit set by criterion 10 of the instructor rubric (`docs/requirements/ACUD-Rubric.md`); the time budget and the criteria each slide answers follow `docs/deliverables/01-presentation/rubric-map.md` (presentation plan) and are stated in each speaker note (total 12:00). Numbers come only from repo files and carry an origin mark: 🟢 real · 🔵 derived · 🟠 generated ("Synthetic - for training only"). Codes only, no names. The words "risk level", "distressed" (for a real compound) and any completion % are not used. Some caveats are in the speaker notes.
+Tasks T-SA-06 and T-EL-25. Draft text for review. This file holds the on-slide content and speaker notes of `presentation.pptx`, slide for slide in the same order. Length: 12 min, the limit set by criterion 10 of the instructor rubric (`docs/requirements/ACUD-Rubric.md`); the time budget and the criteria each slide answers follow `docs/deliverables/01-presentation/rubric-map.md` (presentation plan) and are stated in each speaker note (total 12:00). Numbers come only from repo files and carry an origin mark: 🟢 real · 🔵 derived · 🟠 generated ("Synthetic - for training only"). Compounds and developers appear as codes only; the only names are the supervisor and team on the title slide. The words "risk level", "distressed" (for a real compound) and any completion % are not used. Some caveats are in the speaker notes.
+
+## Slide 0. SpaceEye GeoAI
+
+- SpaceEye GeoAI
+- New Capital Radar: a company that owns a city.
+- Supervisor: Dr. Nadim Abdin - Partner & VP Business Development
+- Team: Elsayed Elmandoh, Verina Fouad, Ahmed Abdelhameed, Nada Shady, Salma Magdy
+
+Speaker note: 0:15 · opening. Name the project and the slogan, thank the supervisor, introduce the team in one line.
 
 ## Slide 1. Problem in numbers
 
@@ -121,7 +130,7 @@ Speaker note: 0:30 · criterion 6. Show S3 only; say S1 and S2 change nothing.
 - Visual: two stat callouts (-0.006 and 0.098 million EGP per year) and a three-setting table (cost per visit, operating cost, missed cases per year).
 - Source: `configs/cost_assumptions.yaml` (the same file holds the three settings and the placeholder values); `docs/deliverables/01-presentation/rubric-map.md` (criterion 6 gap).
 
-Speaker note: 1:45 · criterion 7. Compare with the current policy of visiting all 12; say the conservative setting is negative. The cost of a late case is a placeholder of 20,000 EGP per missed case in all three settings.
+Speaker note: 1:30 · criterion 7. Compare with the current policy of visiting all 12; say the conservative setting is negative. The cost of a late case is a placeholder of 20,000 EGP per missed case in all three settings.
 
 ## Slide 10. Risks and responsible use
 

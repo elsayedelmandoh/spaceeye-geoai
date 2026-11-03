@@ -83,6 +83,29 @@ function table(slide, label, rows, x, y, w, colW, pt = 14, rowH = 0.5, headFill 
 // ---------- slide specs ----------
 const slides = [];
 
+// 0 (title slide)
+slides.push({
+  cover: true,
+  title: "SpaceEye GeoAI", time: "0:15",
+  md: [
+    "- SpaceEye GeoAI",
+    "- New Capital Radar: a company that owns a city.",
+    "- Supervisor: Dr. Nadim Abdin - Partner & VP Business Development",
+    "- Team: Elsayed Elmandoh, Verina Fouad, Ahmed Abdelhameed, Nada Shady, Salma Magdy",
+  ],
+  source: [],
+  note: "Speaker note: 0:15 · opening. Name the project and the slogan, thank the supervisor, introduce the team in one line.",
+  build(s) {
+    s.addText("SpaceEye GeoAI", { x: MX, y: 1.7, w: W, h: 1.2, fontFace: HEAD, fontSize: 54, bold: true, color: C.text, align: "center", valign: "middle", margin: 0 });
+    s.addShape(pres.ShapeType.rect, { x: MX + W / 2 - 1.6, y: 3.0, w: 3.2, h: 0.08, fill: { color: C.red }, line: { color: C.red } });
+    s.addText("New Capital Radar: a company that owns a city.", { x: MX, y: 3.25, w: W, h: 0.8, fontFace: HEAD, fontSize: 28, color: C.red, align: "center", valign: "middle", margin: 0 });
+    s.addText([
+      { text: "Supervisor: Dr. Nadim Abdin - Partner & VP Business Development", options: { breakLine: true } },
+      { text: "Team: Elsayed Elmandoh, Verina Fouad, Ahmed Abdelhameed, Nada Shady, Salma Magdy" },
+    ], { x: MX, y: 4.5, w: W, h: 1.2, fontFace: BODY, fontSize: 18, color: C.text, align: "center", valign: "middle", margin: 0, paraSpaceAfter: 6 });
+  },
+});
+
 // 1
 slides.push({
   title: "Problem in numbers", time: "0:45",
@@ -343,7 +366,7 @@ slides.push({
 
 // 9
 slides.push({
-  title: "Value in EGP (3 settings)", time: "1:45",
+  title: "Value in EGP (3 settings)", time: "1:30",
   md: [
     "- Visiting 4 compounds per cycle instead of all 12: 16 visits a year instead of visiting every compound each cycle.",
     "- Under these assumptions, from -0.006 to 0.098 million EGP per year.",
@@ -354,7 +377,7 @@ slides.push({
     "- Visual: two stat callouts (-0.006 and 0.098 million EGP per year) and a three-setting table (cost per visit, operating cost, missed cases per year).",
   ],
   source: ["`configs/cost_assumptions.yaml` (the same file holds the three settings and the placeholder values); `docs/deliverables/01-presentation/rubric-map.md` (criterion 6 gap)."],
-  note: "Speaker note: 1:45 · criterion 7. Compare with the current policy of visiting all 12; say the conservative setting is negative. The cost of a late case is a placeholder of 20,000 EGP per missed case in all three settings.",
+  note: "Speaker note: 1:30 · criterion 7. Compare with the current policy of visiting all 12; say the conservative setting is negative. The cost of a late case is a placeholder of 20,000 EGP per missed case in all three settings.",
   build(s) {
     stat(s, "s9 lo", MX, TOP + 0.05, 3.0, 1.9, "-0.006", "million EGP per year, low end");
     stat(s, "s9 hi", MX + 3.2, TOP + 0.05, 3.0, 1.9, "0.098", "million EGP per year, high end");
@@ -448,17 +471,18 @@ slides.push({
 // ---------- build ----------
 slides.forEach((sp) => {
   const s = pres.addSlide();
-  base(s, sp.title, sp.source, !!sp.dark);
+  if (sp.cover) s.background = { color: C.white };
+  else base(s, sp.title, sp.source, !!sp.dark);
   sp.build(s);
   s.addNotes(sp.note);
 });
 
 // ---------- markdown ----------
-const labels = ["1", "2", "3", "4", "5", "6", "7", "8", "8b", "9", "10", "11"];
+const labels = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "8b", "9", "10", "11"];
 const md = [
-  "# Presentation: 12 slides (numbered 1-11, with 8b after 8)",
+  "# Presentation: 13 slides (title slide 0, then 1-11 with 8b after 8)",
   "",
-  "Tasks T-SA-06 and T-EL-25. Draft text for review. This file holds the on-slide content and speaker notes of `presentation.pptx`, slide for slide in the same order. Length: 12 min, the limit set by criterion 10 of the instructor rubric (`docs/requirements/ACUD-Rubric.md`); the time budget and the criteria each slide answers follow `docs/deliverables/01-presentation/rubric-map.md` (presentation plan) and are stated in each speaker note (total 12:00). Numbers come only from repo files and carry an origin mark: 🟢 real · 🔵 derived · 🟠 generated (\"Synthetic - for training only\"). Codes only, no names. The words \"risk level\", \"distressed\" (for a real compound) and any completion % are not used. Some caveats are in the speaker notes.",
+  "Tasks T-SA-06 and T-EL-25. Draft text for review. This file holds the on-slide content and speaker notes of `presentation.pptx`, slide for slide in the same order. Length: 12 min, the limit set by criterion 10 of the instructor rubric (`docs/requirements/ACUD-Rubric.md`); the time budget and the criteria each slide answers follow `docs/deliverables/01-presentation/rubric-map.md` (presentation plan) and are stated in each speaker note (total 12:00). Numbers come only from repo files and carry an origin mark: 🟢 real · 🔵 derived · 🟠 generated (\"Synthetic - for training only\"). Compounds and developers appear as codes only; the only names are the supervisor and team on the title slide. The words \"risk level\", \"distressed\" (for a real compound) and any completion % are not used. Some caveats are in the speaker notes.",
   "",
 ];
 slides.forEach((sp, i) => {
