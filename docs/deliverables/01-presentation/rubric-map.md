@@ -2,7 +2,7 @@
 
 Task T-SA-01 (rubric received). Source rubric: [ACUD-Rubric.md](../requirements/ACUD-Rubric.md) (Arabic; ten criteria, weights sum to 100, levels 1-4, plus a +10 bonus). Level summaries below are English translations; items the rubric marks [؟] are "unclear in the source". Level estimates are the team's own draft, not a score from the panel. Every number quoted names its source file. Codes only, no names. Presentation length: 12 minutes (criterion 10).
 
-Slide numbers refer to [01-presentation.md](01-presentation.md).
+Slide numbers refer to [presentation.md](presentation.md).
 
 ## 1. Problem and challenge (weight 10)
 
@@ -80,7 +80,7 @@ Slide numbers refer to [01-presentation.md](01-presentation.md).
 
 - **Level 3:** a clear story from current to target state and a summary with the decision requested; 12 minutes; accurate and transparent answers (unclear in the source).
 - **Level 4:** leadership-level persuasion: conveys the value strongly and handles hard questions with evidence and alternatives.
-- **Evidence:** decision requested in `docs/deliverables/decision-memo.md` and slide 11; prepared answers `docs/deliverables/expected-questions.md`; deck text `docs/deliverables/01-presentation.md`.
+- **Evidence:** decision requested in `docs/deliverables/decision-memo.md` and slide 11; prepared answers `docs/deliverables/expected-questions.md`; deck text `docs/deliverables/presentation.md`.
 - **Gap to level 4:** the deck is written for 12-15 minutes and must fit 12; the as-is to to-be story has no slide (criteria 2, 5); timed rehearsals are still open (`docs/REMAINING_TEAM_TASKS.md`, T-ALL-05).
 - **Slide:** all; decision on 11.
 

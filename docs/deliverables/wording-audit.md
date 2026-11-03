@@ -4,7 +4,7 @@ Task T-SA-07. Checks every document written under T-SA-02, T-SA-03, T-SA-05, T-S
 
 ## Scope and method
 
-Checked: `docs/deliverables/kpi-cards.md`, `configs/kpis.yaml`, `configs/cost_assumptions.yaml`, `docs/deliverables/decision-memo.md`, `docs/deliverables/01-presentation.md`, `docs/deliverables/expected-questions.md`.
+Checked: `docs/deliverables/kpi-cards.md`, `configs/kpis.yaml`, `configs/cost_assumptions.yaml`, `docs/deliverables/decision-memo.md`, `docs/deliverables/01-presentation/presentation.md`, `docs/deliverables/expected-questions.md`.
 
 Method: a text search for the forbidden terms, then each hit was read in its sentence and judged as a violation or as a safe use (a denial, a caveat or a data-request item). The last two files were read from their pull-request branches, because they were not on `main` at the time.
 
@@ -62,11 +62,11 @@ The main CHECK items are the "fine-eligible" family (the allowed phrase is "elig
 - `docs/deliverables/kpi-cards.md:88` — fixed — Replaced the fine-exposure title and purpose with the allowed contract-review wording.
 - `docs/deliverables/kpi-cards.md:133` — fixed — Used the allowed contract-review eligibility wording for the tactical indicator.
 - `docs/deliverables/kpi-cards.md:108` — fixed — Replaced the permanent "never-started" title with the allowed no-construction-start wording.
-- `docs/deliverables/01-presentation.md:7` — fixed — Added origin marks to the statement figures and mirrored the change in the HTML deck.
-- `docs/deliverables/01-presentation.md:22` — fixed — Removed the unsupported invented-fact claim and mirrored the change in the HTML deck.
-- `docs/deliverables/01-presentation.md:30` — fixed — Used the approved height-context wording and mirrored the change in the HTML deck.
-- `docs/deliverables/01-presentation.md:77` — kept — The scenario names match the approved scenario table and do not breach the wording rules.
-- `docs/deliverables/01-presentation.md:87` — fixed — Labelled the visit cost as an assumption and mirrored the change in the HTML deck.
+- `docs/deliverables/01-presentation/presentation.md:7` — fixed — Added origin marks to the statement figures and mirrored the change in the HTML deck.
+- `docs/deliverables/01-presentation/presentation.md:22` — fixed — Removed the unsupported invented-fact claim and mirrored the change in the HTML deck.
+- `docs/deliverables/01-presentation/presentation.md:30` — fixed — Used the approved height-context wording and mirrored the change in the HTML deck.
+- `docs/deliverables/01-presentation/presentation.md:77` — kept — The scenario names match the approved scenario table and do not breach the wording rules.
+- `docs/deliverables/01-presentation/presentation.md:87` — fixed — Labelled the visit cost as an assumption and mirrored the change in the HTML deck.
 - `docs/deliverables/INSPECTION_DOSSIERS.md:5` — fixed — Replaced the personal owner name with a role.
 - `docs/deliverables/INSPECTION_DOSSIERS.md:7` — fixed — Replaced the completion and absolute test claim with implemented and review-pending status.
 - `docs/deliverables/INSPECTION_DOSSIERS.md:49` — fixed — States that unavailable permitted floors remain unknown.

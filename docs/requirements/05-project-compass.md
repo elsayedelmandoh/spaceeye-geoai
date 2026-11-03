@@ -116,7 +116,7 @@ the instructor signs off when the use-case canvas answers all eight checks:
 
 ## 10. instructor rubric (received)
 
-The instructor sent the evaluation rubric: [ACUD-Rubric.md](ACUD-Rubric.md) (Arabic source table; photo [ACUD-Rubric.jpeg](ACUD-Rubric.jpeg)). Cells marked [؟] were unclear in the photo and need checking against the original file. Each criterion is scored on four levels: 1 below standard, 2 emerging, 3 proficient, 4 distinguished. The map from criteria to project evidence and slides is [rubric-map.md](../deliverables/rubric-map.md).
+The instructor sent the evaluation rubric: [ACUD-Rubric.md](ACUD-Rubric.md) (Arabic source table; photo [ACUD-Rubric.jpeg](ACUD-Rubric.jpeg)). Cells marked [؟] were unclear in the photo and need checking against the original file. Each criterion is scored on four levels: 1 below standard, 2 emerging, 3 proficient, 4 distinguished. The map from criteria to project evidence and slides is [rubric-map.md](../deliverables/01-presentation/rubric-map.md).
 
 | # | criterion (English summary) | weight |
 | --- | --- | ---: |
