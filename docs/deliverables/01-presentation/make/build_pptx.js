@@ -132,18 +132,18 @@ slides.push({
     "- 🟢 Real statement: Field review every 3 months.",
     "- 🟢 Real statement: About 7-8% of developers seriously late; 6 mutual terminations.",
     "- A committee cannot visit everything every cycle: whom to visit first?",
-    "- These are the chairman's statements, not our measurement. 🔵 R7, our count: 5 of 6 public late cases ran 18-33 months past the promise (median 25); their 6,474 homes waited about 153,816 home-months if all shared the first promised date; 3 ran more than 24 months past the published promise (Decree 2184/2022 art. 5 counts its 24-month refund line from the contract date). Chain and why now: `docs/deliverables/decision-memo.md`.",
+    "- These are the chairman's statements, not our measurement.",
     "- Visual: five stat callouts (more than 400 developers · more than 500 projects · field review every 3 months · about 7-8% seriously late · 6 mutual terminations).",
   ],
-  source: ["statements by the ACUD chairman, as recorded in `docs/requirements/01-specs.md` (section 12, slide 1); R7 counts from the release tables `real/eval_outcomes` and `real/compounds` (as of 2026Q3)."],
-  note: "Speaker note: 0:45 · criterion 1. A committee cannot visit everything every cycle, so the question is whom to visit first. Why now: Decree 2184/2022 art. 5 applies to projects under way, and two R7 clocks run today (C18 57 months past its first date, C14 moved its date twice).",
+  source: ["statements by the ACUD chairman, as recorded in `docs/requirements/01-specs.md` (section 12, slide 1)."],
+  note: "Speaker note: 0:45 · criterion 1. A committee cannot visit everything every cycle, so the question is whom to visit first.",
   build(s) {
     const stats = [[">400", "developers"], [">500", "projects"], ["3 months", "between field reviews"], ["7-8%", "of developers seriously late"], ["6", "mutual terminations"]];
     const w = (W - 4 * 0.2) / 5;
     stats.forEach(([b, c], i) => stat(s, "s1 stat " + i, MX + i * (w + 0.2), TOP + 0.2, w, 1.9, b, c));
     bullets(s, "s1 bullets", [
       "A committee cannot visit everything every cycle: whom to visit first?",
-      "Top row: the chairman's statements. R7, our count: 5 of 6 public late cases ran 18-33 months past the published promise.",
+      "These are the chairman's statements, not our measurement.",
     ], MX, 3.9, W, 1.8, 18);
   },
 });
@@ -481,12 +481,12 @@ slides.push({
     "- Message: this is what public data alone can do. Give us your data and the demo parts become real operation.",
     "- Transition roadmap (phase · what · owner role · risk · rollback):",
     ...PH.map(([t, d, o, r, b]) => `  - Phase ${t}: ${d} Owner: ${o} Risk: ${r} Rollback: ${b}`),
-    "- Gates between phases, progress indicators, rollback triggers and training: `docs/deliverables/transition-plan.md` (proposed). The fixed 3-month review keeps running through phases 1 and 2, so rollback costs at most one rerun. People and dates: to be agreed with ACUD.",
+    "- Training of committee users, dates, phase-gate criteria and signed owners: to be agreed with ACUD.",
     "- Transfer: thresholds and capacity are configuration; another region needs its boundaries and statements. Only R7 has been run; no transfer is proven.",
     "- Next step: run one cycle with the list and record visit results.",
     "- Visual: decision box and three-phase roadmap.",
   ],
-  source: ["`docs/deliverables/decision-memo.md` (decision requested), `docs/deliverables/data-request.md`, `docs/requirements/01-specs.md` (data request list, art. 54; section 13 risks and fallbacks), `docs/deliverables/technical-track-a.md` (quarterly monitoring procedure), `docs/deliverables/transition-plan.md` (gates, indicators, rollback)."],
+  source: ["`docs/deliverables/decision-memo.md` (decision requested), `docs/deliverables/data-request.md`, `docs/requirements/01-specs.md` (data request list, art. 54; section 13 risks and fallbacks), `docs/deliverables/technical-track-a.md` (quarterly monitoring procedure)."],
   note: "Speaker note: 0:45 · criteria 5, 10, bonus. Open with the decision, name the first phase and close on the next step. Total 12:00. For questions: the ACUD export is ordered by impact (dated inspection and handover outcomes, contract register, parcel geometry first); any STOP in the monitoring procedure writes no manifest.",
   build(s) {
     s.addShape(pres.ShapeType.rect, { x: MX, y: TOP, w: W, h: 0.95, fill: { color: C.sand }, line: { color: C.sand } });
@@ -509,7 +509,7 @@ slides.push({
     });
     bullets(s, "s11 bullets", [
       "Message: this is what public data alone can do. Give us your data and the demo parts become real operation.",
-      "Gates, indicators and rollback: transition-plan.md (proposed). Only R7 has been run; no transfer is proven.",
+      "Training, dates, phase-gate criteria and signed owners: to be agreed with ACUD. Only R7 has been run; no transfer is proven.",
       "Next step: run one cycle with the list and record visit results.",
     ], MX, 5.3, W, 1.15, 13, C.white);
   },

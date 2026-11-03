@@ -28,3 +28,17 @@ Work on a feature branch and PR; never commit directly to main. Use the configur
 Current run: `make current` (or `uv run --locked --offline python -m src.pipeline.team_run`); add `--full` / `make run` to refit Track A. Tests: `uv run --locked --offline pytest -q`. On WSL, mount F: at `/mnt/f` first (`sudo mkdir -p /mnt/f && sudo mount -t drvfs F: /mnt/f`).
 
 Route data/rule questions to Track A, generator/model questions to Track B, agent questions to the AI owner and interface questions to the dashboard owner. Named reviewer acceptance, final presentation and live deployment are not recorded by this handover.
+
+## Use it in another district
+
+Only R7 has been run. No transfer is proven; this is the path, not a result.
+
+What a new district needs, in order:
+
+1. **Coded boundaries.** One reviewed working polygon per compound in the boundaries file (`configs/data.yaml` `sources.boundaries`), with the code-to-name map kept by the custodian outside `data/`.
+2. **Published statements with dates.** Launch, promised dates, progress claims and handover events, each with its publication date, so the clock can be frozen at any past quarter.
+3. **Quarterly satellite windows for the new plots.** The same source workflow as R7 (Dynamic World and Sentinel-2 windows); refreshing the cache is a separate operation (`docs/REVIEW_SETUP.md`, section 5).
+4. **Configuration.** Add the district to `scope_districts` and set `cycle_capacity` (R7 uses 12 compounds / 3 = 4). Thresholds and the level order stay as they are unless a reviewed decision changes them.
+5. **Checks before use.** The activity score A must pass its acceptance tests on the new plots (`configs/data.yaml` `activity`); if not, use `source: k1`. The quality gates must pass. Collect the district's public late cases and run the frozen-clock backtest before trusting the list there.
+
+Nothing in the code is tied to R7 except the scope setting and the data; the effort is in steps 1 to 3. A dry run on another district was not done: the source caches for other districts are not in this checkout.

@@ -18,6 +18,6 @@ Task T-SA-04. Roles below are proposed operational responsibilities. No institut
 
 Use feature branches and reviewed PRs. Keep source identifiers, publication cutoffs, configuration/code revision, per-field origins and manifests. Retain raw evidence outside public Git. Separate private evaluation targets from features. Publish only the approved allowlisted prepared bundle; a code-only documentation change does not change the published dataset version.
 
-STOP blocks delivery; FIX requires correction and rerun; FLAG requires a recorded review decision. The current 2019Q2 flag remains open. Review output masking and coded-only export controls after schema changes. The current roles do not imply that a teammate has accepted a result.
+STOP blocks delivery; FIX requires correction and rerun; FLAG requires a recorded review decision. The current 2019Q2 flag remains open; its explanation and proposed review decision are in [governance](governance.md). Review output masking and coded-only export controls after schema changes. The current roles do not imply that a teammate has accepted a result.
 
 Before collecting real sensitive data, the custodian must agree purpose, authorized recipients, access controls and retention/deletion policy. No universal retention period or existing production security control is invented here. See [responsible use](responsible-ai.md).

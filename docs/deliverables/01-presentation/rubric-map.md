@@ -9,7 +9,7 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 3:** a specific challenge placed in the frame (type × pillar × condition); its goal and size measured from a source; decision owner and affected parties named.
 - **Level 4:** links the challenge to stability, sustainability or citizen satisfaction as a chain: number → problem → measured impact; explains why now.
 - **Evidence:** `docs/requirements/01-specs.md` section 0 (compass cell preventive · Buildings & Facilities · normal · stability; decision owner; decision served); slide 1 figures (more than 400 developers, more than 500 projects, about 7-8% seriously late, 6 mutual terminations) are ACUD chairman statements recorded in `docs/requirements/01-specs.md` section 12.
-- **Added for level 4:** `docs/deliverables/decision-memo.md` (English and Arabic): chain from R7 counts (5 of 6 late cases, 18-33 months) to problem (delay seen late) to impact (6,474 homes, up to 153,816 home-months; 3 compounds, 3,624 homes past the 24-month refund line of Decree 2184/2022 art. 5) and an assumed money figure (5,000 EGP rent per home-month, labelled assumption, about 0.77 bn EGP); "why now" in three points. Slide 1 adds the R7 line and the why-now speaker note.
+- **Added for level 4:** `docs/deliverables/decision-memo.md` (English and Arabic): chain from R7 counts (5 of 6 late cases, 18-33 months) to problem (delay seen late) to impact (6,474 homes, up to 153,816 home-months; 3 compounds, 3,624 homes past the 24-month refund line of Decree 2184/2022 art. 5) and an assumed money figure (5,000 EGP rent per home-month, labelled assumption, about 0.77 bn EGP); "why now" in three points.
 - **Gap to level 4:** the money figure rests on an assumed rent; delays are counted from published promises, not contract dates.
 - **Slide:** 1, 2.
 
@@ -35,8 +35,9 @@ Slide numbers refer to [presentation.md](presentation.md).
 
 - **Level 3:** designed for a named audience (operator, decision maker, leadership); answers its question; shows current against target with thresholds and alerts.
 - **Level 4:** leads from alert to action; tested with audience representatives and changed after the test.
-- **Evidence:** `app.py` (`SCREENS`: 1 Priority map, 2 Compound file, 3 District view, 4 Digital twin what if; track switch); committee guide `docs/deliverables/user-guide.md`; display-rules check and fixes `docs/deliverables/display-rules-check.md`; alert → action path: level → cycle list → inspection file → visit form (`docs/requirements/01-specs.md` sections 7 and 9).
-- **Gap to level 4:** the ten-second test was taken by someone outside the team but its answer sheet and timings are not recorded in the repo (`docs/REMAINING_TEAM_TASKS.md`, T-NA-08); no change log "after the test".
+- **Evidence:** `app.py` (`SCREENS`: 1 Priority map, 2 Compound file, 3 District view, 4 Digital twin what if, 5 Real names and sources; track switch); committee guide `docs/deliverables/user-guide.md`; display-rules check and fixes `docs/deliverables/display-rules-check.md`; alert → action path: level → cycle list → inspection file → visit form (`docs/requirements/01-specs.md` sections 7 and 9).
+- **Added for level 4:** `docs/deliverables/audience-test.md`: change log of what the teammate reviews found and what changed (PR #101, PR #102), and a ten-second test sheet for screen 1 with an answer key from the current release.
+- **Gap to level 4:** the reviewers were team members, not committee members; the ten-second test with a real committee member still has to be run and recorded on the sheet (T-NA-08).
 - **Slide:** 6 (live demo).
 
 ## 5. Transition from current to target (weight 10)
@@ -44,9 +45,9 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 3:** roadmap with phases, owners and resources; includes risks and training.
 - **Level 4:** phased transition before execution with progress indicators, criteria for moving between phases, and a rollback plan.
 - **Evidence:** next step "run one cycle with the list and record visit results" (slide 11); data request ordered by impact `docs/deliverables/data-request.md`; quarterly monitoring procedure `docs/deliverables/technical-track-a.md`; risks and fallbacks `docs/requirements/01-specs.md` section 13; roles `docs/requirements/01-specs.md` section 10.
-- **Added for level 4:** `docs/deliverables/transition-plan.md`: three phases (pilot cycle, ACUD data, quarterly operation then R8) with scope, owner roles, resources and training; proposed gate criteria between phases; six progress indicators counted each quarter; rollback table with triggers (the fixed 3-month review keeps running through phase 2, so rollback costs at most one rerun). Slide 11 points to it.
+- **Added for level 4:** `docs/deliverables/transition-plan.md`: three phases (pilot cycle, ACUD data, quarterly operation then R8) with scope, owner roles, resources and training; proposed gate criteria between phases; six progress indicators counted each quarter; rollback table with triggers (the fixed 3-month review keeps running through phase 2, so rollback costs at most one rerun).
 - **Gap to level 4:** all of it is proposed: people, dates and the committee's own gate numbers need ACUD; nothing has been executed yet.
-- **Slide:** 11 (three-phase roadmap; gates and rollback in the plan).
+- **Slide:** 11 (phases with owner, risk and rollback per phase; gate criteria and indicators are in the plan).
 
 ## 6. Solution effectiveness: preventive (weight 12)
 
@@ -70,7 +71,8 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 3:** clear ownership of data, indicators and model; permissions; quality and privacy controls (Law 151 of 2020) (unclear in the source).
 - **Level 4:** an integrated system: change and version control, audit log, periodic review, risk management with owners.
 - **Evidence:** ownership, access and sharing per data group plus "Version and change controls" (`docs/deliverables/governance-cards.md`); quality gates and run id (`docs/deliverables/quality-report.md`); privacy, masking, Law 151/2020 note (`docs/deliverables/responsible-ai.md`); recorded reviews (`logs/review-05.md`); risks with fallbacks (`docs/requirements/01-specs.md` section 13).
-- **Gap to level 4:** owner roles are proposed, not approved by ACUD (`docs/deliverables/governance-cards.md`); one quality FLAG still open (`docs/deliverables/quality-report.md`: 1 FLAG, 10 PASS); risks have fallbacks but no named owner role per risk; no periodic review schedule agreed.
+- **Added for level 4:** `docs/deliverables/governance.md`: RACI over nine activities, risk register with an owner role and early sign per risk, review schedule (quarterly to yearly), decision log (2026-10-26 to PR #107), and the 2019Q2 FLAG explained (1 compound with a level, so 1 of 1) with a proposed review decision.
+- **Gap to level 4:** roles, schedule and the FLAG decision are proposals; the second reviewer and ACUD have not signed them.
 - **Slide:** 10.
 
 ## 9. Documentation and knowledge transfer (weight 6)
@@ -78,7 +80,8 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 3:** technical documentation, user guide and a knowledge-transfer record (unclear in the source).
 - **Level 4:** another team can run and maintain it without the original team.
 - **Evidence:** `docs/deliverables/technical-track-a.md`, `docs/deliverables/user-guide.md`, `docs/deliverables/knowledge-transfer.md`, `docs/deliverables/method-card.md`, `docs/deliverables/final-checklist.md`.
-- **Gap to level 4:** no record that a person outside the team rebuilt or ran the system from these documents; the user guide was checked against code, not in a browser (`docs/deliverables/user-guide.md`).
+- **Added for level 4:** clean-room run recorded in `docs/REVIEW_SETUP.md` (2026-11-04): fresh clone of main, section 1 only, setup 323 files, backtest replay 1 of 6, 451 tests passed, all five screens open with no page errors; the stale v6 name in the setup page and "four screens" in the README fixed.
+- **Gap to level 4:** the clean-room run was done by the team, not by a person outside it.
 - **Slide:** no slide yet (mention in slide 11 or in answers).
 
 ## 10. Presentation and answers (weight 10)
@@ -86,7 +89,8 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 3:** a clear story from current to target state and a summary with the decision requested; 12 minutes; accurate and transparent answers (unclear in the source).
 - **Level 4:** leadership-level persuasion: conveys the value strongly and handles hard questions with evidence and alternatives.
 - **Evidence:** decision requested in `docs/deliverables/decision-memo.md` and slide 11; prepared answers `docs/deliverables/expected-questions.md`; deck text `docs/deliverables/presentation.md`.
-- **Gap to level 4:** the deck is written for 12-15 minutes and must fit 12; the as-is to to-be story has no slide (criteria 2, 5); timed rehearsals are still open (`docs/REMAINING_TEAM_TASKS.md`, T-ALL-05).
+- **Added for level 4:** eight prepared answers for the new material (as-is and to-be, why now, buyers affected, when it fails, false alarm vs missed case, safe start, responsibility, other districts) in `docs/deliverables/expected-questions.md`; the one-page decision is `docs/deliverables/decision-memo.md`, next to the team's one-page proposal `docs/deliverables/03-proposal/proposal.md`.
+- **Gap to level 4:** the deck was kept as it was (owner, 2026-11-04), so the as-is to to-be story has no slide of its own; timed rehearsals are still open (T-ALL-05).
 - **Slide:** all; decision on 11.
 
 ## Bonus: transferability, scalability, sustainability (+10)
@@ -94,7 +98,8 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **4-7:** transferable to another region or pillar with an alternative.
 - **8-10:** proven transfer with a sustainability plan. (0-3: solution confined to one case.)
 - **Evidence:** thresholds and capacity in configuration (`configs/data.yaml` per `docs/requirements/01-specs.md` section 2); public satellite sources not tied to R7; quarterly procedure (`docs/deliverables/technical-track-a.md`).
-- **Gap:** only R7 is run (R8 excluded, `docs/requirements/01-specs.md` section 0); no transfer shown. State the transfer path (another region needs boundaries and statements) honestly; claim no proven transfer.
+- **Added:** transfer path in `docs/deliverables/knowledge-transfer.md` ("Use it in another district"): five steps (coded boundaries, dated statements, satellite windows, configuration, checks before use).
+- **Gap:** only R7 is run; no dry run on another district (its source caches are not in the checkout); no transfer is claimed.
 - **Slide:** no slide yet (one line on slide 11).
 
 ## Presentation plan for 12 minutes
