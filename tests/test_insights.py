@@ -329,26 +329,12 @@ def test_outcome_text_words_known_types_and_guards_a_missing_one():
     assert insights.outcome_text(np.nan) == "outcome not on file"
 
 
-def test_season_of_each_month():
-    seasons = ["winter"] * 2 + ["spring"] * 3 + ["summer"] * 3 + ["autumn"] * 3 + ["winter"]
-    assert [insights.season_of(f"2024-{m:02d}-15") for m in range(1, 13)] == seasons
-
-
-def test_latest_same_season_picks_the_latest_later_capture_in_the_anchor_season():
-    frames = [{"date": "2019-04-01"}, {"date": "2020-12-20"}, {"date": "2022-05-30"},
-              {"date": "2023-01-10"}, {"date": "2024-03-03"}, {"date": "2025-07-23"}]
-    assert insights.latest_same_season(frames, 0) == 4  # spring 2019 -> spring 2024, not summer 2025
-    assert insights.latest_same_season(frames, 1) == 3  # December and January are both winter
-    assert insights.latest_same_season(frames, 4) is None  # no later spring capture
-    assert insights.latest_same_season(frames, 5) is None
-
-
-def test_frame_pair_is_the_chosen_frame_and_the_latest_same_season_capture():
+def test_frame_pair_is_the_chosen_frame_and_the_latest_capture_in_any_season():
     frames = [{"date": "2019-01-01"}, {"date": "2021-04-09"}, {"date": "2024-05-02"}, {"date": "2025-07-23"}]
     index = insights.first_frame_after(frames, pd.Timestamp("2020-09-30"))
     assert index == 1
-    assert [f["date"] for f in insights.frame_pair(frames, index)] == ["2021-04-09", "2024-05-02"]
-    assert insights.frame_pair(frames, 0) == []  # no later winter capture
+    assert [f["date"] for f in insights.frame_pair(frames, index)] == ["2021-04-09", "2025-07-23"]
+    assert [f["date"] for f in insights.frame_pair(frames, 0)] == ["2019-01-01", "2025-07-23"]
     frames = frames[:2] + frames[3:]
     assert [f["date"] for f in insights.frame_pair(frames, 2)] == ["2025-07-23"]
     assert insights.first_frame_after(frames, pd.Timestamp("2026-01-01")) is None
@@ -533,13 +519,6 @@ def test_generated_elsewhere_lists_stand_ins_for_one_compound():
     assert "land area" not in items
     assert "land value and fine exposure" in items
 
-
-
-def test_pairable_dates_keep_only_captures_with_a_later_one_in_the_same_season():
-    dates = ["2016-11-08", "2019-10-06", "2021-04-09", "2023-02-10", "2024-05-02", "2025-07-23"]
-    assert insights.pairable_dates(dates) == ["2016-11-08", "2021-04-09"]
-    assert insights.later_same_season(dates, "2016-11-08") == ["2019-10-06"]
-    assert insights.pairable_dates(["2021-04-09", "2025-07-23"]) == []
 
 
 def _metrics_raw():

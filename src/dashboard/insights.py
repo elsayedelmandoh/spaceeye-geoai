@@ -467,39 +467,15 @@ def first_frame_after(frames: list[dict], when: pd.Timestamp) -> int | None:
     return next((i for i, f in enumerate(frames) if pd.Timestamp(f["date"]) > when), None)
 
 
-def season_of(date: object) -> str:
-    """Meteorological season of a capture date: Dec-Feb winter, Mar-May spring, Jun-Aug summer, Sep-Nov autumn."""
-    return ("winter", "spring", "summer", "autumn")[pd.Timestamp(date).month % 12 // 3]
-
-
-def latest_same_season(frames: list[dict], anchor: int) -> int | None:
-    """Index of the latest capture after `frames[anchor]` in the same season, or None."""
-    when, season = pd.Timestamp(frames[anchor]["date"]), season_of(frames[anchor]["date"])
-    later = [i for i, f in enumerate(frames) if pd.Timestamp(f["date"]) > when and season_of(f["date"]) == season]
-    return max(later, key=lambda i: pd.Timestamp(frames[i]["date"]), default=None)
-
-
-def later_same_season(dates: list[str], start: str) -> list[str]:
-    """Captures after `start` in its season: the valid comparison ends."""
-    return [d for d in dates if d > start and season_of(d) == season_of(start)]
-
-
-def pairable_dates(dates: list[str]) -> list[str]:
-    """Capture dates with a later capture in the same season: the only valid comparison starts."""
-    return [d for d in dates if later_same_season(dates, d)]
-
-
 def frame_pair(frames: list[dict], index: int | None) -> list[dict]:
-    """The frame at `index` and the latest capture in its season (the spec forbids cross-season comparisons).
+    """The frame at `index` beside the latest capture, in any season (owner decision, 3 November 2026).
 
-    Just the latest frame when there is no index or the index is the latest; empty when no later capture
-    shares the anchor's season."""
+    Just the latest frame when there is no index or the index is the latest."""
     if not frames:
         return []
     if index is None or index == len(frames) - 1:
         return frames[-1:]
-    later = latest_same_season(frames, index)
-    return [] if later is None else [frames[index], frames[later]]
+    return [frames[index], frames[-1]]
 
 
 def flagged_early(latest: pd.DataFrame) -> list[dict]:

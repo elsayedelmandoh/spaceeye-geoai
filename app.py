@@ -917,17 +917,13 @@ def render_frame(frame: dict, stages: dict[int, str], caption: str = "") -> None
 
 def render_frame_compare(code: str, frames: list[dict], stages: dict[int, str]) -> None:
     dates = [f["date"] for f in frames]
-    starts = insights.pairable_dates(dates)
-    if not starts:
-        st.info("No two captures of this compound share a season, so there is nothing to compare; "
-                "captures are compared only within a season.")
+    if len(dates) < 2:
+        st.info("Only one capture on file, so there is nothing to compare.")
         return
     pickers = st.columns(2)
-    start = pickers[0].selectbox("Compare: from", starts, index=0, key=f"cmp_from_{code}",
-                                 format_func=lambda d: f"{d} ({insights.season_of(d)})")
-    season = insights.season_of(start)
-    same = insights.later_same_season(dates, start)
-    chosen = [start, pickers[1].selectbox(f"Compare: to (later {season} captures)", same, index=len(same) - 1,
+    start = pickers[0].selectbox("Compare: from", dates[:-1], index=0, key=f"cmp_from_{code}")
+    later = [d for d in dates if d > start]
+    chosen = [start, pickers[1].selectbox("Compare: to", later, index=len(later) - 1,
                                           key=f"cmp_to_{code}")]
     for column, date in zip(st.columns(2), chosen):
         with column:
@@ -1369,22 +1365,12 @@ def level_text(level: int | None) -> str:
     return NOT_ASSESSABLE[0] if level is None else f"Level {level} · {level_word(level)}"
 
 
-def render_season_pair(pair: list[dict], stages: dict[int, str], anchor_caption: str,
-                       frames: list[dict], index: int | None) -> None:
-    """An anchor capture beside the latest one from the same season. With no later same-season capture, the
-    anchor alone: the display rules forbid comparing across seasons, but the evidence should still show."""
+def render_frame_pair(pair: list[dict], stages: dict[int, str], anchor_caption: str) -> None:
+    """An anchor capture beside the latest one, or the latest alone."""
     if not pair:
-        if index is None:
-            st.caption("No capture near this date.")
-            return
-        anchor, latest = frames[index], frames[-1]
-        render_frame_row([anchor], stages, [anchor_caption])
-        st.caption(f"Only one capture is shown: no later {insights.season_of(anchor['date'])} capture exists, and "
-                   f"captures are compared only within a season. Latest capture: {latest['date']} "
-                   f"({insights.season_of(latest['date'])}), in the compound file.")
+        st.caption("No capture near this date.")
         return
-    season = insights.season_of(pair[0]["date"])
-    render_frame_row(pair, stages, [anchor_caption, f"Latest {season} capture"][-len(pair):])
+    render_frame_row(pair, stages, [anchor_caption, "Latest capture"][-len(pair):])
 
 
 def render_frame_row(frames: list[dict], stages: dict[int, str], captions: list[str]) -> None:
@@ -1414,7 +1400,7 @@ def render_early_warning(case: dict | None) -> None:
                         f"({level_word(case['level_at_freeze'])}).")
         reported = f", reported {case['reported']}" if case["reported"] else ""
         st.markdown(f"**What happened.** {html.escape(case['outcome'].capitalize())}{reported}.")
-        render_season_pair(pair, stages, "First capture after the alert", frames, index)
+        render_frame_pair(pair, stages, "First capture after the alert")
 
 
 def render_flagged_early(rows: list[dict]) -> None:
@@ -1461,7 +1447,7 @@ def render_strongest_claim(latest_df: pd.DataFrame, asof: str) -> None:
         finding(f"<b>{code}</b>: as of {asof}, {claim['k3']} months past the first announced handover date "
                 f"({claim['deadline']}{f', {note}' if note else ''}).")
         st.dataframe(claims_table(rows), hide_index=True, width="stretch")
-        render_season_pair(pair, stages, "Nearest to the last claim", frames, index)
+        render_frame_pair(pair, stages, "Nearest to the last claim")
 
 
 def render_homes_waiting(compounds: pd.DataFrame, latest_df: pd.DataFrame, asof: str) -> None:
