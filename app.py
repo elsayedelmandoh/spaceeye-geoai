@@ -577,18 +577,24 @@ def render_summary_tiles(latest_df: pd.DataFrame, asof: str, promises: list[dict
                     f"in {len({p['code'] for p in promises})} compounds", asof, ORIGIN_DERIVED)
 
 
-def visit_table(latest_df: pd.DataFrame, cycle: pd.DataFrame) -> pd.DataFrame:
+def visit_table(latest_df: pd.DataFrame, cycle: pd.DataFrame, statements: pd.DataFrame | None = None,
+                asof: str = "") -> pd.DataFrame:
     """The listed compounds in order with the suggested action and the stored reason.
-    Rank is the stored cycle rank (blank outside the cycle list), so filtering keeps it."""
+    Rank is the visit order of the whole quarter (set before filtering), so filtering keeps it."""
     rows = latest_df.set_index("code").loc[cycle["code"]]
-    return pd.DataFrame({
-        "Rank": (rows["cycle_rank"].astype("Int64").to_numpy() if "cycle_rank" in rows.columns
-                 else range(1, len(rows) + 1)),
+    ranks = rows["visit_rank"] if "visit_rank" in rows.columns else insights.visit_ranks(rows.reset_index()).to_numpy()
+    table = {
+        "Rank": pd.array(ranks, dtype="Int64"),
         "Compound": rows.index,
+        "List": [insights.list_status(r) for _, r in rows.iterrows()],
         "Level": rows["level"].map(level_word).to_numpy(),
         "Suggested action": [insights.suggested_action(r)[0] for _, r in rows.iterrows()],
         "Why": rows["reason"].map(insights.short_reason).to_numpy(),
-    })
+    }
+    table = pd.DataFrame(table)
+    if statements is not None:
+        table.insert(4, "Handover", [insights.handover_status(statements, code, asof) for code in rows.index])
+    return table
 
 
 def listed_codes(latest_df: pd.DataFrame, cycle_only: bool) -> pd.DataFrame:
@@ -596,9 +602,8 @@ def listed_codes(latest_df: pd.DataFrame, cycle_only: bool) -> pd.DataFrame:
     cycle = build_cycle_list(latest_df)
     if cycle_only:
         return cycle
-    rest = latest_df[~latest_df["code"].isin(cycle["code"])].copy()
-    rest["_level"] = rest["level"].map(lambda v: insights.level_number(v) or len(LEVELS) + 1)
-    return pd.concat([cycle[["code"]], rest.sort_values(["_level", "code"])[["code"]]], ignore_index=True)
+    ranks = latest_df["visit_rank"] if "visit_rank" in latest_df.columns else insights.visit_ranks(latest_df)
+    return latest_df.assign(_rank=ranks).sort_values("_rank")[["code"]].reset_index(drop=True)
 
 
 def render_visit_list(latest: tuple[pd.DataFrame, str] | None, track: Track, cycle_only: bool = True) -> None:
@@ -614,9 +619,13 @@ def render_visit_list(latest: tuple[pd.DataFrame, str] | None, track: Track, cyc
         st.info(f"No compounds in the {'cycle list' if cycle_only else 'list'} for {asof}.")
         return
 
-    st.caption("Suggested actions are proposals; the committee decides.")
-    st.dataframe(visit_table(latest_df, listed), hide_index=True, width="stretch",
-                 column_config={"Why": st.column_config.TextColumn("Why", width="large")})
+    st.caption("Suggested actions are proposals; the committee decides. Rank = visit order as of "
+               f"{asof}: level first, then quarters without activity (K2), then months past the first "
+               "handover date (K3); remaining ties go by code. \"This cycle\" = the visits capacity allows now.")
+    statements = load_table("real/statements.parquet", TRACK_A)
+    # Tall enough for every row, so no compound hides behind the table's own scroll bar.
+    st.dataframe(visit_table(latest_df, listed, statements, asof), hide_index=True, width="stretch",
+                 height=35 * (len(listed) + 1) + 3, column_config={"Why": st.column_config.TextColumn("Why", width="large")})
     options = ["Select a compound", *sorted(listed["code"].astype(str))]
     st.selectbox(
         "Select compound",
@@ -1109,6 +1118,7 @@ def render_filters() -> tuple[tuple[pd.DataFrame, str] | None, frozenset[str], b
         k6 = row[2].number_input("Min K6 (months)", min_value=0, step=1, key="pm_k6")
         cycle_only = row[3].toggle("Cycle list only", key="pm_cycle_only")
         frame = kpis[kpis["quarter"].astype(str) == asof]
+        frame = frame.assign(visit_rank=insights.visit_ranks(frame))
         shown = insights.filter_compounds(
             frame, search, tuple(level_of[w] for w in picked), tuple(devs), k2, k3, k6, cycle_only)
         st.caption(f"Showing {len(shown)} of {len(frame)} compounds · as of {asof} · "

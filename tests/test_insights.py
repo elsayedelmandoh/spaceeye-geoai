@@ -471,3 +471,32 @@ def test_model_metrics_table_appends_the_stored_random_baseline_row():
     table = insights.model_metrics_table(_metrics_raw(), {"draws": 2000, "mean": 0.335375}).set_index("Method")
     assert table.loc["random", "🟠 Distressed in top 4 (recall@4)"] == "0.335 (mean of 2,000 random draws)"
     assert table.loc["random", "🟠 Distressed recall"] == "not stored"
+
+
+def test_visit_ranks_cover_every_compound_with_the_cycle_first_then_the_pipeline_order():
+    frame = pd.DataFrame({
+        "code": ["C12", "C03", "C21", "C18", "C01", "C20"],
+        "level": [3, 3, 3, 1, 4, None],
+        "cycle_rank": [None, 2, None, 1, None, None],
+        "K2": [6, 6, 2, 0, 0, None],
+        "K3": [0, 0, 0, 57, 0, None],
+    })
+    ranks = insights.visit_ranks(frame)
+    assert dict(zip(frame["code"], ranks)) == {"C18": 1, "C03": 2, "C12": 3, "C21": 4, "C01": 5, "C20": 6}
+    assert [insights.list_status(r) for _, r in frame.iterrows()] == [
+        "Next in line", "This cycle", "Next in line", "This cycle", "Monitor", "Not assessable"]
+
+
+def test_handover_status_reads_the_latest_published_delivery_event_up_to_the_quarter():
+    statements = pd.DataFrame({
+        "code": ["C12", "C12", "C03", "C03", "C18"],
+        "subtype": ["delivery_start", "delivery_complete", "delivery_start", "delivery_progress",
+                    "promised_delivery"],
+        "scope": ["project", "project", "phase1", "project", "project"],
+        "published_date": pd.to_datetime(["2024-04-18", "2026-09-20", "2025-09-10", "2026-05-03", "2021-09-25"]),
+    })
+    assert insights.handover_status(statements, "C12", "2026Q3") == "handed over (Sep 2026)"
+    assert insights.handover_status(statements, "C12", "2026Q2") == "handover started (Apr 2024)"
+    assert insights.handover_status(statements, "C03", "2025Q4") == "phase 1 handover started (Sep 2025)"
+    assert insights.handover_status(statements, "C03", "2026Q3") == "handover in progress (May 2026)"
+    assert insights.handover_status(statements, "C18", "2026Q3") == "none published"

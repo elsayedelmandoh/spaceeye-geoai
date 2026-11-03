@@ -129,6 +129,43 @@ def upcoming_promises(statements: pd.DataFrame, codes: list[str], asof: str) -> 
     return sorted(rows, key=lambda r: (r["end"], r["code"]))
 
 
+def visit_ranks(frame: pd.DataFrame) -> pd.Series:
+    """Visit order for every compound of a quarter: the stored cycle list first, then the others by the
+    pipeline's own order (level, K2 and K3 descending, then code), unassessed last."""
+    in_cycle = frame["cycle_rank"].notna() if "cycle_rank" in frame.columns else pd.Series(False, index=frame.index)
+    rest = frame[~in_cycle].assign(_level=lambda d: d["level"].map(lambda v: level_number(v) or 99),
+                                   _k2=lambda d: d["K2"].fillna(0) if "K2" in d else 0,
+                                   _k3=lambda d: d["K3"].fillna(0) if "K3" in d else 0)
+    order = [*frame[in_cycle].sort_values("cycle_rank").index,
+             *rest.sort_values(["_level", "_k2", "_k3", "code"], ascending=[True, False, False, True]).index]
+    return pd.Series(range(1, len(order) + 1), index=order, dtype="Int64").reindex(frame.index)
+
+
+def list_status(row: pd.Series) -> str:
+    level = level_number(row.get("level"))
+    if not is_missing(row.get("cycle_rank")):
+        return "This cycle"
+    if level is None:
+        return "Not assessable"
+    return "Monitor" if level == 4 else "Next in line"
+
+
+HANDOVER_WORDS = {"delivery_complete": "handed over", "delivery_progress": "handover in progress",
+                  "delivery_start": "handover started"}
+
+
+def handover_status(statements: pd.DataFrame, code: str, asof: str) -> str:
+    """The latest published handover event up to the quarter, with its scope and month."""
+    events = statements[(statements["code"] == code) & statements["subtype"].isin(list(HANDOVER_WORDS))
+                        & (pd.to_datetime(statements["published_date"]) <= pd.Period(asof, "Q").end_time)]
+    if events.empty:
+        return "none published"
+    last = events.sort_values("published_date").iloc[-1]
+    phase = re.fullmatch(r"phase(\d+)", str(last["scope"]))
+    words = HANDOVER_WORDS[last["subtype"]]
+    return f"{f'phase {phase[1]} ' if phase else ''}{words} ({month_text(last['published_date'])})"
+
+
 def developer_groups(compounds: pd.DataFrame, latest: pd.DataFrame) -> list[dict]:
     """Developers with more than one compound: one meeting can cover all of them, most urgent first."""
     levels = dict(zip(latest["code"], latest["level"]))
