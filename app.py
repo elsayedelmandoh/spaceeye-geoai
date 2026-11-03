@@ -233,7 +233,7 @@ def inject_css() -> None:
             color: {p['muted']} !important; font-size: 0.86rem !important; font-weight: 500;
             white-space: normal !important;
         }}
-        [data-testid="stMetricValue"] div {{
+        [data-testid="stMetricValue"] div, [data-testid="stMetricValue"] p {{
             font-variant-numeric: tabular-nums lining-nums;
             font-weight: 700; color: {p['text']};
             font-size: clamp(1.15rem, 1.6vw, 1.6rem) !important;
