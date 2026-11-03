@@ -1,6 +1,6 @@
-# Intro video (37 s, Arabic narration)
+# Intro video (52 s, Arabic narration)
 
-Task T-EL-26. File: `03-intro.mp4` (1920x1080, 37 s). Shown before the discussion with ACUD starts.
+Task T-EL-26. File: `03-intro.mp4` (1920x1080, 52 s). Shown before the discussion with ACUD starts.
 
 ## Narration (Arabic, as spoken)
 
@@ -15,12 +15,12 @@ Task T-EL-26. File: `03-intro.mp4` (1920x1080, 37 s). Shown before the discussio
 | Time | Shot |
 |---|---|
 | 0:00-0:03.5 | Title card: SpaceEye GeoAI, "مرصد أولوية التفتيش · الحي السكني السابع" |
-| 0:03.5-0:33 | Six illustrative stills: new city from the air, a review team, an observation satellite, a plot grid, a priority-coloured map, a committee table |
-| 0:33-0:37 | End card: "من الفضاء… إلى قرار الزيارة" |
+| 0:03.5-0:48 | Six illustrative stills, each cut at a pause in the narration: new city from the air, a review team, an observation satellite, a plot grid, a priority-coloured map, a committee table |
+| 0:48-0:52 | End card: "من الفضاء… إلى قرار الزيارة" |
 
 ## How it was made and what it is not
 
-- Narration: Higgsfield `seed_audio` text-to-speech. Stills: Higgsfield `z_image`. About 2.2 credits used. Real video generation (35 credits per 5 s clip) was beyond the free plan's 10 credits.
+- Narration: female voice (Gemini 3.8 Flash TTS, voice Sulafat, through Renoise; 4 credits), read slowly with pauses after review found the first male voice too fast and unclear. Stills: Higgsfield `z_image`. A full video remake (480 Renoise credits; 35 Higgsfield credits per 5 s clip) was beyond the available balance.
 - Assembled locally with ffmpeg (slow zooms, fades); cards rendered in Chromium for correct Arabic shaping.
 - The stills are AI-generated illustrations, not project satellite data, and do not show R7 or any coded compound. The end card says so.
 - Every claim in the narration is in the deck: 12 coded R7 compounds, capacity 4 per cycle, quarterly satellite reading, the rule ranks and explains, the committee decides. "Hundreds of projects" follows the chairman statement on slide 1.
