@@ -1,13 +1,13 @@
 # SpaceEye: R7 inspection priority observatory
 رادار العاصمة الجديدة: شركة تمتلك مدينة. (New Capital radar: a company that owns a city.)
 
-**Observed imagery:** [view/rebuild guide](data/imagery/README.md), [source comparison](data/IMAGERY_COMPARISON.md) and [frame metadata](data/imagery/wayback_timeline.csv). The 100 Wayback / 528 Sentinel figures stay outside Git; the numerical v6 release is separate.
+**Observed imagery:** [view/rebuild guide](data/imagery/README.md), [source comparison](data/IMAGERY_COMPARISON.md) and [frame metadata](data/imagery/wayback_timeline.csv). The 100 Wayback / 528 Sentinel figures stay outside Git; the numerical v7 release is separate.
 
 **New device or review:** follow [REVIEW_SETUP](docs/REVIEW_SETUP.md). Run `uv sync --locked`, then `uv run --locked python -m src.pipeline.setup_review`. Paths are checkout-relative; `SPACEEYE_DATA_ROOT` relocates the workspace without requiring a specific drive. The [84-file source manifest](data/REBUILD_INPUTS.csv) and source-cache tool cover full rebuilds.
 
-[Download the current v7 data](releases/ready-data/SpaceEye_R7_READY_DATA_2026-10-31_v7.zip?raw=1) ? [Data guide](releases/ready-data/DATA_GUIDE.md) ? [Task board and human reviews](docs/requirements/02-team-roles-and-tasks.md) ? [Remaining work](docs/REMAINING_TEAM_TASKS.md)
+[Download the current v7 data](releases/ready-data/SpaceEye_R7_READY_DATA_2026-10-31_v7.zip?raw=1) · [Data guide](releases/ready-data/DATA_GUIDE.md) · [Task board and human reviews](docs/requirements/02-team-roles-and-tasks.md) · [Remaining work](docs/REMAINING_TEAM_TASKS.md)
 
-SpaceEye supports deciding which coded R7 compounds the inspection committee should visit first. The current delivery is a prepared-data/rule/model workflow. The five-screen dashboard, inspection agent, real visit form and final presentation remain separate tasks.
+SpaceEye supports deciding which coded R7 compounds the inspection committee should visit first. The current delivery is a prepared-data/rule/model workflow. The Streamlit dashboard ([app.py](app.py): four screens, track switch, code search and filters, map click with a details panel, the `ops_visits` form and a sidebar document Q&A chatbot in [src/chatbot](src/chatbot)), the [presentation](docs/deliverables/01-presentation/presentation.md) and the [intro video](docs/deliverables/02-video/intro.md) are implemented; implementation status and pending reviews are on the [task board](docs/requirements/02-team-roles-and-tasks.md). Work still open, including the inspection agent, is listed in [REMAINING_TEAM_TASKS](docs/REMAINING_TEAM_TASKS.md).
 
 ## Current scope
 
@@ -31,9 +31,15 @@ The rule uses the worst applicable K2/K3/K6 signal, assessability and the may-be
 
 ## Use the ready data
 
-Extract the complete v6 ZIP and open its README.md. Use CSV, Parquet or spaceeye_ready.duckdb; run verify_package.py to check the file manifest. Only the current ZIP is distributed in this checkout. Earlier files remain in Git history and a local retirement backup.
+Extract the complete v7 ZIP and open its README.md. Use CSV, Parquet or spaceeye_ready.duckdb; run verify_package.py to check the file manifest. Only the current ZIP is distributed in this checkout. Earlier files remain in Git history and a local retirement backup.
 
 The package supplies Arabic committee lists, complaint-training corpora, 180 inspection contexts, synthetic visit exercises, current binary predictions and S1/S2/S3 handoff. Contexts are not finished inspection reports; synthetic visits are not fieldwork. Raw inputs, private name mappings/truth, credentials and checkpoints are excluded.
+
+## Deliverables
+
+- Dashboard: `uv run --locked streamlit run app.py` (screens and forms in the [user guide](docs/deliverables/user-guide.md)). Model calls in the chatbot stay off until approved in [configs/ai.yaml](configs/ai.yaml); answers draw on the sources in [data/knowledge](data/knowledge/SOURCES.csv).
+- Presentation: [docs/deliverables/01-presentation](docs/deliverables/01-presentation/) ([presentation.md](docs/deliverables/01-presentation/presentation.md), [.html](docs/deliverables/01-presentation/presentation.html), [.pptx](docs/deliverables/01-presentation/presentation.pptx), [palette](docs/deliverables/01-presentation/palette.md), [rubric map](docs/deliverables/01-presentation/rubric-map.md)).
+- Intro video: [docs/deliverables/02-video](docs/deliverables/02-video/) ([intro-human-voice.mp4](docs/deliverables/02-video/intro-human-voice.mp4), [intro-ai-voice.mp4](docs/deliverables/02-video/intro-ai-voice.mp4), [intro.md](docs/deliverables/02-video/intro.md), [rebuild kit](docs/deliverables/02-video/make/README.md)).
 
 ## Rebuild from configured local inputs
 
@@ -52,7 +58,7 @@ The historical early_warning/release modules remain for saved experiment audits 
 
 - [Current handoff](data/HANDOFF.md), [dataset contract](data/DATASET_CONTRACT.md), [sources and generation](data/DATA_SOURCES_AND_GENERATION.md).
 - [Product requirements](docs/requirements/01-specs.md), [actual repository structure](docs/project-definition/08-structure.md).
-- [Approved binary scope](data/BINARY_SCOPE_DECISION.md), [model card](docs/deliverables/method-card.md), [package validation](data/READY_V6_VALIDATION.json).
+- [Approved binary scope](data/BINARY_SCOPE_DECISION.md), [model card](docs/deliverables/method-card.md), [v6 archive validation](data/READY_V6_VALIDATION.json).
 
 Work only on feature branches/PRs, preserve teammates' work and use the configured human Git identity. A checked main task means implemented/ready for review; its separate review checkbox requires actual human acceptance. Keep evidence and the remaining-task handoff synchronized. Current unresolved work is not represented by empty placeholder deliverables.
 
