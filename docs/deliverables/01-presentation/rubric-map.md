@@ -41,8 +41,9 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 3:** roadmap with phases, owners and resources; includes risks and training.
 - **Level 4:** phased transition before execution with progress indicators, criteria for moving between phases, and a rollback plan.
 - **Evidence:** next step "run one cycle with the list and record visit results" (slide 11); data request ordered by impact `docs/deliverables/data-request.md`; quarterly monitoring procedure `docs/deliverables/technical-track-a.md`; risks and fallbacks `docs/requirements/01-specs.md` section 13; roles `docs/requirements/01-specs.md` section 10.
-- **Gap to level 4:** no written roadmap with phases, owners, resources, training, phase-gate criteria or rollback for ACUD adoption; this is the weakest documented criterion.
-- **Slide:** no slide yet (slide 11 has one next step only).
+- **Added for level 4:** `docs/deliverables/transition-plan.md`: three phases (pilot cycle, ACUD data, quarterly operation then R8) with scope, owner roles, resources and training; proposed gate criteria between phases; six progress indicators counted each quarter; rollback table with triggers (the fixed 3-month review keeps running through phase 2, so rollback costs nothing). Slide 11 points to it.
+- **Gap to level 4:** all of it is proposed: people, dates and the committee's own gate numbers need ACUD; nothing has been executed yet.
+- **Slide:** 11 (three-phase roadmap; gates and rollback in the plan).
 
 ## 6. Solution effectiveness: preventive (weight 12)
 
