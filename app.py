@@ -917,14 +917,17 @@ def render_frame(frame: dict, stages: dict[int, str], caption: str = "") -> None
 
 def render_frame_compare(code: str, frames: list[dict], stages: dict[int, str]) -> None:
     dates = [f["date"] for f in frames]
-    pickers = st.columns(2)
-    start = pickers[0].selectbox("Compare: from", dates, index=0, key=f"cmp_from_{code}")
-    season = insights.season_of(start)
-    same = [d for d in dates if d != start and insights.season_of(d) == season]
-    if not same:
-        st.info(f"No other {season} capture exists to compare with {start}; captures are compared within a season.")
+    starts = insights.pairable_dates(dates)
+    if not starts:
+        st.info("No two captures of this compound share a season, so there is nothing to compare; "
+                "captures are compared only within a season.")
         return
-    chosen = [start, pickers[1].selectbox(f"Compare: to ({season} only)", same, index=len(same) - 1,
+    pickers = st.columns(2)
+    start = pickers[0].selectbox("Compare: from", starts, index=0, key=f"cmp_from_{code}",
+                                 format_func=lambda d: f"{d} ({insights.season_of(d)})")
+    season = insights.season_of(start)
+    same = insights.later_same_season(dates, start)
+    chosen = [start, pickers[1].selectbox(f"Compare: to (later {season} captures)", same, index=len(same) - 1,
                                           key=f"cmp_to_{code}")]
     for column, date in zip(st.columns(2), chosen):
         with column:

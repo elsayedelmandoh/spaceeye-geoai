@@ -534,6 +534,14 @@ def test_generated_elsewhere_lists_stand_ins_for_one_compound():
     assert "land value and fine exposure" in items
 
 
+
+def test_pairable_dates_keep_only_captures_with_a_later_one_in_the_same_season():
+    dates = ["2016-11-08", "2019-10-06", "2021-04-09", "2023-02-10", "2024-05-02", "2025-07-23"]
+    assert insights.pairable_dates(dates) == ["2016-11-08", "2021-04-09"]
+    assert insights.later_same_season(dates, "2016-11-08") == ["2019-10-06"]
+    assert insights.pairable_dates(["2021-04-09", "2025-07-23"]) == []
+
+
 def _metrics_raw():
     return pd.DataFrame({
         "method": ["logistic_combined"] * 4 + ["public_rule", "logistic_combined"],

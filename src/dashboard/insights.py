@@ -479,6 +479,16 @@ def latest_same_season(frames: list[dict], anchor: int) -> int | None:
     return max(later, key=lambda i: pd.Timestamp(frames[i]["date"]), default=None)
 
 
+def later_same_season(dates: list[str], start: str) -> list[str]:
+    """Captures after `start` in its season: the valid comparison ends."""
+    return [d for d in dates if d > start and season_of(d) == season_of(start)]
+
+
+def pairable_dates(dates: list[str]) -> list[str]:
+    """Capture dates with a later capture in the same season: the only valid comparison starts."""
+    return [d for d in dates if later_same_season(dates, d)]
+
+
 def frame_pair(frames: list[dict], index: int | None) -> list[dict]:
     """The frame at `index` and the latest capture in its season (the spec forbids cross-season comparisons).
 
