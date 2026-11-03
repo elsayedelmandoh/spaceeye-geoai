@@ -25,11 +25,28 @@ function check(label, texts, pt, wIn, hIn, gap = 0.08) {
   if (need > hIn) warnings.push(`${label}: needs ~${need.toFixed(2)}in, has ${hIn}in`);
 }
 
+// ---------- logos (aspect ratios from the PNG pixel sizes) ----------
+const LOGO_ACUD = path.join(__dirname, "..", "..", "02-video", "logo-ACUD.png");     // 400x207, drawn mark 171 px high
+const LOGO_DIG = path.join(__dirname, "..", "..", "02-video", "logo-digilians.png"); // 500x500, drawn mark 321 px high (white margins)
+const ACUD_AR = 400 / 207;
+const DIG_SCALE = (171 / 207) * (500 / 321); // Digilians image height per ACUD image height, so the drawn marks match
+function logos(slide, acudH, rightX, cy, gap) {
+  const digH = acudH * DIG_SCALE, acudW = acudH * ACUD_AR;
+  const x0 = rightX - (acudW + gap + digH);
+  slide.addImage({ path: LOGO_ACUD, x: x0, y: cy - acudH / 2, w: acudW, h: acudH });
+  slide.addImage({ path: LOGO_DIG, x: x0 + acudW + gap, y: cy - digH / 2, w: digH, h: digH });
+}
+const LOGO_H_SMALL = 0.5, LOGO_GAP_SMALL = 0.1;
+const LOGO_BLOCK_W = LOGO_H_SMALL * ACUD_AR + LOGO_GAP_SMALL + LOGO_H_SMALL * DIG_SCALE;
+
 // ---------- helpers (fresh option objects on every call) ----------
 function base(slide, title, source, dark = false) {
   slide.background = { color: dark ? C.navy : C.sand };
+  const logoX = MX + W - LOGO_BLOCK_W;
+  if (dark) slide.addShape(pres.ShapeType.roundRect, { x: logoX - 0.1, y: 0.35, w: LOGO_BLOCK_W + 0.2, h: 0.8, rectRadius: 0.1, fill: { color: C.white }, line: { color: C.white } });
+  logos(slide, LOGO_H_SMALL, MX + W, 0.75, LOGO_GAP_SMALL);
   slide.addText(title, {
-    x: MX, y: 0.4, w: W, h: 0.85, fontFace: HEAD, fontSize: 36, bold: true,
+    x: MX, y: 0.4, w: logoX - 0.2 - MX, h: 0.85, fontFace: HEAD, fontSize: 36, bold: true,
     color: dark ? C.white : C.text, align: "left", valign: "middle", margin: 0,
   });
   slide.addText("Source: " + source.join(" | ").replace(/`/g, ""), {
@@ -96,6 +113,7 @@ slides.push({
   source: [],
   note: "Speaker note: 0:15 · opening. Name the project and the slogan, thank the supervisor, introduce the team in one line.",
   build(s) {
+    logos(s, 1.0, MX + W / 2 + (ACUD_AR + 0.3 + DIG_SCALE) / 2, 0.95, 0.3);
     s.addText("SpaceEye GeoAI", { x: MX, y: 1.7, w: W, h: 1.2, fontFace: HEAD, fontSize: 54, bold: true, color: C.text, align: "center", valign: "middle", margin: 0 });
     s.addShape(pres.ShapeType.rect, { x: MX + W / 2 - 1.6, y: 3.0, w: 3.2, h: 0.08, fill: { color: C.red }, line: { color: C.red } });
     s.addText("New Capital Radar: a company that owns a city.", { x: MX, y: 3.25, w: W, h: 0.8, fontFace: HEAD, fontSize: 28, color: C.red, align: "center", valign: "middle", margin: 0 });
@@ -515,7 +533,7 @@ const sections = slides.map((sp, i) => {
   const id = `slide-${labels[i]}`;
   if (sp.cover) {
     const [name, slogan, ...rest] = sp.md.map((l) => l.replace(/^- /, ""));
-    return `<section id="${id}" class="cover" aria-label="Slide ${labels[i]}">\n<h1 dir="auto">${inline(name)}</h1>\n<p class="slogan" dir="auto">${inline(slogan)}</p>\n${rest.map((r) => `<p dir="auto">${inline(r)}</p>`).join("\n")}\n<p class="note" dir="auto">${inline(sp.note)}</p>\n</section>`;
+    return `<section id="${id}" class="cover" aria-label="Slide ${labels[i]}">\n<p class="logos"><img src="../02-video/logo-ACUD.png" alt="ACUD" height="48"> <img src="../02-video/logo-digilians.png" alt="Digilians" height="62"></p>\n<h1 dir="auto">${inline(name)}</h1>\n<p class="slogan" dir="auto">${inline(slogan)}</p>\n${rest.map((r) => `<p dir="auto">${inline(r)}</p>`).join("\n")}\n<p class="note" dir="auto">${inline(sp.note)}</p>\n</section>`;
   }
   const lines = sp.md.filter((l) => !l.includes(SYN_TEXT));
   const banner = sp.md.some((l) => l.includes(SYN_TEXT)) ? `<p class="banner">${esc(SYN)}</p>\n` : "";
@@ -530,6 +548,7 @@ section.dark{background:#111111;color:#FFFFFF}
 h1{font-size:2.4em;margin:.3em 0;text-align:center}
 h2{font-family:Cambria,Georgia,serif;font-size:1.7em;margin:0 0 .6em;border-bottom:3px solid #E31B23;padding-bottom:.2em}
 .cover{text-align:center;padding-top:48px}
+.logos{margin:0;display:flex;justify-content:center;align-items:center;gap:16px}
 .slogan{color:#E31B23;font-size:1.5em;font-family:Cambria,Georgia,serif}
 .banner{display:inline-block;background:#E31B23;color:#FFFFFF;font-weight:bold;padding:4px 14px;margin:0 0 .8em}
 ul{padding-left:1.3em}li{margin:.35em 0}
