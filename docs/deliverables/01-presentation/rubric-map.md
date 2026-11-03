@@ -17,7 +17,8 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 3:** measured baseline for the indicators; a process map (who does what, when); pain points in numbers (times, volumes, errors).
 - **Level 4:** root cause shown with evidence; comparison across areas or groups; shows what averages hide.
 - **Evidence:** current practice "field review every 3 months" for all projects (`docs/requirements/01-specs.md` section 12 and the visit formula; `configs/cost_assumptions.yaml` `visits_per_year: 4`, `projects: 12`); per-compound K2/K3/K6 baselines in `docs/deliverables/kpi-cards.md`; per-case root-cause diagnosis of the backtest in `data/experiments/35_backtest_diagnosis/DIAGNOSIS.md`.
-- **Gap to level 4:** no process map of today's inspection practice and no measured pain points (visit time, missed cases) from ACUD; the root-cause work covers the rule's misses, not the current process.
+- **Added for level 4:** `docs/deliverables/as-is.md`: process map rebuilt from public sources (mermaid, who/when/what is unknown); baseline in numbers (48 reviews a year; 5 of 6 public late cases 18-33 months late, median 25; 7 of 12 compounds with 106 fine-eligible months and 9,937 homes; level counts 1/2/3/6); three root causes with evidence (even effort, developer-sourced progress: C19 70% claimed vs 28% of built area at 20 m+, no pace-vs-promise check: C14 35% three months before its date); what the average hides (activity 0.03-0.90 around a 0.61 mean, developers with compounds at levels 1 and 4, delay range).
+- **Gap to level 4:** no ACUD records (visit logs, visit time, warnings, supervisor reports); the process map must be confirmed with ACUD.
 - **Slide:** no slide yet (slide 1 states the review cycle only).
 
 ## 3. Target state, to-be (weight 10)
