@@ -31,13 +31,13 @@ flowchart LR
 | --- | --- | --- |
 | Field reviews per year | 48 (12 compounds x 4) | `configs/cost_assumptions.yaml` |
 | Public late cases with a known delay | 5 of 6; 18 to 33 months past the original promise, median 25 (C10 33, C12 28, C21 25, C19 19, C02 18); C14 not yet delivered | `real/eval_outcomes` |
-| Compounds with fine-eligible months | 7 of 12, 106 months in total (C18 45, C10 21, C21 14, C02 11, C14 9, C12 4, C19 2) | `real/kpi_values` K5 |
+| Compounds with months eligible for contract review (K5) | 7 of 12, 106 months in total (C18 45, C10 21, C21 14, C02 11, C14 9, C12 4, C19 2) | `real/kpi_values` K5 |
 | Homes in those 7 compounds | 9,937 (published unit counts) | `real/compounds` |
 | Priority level today | level 1: 1, level 2: 2, level 3: 3, level 4: 6 compounds | `real/kpi_values` |
 
 ## Root causes, with evidence
 
-1. **Effort is not matched to risk** (if the public 3-month statement holds for R7). The 48 reviews are spread evenly: the 6 compounds at level 4 (routine) get the same 4 visits a year as C18, which is at level 1 with 45 fine-eligible months.
+1. **Effort is not matched to risk** (if the public 3-month statement holds for R7). The 48 reviews are spread evenly: the 6 compounds at level 4 (routine) get the same 4 visits a year as C18, which is at level 1 with 45 months eligible for contract review (K5).
 2. **Progress comes from the developer.** Public progress figures can run far ahead of the structure. C19 claimed 70% on 2022-09-21; that year 28% of its built area was 20 m or taller (Open Buildings Temporal). The two are different measures, so the gap is a reason to look, not proof. The supervisor reports that would settle it are not public.
 3. **Nobody compares pace with the promised date.** C14 promised delivery by the end of 2024; on 2024-09-24, three months before that date, it reported 35% progress and moved the date to the end of 2026; on 2026-02-10 it reported 50% and moved it to the end of 2027. A site that keeps working passes a "is it active?" review every quarter while the promise slips. Three of the five missed backtest cases look like this (C14, C12, C19); in two more (C10, C02) the delay sat in finishing and handover (`data/experiments/35_backtest_diagnosis/DIAGNOSIS.md`).
 

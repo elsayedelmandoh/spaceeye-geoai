@@ -80,11 +80,16 @@ Source checked: `docs/deliverables/01-presentation/presentation.md`. Line number
 | S-72 | 96 | "Law 151/2020" | NO SOURCE | Searched "151/2020" and "151": no relevant hit. The team board that the slide cites is outside the searched paths. |
 | S-73 | 103 | "Law 119" | MATCH | data/DATA_SOURCES_AND_GENERATION.md:29 "Law119/2008" (year and number match; spacing differs). |
 | S-74 | 103 | "art. 54" (supervisor reports) | NO SOURCE | Searched "art. 54", "Art 54" and "54": no article reference in allowed files. |
+| S-75 | 20 | "5 of 6 public late cases" | MATCH | release table `real/eval_outcomes` (as of 2026Q3): 6 cases, 5 with `delay_months_vs_promise`; C14 not yet delivered. Added 2026-11-04. |
+| S-76 | 20 | "18-33 months", "median 25" | MATCH | same table: C10 33, C12 28, C21 25, C19 19, C02 18; median 25. |
+| S-77 | 20 | "6,474 homes" | MATCH | release table `real/compounds` units of those 5 codes, all `units_origin` real: 1,133 + 584 + 1,907 + 1,100 + 1,750. |
+| S-78 | 20 | "153,816 home-months" | MATCH | units x delay months of the 5 cases; an estimate that assumes every home shared the first promised date. |
+| S-79 | 20 | "3 ran more than 24 months", "24-month refund line" | MATCH | C10, C12, C21 above 24 months (same table); 24-month refund choice in `data/knowledge/external/decree-2184-2022-real-estate-sales-rules-ar.md` art. 5(3), counted there from the contract date. |
 
 ## Summary
 
-- Rows: 74 (one per number, grouped where one clause holds several values).
-- MATCH: 55
+- Rows: 79 (one per number, grouped where one clause holds several values).
+- MATCH: 60
 - MISMATCH: 0
 - NO SOURCE: 19
 - CONTEXT: 0

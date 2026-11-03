@@ -9,7 +9,8 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 3:** a specific challenge placed in the frame (type × pillar × condition); its goal and size measured from a source; decision owner and affected parties named.
 - **Level 4:** links the challenge to stability, sustainability or citizen satisfaction as a chain: number → problem → measured impact; explains why now.
 - **Evidence:** `docs/requirements/01-specs.md` section 0 (compass cell preventive · Buildings & Facilities · normal · stability; decision owner; decision served); slide 1 figures (more than 400 developers, more than 500 projects, about 7-8% seriously late, 6 mutual terminations) are ACUD chairman statements recorded in `docs/requirements/01-specs.md` section 12.
-- **Gap to level 4:** the size figures are statements, not our measurement; no measured impact link (handover delay → investor or buyer effect) and no explicit "why now".
+- **Added for level 4:** `docs/deliverables/decision-memo.md` (English and Arabic): chain from R7 counts (5 of 6 late cases, 18-33 months) to problem (delay seen late) to impact (6,474 homes, up to 153,816 home-months; 3 compounds, 3,624 homes past the 24-month refund line of Decree 2184/2022 art. 5) and an assumed money figure (5,000 EGP rent per home-month, labelled assumption, about 0.77 bn EGP); "why now" in three points. Slide 1 adds the R7 line and the why-now speaker note.
+- **Gap to level 4:** the money figure rests on an assumed rent; delays are counted from published promises, not contract dates.
 - **Slide:** 1, 2.
 
 ## 2. Current state, as-is (weight 10)
@@ -26,7 +27,8 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 3:** targets (goal and objectives) on the same indicators; a picture of the new process and who decides in it.
 - **Level 4:** targets justified by data or a reference standard (ISO 37120/37122, U4SSC) for normal and extreme conditions, with the limits of what the project does not cover.
 - **Evidence:** new process: cycle list of capacity 4, levels 1-4 with actions, committee decides (`docs/requirements/01-specs.md` sections 2 and 7; `docs/deliverables/kpi-cards.md`); scope limits in `docs/requirements/01-specs.md` section 1 (out of scope).
-- **Gap to level 4:** several KPI targets read "Set by owner" or "meaning pending confirmation" (`docs/deliverables/kpi-cards.md`); no ISO 37120/37122 or U4SSC reference; extreme (crisis) condition not covered.
+- **Added for level 4:** `docs/deliverables/to-be.md`: new process map with roles; proposed targets on the as-is indicators, each with a data reason (capacity 4 covered every level 1-2 compound in 31 of 31 quarters; K4 met in all 372 compound-quarters; K2 threshold from `configs/data.yaml`); normal vs extreme conditions (load above capacity via S3, finance shocks S1/S2 move nothing, data outage); ISO 37122 and U4SSC mapping stated honestly (no matching indicator); limits. KPI cards A and K2 now carry proposed targets.
+- **Gap to level 4:** targets are proposals; the U4SSC indicator list was checked at framework level only; the backtest bar (5 of 6) is not met.
 - **Slide:** 2, 5 (partly).
 
 ## 4. Targets translated into a dashboard for its audience (weight 10)
