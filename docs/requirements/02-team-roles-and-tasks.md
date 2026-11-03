@@ -13,12 +13,12 @@ Source of every task: [`01-specs.md`](01-specs.md) (section numbers in brackets,
 
 ## Current implementation marks for human review
 
-Updated on 2 November 2026 against 80 current IDs (recounted from the checkboxes; includes PRs #62 to #66). Current approved binary scope and existing review records are preserved.
+Updated on 3 November 2026 against 88 current IDs (recounted from the checkboxes; includes PRs #84 to #88 and branch `docs/T-EL-28-video-deck-v2`). Current approved binary scope and existing review records are preserved.
 
 | State | Count | Meaning |
 | --- | ---: | --- |
-| Main task checked | 61 | Implemented, with evidence; 46 still await assigned review |
-| Main task unchecked, open/partial | 17 | Original work/decision still unresolved (includes T-EL-13, partial; T-NA-08 and T-NA-10 partial) |
+| Main task checked | 71 | Implemented, with evidence; 56 still await assigned review |
+| Main task unchecked, open/partial | 15 | Original work/decision still unresolved (includes T-EL-13, partial; T-EL-24 open; T-NA-08 and T-NA-10 partial) |
 | Main task unchecked, failed/excluded | 2 | T-NA-05 and T-NA-06: screens removed by owner decision (PR #60, 2 Nov 2026) |
 | Review accepted | 15 recorded | Existing review records retained; no new reviewer acceptance inferred |
 
@@ -270,6 +270,24 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-E
   - Evidence: [implementation/output](../../data/BINARY_SCOPE_DECISION.md).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 
+### Added 2 November 2026: dashboard, presentation, chatbot and media (owner: elsayed)
+
+- [x] **T-EL-21** [Should] D5 · Search, filters and map click on screen 1 (T-NA-11/12/13 scope) · `app.py`, `src/dashboard/insights.py` + tests · reviewer: ahmed **Implemented; review pending.** Merged in PR #87; real-browser map click checked on real data.
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
+- [x] **T-EL-22** [Must] D5 · Deck rebuilt to the instructor rubric: 12 minutes, lines for as-is, transition and documentation, the committee decision as the closing slide · `docs/deliverables/01-presentation/presentation.md` + HTML · reviewer: salma **Implemented; review pending.** Merged in PR #84 (12 slides, speaker notes total 12:00). The timed rehearsal stays under T-ALL-05.
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
+- [x] **T-EL-23** [Should] D5 · Compound details on map click: a sidebar panel with level, K2, K3, K6, reason, next action and the latest capture, each part opening a deeper view (compound file, signal history, images) · `app.py` + test · reviewer: ahmed **Implemented; review pending.** Merged in PR #87; rows without a level show their stored state (not started, start unknown, not assessable).
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
+- [ ] **T-EL-24** [Should] D5 · Document Q&A chatbot (normal RAG with citations) answering from the project docs, the cited Egyptian laws (Decree 2184/2022, Law 119/2008 art. 54, Law 151/2020), ACUD public pages, the satellite data docs (Dynamic World, Open Buildings, Wayback) and public summaries of ISO 37120/37122 and the SLA notion behind the KPIs; answers only from retrieved passages; any model call needs owner approval · `src/chatbot/` + sidebar + tests · reviewer: verina **Open; built on branch `feat/T-EL-24-rag-chatbot` (383 tests pass, nine sourced documents in `data/knowledge/`); ranking and off-topic refusal are being generalised against a 15-question evaluation table before the PR.**
+- [x] **T-EL-25** [Must] D5 · PowerPoint deck built from the instructor rubric (`docs/requirements/ACUD-Rubric.md`) and the team's rubric deck; the slide content is kept in `docs/deliverables/01-presentation/presentation.md` · `presentation.pptx` · reviewer: salma **Implemented; review pending.** Merged in PR #84; colors follow `docs/deliverables/01-presentation/palette.md` (T-EL-28); rebuilt with `01-presentation/make/build_pptx.js`.
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
+- [x] **T-EL-26** [Could] D5 · Intro video before the ACUD discussion: Arabic narration, no compound or developer names · `docs/deliverables/02-video/intro.mp4` · reviewer: salma **Implemented; review pending.** First version merged in PR #85; rebuilt in T-EL-28 (56 s, team-supplied narration, cuts on narration pauses).
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
+- [x] **T-EL-27** [Must] D5 · Salma's tasks: record what is finished on this board and carry out the open parts that do not need a human (wording fixes from the T-SA-07 audit, the checklist follow-ups) · reviewer: salma **Implemented; review pending.** Merged in PR #86. Four dashboard labels in `app.py` still read "fine-eligible months"; the rename is open under T-SA-07.
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
+- [x] **T-EL-28** [Should] D5 · Deliverables v2: presentation files in `docs/deliverables/01-presentation/`, video files in `docs/deliverables/02-video/` with references updated; project slogan "رادار العاصمة الجديدة: شركة تمتلك مدينة."; intro video re-cut to the team narration with slogan title card, supervisor and team credits, partner logos (MCIT, Egyptian Military Academy, Digilians, ACUD), ACUD palette and crossfades; deck recolored to `palette.md`; both rebuildable from their `make/` folders · reviewer: salma **Implemented; review pending.** Branch `docs/T-EL-28-video-deck-v2`; every video cut lands on a narration pause (3.5 s title + pause midpoint); deck renders 12 slides, 12 notes.
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
+
 ---
 
 ## 7. nada: dashboard
@@ -315,11 +333,14 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-E
   * Evidence: [user guide](../deliverables/user-guide.md), rewritten for Priority map, Compound file, District view and Digital twin what if; every behaviour statement is traced to a function in `app.py` or `src/dashboard/`.
   * [ ] Review accepted (record reviewer, date and PR after actual review).
 
-* [ ] **T-NA-11** [Should] D5 · Search on screen 1: one box that narrows the map and the visit list to a compound code (C..) or a developer code (D..); codes only · `app.py` + test · reviewer: ahmed **Open.**
+* [x] **T-NA-11** [Should] D5 · Search on screen 1: one box that narrows the map and the visit list to a compound code (C..) or a developer code (D..); codes only · `app.py` + test · reviewer: ahmed **Implemented; review pending.** Merged in PR #87 (search box, four filters, map click selects the compound; 394 tests pass; real-browser click on C04 checked on 3 Nov 2026).
+  * [ ] Review accepted (record reviewer, date and PR after actual review).
 
-* [ ] **T-NA-12** [Should] D5 · Filters on screen 1, applied to the map and the visit list: priority level (1-4), developer code, signal thresholds (K2 quarters, K3 months, K6 months), cycle list only or all compounds, and the as-of quarter · `app.py` + test · reviewer: ahmed **Open.**
+* [x] **T-NA-12** [Should] D5 · Filters on screen 1, applied to the map and the visit list: priority level (1-4), developer code, signal thresholds (K2 quarters, K3 months, K6 months), cycle list only or all compounds, and the as-of quarter · `app.py` + test · reviewer: ahmed **Implemented; review pending.** Merged in PR #87 (search box, four filters, map click selects the compound; 394 tests pass; real-browser click on C04 checked on 3 Nov 2026).
+  * [ ] Review accepted (record reviewer, date and PR after actual review).
 
-* [ ] **T-NA-13** [Should] D5 · Map click: clicking a compound on the priority map opens screen 2 (Compound file) with that compound selected · `app.py` + test · reviewer: ahmed **Open.**
+* [x] **T-NA-13** [Should] D5 · Map click: clicking a compound on the priority map opens screen 2 (Compound file) with that compound selected · `app.py` + test · reviewer: ahmed **Implemented; review pending.** Merged in PR #87 (search box, four filters, map click selects the compound; 394 tests pass; real-browser click on C04 checked on 3 Nov 2026).
+  * [ ] Review accepted (record reviewer, date and PR after actual review).
 ---
 
 ## 8. salma: KPIs, value, governance, presentation
