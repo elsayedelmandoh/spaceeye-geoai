@@ -488,6 +488,22 @@ def test_complaints_by_quarter_counts_each_category():
                                         {"quarter": "2026Q3", "category": "stoppage", "complaints": 1}]
 
 
+
+def test_cycle_footprint_sums_published_homes_and_land_in_feddan():
+    compounds = pd.DataFrame({"code": ["C18", "C07", "C01"], "units": [1600, 1000, 500],
+                              "units_origin": ["real", "generated", "real"],
+                              "land_area_m2": [4200.83 * 10, 4200.83 * 5, 1.0]})
+    assert insights.cycle_footprint(compounds, ["C18", "C07"]) == {"homes": 1600, "homes_compounds": 1,
+                                                                   "feddan": 15.0}
+
+
+def test_activity_spread_names_compounds_far_below_the_district_mean():
+    latest = pd.DataFrame({"code": ["C01", "C02", "C12", "C03"], "activity_prob": [0.9, 0.8, 0.03, 0.4]})
+    spread = insights.activity_spread(latest)
+    assert spread["mean"] == pytest.approx(0.5325)
+    assert spread["below_half"] == ["C12"]
+
+
 def _metrics_raw():
     return pd.DataFrame({
         "method": ["logistic_combined"] * 4 + ["public_rule", "logistic_combined"],

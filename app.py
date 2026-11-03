@@ -569,9 +569,15 @@ def render_summary_tiles(latest_df: pd.DataFrame, asof: str, promises: list[dict
     cycle = build_cycle_list(latest_df)
     months = latest_df["K5_months"].dropna() if "K5_months" in latest_df.columns else pd.Series(dtype=float)
     fined = months[months > 0]
+    compounds = load_table("real/compounds.parquet", TRACK_A)
+    footprint = ""
+    if compounds is not None:
+        f = insights.cycle_footprint(compounds, list(cycle["code"]))
+        footprint = f" · {f['homes']:,} published homes · {f['feddan']:g} feddan"
     tiles = st.columns(4)
     with tiles[0]:
-        metric_tile("To visit this cycle", len(cycle), "compound" if len(cycle) == 1 else "compounds", f"of {len(latest_df)}", asof, ORIGIN_DERIVED)
+        metric_tile("To visit this cycle", len(cycle), "compound" if len(cycle) == 1 else "compounds",
+                    f"of {len(latest_df)}{footprint}", asof, ORIGIN_DERIVED)
     with tiles[1]:
         metric_tile("At level 1", int((latest_df["level"] == 1).sum()),
                     "compound" if int((latest_df["level"] == 1).sum()) == 1 else "compounds",
@@ -1527,6 +1533,32 @@ def render_developer_groups(compounds: pd.DataFrame, latest_df: pd.DataFrame) ->
                     open_button(item["code"], f"dev{group['developer']}", f"{item['code']} · {level_text(item['level'])}")
 
 
+def render_activity_spread(latest_df: pd.DataFrame, asof: str) -> None:
+    section_title("📉", "What the district average hides")
+    spread = insights.activity_spread(latest_df)
+    table = latest_df.dropna(subset=["activity_prob"]).sort_values("activity_prob", ascending=False)
+    table = table.assign(Level=table["level"].map(level_word), score=table["activity_prob"].round(2))
+    words, colours = level_scale()
+    base = alt.Chart(table).encode(y=alt.Y("code:N", sort=list(table["code"]), title=None,
+                                           axis=alt.Axis(labelOverlap=False)))
+    bars = base.mark_bar().encode(
+        x=alt.X("score:Q", title="Building activity score (0-1)", scale=alt.Scale(domain=[0, 1])),
+        color=alt.Color("Level:N", title=None, legend=alt.Legend(orient="bottom"),
+                        scale=alt.Scale(domain=words, range=colours)),
+        tooltip=["code", "score", "Level"])
+    labels = base.mark_text(align="left", dx=4, color=PALETTE["text"]).encode(
+        x="score:Q", text=alt.Text("score:Q", format=".2f"))
+    mean = alt.Chart(pd.DataFrame({"mean": [spread["mean"]]})).mark_rule(
+        color=PALETTE["text"], strokeDash=[4, 4]).encode(x="mean:Q")
+    low = spread["below_half"]
+    hidden = (f"; {', '.join(low)} {'is' if len(low) == 1 else 'are'} below half of it" if low else "")
+    with st.container(border=True):
+        finding(f"{ORIGIN_DERIVED} District average activity <b>{spread['mean']:.2f}</b> as of {asof}{hidden}.")
+        st.altair_chart((bars + labels + mean).properties(height=34 * len(table) + 90), width="stretch")
+        st.caption("Dashed line = district average. Activity score = the model's probability that space saw "
+                   "building activity this quarter.")
+
+
 def render_district_levels() -> None:
     section_title("🗓️", "Level history, all compounds")
     kpis = load_table(KPI_FILE, TRACK_A)
@@ -1560,6 +1592,7 @@ def screen_district(track: Track) -> None:
     render_early_warning(None if cases is None else insights.warning_case(cases))
     render_flagged_early(insights.flagged_early(latest_df))
     render_strongest_claim(latest_df, asof)
+    render_activity_spread(latest_df, asof)
     if compounds is not None:
         render_homes_waiting(compounds, latest_df, asof)
     if outcomes is not None:

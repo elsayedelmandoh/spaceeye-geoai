@@ -395,6 +395,25 @@ def complaints_by_quarter(complaints: pd.DataFrame, code: str) -> pd.DataFrame:
             .rename("complaints").reset_index())
 
 
+FEDDAN_M2 = 4200.83  # configs/data.yaml compounds.feddan_m2
+
+
+def cycle_footprint(compounds: pd.DataFrame, codes: list[str]) -> dict:
+    """Published homes (generated unit counts left out) and land, in feddan, of the listed compounds."""
+    mine = compounds[compounds["code"].isin(codes)]
+    published = mine[mine["units_origin"] == "real"]
+    return {"homes": int(published["units"].sum()), "homes_compounds": len(published),
+            "feddan": round(float(mine["land_area_m2"].sum()) / FEDDAN_M2, 1)}
+
+
+def activity_spread(latest: pd.DataFrame) -> dict:
+    """District mean activity score and the compounds under half of it: what the average hides."""
+    scores = latest.dropna(subset=["activity_prob"])
+    mean = float(scores["activity_prob"].mean())
+    low = scores[scores["activity_prob"] < mean / 2].sort_values("activity_prob")
+    return {"mean": mean, "below_half": list(low["code"].astype(str))}
+
+
 def what_space_saw(why: object) -> str:
     """`short_reason` as a sentence start."""
     text = short_reason(why)
