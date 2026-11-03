@@ -536,13 +536,21 @@ def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None,
                    "right-drag to tilt or turn · click a compound to select it in the sidebar")
 
 
+def reason_text(row: pd.Series) -> str:
+    """The short stored reason; names the phase when the first handover date was only a phase date."""
+    statements = load_table("real/statements.parquet", TRACK_A)
+    note = None if statements is None else insights.first_deadline_note(
+        statements, str(row.get("code")), row.get("k3_first_deadline"))
+    return insights.short_reason(row.get("reason"), note)
+
+
 def cycle_headline(latest_df: pd.DataFrame, asof: str) -> str:
     """One sentence that states the cycle decision, built only from the stored level and reason."""
     cycle = build_cycle_list(latest_df)
     if cycle.empty:
         return f"No compound needs a visit this cycle ({asof})."
     first = latest_df[latest_df["code"] == cycle.iloc[0]["code"]].iloc[0]
-    why = insights.short_reason(first.get("reason"))
+    why = reason_text(first)
     eligible = int(latest_df["level"].isin([1, 2, 3]).sum())
     waiting = eligible - len(cycle)
     rest = f" {waiting} more at levels 1-3 wait for the next cycle." if waiting > 0 else ""
@@ -589,7 +597,7 @@ def visit_table(latest_df: pd.DataFrame, cycle: pd.DataFrame, statements: pd.Dat
         "List": [insights.list_status(r) for _, r in rows.iterrows()],
         "Level": rows["level"].map(level_word).to_numpy(),
         "Suggested action": [insights.suggested_action(r)[0] for _, r in rows.iterrows()],
-        "Why": rows["reason"].map(insights.short_reason).to_numpy(),
+        "Why": [reason_text(r) for _, r in rows.reset_index().iterrows()],
     }
     table = pd.DataFrame(table)
     if statements is not None:
@@ -1081,7 +1089,7 @@ def render_cycle_cards(latest: tuple[pd.DataFrame, str] | None) -> None:
             st.markdown(
                 f'<div class="se-card-head"><b>{int(item["cycle_rank"])} · {item["code"]}</b>'
                 f'<span class="se-pill" style="border-color:{colour};color:{colour}">{word}</span></div>'
-                f'<div class="se-card-why">{html.escape(insights.short_reason(row.get("reason")))}</div>',
+                f'<div class="se-card-why">{html.escape(reason_text(row))}</div>',
                 unsafe_allow_html=True)
             if frames:
                 st.caption(f"Wayback capture {frames[-1][0]}")
@@ -1218,7 +1226,7 @@ def screen_compound_file(track: Track) -> None:
         if row is None:
             st.warning(f"{code} has no KPI row for {asof}: shown as not assessable.")
         render_compound_header(row, code)
-        reason = None if row is None else insights.short_reason(row.get("reason"))
+        reason = None if row is None else reason_text(row)
         if not _missing(reason) and str(reason).strip():
             st.markdown(f'<b>Why:</b> {html.escape(str(reason))}', unsafe_allow_html=True)
 
@@ -1284,7 +1292,9 @@ def render_early_warning(case: dict | None) -> None:
     with st.container(border=True):
         finding(f"<b>{code}</b> was first flagged in {case['alert']}, {case['months']} months before its first "
                 f"handover date ({case['deadline']}).")
-        st.markdown(f"**What space saw.** {html.escape(case['saw'])}.")
+        # The backtest reads the clock as it stood then; today's history may differ after later images.
+        st.markdown(f"**What space saw in {case['alert']}**, with the data available then: "
+                    f"{html.escape(case['saw'][:1].lower() + case['saw'][1:])}.")
         if case["level_at_freeze"] is not None:
             st.markdown(f"By the freeze date ({case['freeze']}) it was back at level {case['level_at_freeze']} "
                         f"({level_word(case['level_at_freeze'])}).")
@@ -1330,9 +1340,11 @@ def render_strongest_claim(latest_df: pd.DataFrame, asof: str) -> None:
     frames, stages = space_frames(code), stage_of_year(code)
     rows = insights.promise_rows(statements[statements["code"] == code], frames, stages, asof)
     pair = insights.frame_pair(frames, insights.nearest_frame(frames, claim["last_claim"]))
+    row = latest_df[latest_df["code"] == code].iloc[0]
+    note = insights.first_deadline_note(statements, code, row.get("k3_first_deadline"))
     with st.container(border=True):
         finding(f"<b>{code}</b>: as of {asof}, {claim['k3']} months past the first announced handover date "
-                f"({claim['deadline']}).")
+                f"({claim['deadline']}{f', {note}' if note else ''}).")
         st.dataframe(claims_table(rows), hide_index=True, width="stretch")
         render_season_pair(pair, stages, "Nearest to the last claim")
 

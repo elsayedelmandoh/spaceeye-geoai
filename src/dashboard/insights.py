@@ -340,14 +340,41 @@ def outcome_text(outcome_type: object) -> str:
     return OUTCOME_WORDS.get(kind, kind.replace("_", " "))
 
 
-def short_reason(text: object) -> str:
-    """A stored English level reason without the level prefix, the activity score or the image count."""
+def short_reason(text: object, deadline_note: str | None = None) -> str:
+    """A stored English level reason without the level prefix, the activity score or the image count.
+
+    K2 counts quarters without new building change, so "no building activity" reads "no new building activity";
+    `deadline_note` (see `first_deadline_note`) says when the first handover date was only for a phase.
+    """
     if is_missing(text):
         return ""
     body = re.sub(r"\s*\(activity score [^)]*\)", "", str(text).split(": ", 1)[-1])
     body = re.sub(r"(\d+) quarter\(s\)", lambda m: f"{m[1]} quarter{'' if m[1] == '1' else 's'}", body)
+    body = body.replace("no building activity", "no new building activity")
+    if deadline_note:
+        body = re.sub(r"first announced handover date \((\w+ \d{4})\)",
+                      lambda m: f"first announced handover date ({m[1]}, {deadline_note})", body)
     clauses = [c.strip(" .") for c in body.split(";") if c.strip(" .") and not c.strip().startswith("observation")]
     return "; ".join(clauses)
+
+
+def first_deadline_note(statements: pd.DataFrame, code: str, deadline: object) -> str | None:
+    """"phase N; whole project <month>" when the stored first handover date is a phase date: a phase promise ends
+    that month and no whole-project promise does. None otherwise."""
+    if is_missing(deadline):
+        return None
+    promises = statements[(statements["code"] == code) & (statements["kind"] == "promise")
+                          & statements["period_end"].notna()]
+    month = pd.Timestamp(deadline).to_period("M")
+    ends = pd.to_datetime(promises["period_end"]).dt.to_period("M")
+    phase = promises[(ends == month) & promises["scope"].astype(str).str.fullmatch(r"phase\d+")]
+    project = promises[promises["scope"] == "project"]
+    if phase.empty or (ends[project.index] == month).any():
+        return None
+    note = f"phase {str(phase.iloc[0]['scope'])[5:]}"
+    if not project.empty:
+        note += f"; whole project {month_text(project.sort_values('published_date').iloc[0]['period_end'])}"
+    return note
 
 
 def what_space_saw(why: object) -> str:

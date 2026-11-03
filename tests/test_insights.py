@@ -303,7 +303,7 @@ WHY = ("Level 1: no building activity for 6 quarter(s) (activity score 0.30); fi
 
 
 def test_what_space_saw_drops_the_level_prefix_and_the_observation_clause():
-    assert insights.what_space_saw(WHY) == ("No building activity for 6 quarters; "
+    assert insights.what_space_saw(WHY) == ("No new building activity for 6 quarters; "
                                             "first announced handover date (Dec 2023) is still ahead")
 
 
@@ -442,6 +442,27 @@ def test_short_reason_drops_the_level_prefix_score_and_observation_clause():
     assert insights.short_reason(reason) == (
         "building activity detected; first announced handover date (Dec 2021) passed by 57 months")
 
+
+
+def test_short_reason_says_new_activity_and_names_a_phase_first_deadline():
+    reason = ("Level 1: no building activity for 1 quarter(s) (activity score 0.53); first announced handover date "
+              "(Dec 2021) passed by 57 months.")
+    assert insights.short_reason(reason, "phase 1; whole project Jul 2023") == (
+        "no new building activity for 1 quarter; first announced handover date (Dec 2021, phase 1; whole project "
+        "Jul 2023) passed by 57 months")
+
+
+def test_first_deadline_note_only_when_the_first_deadline_belongs_to_a_phase():
+    statements = pd.DataFrame({
+        "code": ["C18", "C18", "C12", "C12"],
+        "kind": ["promise"] * 4,
+        "scope": ["project", "phase1", "project", "phase1"],
+        "published_date": pd.to_datetime(["2021-09-25", "2021-09-25", "2019-06-03", "2021-09-21"]),
+        "period_end": pd.to_datetime(["2023-07-31", "2021-12-31", "2022-12-31", "2021-12-31"]),
+    })
+    assert insights.first_deadline_note(statements, "C18", "2021-12-31") == "phase 1; whole project Jul 2023"
+    assert insights.first_deadline_note(statements, "C12", "2022-12-31") is None
+    assert insights.first_deadline_note(statements, "C12", None) is None
 
 def _metrics_raw():
     return pd.DataFrame({
