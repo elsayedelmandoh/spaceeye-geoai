@@ -21,7 +21,7 @@ Source checked: `docs/deliverables/expected-questions.md`. Line numbers refer to
 | Q-13 | 13 | boosting satellite "4 of 4", combined "1 of 4" | MATCH | data/EW_REPORT_CURRENT.md:17-18. |
 | Q-14 | 13 | random-list baseline "0.335 (2,000 draws)" | MATCH | data/EW_REPORT_CURRENT.md:20 "Random: 2,000 draws, mean 0.335". |
 | Q-15 | 15 | "0-100 score" | CONTEXT | Hypothetical scale used to explain why levels are used; not a model output. Only docs/deliverables/expected-questions.md:15 states it. |
-| Q-16 | 16 | "-0.006 to 0.098 million EGP per year" | MATCH | configs/cost_assumptions.yaml:31 wording. |
+| Q-16 | 16 | "0.007 to 0.102 million EGP per year" | MATCH | configs/cost_assumptions.yaml:39 wording. |
 | Q-17 | 19 | "12 compounds" (12 coded R7 compounds) | MATCH | data/R1_REPORT.md:3 "Scope: R7 only, 12 coded compounds." |
 | Q-18 | 21 | "104-row benchmark" | MATCH | docs/deliverables/complaints_eval.csv:2 n_total 104. |
 | Q-19 | 21 | keyword baseline "0.27" on benchmark | MATCH | docs/deliverables/complaints_eval.csv:2 accuracy 0.2692. |

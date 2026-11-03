@@ -369,28 +369,28 @@ slides.push({
   title: "Value in EGP (3 settings)", time: "1:30",
   md: [
     "- Visiting 4 compounds per cycle instead of all 12: 16 visits a year instead of visiting every compound each cycle.",
-    "- Under these assumptions, from -0.006 to 0.098 million EGP per year.",
-    "- Every cost input is an assumption. The conservative setting is negative.",
-    "- Cost per visit (2,000 / 3,000 / 4,000 EGP) is an assumption based on a team of 3 at published engineer pay plus assumed transport. Operating cost, missed cases and cost of a late case are placeholders.",
+    "- Under these assumptions, from 0.007 to 0.102 million EGP per year.",
+    "- Cost inputs are public proxies or assumptions. Even the conservative setting is positive, but small.",
+    "- Cost per visit (2,000 / 3,000 / 4,000 EGP) is an assumption based on a team of 3 at published engineer pay plus assumed transport. Operating cost and missed cases are public proxies (CBE, Hetzner, WageIndicator, chairman's 7-8% statement); the cost of a late case is a placeholder.",
     "- The cost of a false alarm against the cost of a missed case has not been measured.",
     "- Not a measured saving.",
-    "- Visual: two stat callouts (-0.006 and 0.098 million EGP per year) and a three-setting table (cost per visit, operating cost, missed cases per year).",
+    "- Visual: two stat callouts (0.007 and 0.102 million EGP per year) and a three-setting table (cost per visit, operating cost, missed cases per year).",
   ],
-  source: ["`configs/cost_assumptions.yaml` (the same file holds the three settings and the placeholder values); `docs/deliverables/01-presentation/rubric-map.md` (criterion 6 gap)."],
-  note: "Speaker note: 1:30 · criterion 7. Compare with the current policy of visiting all 12; say the conservative setting is negative. The cost of a late case is a placeholder of 20,000 EGP per missed case in all three settings.",
+  source: ["`configs/cost_assumptions.yaml` (the same file holds the three settings, the proxy values and the placeholder); `docs/deliverables/01-presentation/rubric-map.md` (criterion 6 gap)."],
+  note: "Speaker note: 1:30 · criterion 7. Compare with the current policy of visiting all 12; say the conservative setting is positive but small. The cost of a late case is a placeholder of 20,000 EGP per missed case in all three settings.",
   build(s) {
-    stat(s, "s9 lo", MX, TOP + 0.05, 3.0, 1.9, "-0.006", "million EGP per year, low end");
-    stat(s, "s9 hi", MX + 3.2, TOP + 0.05, 3.0, 1.9, "0.098", "million EGP per year, high end");
+    stat(s, "s9 lo", MX, TOP + 0.05, 3.0, 1.9, "0.007", "million EGP per year, low end");
+    stat(s, "s9 hi", MX + 3.2, TOP + 0.05, 3.0, 1.9, "0.102", "million EGP per year, high end");
     table(s, "s9 table", [
-      ["Setting", "Cost per visit (EGP)", "Operating cost (EGP/yr, placeholder)", "Missed cases per year (placeholder)"],
-      ["Conservative", "2,000", "30,000", "2"],
-      ["Central", "3,000", "20,000", "1"],
-      ["Optimistic", "4,000", "10,000", "1"],
+      ["Setting", "Cost per visit (EGP)", "Operating cost (EGP/yr, proxy)", "Missed cases per year (proxy)"],
+      ["Conservative", "2,000", "16,800", "2"],
+      ["Central", "3,000", "9,700", "1"],
+      ["Optimistic", "4,000", "6,000", "1"],
     ], MX + 6.6, TOP + 0.05, W - 6.6, [1.35, 1.2, 1.5, W - 6.6 - 4.05], 12, 0.5);
     bullets(s, "s9 bullets", [
       "Visiting 4 compounds per cycle instead of all 12: 16 visits a year.",
-      "Every cost input is an assumption; the conservative setting is negative. Not a measured saving.",
-      "Cost per visit (assumption): a team of 3 at published engineer pay plus assumed transport. Operating cost, missed cases and cost of a late case are placeholders.",
+      "Cost inputs are public proxies or assumptions; the conservative setting is positive but small. Not a measured saving.",
+      "Cost per visit (assumption): a team of 3 at published engineer pay plus assumed transport. Operating cost and missed cases are public proxies; the cost of a late case is a placeholder.",
       "The cost of a false alarm against the cost of a missed case has not been measured.",
     ], MX, 3.6, W, 2.8, 16);
   },
@@ -493,6 +493,73 @@ slides.forEach((sp, i) => {
 const secs = slides.reduce((a, sp) => { const [m, s2] = sp.time.split(":").map(Number); return a + m * 60 + s2; }, 0);
 if (secs !== 720) warnings.push("total time is " + secs + "s, not 720");
 slides.forEach((sp) => { if (!sp.note.startsWith("Speaker note: " + sp.time)) warnings.push("note time mismatch: " + sp.title); });
+
+// ---------- html (same spec; colors from palette.md; no external scripts or fonts) ----------
+const esc = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+const inline = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/`([^`]+)`/g, "<code>$1</code>");
+const SYN_TEXT = "Synthetic - for training only";
+function htmlList(lines) {
+  // md lines: "- x" top level, "  - x" nested under the previous item.
+  let out = "<ul>", open = false;
+  lines.forEach((l) => {
+    const nested = l.startsWith("  - ");
+    const t = l.replace(/^\s*- /, "");
+    if (nested) { if (!open) { out += "<ul>"; open = true; } out += `<li dir="auto">${inline(t)}</li>`; return; }
+    if (open) { out += "</ul></li>"; open = false; } else if (out.endsWith("</li>") === false && out !== "<ul>") out += "";
+    out += `<li dir="auto">${inline(t)}`;
+    out += "</li>";
+  });
+  return out + (open ? "</ul></li>" : "") + "</ul>";
+}
+const sections = slides.map((sp, i) => {
+  const id = `slide-${labels[i]}`;
+  if (sp.cover) {
+    const [name, slogan, ...rest] = sp.md.map((l) => l.replace(/^- /, ""));
+    return `<section id="${id}" class="cover" aria-label="Slide ${labels[i]}">\n<h1 dir="auto">${inline(name)}</h1>\n<p class="slogan" dir="auto">${inline(slogan)}</p>\n${rest.map((r) => `<p dir="auto">${inline(r)}</p>`).join("\n")}\n<p class="note" dir="auto">${inline(sp.note)}</p>\n</section>`;
+  }
+  const lines = sp.md.filter((l) => !l.includes(SYN_TEXT));
+  const banner = sp.md.some((l) => l.includes(SYN_TEXT)) ? `<p class="banner">${esc(SYN)}</p>\n` : "";
+  const srcs = sp.source.map((src) => `<p class="source" dir="auto">Source${src.startsWith("(knowledge transfer)") ? " (knowledge transfer)" : ""}: ${inline(src.replace("(knowledge transfer) ", ""))}</p>`).join("\n");
+  return `<section id="${id}"${sp.dark ? ' class="dark"' : ""} aria-label="Slide ${labels[i]}">\n<h2 dir="auto"><span class="num">Slide ${labels[i]}.</span> ${inline(sp.title)}</h2>\n${banner}${htmlList(lines)}\n${srcs}\n<p class="note" dir="auto">${inline(sp.note)}</p>\n</section>`;
+});
+const CSS = `
+*{box-sizing:border-box}
+body{margin:0;background:#F1F1F1;color:#1A1A1A;font:16px/1.5 Calibri,Arial,sans-serif}
+section{background:#FFFFFF;color:#1A1A1A;max-width:960px;margin:16px auto;padding:24px 28px;overflow-wrap:anywhere}
+section.dark{background:#111111;color:#FFFFFF}
+h1{font-size:2.4em;margin:.3em 0;text-align:center}
+h2{font-family:Cambria,Georgia,serif;font-size:1.7em;margin:0 0 .6em;border-bottom:3px solid #E31B23;padding-bottom:.2em}
+.cover{text-align:center;padding-top:48px}
+.slogan{color:#E31B23;font-size:1.5em;font-family:Cambria,Georgia,serif}
+.banner{display:inline-block;background:#E31B23;color:#FFFFFF;font-weight:bold;padding:4px 14px;margin:0 0 .8em}
+ul{padding-left:1.3em}li{margin:.35em 0}
+code{background:#F1F1F1;color:#1A1A1A;padding:0 .25em;overflow-wrap:anywhere}
+.dark code{background:#1A1A1A;color:#FFFFFF}
+.source{color:#E31B23;font-size:.8em;margin:.8em 0 0}
+.dark .source{color:#F1F1F1}
+.note{font-size:.85em;border-left:3px solid #E31B23;padding-left:.8em;margin:1em 0 0;color:#1A1A1A}
+.dark .note{color:#FFFFFF}
+@page{size:A4 landscape;margin:10mm}
+@media print{
+body{background:#FFFFFF;font-size:11pt;line-height:1.3;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+section{max-width:none;margin:0;padding:6mm 8mm;break-after:page;page-break-after:always;min-height:185mm;overflow:hidden}
+section:last-child{break-after:auto;page-break-after:auto}
+}`;
+const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(pres.title)}</title>
+<style>${CSS}</style>
+</head>
+<body>
+<!-- Generated by make/build_pptx.js from the same spec as presentation.pptx and presentation.md. Do not edit by hand. -->
+${sections.join("\n")}
+</body>
+</html>
+`;
+fs.writeFileSync(path.join(__dirname, "..", "presentation.html"), html);
 
 fs.writeFileSync(path.join(__dirname, "..", "presentation.md"), md.join("\n"));
 pres.writeFile({ fileName: path.join(__dirname, "..", "presentation.pptx") }).then(() => {

@@ -39,6 +39,6 @@ Everything submitted, knowledge transfer pack, two timed rehearsals, backup vide
 
 1. Two tags per KPI card are pending.
 2. Presentation length and language are unconfirmed.
-3. Cost inputs other than cost per visit are placeholders awaiting reviewer values.
+3. Operating cost and missed cases are labelled public proxies; the cost of late detection is still a placeholder that needs ACUD.
 4. `kpi-cards.md` needs a short note that the new display-only assumed columns in `kpi_values` are assumptions and never set a level.
 5. The monitoring plan exists only as a written procedure (see row 5); confirm that this is what the deliverable requires.

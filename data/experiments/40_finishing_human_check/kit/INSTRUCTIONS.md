@@ -55,6 +55,13 @@ If you see both new structure and finishing in the same interval, choose `A`.
 
 Fill the three columns in `labels_salma.csv`: use capital letters `A`, `B`, `C` or `U` in `label`, and `high` or `low` in `confidence`. Save as CSV (keep the file name) and send it back when all rows are done.
 
+## Labelling in the browser (alternative to Excel)
+
+1. Put the `images/` folder in this `kit/` folder, then run `python make_manifest.py` (no installs). It writes `manifest.js`.
+2. Double-click `label.html` to open it in a browser (no server needed). It shows one interval at a time with two images side by side; click an image to enlarge it.
+3. Press `a`/`b`/`c`/`u` for the label, `h`/`l` for high/low confidence, and the left/right arrows to move. Answers are saved in the browser as you go; you can close the page and resume later on the same computer and browser.
+4. When done, click **Export CSV**. It downloads `labels_salma.csv` (columns `id,interval,label,confidence,note`, same as the Excel sheet); send that file back. The Excel route above still works.
+
 ## Rights
 
 The images come from Esri Wayback and are for this internal labelling only. Do not share them, post them, or upload them anywhere.
