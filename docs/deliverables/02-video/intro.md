@@ -27,7 +27,7 @@ Every cut is placed at the middle of a pause in the narration, so the picture ch
 
 ## How it was made and what it is not
 
-- Narration: the team-supplied recording gamal-ramzy-intro.wav (50.9 s); every cut is placed at a pause in the narration so the picture changes with the spoken part. Stills: Higgsfield `z_image`. A full video remake (480 Renoise credits; 35 Higgsfield credits per 5 s clip) was beyond the available balance.
+- Narration: the team-supplied recording gamal-ramzy-cloned-voice.wav (50.9 s); every cut is placed at a pause in the narration so the picture changes with the spoken part. Stills: Higgsfield `z_image`. A full video remake (480 Renoise credits; 35 Higgsfield credits per 5 s clip) was beyond the available balance.
 - Assembled locally with ffmpeg (slow zooms, 0.5 s crossfades centred on each cut, fade from black); cards rendered in Chromium for correct Arabic shaping. Colors follow [`palette.md`](../01-presentation/palette.md).
 - Partner logos stay on screen throughout: Digilians and ACUD top left, MCIT and the Egyptian Military Academy top right.
 - The stills are AI-generated illustrations, not project satellite data, and do not show R7 or any coded compound. The end card says so.
