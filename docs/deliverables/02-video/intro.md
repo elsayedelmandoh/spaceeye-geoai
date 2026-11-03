@@ -59,6 +59,13 @@ The clips add 18.5 s: `intro-human-voice.mp4` is 74.5 s and `intro-ai-voice.mp4`
 
 These numbers are the chairman's spoken statements, not project measurements. The footage belongs to the broadcaster: the excerpts are for showing in the presentation with credit, not for publishing the edited video.
 
+## Egypt Vision 2030 card
+
+Before the end card the video shows a Vision 2030 card naming the two goals the project supports: goal 4, knowledge and innovation (geographic AI that reads satellite images), and goal 6, governance (field inspections directed by data with a known source). Goal 5 (environment) is left out because the project does not compute NDVI; it uses the Dynamic World vegetation share.
+
+- `intro-human-voice.mp4` (80 s): the recorded narration cannot take new words, so the card is a silent 5.5 s beat between the last shot and the end card; everything after it moves together, so the slogan stays in sync.
+- `intro-ai-voice.mp4`: the AI narration replaces "والقرار يبقى للجنة" with: "القاعدة ترتّب الأولوية وتشرح السبب، فتختصر على اللجنة وقتَ الزيارات، وتساعدها على اختيار زيارتها التالية ببياناتٍ معروفةِ المصدر. هكذا يخدم سبيس آي رؤيةَ مصر 2030 في الحوكمة والتحوّل الرقمي." The card is on screen while the Vision 2030 sentence is spoken.
+
 ## How it was made and what it is not
 
 - Narration: the team-supplied recording gamal-ramzy-cloned-voice.wav (human version, 50.9 s) or ai-voice-narration.wav (AI version, 46.0 s); every cut is placed at a pause in the narration so the picture changes with the spoken part. Stills: Higgsfield `z_image`. A full video remake (480 Renoise credits; 35 Higgsfield credits per 5 s clip) was beyond the available balance.
