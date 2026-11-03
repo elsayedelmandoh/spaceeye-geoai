@@ -1,6 +1,11 @@
-# Intro video (56 s, Arabic narration)
+# Intro video (Arabic narration, human and AI voice)
 
-Task T-EL-26. File: `intro.mp4` (1920x1080, 56 s). Shown before the discussion with ACUD starts. Rebuild it with the kit in [`make/`](make/README.md).
+Task T-EL-26. Shown before the discussion with ACUD starts (1920x1080). Two versions with identical pictures and text cards, differing only in the voice:
+
+- `intro-human-voice.mp4` (56 s): team recording `gamal-ramzy-cloned-voice.wav`; timing in `make/timing.json`.
+- `intro-ai-voice.mp4` (51 s): AI voice `ai-voice-narration.wav` (Gemini 3.8 Flash TTS, voice Sulafat, via Renoise); timing in `make/timing-ai.json`.
+
+Rebuild them with the kit in [`make/`](make/README.md): `python make/assemble.py make/out` (human) and `python make/assemble.py make/out make/timing-ai.json` (AI).
 
 ## Narration (Arabic, as spoken)
 
@@ -11,6 +16,8 @@ Task T-EL-26. File: `intro.mp4` (1920x1080, 56 s). Shown before the discussion w
 سبيس آي: رادار العاصمة الجديدة - شركة تمتلك مدينة.
 
 ## Shots
+
+Human-voice version (56 s):
 
 | Time | Shot |
 |---|---|
@@ -23,11 +30,24 @@ Task T-EL-26. File: `intro.mp4` (1920x1080, 56 s). Shown before the discussion w
 | 0:45.3-0:48.0 | A committee table (part 5, last sentence: the committee decides) |
 | 0:48.0-0:55.9 | End card with the project slogan "رادار العاصمة الجديدة: شركة تمتلك مدينة." (New Capital radar: a company that owns a city.) while it is spoken |
 
+AI-voice version (51 s), same shots:
+
+| Time | Shot |
+|---|---|
+| 0:00-0:03.5 | Title card |
+| 0:03.5-0:08.5 | New city from the air (part 1) |
+| 0:08.5-0:19.0 | A review team (part 2) |
+| 0:19.0-0:27.2 | An observation satellite (part 3) |
+| 0:27.2-0:35.0 | A plot grid (part 4) |
+| 0:35.0-0:40.5 | A priority-coloured map (part 5, first sentence) |
+| 0:40.5-0:43.2 | A committee table (part 5, last sentence) |
+| 0:43.2-0:51.0 | End card with the project slogan |
+
 Every cut is placed at the middle of a pause in the narration, so the picture changes as the spoken part changes.
 
 ## How it was made and what it is not
 
-- Narration: the team-supplied recording gamal-ramzy-cloned-voice.wav (50.9 s); every cut is placed at a pause in the narration so the picture changes with the spoken part. Stills: Higgsfield `z_image`. A full video remake (480 Renoise credits; 35 Higgsfield credits per 5 s clip) was beyond the available balance.
+- Narration: the team-supplied recording gamal-ramzy-cloned-voice.wav (human version, 50.9 s) or ai-voice-narration.wav (AI version, 46.0 s); every cut is placed at a pause in the narration so the picture changes with the spoken part. Stills: Higgsfield `z_image`. A full video remake (480 Renoise credits; 35 Higgsfield credits per 5 s clip) was beyond the available balance.
 - Assembled locally with ffmpeg (slow zooms, 0.5 s crossfades centred on each cut, fade from black); cards rendered in Chromium for correct Arabic shaping. Colors follow [`palette.md`](../01-presentation/palette.md).
 - Partner logos stay on screen throughout: Digilians and ACUD top left, MCIT and the Egyptian Military Academy top right.
 - The stills are AI-generated illustrations, not project satellite data, and do not show R7 or any coded compound. The end card says so.
