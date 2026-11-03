@@ -464,7 +464,7 @@ slides.push({
       "Where (proposed, not deployed): ACUD-managed server or VM inside ACUD's network. Data stays with ACUD; codes only; private mappings stay with the custodian.",
       "Controls: thresholds and capacity change only by reviewed decision; chatbot model calls off until approved with a call budget; every visit result recorded.",
       "Monitoring: quarterly gates; a STOP writes no manifest. Rollback: K1 and the prior release.",
-    ], MX, 2.35, W, 4.0, 16);
+    ], MX, 2.75, W, 3.6, 16);
   },
 });
 
