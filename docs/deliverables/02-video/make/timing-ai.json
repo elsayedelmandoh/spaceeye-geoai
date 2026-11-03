@@ -3,11 +3,47 @@
   "title_seconds": 3.5,
   "end_seconds": 7.89,
   "shots": [
-    {"still": "s1.png", "seconds": 5.01, "zoom": "in"},
-    {"still": "s2.png", "seconds": 10.49, "zoom": "out"},
-    {"still": "s3.png", "seconds": 8.16, "zoom": "in"},
-    {"still": "s4.png", "seconds": 7.80, "zoom": "out"},
-    {"still": "s5.png", "seconds": 5.52, "zoom": "in", "crop": "iw*0.55:ih*0.55:iw*0.02:ih*0.2"},
-    {"still": "s6.png", "seconds": 2.67, "zoom": "in"}
+    {
+      "still": "s1.png",
+      "seconds": 5.01,
+      "zoom": "in"
+    },
+    {
+      "still": "s2.png",
+      "seconds": 10.49,
+      "zoom": "out"
+    },
+    {
+      "still": "s3.png",
+      "seconds": 8.16,
+      "zoom": "in"
+    },
+    {
+      "still": "s4.png",
+      "seconds": 7.8,
+      "zoom": "out"
+    },
+    {
+      "still": "s5.png",
+      "seconds": 5.52,
+      "zoom": "in",
+      "crop": "iw*0.55:ih*0.55:iw*0.02:ih*0.2"
+    },
+    {
+      "still": "s6.png",
+      "seconds": 2.67,
+      "zoom": "in"
+    }
+  ],
+  "inserts": [
+    "../khaled-abbas-1.mp4",
+    "../khaled-abbas-2.mp4",
+    "../khaled-abbas-3.mp4"
+  ],
+  "cards_before_end": [
+    {
+      "card": "vision",
+      "seconds": 5.5
+    }
   ]
 }
