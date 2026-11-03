@@ -1,5 +1,5 @@
 // Builds docs/deliverables/01-presentation.pptx AND 01-presentation.md from one spec,
-// so deck and markdown cannot drift. Run from the repo root: node .deck-build/build_pptx.js
+// so deck and markdown cannot drift. Run from the repo root: node make/build_pptx.js
 const fs = require("fs");
 const path = require("path");
 const PptxGenJS = require("/home/aang/.claude/jobs/3f2c8eda/tmp/media/node_modules/pptxgenjs");
@@ -470,8 +470,8 @@ const secs = slides.reduce((a, sp) => { const [m, s2] = sp.time.split(":").map(N
 if (secs !== 720) warnings.push("total time is " + secs + "s, not 720");
 slides.forEach((sp) => { if (!sp.note.startsWith("Speaker note: " + sp.time)) warnings.push("note time mismatch: " + sp.title); });
 
-fs.writeFileSync(path.join(REPO, "docs/deliverables/01-presentation.md"), md.join("\n"));
-pres.writeFile({ fileName: path.join(REPO, "docs/deliverables/01-presentation.pptx") }).then(() => {
+fs.writeFileSync(path.join(__dirname, "..", "presentation.md"), md.join("\n"));
+pres.writeFile({ fileName: path.join(__dirname, "..", "presentation.pptx") }).then(() => {
   console.log("slides:", slides.length, "warnings:", warnings.length);
   warnings.forEach((w) => console.log("WARN", w));
 });
