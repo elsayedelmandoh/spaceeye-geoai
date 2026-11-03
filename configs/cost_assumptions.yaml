@@ -6,7 +6,6 @@ currency: EGP
 projects: 12 # R7 coded compounds
 visits_per_year: 4 # field review every 3 months (spec formula)
 cycle_list_visits: 4 # cycle_capacity in configs/data.yaml
-false_alarms_per_year: 2 # PLACEHOLDER: no real false-alarm rate (all six backtest cases were late)
 
 # cost_per_visit method (approved): team of 3 x daily salary + transport.
 # Daily salary from monthly civil engineer pay of about 8,000 EGP / 22 days
@@ -30,3 +29,6 @@ settings:
 
 # Required wording (T-SA-03). Recompute with the settings above if any input changes.
 wording: "Under these assumptions, from -0.006 to 0.098 million EGP per year (illustrative; all cost inputs are assumptions)."
+
+# District view calculator (false alarm against a missed case).
+false_alarms_per_year: 2 # PLACEHOLDER: no real false-alarm rate (all six backtest cases were late)

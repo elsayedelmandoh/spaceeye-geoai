@@ -579,13 +579,15 @@ def test_handover_status_reads_the_latest_published_delivery_event_up_to_the_qua
     assert insights.handover_status(statements, "C03", "2026Q3") == "handover in progress (published May 2026)"
     assert insights.handover_status(statements, "C18", "2026Q3") == "none published"
 
+
 def test_caught_cases_counts_after_start_flags_out_of_all_cases():
     cases = pd.DataFrame({"after_start": [False, True, None, "True", False, False]})
     assert insights.caught_cases(cases) == (2, 6)
 
 
-def test_stall_codes_lists_compounds_whose_k2_reached_the_threshold_once():
-    kpis = pd.DataFrame({"code": ["C01", "C01", "C02", "C03", "C03"], "K2": [0, 2, 1, np.nan, 6]})
+def test_stall_codes_counts_only_stalls_that_raised_the_level():
+    kpis = pd.DataFrame({"code": ["C01", "C01", "C02", "C03", "C03", "C12"],
+                         "K2": [0, 2, 1, np.nan, 6, 5], "level": [4, 2, 3, 4, 1, 3]})
     assert insights.stall_codes(kpis, 2) == ["C01", "C03"]
 
 
@@ -594,3 +596,4 @@ def test_alarm_tradeoff_prices_both_errors_and_the_break_even_ratio():
     assert (t["false_alarms"], t["missed"], t["total"]) == (6000, 20000, 26000)
     assert t["break_even"] == pytest.approx(20000 / 3000)
     assert insights.alarm_tradeoff(0, 20000, 2, 1)["break_even"] is None
+    assert insights.alarm_tradeoff(3000, 0, 2, 1)["break_even"] is None

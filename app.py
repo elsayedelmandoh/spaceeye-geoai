@@ -1439,15 +1439,16 @@ def render_failures(cases: pd.DataFrame | None, kpis: pd.DataFrame | None) -> No
     with st.container(border=True):
         if cases is not None:
             caught, total = insights.caught_cases(cases)
-            finding(f"Before the first handover date, the rule flagged <b>{caught} of {total}</b> public late "
+            finding(f"At least 6 months before the first handover date, the rule flagged <b>{caught} of {total}</b> public late "
                     "cases after construction started. The bar set before testing was 5 of 6.")
         st.markdown(FAILURE_MODES)
         if kpis is not None:
             k2_min = CFG["levels"]["k2_l2"]
             codes = insights.stall_codes(kpis, k2_min)
-            st.markdown(f"**Where it holds.** The rule reacts when a site stops: the stall count reached {k2_min:g} "
-                        f"quarters or more in {len(codes)} of {kpis['code'].nunique()} compounds "
-                        f"({', '.join(codes)}). Imagery was never the limit in the six cases: every quarter "
+            st.markdown(f"**What it can do.** A stall seen from space raises the level: a stall count of {k2_min:g} "
+                        f"quarters or more gave level 1 or 2 in {len(codes)} of {kpis['code'].nunique()} compounds "
+                        f"at some quarter since 2019 ({', '.join(codes)}). No real late case yet confirms a stall "
+                        "caught during construction. Imagery was never the limit in the six cases: every quarter "
                         "before the cutoff had 10 or more images.")
         st.markdown("**What could close the gap (untested).** A pace-against-promise indicator, fixed and "
                     "recorded before scoring, built from data outside these six cases.")
@@ -1464,7 +1465,7 @@ def render_alarm_tradeoff() -> None:
     costs = load_cost_assumptions()
     central = costs["settings"]["central"]
     with st.container(border=True):
-        st.caption(f"{ORIGIN_GENERATED} Assumption · defaults from configs/cost_assumptions.yaml (central "
+        st.caption("Assumptions, not data · defaults from configs/cost_assumptions.yaml (central "
                    "setting). Most are placeholders until a reviewer sets them. Change any input.")
         cols = st.columns(4)
         visit = cols[0].number_input("Cost of a false alarm (EGP)", min_value=0, help="One wasted visit.",
@@ -1484,8 +1485,8 @@ def render_alarm_tradeoff() -> None:
         for col, label, key in zip(tiles, ("False alarms", "Missed cases", "Total"),
                                    ("false_alarms", "missed", "total")):
             with col, st.container(border=True):
-                st.metric(label=f"{ORIGIN_GENERATED} {label}", value=f"{t[key]:,.0f} EGP")
-                st.caption("per year, under these inputs")
+                st.metric(label=label, value=f"{t[key]:,.0f} EGP")
+                st.caption("per year, under these assumed inputs")
         st.caption("No false-alarm rate on real cases exists yet: all six backtest cases were late, "
                    "so the backtest can count misses but not false alarms.")
 
