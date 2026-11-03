@@ -26,7 +26,8 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 3:** targets (goal and objectives) on the same indicators; a picture of the new process and who decides in it.
 - **Level 4:** targets justified by data or a reference standard (ISO 37120/37122, U4SSC) for normal and extreme conditions, with the limits of what the project does not cover.
 - **Evidence:** new process: cycle list of capacity 4, levels 1-4 with actions, committee decides (`docs/requirements/01-specs.md` sections 2 and 7; `docs/deliverables/kpi-cards.md`); scope limits in `docs/requirements/01-specs.md` section 1 (out of scope).
-- **Gap to level 4:** several KPI targets read "Set by owner" or "meaning pending confirmation" (`docs/deliverables/kpi-cards.md`); no ISO 37120/37122 or U4SSC reference; extreme (crisis) condition not covered.
+- **Added for level 4:** `docs/deliverables/to-be.md`: new process map with roles; proposed targets on the as-is indicators, each with a data reason (capacity 4 covered every level 1-2 compound in 31 of 31 quarters; K4 met in all 372 compound-quarters; K2 threshold from `configs/data.yaml`); normal vs extreme conditions (load above capacity via S3, finance shocks S1/S2 move nothing, data outage); ISO 37122 and U4SSC mapping stated honestly (no matching indicator); limits. KPI cards A and K2 now carry proposed targets.
+- **Gap to level 4:** targets are proposals; the U4SSC indicator list was checked at framework level only; the backtest bar (5 of 6) is not met.
 - **Slide:** 2, 5 (partly).
 
 ## 4. Targets translated into a dashboard for its audience (weight 10)

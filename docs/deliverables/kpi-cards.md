@@ -18,7 +18,7 @@ Task T-SA-02. Roles below are proposed operational responsibilities. No institut
 | Frequency          | Quarterly                     |
 | Owner (role)       | Spatial data analyst          |
 | Baseline           | K1 (DW change alone)          |
-| Target             | Set by owner                  |
+| Target             | None of its own (input); its acceptance tests in `configs/data.yaml` are the target (proposed, `to-be.md`) |
 | Thresholds         | Model threshold (out-of-fold) |
 | Leading/lagging    | Leading                       |
 | International axis | Urban planning                |
@@ -37,7 +37,7 @@ A is the probability that the compound is building this quarter. It does not mea
 | Frequency          | Quarterly                                                         |
 | Owner (role)       | Spatial data analyst                                              |
 | Baseline           | 0                                                                 |
-| Target             | 0-1 (copied from the specification; meaning pending confirmation) |
+| Target             | At most 1 quarter on a started compound (proposed, `to-be.md`) |
 | Thresholds         | 2 / 4                                                             |
 | Leading/lagging    | Leading                                                           |
 | International axis | Urban planning                                                    |
