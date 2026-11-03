@@ -104,7 +104,7 @@ kpis:
       international_axis: Governance/data
     illustrative_assumptions: # mirrors configs/data.yaml fines block
       assumption: true
-      fine_rate_month: 0.01
+      fine_rate_month: 0.005
       land_price_egp_m2: [2500, 12000]
       allocation_lead_months: [6, 18]
     note: Illustrative policy screening only, not an assessed legal fine. It never sets a priority level. K5 uses calendar months.

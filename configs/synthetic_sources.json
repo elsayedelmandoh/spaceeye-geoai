@@ -1,6 +1,6 @@
 {
   "checked_on": "2026-10-28",
-  "purpose": "Retrospective calibration context for synthetic data. Sources do not disclose individual contracts or validate our assumed 1% monthly rate.",
+  "purpose": "Retrospective calibration context for synthetic data. Sources do not disclose individual contracts or validate our assumed 0.5% monthly rate.",
   "sources": [
     {
       "id": "PRICE_CONTEXT_2026",
@@ -28,9 +28,9 @@
       "published": "2020-09-20",
       "url": "https://www.cairo24.com/879515",
       "supports": "Reported fines and enforcement depend on contract provisions and project schedule.",
-      "does_not_support": "A universal1% rate or project-specific assessed fines."
+      "does_not_support": "A universal 0.5% rate or project-specific assessed fines."
     }
   ],
-  "unsupported_exact_parameters": ["allocation lead6-18months", "1%monthly fine rate", "individual allocation dates", "individual contract land prices"],
+  "unsupported_exact_parameters": ["allocation lead6-18months", "0.5% monthly fine rate", "individual allocation dates", "individual contract land prices"],
   "rule": "These values remain generated. News is context, never proof of a project's hidden record. Allocation dates conditioned on full history are excluded from model X."
 }

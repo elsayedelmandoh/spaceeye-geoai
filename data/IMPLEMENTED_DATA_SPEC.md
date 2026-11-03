@@ -38,7 +38,7 @@ K6 is months since the first known launch or promise publication without a confi
 It is null after confirmed start or when reference/coverage is insufficient. It does not prove that no work occurred. It now enters the priority rule with the imported thresholds.
 
 K5 stores cumulative screening months after the first deadline without observed start and after the12-month grace, with overlap counted once. It stops accruing at the first published handover; previously accumulated months remain. Missing deadline/evidence remains unknown. This is a research policy proxy, not verified contractual eligibility.
-Generated-only K5_egp = K5_months × assumed monthly rate × assumed land value. The default1% rate and land-price assumptions are explicit in configs/data.yaml, not legal/contract rates. No EGP fine enters the public-observation KPI table.
+Generated-only K5_egp = K5_months × assumed monthly rate × assumed land value. The default 0.5% rate and land-price assumptions are explicit in configs/data.yaml, not legal/contract rates. No EGP fine enters the public-observation KPI table.
 
 ## Historical synthetic reconstruction
 

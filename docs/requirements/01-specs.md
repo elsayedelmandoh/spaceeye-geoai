@@ -473,5 +473,5 @@ Use [the current decision register](D1_DECISIONS_CURRENT.md) and [binary scope d
 | --- | --- | --- | --- |
 | 1 | Resolved: retire the unattributed first-build percentage claim. Use current binary protocol/report with method, view and denominators. | BINARY_SCOPE_DECISION.md | Sections 0 and 3 |
 | 2 | Program day remains unconfirmed; calendar date is 28 October 2026. No team signatures or rehearsals are inferred. | Team lead | Section 10 timeline |
-| 3 | Implemented: illustrative monthly fine rate 1%, assumption=true; actual contract eligibility/rate unknown. | configs/data.yaml | Section 2 K5 |
+| 3 | Implemented: illustrative monthly fine rate 0.5% (1% before 3 November 2026), assumption=true; actual contract eligibility/rate unknown. | configs/data.yaml | Section 2 K5 |
 | 4 | Resolved: 12 R7 compounds, six public backtest cases, capacity 4; current real and synthetic checks exported. | Current coded register, BACKTEST_CURRENT.md, EW_REPORT_CURRENT.md | Sections 0, 2, 3, 9 |

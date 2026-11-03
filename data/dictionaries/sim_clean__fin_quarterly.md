@@ -26,7 +26,7 @@ Actual schema;180rows. Synthetic - for training only
 | K5_months | Int64 | see meaning | generated/derived from generated | Union of screening months: no observed start after deadline and post12-month grace; overlap counted once; unknown remains null. Not contractual eligibility. |
 | K6 | Int64 | see meaning | generated/derived from generated | Months since first known launch/promise publication without confirmed observed start; null after start or insufficient evidence. Priority2 at13–24,priority1 above24. |
 | assumed_land_value_egp | float64 | EGP | generated/derived from generated | Land area times generated price; in quarterly data replaced by value inferred from available installments when present. |
-| fine_rate_month | float64 | see meaning | generated/derived from generated | Illustrative1%monthly fraction; explicit assumption, not a published universal contract rate. |
+| fine_rate_month | float64 | see meaning | generated/derived from generated | Illustrative 0.5% monthly fraction; explicit assumption, not a published universal contract rate. |
 | land_value_basis | str | see meaning | generated/derived from generated | Whether current value comes from available generated installments or vintage-based fallback. |
 | K5_egp | Float64 | EGP | generated/derived from generated | K5_months times assumed land value times assumed monthly rate. Not an assessed fine or a cash-ledger deduction. |
 | K5_egp_discount_scenario | Float64 | EGP | generated/derived from generated | Optional50%discount intervention; null before2024-11-18publication; no automatic entitlement or known expiry asserted. |
