@@ -23,6 +23,8 @@ const cards = {
   end: `<div class="ar" style="font-size:80px">${lines(text("end_slogan.txt"))}</div>
         <div class="en" style="font-size:64px;margin-top:36px">${esc(text("title_brand.txt"))}</div>
         <div class="tiny">${esc(text("end_note.txt"))}</div>`,
+  vision: `<div class="ar" style="font-size:88px;color:#fff;border-bottom:8px solid #E31B23;padding-bottom:18px">${lines(text("vision_title.txt"))}</div>
+           <div class="ar" style="font-size:52px;color:#F1F1F1;margin-top:40px;max-width:1600px">${lines(text("vision_line.txt"))}</div>`,
 };
 
 (async () => {
