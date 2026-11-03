@@ -13,12 +13,12 @@ Source of every task: [`01-specs.md`](01-specs.md) (section numbers in brackets,
 
 ## Current implementation marks for human review
 
-Updated on 3 November 2026 against 88 current IDs (recounted from the checkboxes; includes PRs #84 to #88 and branch `docs/T-EL-28-video-deck-v2`). Current approved binary scope and existing review records are preserved.
+Updated on 3 November 2026 against 88 current IDs (recounted from the checkboxes; includes PRs #84 to #88 and branches `docs/T-EL-28-video-deck-v2` and `fix/T-SA-07-k5-wording`). Current approved binary scope and existing review records are preserved.
 
 | State | Count | Meaning |
 | --- | ---: | --- |
-| Main task checked | 72 | Implemented, with evidence; 51 still await assigned review (exact count of unchecked review lines) |
-| Main task unchecked, open/partial | 14 | Original work/decision still unresolved (includes T-EL-13, partial; T-NA-08 and T-NA-10 partial) |
+| Main task checked | 73 | Implemented, with evidence; 52 still await assigned review (exact count of unchecked review lines) |
+| Main task unchecked, open/partial | 13 | Original work/decision still unresolved (includes T-EL-13, partial; T-NA-08 and T-NA-10 partial) |
 | Main task unchecked, failed/excluded | 2 | T-NA-05 and T-NA-06: screens removed by owner decision (PR #60, 2 Nov 2026) |
 | Review accepted | 15 recorded | Existing review records retained; no new reviewer acceptance inferred |
 
@@ -284,7 +284,7 @@ Goal: inspection files for 5 compounds (AI) + scenario runner / what-if (D4: T-E
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-EL-26** [Could] D5 · Intro video before the ACUD discussion: Arabic narration, no compound or developer names · `docs/deliverables/02-video/intro-human-voice.mp4` / `intro-ai-voice.mp4` · reviewer: salma **Implemented; review pending.** First version merged in PR #85; rebuilt in T-EL-28 (56 s, team-supplied narration, cuts on narration pauses).
   - [ ] Review accepted (record reviewer, date and PR after actual review).
-- [x] **T-EL-27** [Must] D5 · Salma's tasks: record what is finished on this board and carry out the open parts that do not need a human (wording fixes from the T-SA-07 audit, the checklist follow-ups) · reviewer: salma **Implemented; review pending.** Merged in PR #86. Four dashboard labels in `app.py` still read "fine-eligible months"; the rename is open under T-SA-07.
+- [x] **T-EL-27** [Must] D5 · Salma's tasks: record what is finished on this board and carry out the open parts that do not need a human (wording fixes from the T-SA-07 audit, the checklist follow-ups) · reviewer: salma **Implemented; review pending.** Merged in PR #86. At that point four dashboard labels in `app.py` still read "fine-eligible months"; that rename is implemented on branch `fix/T-SA-07-k5-wording` and awaits review under T-SA-07.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-EL-28** [Should] D5 · Deliverables v2: presentation files in `docs/deliverables/01-presentation/`, video files in `docs/deliverables/02-video/` with references updated; project slogan "رادار العاصمة الجديدة: شركة تمتلك مدينة."; intro video re-cut to the team narration with slogan title card, supervisor and team credits, partner logos (MCIT, Egyptian Military Academy, Digilians, ACUD), ACUD palette and crossfades; deck recolored to `palette.md`; both rebuildable from their `make/` folders · reviewer: salma **Implemented; review pending.** Branch `docs/T-EL-28-video-deck-v2`; every video cut lands on a narration pause (3.5 s title + pause midpoint); deck renders 12 slides, 12 notes.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
@@ -362,7 +362,8 @@ Goal: every number in the docs and slides has a source or an origin mark and mat
   - Evidence: [decision memo](../deliverables/decision-memo.md) has an English and an Arabic section, each citing its source files. Page length and the same-order check were not verified.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [ ] **T-SA-06** [Must] D4 · Slides 1-11 (§12): backtest slide is the only place real names may appear; slide 8 always quotes the denominator, the baseline, the scope and "generated data" · `docs/deliverables/01-presentation/presentation.md` + deck · reviewer: all **Partial; slide notes closed (PR #65), deck HTML on main (12 sections, PR #72), every figure sourced or reworded and the slide-8 caveat added (PR #76). Open: no browser or print-preview check yet, and the deck length (12-15 min) is not confirmed.**
-- [ ] **T-SA-07** [Must] D4 · Wording audit of every doc, slide and screen against §3 allowed/forbidden table ("priority level" not "risk level", no "distressed" on a real compound, no completion %) · checklist in PR · reviewer: verina **Partial; the audit is done (`wording-audit-dashboard.md`, `wording-audit-docs.md`, PR #71): dashboard 0 violations and 16 checks; documents 1 violation and 26 checks. Open: the violation at `AI_AGENT_CONFIG.md:39` (a 0% error claim, Elsayed's document, not changed) and the checks.**
+- [x] **T-SA-07** [Must] D4 · Wording audit of every doc, slide and screen against §3 allowed/forbidden table ("priority level" not "risk level", no "distressed" on a real compound, no completion %) · checklist in PR · reviewer: verina **Implemented; review pending.** The audit and documented fixes are complete ([wording audit](../deliverables/wording-audit.md), [dashboard screens](../deliverables/wording-audit-dashboard.md), [team documents](../deliverables/wording-audit-docs.md)); the final K5 dashboard wording is applied in `app.py` and `src/dashboard/insights.py` on branch `fix/T-SA-07-k5-wording`. Evidence: `tests/test_dashboard_wording.py`; full suite 428 passed, 1 skipped; `git diff --check` clean.
+  - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-SA-08** [Must] D4 · Number audit: every number on slides and memo traced to `kpi_values`, `EW_REPORT.md` or `ai_verification_log` · reviewer: ahmed **Implemented; review pending.** The number audits are in `number-audit-slides.md`, `number-audit-questions.md` and `number-audit-memo.md` (PR #70). Every slide figure now has a source or was reworded (PR #76): 16 sourced, 2 reworded (the Sep-Oct 2026 dates and "48 visits"), and slide 8 carries the height caveat. The questions sheet is corrected (PR #75). Caveats: the slide 1 figures rest on the spec, which records them as the ACUD chairman's statements; "0 invented" is the spec's figure, not a recount.
   - [ ] Review accepted (record reviewer, date and PR after actual review).
 - [x] **T-SA-09** [Must] D5 · Expected questions sheet (§12) with one-line answers · reviewer: elsayed **Implemented; review pending.**
