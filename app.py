@@ -1337,7 +1337,8 @@ def render_homes_waiting(compounds: pd.DataFrame, latest_df: pd.DataFrame, asof:
     table = pd.DataFrame(waiting["rows"])
     table["Level"] = table["level"].map(level_word)
     table["label"] = table["k5"].astype(str) + " months"
-    base = alt.Chart(table).encode(y=alt.Y("code:N", sort=list(table["code"]), title=None),
+    base = alt.Chart(table).encode(y=alt.Y("code:N", sort=list(table["code"]), title=None,
+                                           axis=alt.Axis(labelOverlap=False)),
                                    x=alt.X("units:Q", title="Homes (published unit count)"))
     bars = base.mark_bar().encode(
         color=alt.Color("Level:N", title=None, legend=alt.Legend(orient="bottom"),
@@ -1347,7 +1348,8 @@ def render_homes_waiting(compounds: pd.DataFrame, latest_df: pd.DataFrame, asof:
     with st.container(border=True):
         finding(f"{ORIGIN_DERIVED} <b>{waiting['homes']:,} homes</b> in {waiting['compounds']} "
                 f"compounds eligible for review under contract terms, as of {asof}.")
-        st.altair_chart((bars + labels).properties(height=34 * waiting["compounds"]), width="stretch")
+        # Streamlit counts the axis and legend inside the height, so add room for them.
+        st.altair_chart((bars + labels).properties(height=34 * waiting["compounds"] + 90), width="stretch")
         st.caption("Label = months eligible for review under contract terms.")
 
 
@@ -1359,7 +1361,8 @@ def render_late_promises(outcomes: pd.DataFrame) -> None:
         return
     table = pd.DataFrame(delays["rows"])
     median = delays["median"]
-    base = alt.Chart(table).encode(y=alt.Y("code:N", sort=list(table["code"]), title=None))
+    base = alt.Chart(table).encode(y=alt.Y("code:N", sort=list(table["code"]), title=None,
+                                           axis=alt.Axis(labelOverlap=False)))
     bars = base.mark_bar(color=PALETTE["accent"]).encode(x=alt.X("months:Q", title="Months after the promised date"),
                                                          tooltip=["code", "months"])
     labels = base.mark_text(align="left", dx=4, color=PALETTE["text"]).encode(x="months:Q", text="months:Q")
@@ -1369,7 +1372,7 @@ def render_late_promises(outcomes: pd.DataFrame) -> None:
     with st.container(border=True):
         finding(f"{words} R7 compounds began handing over {table['months'].min()}-{table['months'].max()} months after "
                 f"the promised date (median {median:g}).")
-        st.altair_chart((bars + labels + rule).properties(height=34 * len(table)), width="stretch")
+        st.altair_chart((bars + labels + rule).properties(height=34 * len(table) + 50), width="stretch")
         kinds = outcomes.set_index("code")["outcome_type"]
         for code in delays["pending"]:
             st.markdown(f"**{code}**: {insights.outcome_text(kinds.get(code))}.")
