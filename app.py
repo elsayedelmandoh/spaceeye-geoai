@@ -43,7 +43,7 @@ ORIGIN_DERIVED = "🔵"    # derived from real data
 ORIGIN_GENERATED = "🟠"  # generated (stand-in for ACUD data)
 
 # Folders under app_data/ whose content is generated (separation rule).
-GENERATED_PREFIXES = ("sim/", "ml/", "scenarios/")
+GENERATED_PREFIXES = ("sim/", "sim_clean/", "component_data/", "ml/", "scenarios/")
 
 # Columns that could carry names: dropped before anything is rendered.
 FORBIDDEN_COLUMNS = {
@@ -955,6 +955,85 @@ def render_inspection_button(code: str, asof: str) -> None:
                        data=path.read_bytes(), file_name=path.name, mime="text/html", key=f"insp_{code}")
 
 
+# --------------------------------------------------------------------------- #
+# Generated developer file (Track B): what the screen shows once ACUD's own files are connected.
+# Every value here is generated (sim_clean/); the fine rate is an illustrative input, not a contract rate.
+# --------------------------------------------------------------------------- #
+
+DEFAULT_FINE_RATE_PCT = 0.5
+COMPLAINT_COLOURS = {"stoppage": "#F87171", "delay": "#F28C38", "quality": "#F2C14E", "payment": "#60A5FA",
+                     "other": "#9DB3C8"}
+
+
+def egp_millions(value: float) -> str:
+    return f"EGP {value / 1e6:,.1f} M"
+
+
+def render_fine_exposure(code: str, row: pd.Series, asof: str, track: Track) -> None:
+    land = load_table("sim_clean/fine_assumptions.parquet", track)
+    k5 = None if row is None else row.get("K5_months")
+    if land is None or land[land["code"] == code].empty:
+        return
+    value = float(land.loc[land["code"] == code, "assumed_land_value_egp"].iloc[0])
+    rate = st.number_input("Fine rate (% of the land value per month): enter your contract rate", min_value=0.0,
+                           max_value=5.0, value=DEFAULT_FINE_RATE_PCT, step=0.1, format="%.1f", key="fine_rate_pct")
+    months = 0 if _missing(k5) else int(k5)
+    tiles = st.columns(3)
+    with tiles[0]:
+        metric_tile("Fine exposure", egp_millions(months * rate / 100 * value), "",
+                    f"{months} months x {rate:.1f}% x land value", asof, ORIGIN_GENERATED)
+    with tiles[1]:
+        metric_tile("Assumed land value", egp_millions(value), "", "generated assumption", asof, ORIGIN_GENERATED)
+    with tiles[2]:
+        metric_tile("K5 months", months, "months", "eligible for review under contract terms", asof, K_ORIGIN["K5"])
+    st.caption("Exposure = K5 months x rate x land value. Generated land value and an illustrative rate: "
+               "a screening figure, not an assessed fine. The contract and the committee decide.")
+
+
+def render_developer_money(code: str, asof: str, track: Track) -> None:
+    fin = load_table("sim_clean/fin_monthly.parquet", track)
+    snap = None if fin is None else insights.finance_snapshot(fin, code, asof)
+    if snap is None:
+        return
+    tiles = st.columns(2)
+    with tiles[0]:
+        metric_tile("Collections", egp_millions(snap["collections_12m"]), "", "from buyers, last 12 months", asof,
+                    ORIGIN_GENERATED)
+    with tiles[1]:
+        metric_tile("Cover balance", egp_millions(snap["cover_balance"]), "", "escrow for construction", asof,
+                    ORIGIN_GENERATED)
+
+
+def render_complaints(code: str, track: Track) -> None:
+    complaints = load_table("sim_clean/complaints.parquet", track)
+    if complaints is None:
+        return
+    table = insights.complaints_by_quarter(complaints, code)
+    if table.empty:
+        st.markdown("No buyer complaints on file.")
+        return
+    recent = table[table["quarter"].isin(sorted(table["quarter"].unique())[-4:])]
+    stoppage = int(recent.loc[recent["category"] == "stoppage", "complaints"].sum())
+    finding(f"{ORIGIN_GENERATED} <b>{int(recent['complaints'].sum())} buyer complaints</b> in the last four quarters, "
+            f"{stoppage} about work stopping. Read them beside the satellite curve above.")
+    chart = alt.Chart(table).mark_bar().encode(
+        x=alt.X("quarter:N", title=None, axis=alt.Axis(labelAngle=0)),
+        y=alt.Y("complaints:Q", title="Complaints", axis=alt.Axis(tickMinStep=1)),
+        color=alt.Color("category:N", title=None, legend=alt.Legend(orient="bottom"),
+                        scale=alt.Scale(domain=list(COMPLAINT_COLOURS), range=list(COMPLAINT_COLOURS.values()))),
+        tooltip=["quarter", "category", "complaints"])
+    st.altair_chart(chart.properties(height=240), width="stretch")
+
+
+def render_developer_file(code: str, row: pd.Series | None, asof: str, track: Track) -> None:
+    section_title("💰", "Fine exposure")
+    render_fine_exposure(code, row, asof, track)
+    section_title("📒", "Developer money")
+    render_developer_money(code, asof, track)
+    section_title("📣", "Buyer complaints")
+    render_complaints(code, track)
+
+
 def last_recorded_visit(code: str) -> dict | None:
     visits = load_visits()
     if visits is None or visits.empty:
@@ -963,12 +1042,24 @@ def last_recorded_visit(code: str) -> dict | None:
     return None if mine.empty else {"date": str(mine.iloc[-1]["date"]), "result": str(mine.iloc[-1]["result"])}
 
 
-def render_compound_header(row: pd.Series | None, code: str) -> None:
+def generated_visit(code: str, asof: str, track: Track) -> dict | None:
+    """Track B only: the latest generated visit up to the quarter, standing in for ACUD's visit records."""
+    visits = load_table("component_data/synthetic_visits.parquet", track) if track.generated else None
+    mine = None if visits is None else visits[
+        (visits["code"] == code)
+        & (pd.to_datetime(visits["visit_date"]) <= pd.Period(asof, "Q").end_time)].sort_values("visit_date")
+    if mine is None or mine.empty:
+        return None
+    return {"date": str(pd.Timestamp(mine.iloc[-1]["visit_date"]).date()),
+            "result": f"{mine.iloc[-1]['result']}, generated"}
+
+
+def render_compound_header(row: pd.Series | None, code: str, track: Track = TRACK_A) -> None:
     """Level, suggested action and last recorded visit in one line."""
     if row is None:
         return
     action, why = insights.suggested_action(row)
-    visit = last_recorded_visit(code)
+    visit = last_recorded_visit(code) or generated_visit(code, str(row.get("quarter")), track)
     seen = "no visit recorded yet" if visit is None else f"{visit['date']} ({html.escape(visit['result'])})"
     number = insights.level_number(row.get("level"))
     level = level_word(row.get("level")) if number is None else f"Level {number} · {level_word(number)}"
@@ -1154,18 +1245,14 @@ def screen_priority_map(track: Track) -> None:
 
 # Track B model outputs, stored in the v7 release (never refitted here).
 ML_CURRENT = "tables/current/ml_current.parquet"
-ML_DATASET = "training/ml_dataset_extended.parquet"
 MODEL_METRICS = "docs/CURRENT_MODEL_METRICS.csv"
 MODEL_METADATA = "docs/CURRENT_MODEL_METADATA.json"
 
 
-def _fmt_egp(value: object) -> str:
-    return "not stored for this quarter" if _missing(value) else f"{float(value):,.0f} EGP"
-
-
 def render_classifier(code: str, track: Track) -> None:
-    """Track B: the stored distressed / not_distressed probabilities of all four methods and K5 in EGP."""
-    section_title("🟠", f"{ORIGIN_GENERATED} Classifier probabilities and K5 in EGP (generated)")
+    """Track B: the stored distressed / not_distressed probabilities of all four methods (K5 in EGP is in
+    the fine exposure section, at the rate the committee enters)."""
+    section_title("🟠", f"{ORIGIN_GENERATED} Classifier probabilities (generated)")
     probs = _safe(ML_CURRENT, load_table, ML_CURRENT, track, READY_DATA)
     rows = None if probs is None else probs[probs["code"].astype(str) == code]
     if rows is None or rows.empty:
@@ -1180,17 +1267,11 @@ def render_classifier(code: str, track: Track) -> None:
         "🟠 P(distressed)": latest["p_distressed"].round(2),
         "🟠 P(not_distressed)": latest["p_not_distressed"].round(2),
     })
-    data = _safe(ML_DATASET, load_table, ML_DATASET, track, READY_DATA)
-    k5 = None if data is None else data[(data["code"].astype(str) == code)
-                                        & (data["quarter"].astype(str) == quarter)]
-    k5_text = "not stored" if k5 is None or k5.empty else _fmt_egp(k5.iloc[0]["K5_egp"])
     with st.container(border=True):
         st.caption(f"{ORIGIN_GENERATED} Generated · {BANNER_TEXT} · {code} · {quarter}")
         st.dataframe(view, width="stretch", hide_index=True)
-        st.markdown(f"{ORIGIN_GENERATED} **K5 screening exposure:** {k5_text}")
         st.caption("satellite = images; combined = images + numbers. The rule, not these probabilities, "
-                   "selects the cycle list. Not_distressed does not mean completed or financially healthy. "
-                   "K5 = screening months × assumed land value × assumed monthly rate; not an assessed fine.")
+                   "selects the cycle list. Not_distressed does not mean completed or financially healthy.")
 
 
 def screen_compound_file(track: Track) -> None:
@@ -1225,7 +1306,7 @@ def screen_compound_file(track: Track) -> None:
 
         if row is None:
             st.warning(f"{code} has no KPI row for {asof}: shown as not assessable.")
-        render_compound_header(row, code)
+        render_compound_header(row, code, track)
         reason = None if row is None else reason_text(row)
         if not _missing(reason) and str(reason).strip():
             st.markdown(f'<b>Why:</b> {html.escape(str(reason))}', unsafe_allow_html=True)
@@ -1237,6 +1318,7 @@ def screen_compound_file(track: Track) -> None:
         render_images(code)
         render_claims(code, ann, asof)
         if track.generated:
+            render_developer_file(code, row, asof, track)
             render_classifier(code, track)
             render_inspection_button(code, asof)
 

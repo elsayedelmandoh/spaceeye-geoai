@@ -464,6 +464,30 @@ def test_first_deadline_note_only_when_the_first_deadline_belongs_to_a_phase():
     assert insights.first_deadline_note(statements, "C12", "2022-12-31") is None
     assert insights.first_deadline_note(statements, "C12", None) is None
 
+
+def test_finance_snapshot_reads_money_up_to_the_quarter():
+    fin = pd.DataFrame({
+        "code": ["C18"] * 4,
+        "month": ["2026-07", "2026-08", "2026-09", "2026-10"],
+        "collections_egp": [1e6, 2e6, 3e6, 4e6],
+        "cover_balance_egp": [5e6, 6e6, 7e6, 8e6],
+    })
+    snap = insights.finance_snapshot(fin, "C18", "2026Q3")
+    assert snap == {"month": "2026-09", "collections_12m": 6e6, "cover_balance": 7e6}
+    assert insights.finance_snapshot(fin, "C99", "2026Q3") is None
+
+
+def test_complaints_by_quarter_counts_each_category():
+    complaints = pd.DataFrame({
+        "code": ["C18", "C18", "C18", "C07"],
+        "created_at": pd.to_datetime(["2026-01-05", "2026-02-01", "2026-07-01", "2026-07-02"]),
+        "category": ["delay", "delay", "stoppage", "delay"],
+    })
+    table = insights.complaints_by_quarter(complaints, "C18")
+    assert table.to_dict("records") == [{"quarter": "2026Q1", "category": "delay", "complaints": 2},
+                                        {"quarter": "2026Q3", "category": "stoppage", "complaints": 1}]
+
+
 def _metrics_raw():
     return pd.DataFrame({
         "method": ["logistic_combined"] * 4 + ["public_rule", "logistic_combined"],

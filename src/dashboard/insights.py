@@ -377,6 +377,24 @@ def first_deadline_note(statements: pd.DataFrame, code: str, deadline: object) -
     return note
 
 
+def finance_snapshot(fin: pd.DataFrame, code: str, asof: str) -> dict | None:
+    """One compound's generated monthly money at the quarter's last month: collections over the last 12 months
+    and the cover balance."""
+    end = str(pd.Period(asof, "Q").asfreq("M", "end"))
+    mine = fin[(fin["code"] == code) & (fin["month"].astype(str) <= end)].sort_values("month")
+    if mine.empty:
+        return None
+    return {"month": str(mine.iloc[-1]["month"]), "collections_12m": float(mine.tail(12)["collections_egp"].sum()),
+            "cover_balance": float(mine.iloc[-1]["cover_balance_egp"])}
+
+
+def complaints_by_quarter(complaints: pd.DataFrame, code: str) -> pd.DataFrame:
+    mine = complaints[complaints["code"] == code]
+    quarters = pd.to_datetime(mine["created_at"]).dt.to_period("Q").astype(str)
+    return (mine.assign(quarter=quarters).groupby(["quarter", "category"]).size()
+            .rename("complaints").reset_index())
+
+
 def what_space_saw(why: object) -> str:
     """`short_reason` as a sentence start."""
     text = short_reason(why)
