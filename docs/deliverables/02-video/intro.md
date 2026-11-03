@@ -1,6 +1,6 @@
 # Intro video (52 s, Arabic narration)
 
-Task T-EL-26. File: `03-intro.mp4` (1920x1080, 52 s). Shown before the discussion with ACUD starts.
+Task T-EL-26. File: `intro.mp4` (1920x1080, 52 s). Shown before the discussion with ACUD starts.
 
 ## Narration (Arabic, as spoken)
 
