@@ -1,6 +1,6 @@
 # Binary distress model card
 
-> **Task:** `T-VE-13` (Deliverable 5) · Method Card for the Track B Classifier · Reviewer: Salma Magdy.  
+> **Task:** `T-VE-13` (Deliverable 5) · Method Card for the Track B Classifier · Reviewer role: analysis reviewer.<br>
 > Synthetic - for training only. Approved target: distressed / not_distressed in the next six months. Completion prediction has been removed by the team lead. See [scope decision](../../data/BINARY_SCOPE_DECISION.md), [protocol](../../data/EW_PROTOCOL_CURRENT.md), [current report](../../data/EW_REPORT_CURRENT.md), [metrics](../../data/CURRENT_MODEL_METRICS.csv) and [metadata](../../data/CURRENT_MODEL_METADATA.json).
 
 Data: 12 R7 compounds, 180 compound-quarter rows, 40 declared features. Primary training: 96 rows through 2024Q4, with 7 distressed and 89 not_distressed. Embargo: 2025Q1. Test: 48 rows from 2025Q2 through 2026Q1, with 4 distressed and 44 not_distressed. Censored and already-handed-over cutoffs are excluded from fitting/labelled evaluation. The latter is cohort information, not a predicted completion class.

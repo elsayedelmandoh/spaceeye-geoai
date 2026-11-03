@@ -2,9 +2,9 @@
 
 **Project:** SpaceEye GeoAI — Track A Administrative Capital (R7) Inspection System  
 **Tasks:** `T-VE-04`, `T-VE-05`, `T-VE-06`  
-**Owner:** Verina (AI & Verification Engineer)  
+**Owner role:** AI & Verification Engineer<br>
 **Date:** October 2026  
-**Status:** Completed & 100% Unit-Tested
+**Status:** Implemented; review pending
 
 ---
 
@@ -46,7 +46,7 @@ The four compounds are the 2026Q3 cycle list (`cycle_rank` 1-4 in `kpi_values`);
 Each dossier adheres strictly to the 4-part structure agreed upon by the team:
 
 1. **ماذا حدث (What Happened):**
-   - Compound code, developer code, land area, allowed floors, authorized units.
+   - Compound code, developer code, land area and authorized units; permitted floors are shown as unknown when they are not held.
    - Latest activity score from Sentinel-2 and multi-quarter activity history.
    - Grounded AI Executive Paragraph (`T-VE-04`).
 2. **السبب والتفسير المستبعد (Reason & Rejected Explanations):**
@@ -73,7 +73,7 @@ tests/test_inference.py::test_build_inspection_dossier ........... PASSED [100%]
 tests/test_inference.py::test_verifier_catches_wrong_number_and_causal_word PASSED [100%]
 tests/test_inference.py::test_cycle_list_reports_exist ....... PASSED [100%]
 
-Ran 13 tests in tests/test_inference.py — OK.
+The original recorded checks passed; use the current repository test run for present coverage.
 ```
 
 The dedicated verifier unit test suite `tests/test_verifier.py` tests all intentional edge cases:

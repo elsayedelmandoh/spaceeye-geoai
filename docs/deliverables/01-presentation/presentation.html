@@ -38,21 +38,21 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 <body>
 <header>
 <h1>Presentation: slides 1-11</h1>
-<p>Task T-SA-06. Draft text for review (the deck is built from this file). Length is still to be confirmed (spec says 12-15 min; <code>docs/requirements/01-specs.md</code> section 12). Numbers come only from repo files and carry an origin mark: 🟢 real · 🔵 derived · 🟠 generated ("Synthetic - for training only"). Codes only, no names. The words "risk level", "distressed" (for a real compound) and any completion % are not used.</p>
+<p>Task T-SA-06. Draft text for review (the deck is built from this file). Length: 12 min, the limit set by criterion 10 of the instructor rubric (<code>docs/requirements/ACUD-Rubric.md</code>); the time budget and the criteria each slide answers follow <code>docs/deliverables/rubric-map.md</code> (presentation plan) and are stated in each speaker note. Numbers come only from repo files and carry an origin mark: 🟢 real · 🔵 derived · 🟠 generated ("Synthetic - for training only"). Codes only, no names. The words "risk level", "distressed" (for a real compound) and any completion % are not used.</p>
 </header>
 <main>
 <section id="slide-1" aria-labelledby="slide-1-title">
 <h2 id="slide-1-title">Slide 1. Problem in numbers</h2>
 <ul>
-<li>More than 400 developers and more than 500 projects.
+<li>🟢 Real statement: More than 400 developers and more than 500 projects.
 </li>
-<li>Field review every 3 months.
+<li>🟢 Real statement: Field review every 3 months.
 </li>
-<li>About 7-8% of developers seriously late; 6 mutual terminations.
+<li>🟢 Real statement: About 7-8% of developers seriously late; 6 mutual terminations.
 </li>
 <li>Source: statements by the ACUD chairman, as recorded in <code>docs/requirements/01-specs.md</code> (section 12, slide 1). These are the chairman's statements, not our measurement.
 </li></ul>
-<p class="note">Speaker note: a committee cannot visit everything every cycle, so the question is whom to visit first.</p>
+<p class="note">Speaker note: 0:45 · criterion 1. A committee cannot visit everything every cycle, so the question is whom to visit first.</p>
 </section>
 <section id="slide-2" aria-labelledby="slide-2-title">
 <h2 id="slide-2-title">Slide 2. The question and the decision</h2>
@@ -62,12 +62,17 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 <li>The observatory ranks; the committee decides.
 </li>
 <li>Scope: R7 only, 12 coded compounds, reporting quarter 2026Q3, cycle capacity 4.
+</li>
+<li>As-is → to-be: today every one of the 12 compounds gets a field review every 3 months (4 visits a year each); tomorrow a cycle list of at most 4 compounds from levels 1-3, each with a reason sentence, and the committee decides. ACUD has not given us visit times or missed cases, so the as-is pain is not measured.
+</li>
+<li>Source: <code>configs/cost_assumptions.yaml</code> (<code>projects: 12</code>, <code>visits_per_year: 4</code>), <code>docs/requirements/01-specs.md</code> (sections 2, 7 and 12).
 </li></ul>
+<p class="note">Speaker note: 0:45 · criteria 1, 2, 3. One sentence from today's practice to the new list; the decision itself comes on slide 11.</p>
 </section>
 <section id="slide-3" aria-labelledby="slide-3-title">
 <h2 id="slide-3-title">Slide 3. Data</h2>
 <ul>
-<li>1,009 of 1,026 documented facts passed independent review; 0 invented. This is the figure stated in the spec (section 12), not a recount: the installed data has no facts register, and the dashboard's data-trust screen shows the same documented figure.
+<li>1,009 of 1,026 documented facts passed independent review. This is the figure stated in the spec (section 12), not a recount: the installed data has no facts register, and the dashboard's data-trust screen shows the same documented figure.
 </li>
 <li>Origin key on every number: 🟢 real, 🔵 derived, 🟠 generated.
 </li>
@@ -75,13 +80,14 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 </li>
 <li>Source: <code>docs/requirements/01-specs.md</code> (section 12); <code>data/DATASET_CONTRACT.md</code> for the tables.
 </li></ul>
+<p class="note">Speaker note: 0:45 · criteria 2, 8. Point to the origin key; it is used on every later slide.</p>
 </section>
 <section id="slide-4" aria-labelledby="slide-4-title">
 <h2 id="slide-4-title">Slide 4. Seeing construction from space</h2>
 <ul>
 <li>Dynamic World gives a quarterly built probability per compound; the activity score A is the probability that the compound is building this quarter.
 </li>
-<li>Open Buildings gives yearly heights to 2023; the 2024 value is an estimate, shown as context only, never part of a priority level.
+<li>Open Buildings gives yearly heights to 2023; approved height context extends through 2024 and is shown only as context, never part of a priority level.
 </li>
 <li>Wayback before/after images (with capture date and attribution) are for display; Esri terms to be confirmed before use.
 </li>
@@ -89,6 +95,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 </li>
 <li>Limit: satellites show whether building is happening, not interior finishing. No completion % or finishing % is given.
 </li></ul>
+<p class="note">Speaker note: 0:30 · criteria 2, 6. Say what the satellite sees and what it cannot see; move on.</p>
 </section>
 <section id="slide-5" aria-labelledby="slide-5-title">
 <h2 id="slide-5-title">Slide 5. The Track A rule</h2>
@@ -105,6 +112,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 </li>
 <li>Source: <code>docs/deliverables/kpi-cards.md</code> (cap count), <code>configs/data.yaml</code>, <code>docs/requirements/01-specs.md</code> (level table: 24 months right to refund).
 </li></ul>
+<p class="note">Speaker note: 1:00 · criteria 3, 4. The worst signal sets the level; no weights; the level maps to an action.</p>
 </section>
 <section id="slide-6" aria-labelledby="slide-6-title">
 <h2 id="slide-6-title">Slide 6. Live demo (Track A)</h2>
@@ -115,6 +123,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 </li>
 <li>Dependency: the demo needs the dashboard to run from stored files. Run command: <code>make run (team_run --full, which calls run_all)</code>, the one run command per board task T-AH-19.
 </li></ul>
+<p class="note">Speaker note: 1:30 · criterion 4. Follow the alert to the action: level, cycle list, inspection file, visit form.</p>
 </section>
 <section id="slide-7" aria-labelledby="slide-7-title">
 <h2 id="slide-7-title">Slide 7. Backtest: 1 of 6 and why</h2>
@@ -133,6 +142,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 </li>
 <li>Source: <code>data/BACKTEST_CURRENT.md</code>, <code>data/experiments/35_backtest_diagnosis/DIAGNOSIS.md</code>.
 </li></ul>
+<p class="note">Speaker note: 1:45 · criterion 6. Lead with the miss; the criterion was fixed before computing and was not lowered.</p>
 </section>
 <section id="slide-8" aria-labelledby="slide-8-title">
 <h2 id="slide-8-title">Slide 8. Track B: generated data (🟠 Synthetic - for training only)</h2>
@@ -161,6 +171,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 </li>
 <li>Source: <code>docs/deliverables/complaints_eval.csv</code>, <code>data/EW_V2A_VS_V1.md</code>.
 </li></ul>
+<p class="note">Speaker note: 1:00 · criterion 6. Generated data only; with 4 test cases the methods cannot be separated.</p>
 </section>
 <section id="slide-8b" aria-labelledby="slide-8b-title">
 <h2 id="slide-8b-title">Slide 8b. The observatory: one what-if scenario</h2>
@@ -176,6 +187,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 </li>
 <li>Source: <code>logs/review-05.md</code> (scenario row counts).
 </li></ul>
+<p class="note">Speaker note: 0:30 · criterion 6. Show S3 only; say S1 and S2 change nothing.</p>
 </section>
 <section id="slide-9" aria-labelledby="slide-9-title">
 <h2 id="slide-9-title">Slide 9. Value in EGP (3 settings)</h2>
@@ -186,10 +198,11 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 </li>
 <li>Every cost input is an assumption. The conservative setting is negative.
 </li>
-<li>Cost per visit (2,000 / 3,000 / 4,000 EGP) comes from a team of 3 at published engineer pay plus assumed transport. Operating cost, missed cases and cost of a late case are placeholders.
+<li>Cost per visit (2,000 / 3,000 / 4,000 EGP) is an assumption based on a team of 3 at published engineer pay plus assumed transport. Operating cost, missed cases and cost of a late case are placeholders.
 </li>
 <li>Source: <code>configs/cost_assumptions.yaml</code>. Not a measured saving.
 </li></ul>
+<p class="note">Speaker note: 1:45 · criterion 7. Compare with the current policy of visiting all 12; say the conservative setting is negative.</p>
 </section>
 <section id="slide-10" aria-labelledby="slide-10-title">
 <h2 id="slide-10-title">Slide 10. Risks and responsible use</h2>
@@ -210,20 +223,39 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
 </li>
 <li>The committee decides; every visit result is recorded to build real ground truth.
 </li>
+<li>Knowledge transfer: technical operations guide, committee user guide, handover pack, method card and final checklist are in the repo. No one outside the team has yet rebuilt the system from them, and the user guide was checked against the code, not in a browser.
+</li>
 <li>Source: <code>docs/deliverables/responsible-ai.md</code>, <code>docs/requirements/01-specs.md</code> (Law 151/2020).
+</li>
+<li>Source (knowledge transfer): <code>docs/deliverables/technical-track-a.md</code>, <code>docs/deliverables/user-guide.md</code>, <code>docs/deliverables/knowledge-transfer.md</code>, <code>docs/deliverables/method-card.md</code>, <code>docs/deliverables/final-checklist.md</code>.
 </li></ul>
+<p class="note">Speaker note: 1:00 · criteria 8, 9. A level is a visit order, not a finding; then one line on the handover documents.</p>
 </section>
 <section id="slide-11" aria-labelledby="slide-11-title">
-<h2 id="slide-11-title">Slide 11. What we ask from ACUD and next step</h2>
+<h2 id="slide-11-title">Slide 11. Decision, transition and next step</h2>
 <ul>
+<li><strong>Decision requested:</strong> use the inspection priority list to choose which R7 compounds the committee visits first next cycle. The system recommends; the committee decides.
+</li>
 <li>Message: this is what public data alone can do. Give us your data and the demo parts become real operation.
 </li>
-<li>Data request, by impact: plot boundaries, allocated developer and land allocation date · contract fine rates and fines issued · approved schedule and contractual handover dates · quarterly supervisor reports (Law 119 art. 54) · field review records · warnings, deadlines, terminations · building permits and permitted floors · land installments and arrears · escrow balances and collections · meter requests and occupancy certificates · anonymised buyer complaints.
+<li>Transition roadmap (phase · owner role · resource · risk · rollback):
+<ul>
+<li>Phase 1, pilot cycle: run one cycle with the list and record every visit result · committee decides, Track A owner prepares the list · capacity 4 visits per cycle · little ground truth, so results are presented by case with no accuracy claim · rollback: the current field review every 3 months continues unchanged.
+</li>
+<li>Phase 2, ACUD data: a coded export, ordered by impact (dated inspection and handover outcomes, contract register, parcel geometry first), a small verified sample before a full export · ACUD data custodian keeps the identity mapping · access and approval not yet given · rollback: stay on public data; missing values stay unknown.
+</li>
+<li>Phase 3, quarterly operation: the quarterly monitoring procedure; proposed operator Track A owner, reviewer another team member · thresholds and capacity fixed unless a reviewed decision changes them · activity score A fails on new quarters · rollback: fall back to K1 with the narrower claim; any STOP writes no manifest; prior releases stay available.
+</li>
+<li>Training of committee users (from the user guide), dates, phase-gate criteria and signed owners: to be agreed with ACUD.
+</li></ul>
+</li>
+<li>Transfer: thresholds and capacity are configuration; another region needs its boundaries and statements. Only R7 has been run; no transfer is proven.
 </li>
 <li>Next step: run one cycle with the list and record visit results.
 </li>
-<li>Source: <code>docs/deliverables/data-request.md</code>, <code>docs/requirements/01-specs.md</code> (data request list, art. 54).
+<li>Source: <code>docs/deliverables/decision-memo.md</code> (decision requested), <code>docs/deliverables/data-request.md</code>, <code>docs/requirements/01-specs.md</code> (data request list, art. 54; section 13 risks and fallbacks), <code>docs/deliverables/technical-track-a.md</code> (quarterly monitoring procedure).
 </li></ul>
+<p class="note">Speaker note: 0:45 · criteria 5, 10, bonus. Open with the decision, name the first phase, close on the next step. Total 12:00.</p>
 </section>
 </main>
 </body>
