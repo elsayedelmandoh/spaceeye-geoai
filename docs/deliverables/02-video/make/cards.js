@@ -12,9 +12,9 @@ const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, 
 const lines = (s) => esc(s).split("\n").join("<br>");
 
 const css = `body{margin:0;width:1920px;height:1080px;display:flex;flex-direction:column;justify-content:center;align-items:center;
-background:radial-gradient(circle at 50% 40%,#16314f,#070d18);color:#fff;font-family:'Noto Naskh Arabic','Noto Sans Arabic','DejaVu Sans',sans-serif;text-align:center}
-.en{font:700 96px/1.1 'DejaVu Sans',sans-serif;letter-spacing:2px}.ar{font-size:64px;margin-top:28px;direction:rtl}
-.small{font-size:30px;color:#c9d3e0;margin-top:40px;direction:auto}.tiny{position:absolute;bottom:40px;font:24px 'DejaVu Sans',sans-serif;color:#8796ab}`;
+background:radial-gradient(circle at 50% 40%,#232323,#111111);color:#fff;font-family:'Noto Naskh Arabic','Noto Sans Arabic','DejaVu Sans',sans-serif;text-align:center}
+.en{font:700 96px/1.1 'DejaVu Sans',sans-serif;letter-spacing:2px;border-bottom:8px solid #E31B23;padding-bottom:16px}.ar{font-size:64px;margin-top:28px;direction:rtl}
+.small{font-size:30px;color:#F1F1F1;margin-top:40px;direction:auto}.tiny{position:absolute;bottom:40px;font:24px 'DejaVu Sans',sans-serif;color:#B5B5B5}`;
 
 const cards = {
   title: `<div class="en">${esc(text("title_brand.txt"))}</div>
