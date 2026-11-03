@@ -16,6 +16,7 @@ import altair as alt  # ships with Streamlit
 import pandas as pd
 import pydeck as pdk
 import streamlit as st
+import yaml
 
 from src.chatbot.answer import AnswerOptions, answer_question
 from src.chatbot.retrieve import get_default_retriever
@@ -1403,6 +1404,71 @@ def render_early_warning(case: dict | None) -> None:
         render_frame_pair(pair, stages, "First capture after the alert")
 
 
+DIAGNOSIS_FILE = "data/experiments/35_backtest_diagnosis/DIAGNOSIS.md"
+# From DIAGNOSIS_FILE (summary table). The case codes are the five public late cases the rule missed.
+FAILURE_MODES = """| What the late case looked like | Cases | Why the rule missed it |
+| --- | --- | --- |
+| Building every quarter, but too slowly for the promised date | C14, C12, C19 | The site never stopped, so the stall rule had nothing to count. No indicator compares pace with the promised date. |
+| Structure nearly done; the delay sat in finishing or handover | C10, C02 | Finishing work and handover are not visible from space. |
+"""
+
+
+def render_failures(cases: pd.DataFrame | None, kpis: pd.DataFrame | None) -> None:
+    section_title("🧭", "When the solution fails")
+    with st.container(border=True):
+        if cases is not None:
+            caught, total = insights.caught_cases(cases)
+            finding(f"Before the first handover date, the rule flagged <b>{caught} of {total}</b> public late "
+                    "cases after construction started. The bar set before testing was 5 of 6.")
+        st.markdown(FAILURE_MODES)
+        if kpis is not None:
+            k2_min = CFG["levels"]["k2_l2"]
+            codes = insights.stall_codes(kpis, k2_min)
+            st.markdown(f"**Where it holds.** The rule reacts when a site stops: the stall count reached {k2_min:g} "
+                        f"quarters or more in {len(codes)} of {kpis['code'].nunique()} compounds "
+                        f"({', '.join(codes)}). Imagery was never the limit in the six cases: every quarter "
+                        "before the cutoff had 10 or more images.")
+        st.markdown("**What could close the gap (untested).** A pace-against-promise indicator, fixed and "
+                    "recorded before scoring, built from data outside these six cases.")
+        st.caption(f"Source: {DIAGNOSIS_FILE}")
+
+
+@st.cache_data(show_spinner=False)
+def load_cost_assumptions() -> dict:
+    return yaml.safe_load((REPO_DIR / "configs" / "cost_assumptions.yaml").read_text(encoding="utf-8"))
+
+
+def render_alarm_tradeoff() -> None:
+    section_title("⚖️", "A false alarm against a missed case")
+    costs = load_cost_assumptions()
+    central = costs["settings"]["central"]
+    with st.container(border=True):
+        st.caption(f"{ORIGIN_GENERATED} Assumption · defaults from configs/cost_assumptions.yaml (central "
+                   "setting). Most are placeholders until a reviewer sets them. Change any input.")
+        cols = st.columns(4)
+        visit = cols[0].number_input("Cost of a false alarm (EGP)", min_value=0, help="One wasted visit.",
+                                     value=int(central["cost_per_visit"]), step=500)
+        missed_cost = cols[1].number_input("Cost of one missed case (EGP)", min_value=0,
+                                           value=int(central["cost_late_detection"]), step=5000)
+        false_alarms = cols[2].number_input("False alarms per year", min_value=0,
+                                            value=int(costs["false_alarms_per_year"]), step=1)
+        missed = cols[3].number_input("Missed cases per year", min_value=0,
+                                      value=int(central["missed_cases"]), step=1)
+        t = insights.alarm_tradeoff(visit, missed_cost, false_alarms, missed)
+        if t["break_even"] is not None:
+            finding(f"One missed case costs as much as <b>{t['break_even']:,.1f} false alarms</b>. "
+                    f"An extra alert is worth a visit if at least 1 in {t['break_even']:,.1f} flagged "
+                    "compounds is a real case.")
+        tiles = st.columns(3)
+        for col, label, key in zip(tiles, ("False alarms", "Missed cases", "Total"),
+                                   ("false_alarms", "missed", "total")):
+            with col, st.container(border=True):
+                st.metric(label=f"{ORIGIN_GENERATED} {label}", value=f"{t[key]:,.0f} EGP")
+                st.caption("per year, under these inputs")
+        st.caption("No false-alarm rate on real cases exists yet: all six backtest cases were late, "
+                   "so the backtest can count misses but not false alarms.")
+
+
 def render_flagged_early(rows: list[dict]) -> None:
     section_title("🚩", "Flagged now, before any handover date passed")
     with st.container(border=True):
@@ -1594,6 +1660,8 @@ def screen_district(track: Track) -> None:
     compounds = load_table("real/compounds.parquet", TRACK_A)
     outcomes = load_table("real/eval_outcomes.parquet", TRACK_A)
     render_early_warning(None if cases is None else insights.warning_case(cases))
+    render_failures(cases, load_table(KPI_FILE, TRACK_A))
+    render_alarm_tradeoff()
     render_flagged_early(insights.flagged_early(latest_df))
     render_strongest_claim(latest_df, asof)
     render_activity_spread(latest_df, asof)

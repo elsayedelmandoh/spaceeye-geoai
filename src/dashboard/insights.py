@@ -463,6 +463,24 @@ def warning_case(cases: pd.DataFrame) -> dict | None:
             "reported": month_text(reported[1]) if reported else ""}
 
 
+def caught_cases(cases: pd.DataFrame) -> tuple[int, int]:
+    """Backtest cases flagged after construction started, out of all cases."""
+    return int(cases["after_start"].map(_flag).sum()), len(cases)
+
+
+def stall_codes(kpis: pd.DataFrame, k2_min: float) -> list[str]:
+    """Compounds whose stall count K2 reached `k2_min` in at least one quarter."""
+    peaks = kpis.groupby("code")["K2"].max()
+    return sorted(peaks[peaks >= k2_min].index)
+
+
+def alarm_tradeoff(visit_cost: float, missed_cost: float, false_alarms: float, missed: float) -> dict:
+    """Yearly cost of wasted visits against late detections, and how many false alarms one miss is worth."""
+    return {"false_alarms": visit_cost * false_alarms, "missed": missed_cost * missed,
+            "total": visit_cost * false_alarms + missed_cost * missed,
+            "break_even": missed_cost / visit_cost if visit_cost > 0 else None}
+
+
 def first_frame_after(frames: list[dict], when: pd.Timestamp) -> int | None:
     return next((i for i, f in enumerate(frames) if pd.Timestamp(f["date"]) > when), None)
 
