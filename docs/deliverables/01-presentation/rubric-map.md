@@ -49,7 +49,8 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 3:** effectiveness measured for the solution type: reactive (time to detect and respond), preventive/predictive (precision, recall and false-alarm rate; unclear in the source), on past data.
 - **Level 4:** adds feasibility (when the solution stays valid) and the trade-off between the cost of a false alarm and the cost of a missed event (unclear in the source).
 - **Evidence:** frozen-clock backtest on six real R7 cases: 1 of 6 after-start, 0 of 6 point-in-time; criterion of 5 not lowered (`data/BACKTEST_CURRENT.md`); diagnosis of misses (`data/experiments/35_backtest_diagnosis/DIAGNOSIS.md`); generated-data recall@4 per method against random mean 0.335 (2,000 draws) (`data/EW_REPORT_CURRENT.md`); per-class recall and macro-F1 (`data/CURRENT_MODEL_METRICS.csv`, e.g. logistic_combined macro-F1 0.615); `docs/deliverables/method-card.md`.
-- **Gap to level 4:** the real-case criterion was not met (1 of 6); the test holds only 4 distressed rows (`data/EW_REPORT_CURRENT.md`); no false-alarm rate on real cases and no false-alarm vs missed-case cost trade-off.
+- **Added for level 4:** District view sections "When the solution fails" (failure modes per case, where the rule holds) and "A false alarm against a missed case" (calculator with labelled assumptions; break-even of about 6.7 false alarms per missed case at the central setting); same text in `docs/deliverables/technical-track-a.md` ("When the rule fails and what an error costs").
+- **Gap to level 4:** the real-case criterion was not met (1 of 6); the test holds only 4 distressed rows (`data/EW_REPORT_CURRENT.md`); no false-alarm rate on real cases (all six backtest cases were late); cost inputs are assumptions.
 - **Slide:** 7, 8, 8b.
 
 ## 7. Return on investment (weight 12)
