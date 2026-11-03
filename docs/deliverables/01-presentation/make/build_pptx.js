@@ -249,7 +249,7 @@ slides.push({
 
 // 6
 slides.push({
-  title: "Live demo (Track A)", time: "1:30",
+  title: "Live demo (Track A)", time: "1:15",
   md: [
     "- Priority map, cycle list (capacity 4, levels 1-3), open one compound, read its reason sentence, open the inspection file, record a visit result.",
     "- Everything on screen in Track A is real or derived. No generated number appears on the map.",
@@ -257,7 +257,7 @@ slides.push({
     "- Visual: five-step flow (priority map → cycle list → reason sentence → inspection file → visit result).",
   ],
   source: ["`docs/deliverables/user-guide.md`; board task T-AH-19 in `docs/requirements/02-team-roles-and-tasks.md`."],
-  note: "Speaker note: 1:30 · criterion 4. Follow the alert to the action: level, cycle list, inspection file, visit form.",
+  note: "Speaker note: 1:15 · criterion 4. Follow the alert to the action: level, cycle list, inspection file, visit form.",
   build(s) {
     const steps = ["Priority map", "Cycle list (capacity 4, levels 1-3)", "Compound reason sentence", "Inspection file", "Visit result recorded"];
     const bw = 1.95, gap = (W - 5 * bw) / 4;
@@ -274,7 +274,7 @@ slides.push({
 
 // 7
 slides.push({
-  title: "Backtest: 1 of 6 and why", time: "1:45",
+  title: "Backtest: 1 of 6 and why", time: "1:30",
   md: [
     "- Six public R7 cases, checked with the clock frozen. Codes only, even on this slide.",
     "- Early alert in 1 of 6 cases (after-start reading, case C21) and 0 of 6 (point-in-time reading).",
@@ -285,7 +285,7 @@ slides.push({
     "- Visual: three stat callouts (1 of 6 · 0 of 6 · 5 required, not achieved).",
   ],
   source: ["`data/BACKTEST_CURRENT.md`, `data/experiments/35_backtest_diagnosis/DIAGNOSIS.md`."],
-  note: "Speaker note: 1:45 · criterion 6. Lead with the miss, and say the target was fixed before computing.",
+  note: "Speaker note: 1:30 · criterion 6. Lead with the miss, and say the target was fixed before computing.",
   build(s) {
     const w = (W - 0.4) / 3;
     stat(s, "s7 a", MX, TOP + 0.05, w, 1.45, "1 of 6", "early alert, after-start reading (C21)");
@@ -421,6 +421,35 @@ slides.push({
   },
 });
 
+// 10b
+slides.push({
+  title: "Launching in production", time: "0:30",
+  md: [
+    "- What runs: the Streamlit dashboard (`uv run --locked streamlit run app.py`), the quarterly data run (`uv run --locked --offline python -m src.pipeline.team_run`) and prepared data v7 (`releases/ready-data`).",
+    "- Where (proposed, not deployed): a server or VM managed by ACUD, inside ACUD's network, to be agreed with ACUD. Data stays with ACUD; exports use codes only; private mappings never leave the data custodian.",
+    "- Controls: thresholds and capacity change only by reviewed decision; chatbot model calls stay off until approved with a call budget (`configs/ai.yaml`); every visit result is recorded in ops_visits.",
+    "- Monitoring: the quarterly procedure and its quality gates; any STOP keeps outputs for diagnosis, writes no manifest and blocks packaging.",
+    "- Rollback: switch the activity source to K1 (a recorded decision) and keep prior releases available, as slide 11 says.",
+    "- Visual: four-step flow (prepare data → run rule → publish dashboard → committee visits and records).",
+  ],
+  source: ["`README.md`, `CLAUDE.md`, `docs/deliverables/technical-track-a.md` (quarterly monitoring procedure, STOP, K1 switch; states no deployment is implied), `docs/deliverables/data-request.md`, `docs/deliverables/responsible-ai.md`, `docs/deliverables/governance-cards.md`, `configs/ai.yaml`, `src/dashboard/ops_visits.py`."],
+  note: "Speaker note: 0:30 · criteria 5, 9. Technical launch only; phases are on the next slide. Hosting is a proposal to agree with ACUD, not a deployed system. Any STOP writes no manifest; the fallback is K1 and the prior release.",
+  build(s) {
+    const steps = ["Prepare data (v7, codes only)", "Run rule (quarterly team_run)", "Publish dashboard (Streamlit)", "Committee visits and records (ops_visits)"];
+    const bw = 2.6, gap = (W - 4 * bw) / 3;
+    steps.forEach((t, i) => {
+      box(s, "s10b step " + i, MX + i * (bw + gap), TOP + 0.05, bw, 1.0, t, { fill: i === 3 ? C.red : C.navy, pt: 14 });
+      if (i < 3) arrow(s, MX + i * (bw + gap) + bw + (gap - 0.3) / 2, TOP + 0.35, 0.3, 0.4);
+    });
+    bullets(s, "s10b bullets", [
+      "Runs: Streamlit dashboard, quarterly team_run, prepared data v7 (releases/ready-data).",
+      "Where (proposed, not deployed): ACUD-managed server or VM inside ACUD's network. Data stays with ACUD; codes only; private mappings stay with the custodian.",
+      "Controls: thresholds and capacity change only by reviewed decision; chatbot model calls off until approved with a call budget; every visit result recorded.",
+      "Monitoring: quarterly gates; a STOP writes no manifest. Rollback: K1 and the prior release.",
+    ], MX, 2.35, W, 4.0, 16);
+  },
+});
+
 // 11
 const PH = [
   ["1 · Pilot cycle", "Run one cycle with the list; record every visit result.", "Committee decides; Track A owner prepares the list.", "Little ground truth; no accuracy claim.", "The current 3-month review continues."],
@@ -478,9 +507,9 @@ slides.forEach((sp) => {
 });
 
 // ---------- markdown ----------
-const labels = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "8b", "9", "10", "11"];
+const labels = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "8b", "9", "10", "10b", "11"];
 const md = [
-  "# Presentation: 13 slides (title slide 0, then 1-11 with 8b after 8)",
+  "# Presentation: 14 slides (title slide 0, then 1-11 with 8b after 8 and 10b after 10)",
   "",
   "Tasks T-SA-06 and T-EL-25. Draft text for review. This file holds the on-slide content and speaker notes of `presentation.pptx`, slide for slide in the same order. Length: 12 min, the limit set by criterion 10 of the instructor rubric (`docs/requirements/ACUD-Rubric.md`); the time budget and the criteria each slide answers follow `docs/deliverables/01-presentation/rubric-map.md` (presentation plan) and are stated in each speaker note (total 12:00). Numbers come only from repo files and carry an origin mark: 🟢 real · 🔵 derived · 🟠 generated (\"Synthetic - for training only\"). Compounds and developers appear as codes only; the only names are the supervisor and team on the title slide. The words \"risk level\", \"distressed\" (for a real compound) and any completion % are not used. Some caveats are in the speaker notes.",
   "",

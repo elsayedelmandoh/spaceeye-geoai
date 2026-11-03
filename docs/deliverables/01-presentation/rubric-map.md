@@ -105,13 +105,14 @@ Slide numbers refer to [presentation.md](presentation.md).
 | 3 | 3 Data | 2, 8 | 0:45 |
 | 4 | 4 Seeing construction from space | 2, 6 | 0:30 |
 | 5 | 5 Track A rule | 3, 4 | 1:00 |
-| 6 | 6 Live demo | 4 | 1:30 |
-| 7 | 7 Backtest: 1 of 6 and why | 6 | 1:45 |
+| 6 | 6 Live demo | 4 | 1:15 |
+| 7 | 7 Backtest: 1 of 6 and why | 6 | 1:30 |
 | 8 | 8 Track B (generated) | 6 | 1:00 |
 | 9 | 8b What-if scenario | 6 | 0:30 |
 | 10 | 9 Value in EGP | 7 | 1:30 |
 | 11 | 10 Risks and governance | 8, 9 | 1:00 |
-| 12 | 11 Ask, transition step and next step | 5, 10, bonus | 0:45 |
+| 12 | 10b Launching in production | 5, 9 | 0:30 |
+| 13 | 11 Ask, transition step and next step | 5, 10, bonus | 0:45 |
 | | **Total** | | **12:00** |
 
-Criteria 6 and 7 (12 points each) get 5:00 of the 12 minutes. Criteria 2, 5 and 9 have no slide of their own; add one line each to slides 2, 11 and 10, or move them to prepared answers.
+Criteria 6 and 7 (12 points each) get 4:30 of the 12 minutes. Criteria 2, 5 and 9 have no slide of their own; add one line each to slides 2, 11 and 10, or move them to prepared answers.
