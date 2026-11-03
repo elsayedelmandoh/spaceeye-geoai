@@ -37,7 +37,7 @@ A is the probability that the compound is building this quarter. It does not mea
 | Frequency          | Quarterly                                                         |
 | Owner (role)       | Spatial data analyst                                              |
 | Baseline           | 0                                                                 |
-| Target             | At most 1 quarter on a started compound (proposed, `to-be.md`) |
+| Target             | At most 1 quarter on a started compound not flagged "may be complete" (proposed, `to-be.md`) |
 | Thresholds         | 2 / 4                                                             |
 | Leading/lagging    | Leading                                                           |
 | International axis | Urban planning                                                    |
