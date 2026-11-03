@@ -1,6 +1,6 @@
 # Current state (as-is): how R7 compounds are followed today
 
-Bottom line: every R7 compound gets the same field review every 3 months, whatever its risk. Five of the six public late cases ran 18 to 33 months past their original promise (median 25). The evidence below points to three causes: effort is not matched to risk, progress is known mostly from the developer's own statements, and nobody compares pace with the promised date.
+Bottom line: per public statements, every compound gets the same field review every 3 months, whatever its risk. Five of the six public late cases ran 18 to 33 months past their original promise (median 25). The evidence below points to three causes: effort is not matched to risk, progress is known mostly from the developer's own statements, and nobody compares pace with the promised date.
 
 Sources: ACUD chairman statements (`docs/requirements/01-specs.md` section 12), Law 119/2008 article 54 and Decree 2184/2022 (`data/knowledge/external/`), and the real R7 tables of the current release (as of 2026Q3). ACUD's internal workflow was not observed. The map below is rebuilt from public sources and must be confirmed with ACUD.
 
@@ -37,13 +37,13 @@ flowchart LR
 
 ## Root causes, with evidence
 
-1. **Effort is not matched to risk.** The 48 reviews are spread evenly: the 6 compounds at level 4 (routine) get the same 4 visits a year as C18, which is at level 1 with 45 fine-eligible months.
+1. **Effort is not matched to risk** (if the public 3-month statement holds for R7). The 48 reviews are spread evenly: the 6 compounds at level 4 (routine) get the same 4 visits a year as C18, which is at level 1 with 45 fine-eligible months.
 2. **Progress comes from the developer.** Public progress figures can run far ahead of the structure. C19 claimed 70% on 2022-09-21; that year 28% of its built area was 20 m or taller (Open Buildings Temporal). The two are different measures, so the gap is a reason to look, not proof. The supervisor reports that would settle it are not public.
 3. **Nobody compares pace with the promised date.** C14 promised delivery by the end of 2024; on 2024-09-24, three months before that date, it reported 35% progress and moved the date to the end of 2026; on 2026-02-10 it reported 50% and moved it to the end of 2027. A site that keeps working passes a "is it active?" review every quarter while the promise slips. Three of the five missed backtest cases look like this (C14, C12, C19); in two more (C10, C02) the delay sat in finishing and handover (`data/experiments/35_backtest_diagnosis/DIAGNOSIS.md`).
 
 ## What the average hides
 
-- **Activity.** The district mean activity score is 0.61, but it ranges from 0.03 (C12) to 0.90 (C04, C17); C12 and C03 are under half the mean. A district figure would call R7 "active" while two compounds have almost stopped.
+- **Activity.** The district mean activity score is 0.61, but it ranges from 0.03 (C12) to 0.90 (C04, C17); C12 and C03 are under half the mean. A district figure would call R7 "active" while two compounds show almost no activity (both flagged "may be complete"; C12 was handed over).
 - **Developers.** The same developer can run one compound at level 1 and another at level 4: D14 has C18 at level 1 and C01 at level 4; D12 has C12 at level 3 and C04 and C10 at level 4. Judging by developer would hide both.
 - **Delays.** A median delay of 25 months hides a range of 18 to 33 months, and a case (C14) that has no delay value because it is still not delivered.
 

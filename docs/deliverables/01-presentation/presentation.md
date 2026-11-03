@@ -157,7 +157,7 @@ Speaker note: 1:00 · criteria 8, 9. A level sets the visit order and finds noth
   - Phase 1 · Pilot cycle: Run one cycle with the list; record every visit result. Owner: Committee decides; Track A owner prepares the list. Risk: Little ground truth; no accuracy claim. Rollback: The current 3-month review continues.
   - Phase 2 · ACUD data: Coded export ordered by impact; small verified sample first. Owner: ACUD data custodian keeps the identity mapping. Risk: Access and approval not yet given. Rollback: Stay on public data; missing stays unknown.
   - Phase 3 · Quarterly operation: Quarterly monitoring; thresholds and capacity change only by reviewed decision. Owner: Proposed: Track A owner operates, another team member reviews. Risk: Activity score A fails on new quarters. Rollback: Fall back to K1; prior releases stay available.
-- Gates between phases, progress indicators, rollback triggers and training: `docs/deliverables/transition-plan.md` (proposed). The fixed 3-month review keeps running through phases 1 and 2, so rollback costs nothing. People and dates: to be agreed with ACUD.
+- Gates between phases, progress indicators, rollback triggers and training: `docs/deliverables/transition-plan.md` (proposed). The fixed 3-month review keeps running through phases 1 and 2, so rollback costs at most one rerun. People and dates: to be agreed with ACUD.
 - Transfer: thresholds and capacity are configuration; another region needs its boundaries and statements. Only R7 has been run; no transfer is proven.
 - Next step: run one cycle with the list and record visit results.
 - Visual: decision box and three-phase roadmap.

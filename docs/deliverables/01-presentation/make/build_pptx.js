@@ -434,7 +434,7 @@ slides.push({
     "- Message: this is what public data alone can do. Give us your data and the demo parts become real operation.",
     "- Transition roadmap (phase · what · owner role · risk · rollback):",
     ...PH.map(([t, d, o, r, b]) => `  - Phase ${t}: ${d} Owner: ${o} Risk: ${r} Rollback: ${b}`),
-    "- Gates between phases, progress indicators, rollback triggers and training: `docs/deliverables/transition-plan.md` (proposed). The fixed 3-month review keeps running through phases 1 and 2, so rollback costs nothing. People and dates: to be agreed with ACUD.",
+    "- Gates between phases, progress indicators, rollback triggers and training: `docs/deliverables/transition-plan.md` (proposed). The fixed 3-month review keeps running through phases 1 and 2, so rollback costs at most one rerun. People and dates: to be agreed with ACUD.",
     "- Transfer: thresholds and capacity are configuration; another region needs its boundaries and statements. Only R7 has been run; no transfer is proven.",
     "- Next step: run one cycle with the list and record visit results.",
     "- Visual: decision box and three-phase roadmap.",

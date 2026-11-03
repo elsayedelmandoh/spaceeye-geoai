@@ -4,7 +4,7 @@ Status: proposed by the team, not approved by ACUD. Owners are roles; ACUD names
 
 ## In short
 
-Three phases. During phases 1 and 2 the current practice (every R7 compound reviewed every 3 months) keeps running, so going back costs nothing: rollback means "stop reading the list". The list changes which compounds are visited first only after a committee decision at the gate into phase 3.
+Three phases. During phases 1 and 2 the current practice (every R7 compound reviewed every 3 months) keeps running, so going back costs at most one rerun: rollback means "stop reading the list". The list changes which compounds are visited first only after a committee decision at the gate into phase 3.
 
 | Phase | Length (proposed) | Scope | What changes | Gate to the next phase |
 | --- | --- | --- | --- | --- |
