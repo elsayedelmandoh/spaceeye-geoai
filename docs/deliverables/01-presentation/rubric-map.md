@@ -80,7 +80,8 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 3:** technical documentation, user guide and a knowledge-transfer record (unclear in the source).
 - **Level 4:** another team can run and maintain it without the original team.
 - **Evidence:** `docs/deliverables/technical-track-a.md`, `docs/deliverables/user-guide.md`, `docs/deliverables/knowledge-transfer.md`, `docs/deliverables/method-card.md`, `docs/deliverables/final-checklist.md`.
-- **Gap to level 4:** no record that a person outside the team rebuilt or ran the system from these documents; the user guide was checked against code, not in a browser (`docs/deliverables/user-guide.md`).
+- **Added for level 4:** clean-room run recorded in `docs/REVIEW_SETUP.md` (2026-11-04): fresh clone of main, section 1 only, setup 323 files, backtest replay 1 of 6, 451 tests passed, all five screens open with no page errors; the stale v6 name in the setup page and "four screens" in the README fixed.
+- **Gap to level 4:** the clean-room run was done by the team, not by a person outside it.
 - **Slide:** no slide yet (mention in slide 11 or in answers).
 
 ## 10. Presentation and answers (weight 10)
@@ -88,7 +89,7 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 3:** a clear story from current to target state and a summary with the decision requested; 12 minutes; accurate and transparent answers (unclear in the source).
 - **Level 4:** leadership-level persuasion: conveys the value strongly and handles hard questions with evidence and alternatives.
 - **Evidence:** decision requested in `docs/deliverables/decision-memo.md` and slide 11; prepared answers `docs/deliverables/expected-questions.md`; deck text `docs/deliverables/presentation.md`.
-- **Added for level 4:** eight prepared answers for the new material (as-is and to-be, why now, buyers affected, when it fails, false alarm vs missed case, safe start, responsibility, other districts) in `docs/deliverables/expected-questions.md`; the one-page decision is `docs/deliverables/decision-memo.md`.
+- **Added for level 4:** eight prepared answers for the new material (as-is and to-be, why now, buyers affected, when it fails, false alarm vs missed case, safe start, responsibility, other districts) in `docs/deliverables/expected-questions.md`; the one-page decision is `docs/deliverables/decision-memo.md`, next to the team's one-page proposal `docs/deliverables/03-proposal/proposal.md`.
 - **Gap to level 4:** the deck was kept as it was (owner, 2026-11-04), so the as-is to to-be story has no slide of its own; timed rehearsals are still open (T-ALL-05).
 - **Slide:** all; decision on 11.
 
