@@ -38,6 +38,7 @@ The package supplies Arabic committee lists, complaint-training corpora, 180 ins
 ## Deliverables
 
 - Dashboard: `uv run --locked streamlit run app.py` (screens and forms in the [user guide](docs/deliverables/user-guide.md)). Model calls in the chatbot stay off until approved in [configs/ai.yaml](configs/ai.yaml); answers draw on the sources in [data/knowledge](data/knowledge/SOURCES.csv).
+- Hybrid RAG chatbot (separate app behind the dashboard's floating chat button, [chatbot/](chatbot/)): `uv sync --locked --extra chatbot`, then `uv run --locked --extra chatbot uvicorn chatbot.app.api.main:app --port 8001`. It needs `GEMINI_API_KEY` in `chatbot/.env` (git-ignored) and `SPACEYE_DB_PATH` set to `spaceeye_ready.duckdb` from the unpacked v7 release.
 - Presentation: [docs/deliverables/01-presentation](docs/deliverables/01-presentation/) ([presentation.md](docs/deliverables/01-presentation/presentation.md), [.html](docs/deliverables/01-presentation/presentation.html), [.pptx](docs/deliverables/01-presentation/presentation.pptx), [palette](docs/deliverables/01-presentation/palette.md), [rubric map](docs/deliverables/01-presentation/rubric-map.md)).
 - Intro video: [docs/deliverables/02-video](docs/deliverables/02-video/) ([intro-human-voice.mp4](docs/deliverables/02-video/intro-human-voice.mp4), [intro-ai-voice.mp4](docs/deliverables/02-video/intro-ai-voice.mp4), [intro.md](docs/deliverables/02-video/intro.md), [rebuild kit](docs/deliverables/02-video/make/README.md)).
 
