@@ -10,11 +10,11 @@
 | --- | --- | --- | --- | --- |
 | 1 | SpaceEye GeoAI | السيد المندوه (lead) | 0:15 | - |
 | 2 | Problem in numbers | فيرينا فؤاد | 0:30 | - |
-| 3 | The question and the decision | فيرينا فؤاد | 0:15 | - |
+| 3 | The question and the decision | السيد المندوه | 0:15 | - |
 | 4 | As-is: how R7 is followed today | فيرينا فؤاد | 0:30 | - |
-| 5 | To-be: the new process | فيرينا فؤاد | 0:30 | - |
+| 5 | To-be: the new process | السيد المندوه | 0:30 | - |
 | 6 | Data | أحمد عبد الحميد | 0:30 | - |
-| 7 | Seeing construction from space | أحمد عبد الحميد | 0:30 | - |
+| 7 | Seeing construction from space | سلمى مجدي | 0:30 | - |
 | 8 | The Track A rule | أحمد عبد الحميد | 0:45 | - |
 | 9 | Live demo (Track A) | ندى شادي | 1:00 | Priority map ← Compound file ← visit form |
 | 10 | Search, filters and map click | السيد المندوه | 0:30 | search و filter و map click |
@@ -22,15 +22,15 @@
 | 12 | Backtest: 1 of 6 and why | أحمد عبد الحميد | 1:00 | District view (C21 early signal) |
 | 13 | Track B: generated data | فيرينا فؤاد | 0:45 | - |
 | 14 | The observatory: one what-if scenario | السيد المندوه | 0:30 | Digital twin what if (Track B, S3 capacity) |
-| 15 | Ask the project: the chatbot | السيد المندوه | 0:45 | chatbot (💬) |
+| 15 | Ask the project: the chatbot | سلمى مجدي | 0:45 | chatbot (💬) |
 | 16 | What the chatbot knows, and its limits | سلمى مجدي | 0:30 | - |
 | 17 | Value in EGP (3 settings) | سلمى مجدي | 1:00 | - |
 | 18 | Risks and responsible use | سلمى مجدي | 0:45 | - |
 | 19 | Launching in production | أحمد عبد الحميد | 0:30 | - |
-| 20 | Decision, transition and next step | سلمى مجدي | 0:45 | - |
+| 20 | Decision, transition and next step | السيد المندوه | 0:45 | - |
 | | **Total** | **20 slides · 12:00** | **12:00** | |
 
-لكل عضو (وبنى إيه): السيد 2:00 (الافتتاح، الـ search والـ filters، الـ what-if، الـ chatbot)، فيرينا 2:30 (المشكلة، الـ as-is، الـ to-be، Track B)، أحمد 3:15 (Track A، الـ backtest، الـ production)، ندى 1:15 (الـ dashboard)، سلمى 3:00 (حدود الـ chatbot، الـ value، الـ risks، القرار). المجموع 12:00.
+لكل عضو: السيد 2:45 (الافتتاح، السؤال، الـ to-be، الـ search والـ filters، الـ what-if، القرار)، فيرينا 1:45 (المشكلة، الـ as-is، Track B)، أحمد 2:45 (الـ data، الـ rule، الـ backtest، الـ production)، سلمى 3:30 (الـ satellites، الـ chatbot، الـ value، الـ risks)، ندى 1:15 (الـ dashboard). المجموع 12:00.
 
 ## بطاقة كل عضو
 
@@ -38,11 +38,11 @@
 
 | العضو | Slides | الوقت | يعرض live على الـ dashboard | جاهز يفتحه في الأسئلة | يحضّر إيه |
 | --- | --- | --- | --- | --- | --- |
-| السيد المندوه | 1, 10, 14, 15 | 2:00 | **Search and filters** (C1 ← 6 من 12، level filter، map click، Clear selection)؛ Digital twin what if ← **S3 · Capacity** (2 أو 6 بدل 4)؛ الـ chatbot (سؤال + follow-up) | tabs **S1 · Cost shock** و **S2 · Collections drop** ("Nobody crosses a threshold")؛ الـ chatbot بسؤال اللجنة نفسه | يتأكد إن الـ chatbot اتسأل مرة قبل العرض؛ أرقام الـ what-if (45 من 744)؛ يدير الأسئلة |
-| فيرينا فؤاد | 2, 3, 4, 5, 13 | 2:30 | - | District view (الـ activity spread و developer groups و delays للـ as-is)؛ `docs/deliverables/as-is.md` و `to-be.md` | أرقام الـ as-is (48 review في السنة، 18 لـ 33 شهر، median 25)؛ أرقام الـ recall@4 والـ baseline 0.335 |
-| أحمد عبد الحميد | 6, 7, 8, 12, 19 | 3:15 | District view: **An early signal: C21** و **When the solution fails** | Compound file ← الـ KPI tiles (K2، K3، K6، K5) لأي compound | الـ backtest بالأرقام (1 من 6، 0 من 6، target 5) |
+| السيد المندوه | 1, 3, 5, 10, 14, 20 | 2:45 | **Search and filters** (C1 ← 6 من 12، level filter، map click، Clear selection)؛ Digital twin what if ← **S3 · Capacity** (2 أو 6 بدل 4) | tabs **S1 · Cost shock** و **S2 · Collections drop** ("Nobody crosses a threshold")؛ `docs/deliverables/to-be.md` | slide 20 بالحرف؛ أرقام الـ what-if (45 من 744)؛ يدير الأسئلة |
+| فيرينا فؤاد | 2, 4, 13 | 1:45 | - | District view (الـ activity spread و developer groups و delays للـ as-is)؛ `docs/deliverables/as-is.md` | أرقام الـ as-is (48 review في السنة، 18 لـ 33 شهر، median 25)؛ أرقام الـ recall@4 والـ baseline 0.335 |
+| أحمد عبد الحميد | 6, 8, 12, 19 | 2:45 | District view: **An early signal: C21** و **When the solution fails** | Compound file ← الـ KPI tiles (K2، K3، K6، K5) لأي compound | الـ backtest بالأرقام (1 من 6، 0 من 6، target 5) |
+| سلمى مجدي | 7, 15, 16, 17, 18 | 3:30 | الـ chatbot (سؤال + follow-up) | District view ← **A false alarm against a missed case** (1 missed case ≈ 6.7 false alarms بالـ central assumptions)؛ Compound file ← **Satellite curves** | تسأل الـ chatbot مرة قبل العرض؛ أرقام الـ value الثلاثة |
 | ندى شادي | 9, 11 (والماوس في كل الـ live) | 1:15 | Priority map ← cycle cards ← CSV ← Compound file C18 ← Visit form | أي شاشة؛ هي اللي بتضغط | الأربع tabs متظبطين؛ نسخة rehearsal من الـ app data |
-| سلمى مجدي | 16, 17, 18, 20 | 3:00 | - | District view ← **A false alarm against a missed case** (1 missed case ≈ 6.7 false alarms بالـ central assumptions) | slide 20 بالحرف؛ أرقام الـ value الثلاثة |
 
 ## Timing checkpoints
 
@@ -68,7 +68,7 @@
 - التنقل: `Alt+Tab` من الـ slides للـ browser، و `Ctrl+1/2/3/4` للـ tab، و `Alt+Tab` للرجوع. اتمرّنوا عليه؛ لازم ياخد أقل من ثانيتين.
 - الـ visit form: استخدموا نسخة rehearsal من فولدر الـ app data، لأن أي visit بيتحفظ بيبقى row حقيقي في ملف الـ visits.
 - Backup: لو الـ dashboard أو الـ chatbot ما فتحش، اقف على الـ slide؛ slides 9 و 10 و 12 و 14 و 15 فيهم نفس الشاشات كـ screenshots. قول "دي نفس الشاشة" وكمّل. عمرنا ما نعمل debug قدام اللجنة.
-- شخص واحد (ندى) ماسك الماوس في كل الأجزاء الـ live؛ اللي بيتكلم بيتكلم، وندى بتدوس على الإشارة (للسيد في slides 10 و 14 و 15، ولأحمد في slide 12).
+- شخص واحد (ندى) ماسك الماوس في كل الأجزاء الـ live؛ اللي بيتكلم بيتكلم، وندى بتدوس على الإشارة (للسيد في slides 10 و 14، ولأحمد في slide 12، ولسلمى في slide 15).
 
 ## إزاي نسلّم لبعض (handover)
 
@@ -76,7 +76,7 @@
 
 ---
 
-## الدور 1 · السيد المندوه (team lead، الـ AI component)
+## الدور 1 · السيد المندوه (team lead، الافتتاح)
 
 ### Slide 1/20 · SpaceEye GeoAI (0:15)
 
@@ -91,7 +91,7 @@
 
 ---
 
-## الدور 2 · فيرينا فؤاد (المشكلة، السؤال، الـ as-is والـ to-be)
+## الدور 2 · فيرينا فؤاد (المشكلة)
 
 ### Slide 2/20 · Problem in numbers (0:30)
 
@@ -102,18 +102,26 @@
 
 **على الـ dashboard:** على الـ slide بس؛ شاوري على الـ stat callouts وإنتي بتقولي كل رقم. لو اتسأل "الأرقام دي منين؟": تصريحات رئيس مجلس الإدارة، مسجلة في `docs/requirements/01-specs.md` section 12.
 
-**Transition:** "طب إيه السؤال بالظبط؟"
+**Handover:** "طب إيه السؤال بالظبط؟ السيد."
+
+---
+
+## الدور 3 · السيد المندوه (السؤال والقرار)
 
 ### Slide 3/20 · The question and the decision (0:15)
 
-**العضو:** فيرينا فؤاد
+**العضو:** السيد المندوه
 
-**تقول:**
+**يقول:**
 "منطقة واحدة، R7: 12 compound بـ codes، والربع 2026Q3. السؤال: أنهي compounds اللجنة تزورها الأول في الـ cycle الجاي، وليه؟ الـ observatory بيرتّب، واللجنة هي اللي بتقرر."
 
-**على الـ dashboard:** على الـ slide بس؛ شاوري على الـ funnel (12 ← 4). الـ dashboard هيوريها live مع ندى بعد شوية، فقولي: "وهتشوفوها live."
+**على الـ dashboard:** على الـ slide بس؛ شاور على الـ funnel (12 ← 4). الـ dashboard هيوريها live مع ندى بعد شوية، فقول: "وهتشوفوها live."
 
-**Transition:** "طب الوضع النهارده شكله إيه؟"
+**Handover:** "طب الوضع النهارده شكله إيه؟ فيرينا."
+
+---
+
+## الدور 4 · فيرينا فؤاد (الـ as-is)
 
 ### Slide 4/20 · As-is: how R7 is followed today (0:30)
 
@@ -124,22 +132,26 @@
 
 **على الـ dashboard:** على الـ slide بس. لو اتسأل "الأرقام دي بتخبي إيه؟": District view بيوري الـ activity spread والـ developer groups والـ delays (`docs/deliverables/as-is.md`). وقولي إن الـ process map محتاجة تأكيد من ACUD.
 
-**Transition:** "طب الشكل الجديد إيه؟"
+**Handover:** "طب الشكل الجديد إيه؟ السيد."
+
+---
+
+## الدور 5 · السيد المندوه (الـ to-be)
 
 ### Slide 5/20 · To-be: the new process (0:30)
 
-**العضو:** فيرينا فؤاد
+**العضو:** السيد المندوه
 
-**تقول:**
+**يقول:**
 "الـ public satellite data كل ربع والـ developer statements بيدخلوا الـ pipeline والـ quality gates، ويطلع priority list فيها levels 1 لـ 4 مع سبب مكتوب، والـ capacity أربعة. اللجنة تقرر: يا field visit، يا watch next quarter. نتيجة الزيارة بتتسجّل في الـ visit log، اللي بيعدّ الـ false alarms والـ misses ويرجع للـ pipeline. الـ target المقترح: كل compound في level 1 أو 2 يتزار في نفس الربع؛ والـ capacity 4 غطّت ده في 31 من 31 ربع. ده proposal مننا، لسه مش approved من ACUD."
 
-**على الـ dashboard:** على الـ slide بس؛ امشي بإيدك على الـ loop من الشمال لليمين وارجعي من تحت للـ visit log. قولي: "والـ visit form اللي ندى هتوريه live هو بالظبط الـ result recorded ده." لو اتسأل عن الأدوار: الـ Track A owner بيشغّل الـ pipeline كل ربع مع reviewer تاني، والـ field visit lead بيسجّل progressing أو stalled أو complete أو not done، والـ ACUD data custodian ماسك الـ code-to-name mapping (`docs/deliverables/to-be.md`).
+**على الـ dashboard:** على الـ slide بس؛ امشي بإيدك على الـ loop من الشمال لليمين وارجع من تحت للـ visit log. قول: "والـ visit form اللي ندى هتوريه live هو بالظبط الـ result recorded ده." لو اتسأل عن الأدوار: الـ Track A owner بيشغّل الـ pipeline كل ربع مع reviewer تاني، والـ field visit lead بيسجّل progressing أو stalled أو complete أو not done، والـ ACUD data custodian ماسك الـ code-to-name mapping (`docs/deliverables/to-be.md`).
 
 **Handover:** "الـ lists دي جاية منين؟ أحمد بنى الـ data والـ rule."
 
 ---
 
-## الدور 3 · أحمد عبد الحميد (Track A: satellites و rule)
+## الدور 6 · أحمد عبد الحميد (الـ data)
 
 ### Slide 6/20 · Data (0:30)
 
@@ -150,18 +162,26 @@
 
 **على الـ dashboard:** على الـ slide بس. لو اتسأل عن الألوان: الـ sidebar pill في Track A مكتوب عليه `🟢 REAL · 🔵 DERIVED`، وفي Track B `🟠 GENERATED`؛ ندى تقدر توريه في ثانية من Tab 1.
 
-**Transition:** "طب الـ data دي بنشوف بيها إيه من فوق؟"
+**Handover:** "طب الـ satellite بيشوف إيه من فوق؟ سلمى."
+
+---
+
+## الدور 7 · سلمى مجدي (الـ satellites)
 
 ### Slide 7/20 · Seeing construction from space (0:30)
 
-**العضو:** أحمد عبد الحميد
+**العضو:** سلمى مجدي
 
-**يقول:**
+**تقول:**
 "Dynamic World بيدينا كل ربع احتمال إن الـ compound بيتبني: ده الـ activity score A. Open Buildings بيدي الارتفاع كـ context بس. Wayback بيدي صور before و after بتاريخها. الربع بيتحسب لو فيه 6 صور على الأقل و boundary متراجعة. الـ satellites بتشوف البناء، مش التشطيب من جوه، عشان كده عمرنا ما بندي completion percentage."
 
 **على الـ dashboard:** على الـ slide بس (فيه screenshot للـ Compound file). لو اتسأل "شايفين إيه بالظبط؟": Compound file ← **Satellite curves** (Activity score A و Dynamic World built probability) و **More evidence** ← **Wayback timeline**.
 
-**Transition:** "ودي بتتحول لـ priority level إزاي؟"
+**Handover:** "ودي بتتحول لـ priority level إزاي؟ أحمد."
+
+---
+
+## الدور 8 · أحمد عبد الحميد (الـ Track A rule)
 
 ### Slide 8/20 · The Track A rule (0:45)
 
@@ -176,7 +196,7 @@
 
 ---
 
-## الدور 4 · ندى شادي (الـ dashboard)
+## الدور 9 · ندى شادي (الـ dashboard)
 
 ### Slide 9/20 · Live demo (Track A) (1:00)
 
@@ -200,7 +220,7 @@
 
 ---
 
-## الدور 5 · السيد المندوه (الـ search والـ filters والـ map click)
+## الدور 10 · السيد المندوه (الـ search والـ filters والـ map click)
 
 ### Slide 10/20 · Search, filters and map click (0:30)
 
@@ -221,7 +241,7 @@ Live على Tab 1، جزء **Search and filters** فوق الـ map. ندى بت
 
 ---
 
-## الدور 6 · ندى شادي (الأربع شاشات)
+## الدور 11 · ندى شادي (الأربع شاشات)
 
 ### Slide 11/20 · Four screens, one path from alert to action (0:15)
 
@@ -238,7 +258,7 @@ Live على Tab 1، جزء **Search and filters** فوق الـ map. ندى بت
 
 ---
 
-## الدور 7 · أحمد عبد الحميد (الـ backtest)
+## الدور 12 · أحمد عبد الحميد (الـ backtest)
 
 ### Slide 12/20 · Backtest: 1 of 6 and why (1:00)
 
@@ -262,7 +282,7 @@ Live على Tab 1، جزء **Search and filters** فوق الـ map. ندى بت
 
 ---
 
-## الدور 8 · فيرينا فؤاد (Track B: generated data)
+## الدور 13 · فيرينا فؤاد (Track B: generated data)
 
 ### Slide 13/20 · Track B: generated data (0:45)
 
@@ -277,7 +297,7 @@ Live على Tab 1، جزء **Search and filters** فوق الـ map. ندى بت
 
 ---
 
-## الدور 9 · السيد المندوه (الـ what-if والـ chatbot)
+## الدور 14 · السيد المندوه (الـ what-if)
 
 ### Slide 14/20 · The observatory: one what-if scenario (0:30)
 
@@ -290,27 +310,27 @@ Live على Tab 1، جزء **Search and filters** فوق الـ map. ندى بت
 **يقول:**
 "الـ orange banner معناه generated. لو اللجنة عندها زيارتين في الـ cycle، أو 6، بدل 4؟ على كل الأرباع، 45 من 744 row بيتغير فيهم الـ list membership، والـ level عمره ما بيتغير. أما الـ dollar shock وانخفاض التحصيل، S1 و S2، فمش بيغيروا أي حاجة في الـ list. وده result، مش missing value."
 
-**Transition:** "وهل اللجنة تقدر ببساطة تسأل المشروع سؤال؟ هنجرب live."
+**Handover:** "وهل اللجنة تقدر ببساطة تسأل المشروع سؤال؟ سلمى، live."
+
+---
+
+## الدور 15 · سلمى مجدي (الـ chatbot، والـ value، والـ risks)
 
 ### Slide 15/20 · Ask the project: the chatbot (0:45)
 
-**العضو:** السيد المندوه
+**العضو:** سلمى مجدي
 
 **Switch:** `Ctrl+4` ← Tab 4 (الـ chatbot)، أو زرار 💬 في الـ dashboard.
 
-| Click (ندى) | تعرض | يقول (السيد) |
+| Click (ندى) | تعرض | تقول (سلمى) |
 | --- | --- | --- |
 | 1 | اكتبي سؤال، مثلًا "latest KPI for C18"، وابعتيه | "السؤال بيروح لـ router فيه 10 intents، وبعدين لنوعين retrieval: facts من الـ v7 release، و search في الـ statements والـ complaints والـ knowledge documents." |
 | 2 | الإجابة والـ sources اللي بتعرضها | "الإجابة جاية بالـ sources بتاعتها، وبتوضح إيه published وإيه derived وإيه generated. الـ AI model بيتستخدم بس لما يكون approved وجوه الـ call budget؛ غير كده الإجابة local." |
 | 3 | اسألي follow-up قصير من غير code، مثلًا "and the reason?" | "الـ follow-up بيفتكر آخر compound code، والحاجات الـ generated زي الـ complaints بتفضل مكتوب عليها synthetic." |
 
-**على الـ dashboard:** الجدول فوق هو الـ live. بعدها `Alt+Tab` ← الـ slides. لو الـ chatbot بطيء، اقفله وقول "دي نفس الشاشة" على الـ slide.
+**على الـ dashboard:** الجدول فوق هو الـ live. بعدها `Alt+Tab` ← الـ slides. لو الـ chatbot بطيء، اقفليه وقولي "دي نفس الشاشة" على الـ slide.
 
-**Handover:** "الـ assistant ده يعرف إيه، وحدوده فين؟ سلمى."
-
----
-
-## الدور 10 · سلمى مجدي (حدود الـ chatbot، والـ value، والـ risks)
+**Transition:** "طب الـ assistant ده يعرف إيه، وحدوده فين؟"
 
 ### Slide 16/20 · What the chatbot knows, and its limits (0:30)
 
@@ -347,7 +367,7 @@ Live على Tab 1، جزء **Search and filters** فوق الـ map. ندى بت
 
 ---
 
-## الدور 11 · أحمد عبد الحميد (الـ production)
+## الدور 16 · أحمد عبد الحميد (الـ production)
 
 ### Slide 19/20 · Launching in production (0:30)
 
@@ -358,22 +378,22 @@ Live على Tab 1، جزء **Search and filters** فوق الـ map. ندى بت
 
 **على الـ dashboard:** على الـ slide بس. لو اتسأل "إزاي بتشغلوه؟": `start.ps1` على Windows (dashboard على 8501 و chatbot على 8001)، والـ quarterly run بأمر واحد.
 
-**Handover:** "وإيه اللي بنطلبه منكم النهارده؟ سلمى هتختم بالقرار."
+**Handover:** "وإيه اللي بنطلبه منكم النهارده؟ السيد هيختم بالقرار."
 
 ---
 
-## الدور 12 · سلمى مجدي (القرار)
+## الدور 17 · السيد المندوه (القرار)
 
 ### Slide 20/20 · Decision, transition and next step (0:45)
 
-**العضو:** سلمى مجدي
+**العضو:** السيد المندوه
 
-**تقول (بالراحة؛ بصّي للجنة، مش للشاشة):**
+**يقول (بالراحة؛ بص للجنة، مش للشاشة):**
 "طلبنا قرار واحد: استخدام الـ inspection priority list لاختيار أنهي compounds في R7 اللجنة تزورها الأول في الـ cycle الجاي. السيستم بيرشّح، واللجنة هي اللي بتقرر. تلات phases: pilot cycle واحد والـ reviews الحالية مستمرة، فالرجوع مش بيكلف حاجة؛ وبعدها verified sample صغير من data ACUD؛ وبعدها quarterly operation. ده اللي الـ public data لوحدها تقدر تعمله. ادونا الـ data بتاعتكم، والأجزاء الـ demo تبقى real operation. شكرًا، وتحت أمركم في أي أسئلة."
 
-**على الـ dashboard:** على الـ slide بس، وتفضل على الشاشة طول الأسئلة. ارجعي بجملة لسؤال البداية: "أنهي compounds الأول، وليه؟ دي الإجابة."
+**على الـ dashboard:** على الـ slide بس، وتفضل على الشاشة طول الأسئلة. ارجع بجملة لسؤال البداية: "أنهي compounds الأول، وليه؟ دي الإجابة."
 
-**Handover:** "السيد بياخد الأسئلة."
+**Transition:** "ونبدأ الأسئلة."
 
 **نهاية الـ 12:00.** سيبوا slide 20 على الشاشة وقت الأسئلة.
 
@@ -385,14 +405,14 @@ Live على Tab 1، جزء **Search and filters** فوق الـ map. ندى بت
 
 | نوع السؤال | يجاوب | يعرض لو مفيد |
 | --- | --- | --- |
-| الـ data، الـ satellites، الـ rule، الـ levels، الـ backtest، الـ production، "ليه مش score" | أحمد | District view، Compound file |
-| المشكلة، الـ as-is والـ to-be، الـ generated data، الـ model، الـ complaints classifier | فيرينا | Slides 4 و 5 و 13، District view |
+| الـ data، الـ rule، الـ levels، الـ backtest، الـ production، "ليه مش score" | أحمد | District view، Compound file |
+| المشكلة، الـ as-is، الـ generated data، الـ model، الـ complaints classifier | فيرينا | Slides 2 و 4 و 13، District view |
 | الشاشات، الصياغة، الـ visit form، الـ cycle list | ندى | Tab 1 |
-| الفلوس، الـ KPIs، الـ risks، القانون، الـ governance، الـ data request، معرفة الـ chatbot والـ budget | سلمى | Slides 16 و 17 و 18 |
-| الـ AI، الـ search والـ filters، الـ what-if، الـ chatbot بيشتغل إزاي، "محتاجين مننا إيه" | السيد | Slides 10 و 14 و 15، Tab 3 و Tab 4 |
+| الـ satellites، الـ chatbot (إزاي بيشتغل، معرفته والـ budget)، الفلوس، الـ KPIs، الـ risks، القانون، الـ governance، الـ data request | سلمى | Slides 7 و 15 و 16 و 17 و 18، Tab 4 |
+| الـ AI، الـ to-be، الـ search والـ filters، الـ what-if، القرار، "محتاجين مننا إيه" | السيد | Slides 3 و 5 و 10 و 14 و 20، Tab 3 |
 
-**لحظة الـ chatbot (السيد، حوالي 30 ثانية، لما ييجي سؤال عن الـ rules أو القانون):**
-شاور على slide 15، وبعدين افتح زرار 💬 في الـ dashboard (الـ chatbot على port 8001) واكتب سؤال اللجنة نفسه، مثلًا "What does level 1 mean for C18?" أو "What does Decree 2184/2022 say about the handover grace period?". وقول: "ده الـ assistant اللي في slide 15. بيجاوب من الـ data بتاعة المشروع والـ sourced documents بتاعته، وبيوضح كل إجابة جاية منين. مش legal advice، وبيستخدم الـ AI model بس جوه الـ budget اللي صاحب المشروع وافق عليه." لو بطيء، اقفله وجاوب بنفسك.
+**لحظة الـ chatbot (سلمى، حوالي 30 ثانية، لما ييجي سؤال عن الـ rules أو القانون؛ السيد يحوّلها السؤال):**
+شاوري على slide 15، وبعدين افتحي زرار 💬 في الـ dashboard (الـ chatbot على port 8001) واكتبي سؤال اللجنة نفسه، مثلًا "What does level 1 mean for C18?" أو "What does Decree 2184/2022 say about the handover grace period?". وقولي: "ده الـ assistant اللي في slide 15. بيجاوب من الـ data بتاعة المشروع والـ sourced documents بتاعته، وبيوضح كل إجابة جاية منين. مش legal advice، وبيستخدم الـ AI model بس جوه الـ budget اللي صاحب المشروع وافق عليه." لو بطيء، اقفليه وجاوبي بنفسك.
 
 إجابات جاهزة في سطر:
 
@@ -415,12 +435,12 @@ Live على Tab 1، جزء **Search and filters** فوق الـ map. ندى بت
 
 ## لحظات الـ wow (اللي اللجنة هتفتكرها)
 
-1. **أول 15 ثانية:** السيد يقول السؤال الواحد ("أنهي compounds الأول، وليه؟")، وسلمى تقفل بيه في آخر جملة. نفس السؤال في الأول وفي الآخر بيخلي القصة مقفولة.
+1. **أول 15 ثانية:** السيد يقول السؤال الواحد ("أنهي compounds الأول، وليه؟")، ويقفل بيه هو نفسه في آخر جملة من slide 20. نفس السؤال في الأول وفي الآخر بيخلي القصة مقفولة.
 2. **أرقامهم مش أرقامنا (slide 2):** نبدأ بتصريحات رئيس مجلس الإدارة؛ اللجنة بتسمع مشكلتها هي.
 3. **الـ headline live (slide 9):** أول ما Tab 1 يفتح، ندى تسكت ثانيتين وتسيب اللجنة تقرا "Visit C18, C07, C14, C03 this cycle". الشاشة بتجاوب قبل ما حد يتكلم.
 4. **C1 ← 6 من 12 (slide 10):** كتابة حرفين بتغير الـ map قدامهم. بيورّي إن الأداة سريعة ومش مجرد صور.
 5. **الصراحة في الـ backtest (slide 12):** "1 من 6، والـ target اتحدد قبل الحساب". اللجان بتثق في الفريق اللي بيقول اللي فشل فيه قبل ما حد يسأله.
-6. **الـ chatbot بسؤالهم (Q&A):** السيد يكتب سؤال اللجنة نفسه، مش سؤال متحضّر.
+6. **الـ chatbot بسؤالهم (Q&A):** سلمى تكتب سؤال اللجنة نفسه، مش سؤال متحضّر.
 7. **القرار في جملة (slide 20):** طلب واحد، والرجوع مش بيكلف حاجة. سهل يقولوا "آه".
 
 ## إزاي نجاوب على الأسئلة (5 خطوات)
@@ -438,7 +458,7 @@ Live على Tab 1، جزء **Search and filters** فوق الـ map. ندى بت
 | لو حصل | نعمل إيه |
 | --- | --- |
 | الـ dashboard ما فتحش أو وقف | نفضل على الـ slide؛ slides 9 و 10 و 12 و 14 و 15 فيها نفس الشاشات. "دي نفس الشاشة" ونكمل. |
-| الـ chatbot بطيء أو مردّش | نقفله في ثانيتين، ونكمل على slide 15؛ في الأسئلة السيد يجاوب بنفسه. |
+| الـ chatbot بطيء أو مردّش | نقفله في ثانيتين، ونكمل على slide 15؛ في الأسئلة سلمى تجاوب بنفسها. |
 | الـ map ما ظهرتش | نكمل من الـ cycle cards والـ visit list؛ الـ map context بس. |
 | الوقت زاد | نختصر تفاصيل slide 7 وقائمة slide 18 لتلات risks؛ القرار في slide 20 عمره ما يتشال. |
 | سؤال مالوش إجابة | "مش عندنا الرقم ده، وده من اللي محتاج data ACUD." |
