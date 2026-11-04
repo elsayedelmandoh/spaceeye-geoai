@@ -39,6 +39,15 @@ The package supplies Arabic committee lists, complaint-training corpora, 180 ins
 
 ## Deliverables
 
+### Run the dashboard and chatbot (Windows)
+
+1. Install uv once: `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`
+2. Get the latest version and start: `git pull`, then `powershell -ExecutionPolicy Bypass -File .\start.ps1`
+
+[start.ps1](start.ps1) installs the dependencies with the chatbot extra, installs the prepared data once, and creates `chatbot\.env` from `chatbot\.env.example` on the first run (it stops there; put the Gemini key after `GEMINI_API_KEY=` and run it again). It then seeds the chatbot search index from `chatbot\vector_db_seed`, starts the chatbot on port 8001 (own window) and the dashboard on port 8501. The chatbot uses the project's Gemini model ([configs/ai.yaml](configs/ai.yaml)) and stops calling Gemini once the approved budget (`chatbot.max_calls_total`) is used up; it then answers from its local path.
+
+The Linux/uv commands below do the same steps by hand.
+
 - Dashboard: `uv run --locked streamlit run app.py` (screens and forms in the [user guide](docs/deliverables/user-guide.md)).
 - Hybrid RAG chatbot (the project's only chatbot; separate app behind the dashboard's floating chat button, [chatbot/](chatbot/)): `uv sync --locked --extra chatbot`, then from the repository root `uv run --locked --extra chatbot uvicorn chatbot.app.api.main:app --port 8001` (or `python -m chatbot.app.api.main`; host/port from `CHATBOT_HOST`/`CHATBOT_PORT`, default 127.0.0.1:8001). Set `SPACEYE_DB_PATH` to `spaceeye_ready.duckdb` from the unpacked v7 release. It uses the project's Gemini setup: model from [configs/ai.yaml](configs/ai.yaml) (`GEMINI_MODEL` overrides) and `GEMINI_API_KEY` from the environment or the project `.env`. Model calls follow `chatbot.approval` and `chatbot.max_calls_total` in `configs/ai.yaml` (approved by the project owner on 2026-11-04, 200 calls; the counter is `chatbot/vector_db/gemini_calls.json`); when unapproved or used up it answers from its local path. Its sourced documents are in [chatbot/knowledge](chatbot/knowledge/SOURCES.csv). (Re)build the vector store (git-ignored `chatbot/vector_db/`, upsert only) with `uv run --locked --extra chatbot python -m chatbot.app.retrieval.build_index`; add `--knowledge-only` to index just the knowledge documents.
 - Presentation: [docs/deliverables/01-presentation](docs/deliverables/01-presentation/) ([presentation.md](docs/deliverables/01-presentation/presentation.md), [.html](docs/deliverables/01-presentation/presentation.html), [.pptx](docs/deliverables/01-presentation/presentation.pptx), [palette](docs/deliverables/01-presentation/palette.md), [rubric map](docs/deliverables/01-presentation/rubric-map.md)).
