@@ -1,4 +1,4 @@
-# Presentation: 18 slides (title slide 0, then 1-11 with 6b and 6c after 6, 8b, 8c and 8d after 8, and 10b after 10)
+# Presentation: 19 slides (title slide 0, then 1-11 with 2b after 2, 6b and 6c after 6, 8b, 8c and 8d after 8, and 10b after 10)
 
 Tasks T-SA-06 and T-EL-25. Draft text for review. This file holds the on-slide content and speaker notes of `presentation.pptx`, slide for slide in the same order. Length: 12 min, the limit set by criterion 10 of the instructor rubric (`docs/requirements/ACUD-Rubric.md`); the time budget and the criteria each slide answers follow `docs/deliverables/01-presentation/rubric-map.md` (presentation plan) and are stated in each speaker note (total 12:00). Numbers come only from repo files and carry an origin mark: 🟢 real · 🔵 derived · 🟠 generated ("Synthetic - for training only"). Compounds and developers appear as codes only; the only names are the supervisor and team on the title slide. The words "risk level", "distressed" (for a real compound) and any completion % are not used. Some caveats are in the speaker notes.
 
@@ -35,7 +35,19 @@ Speaker note: 0:30 · criterion 1. A committee cannot visit everything every cyc
 - Visual: as-is → to-be flow of two boxes and a 12 → 4 funnel (12 R7 compounds → 4 visits per cycle).
 - Source: `configs/cost_assumptions.yaml` (`projects: 12`, `visits_per_year: 4`), `docs/requirements/01-specs.md` (sections 2, 7 and 12).
 
-Speaker note: 0:30 · criteria 1, 2, 3. One sentence from today's practice to the new list; the decision itself comes on slide 11.
+Speaker note: 0:15 · criteria 1, 2, 3. The question and the scope; the new process follows on slide 2b and the decision on slide 11.
+
+## Slide 2b. To-be: the new process
+
+- New process (proposed): public satellite data every quarter and published developer statements → pipeline and quality gates → priority list (levels 1-4 with a written reason, capacity 4) → the committee decides → field visit, or watch next quarter → the result is recorded on the Compound file screen in the visit log → the visit log counts false alarms and misses and feeds the next run.
+- The system recommends; the committee decides.
+- Roles: the Track A owner runs the pipeline and the quality gates every quarter, reviewed by a second team member; the committee decides which compounds to visit; the field visit lead records the result (progressing, stalled, complete, not done); the ACUD data custodian keeps the code-to-name mapping.
+- Proposed targets: every compound at level 1 or 2 visited within the quarter (capacity 4 covered all of them in 31 of 31 quarters, 2019Q1-2026Q3); 12 of 12 visit results recorded in the pilot quarter.
+- Status: proposed by the team, not approved by ACUD.
+- Visual: flowchart of the new process (from `docs/deliverables/to-be.md`).
+- Source: `docs/deliverables/to-be.md` (the new process, roles and proposed targets).
+
+Speaker note: 0:30 · criteria 3, 5. Walk the loop once from satellite data to the visit log; stress that the committee decides and every visit result comes back as ground truth. Targets are proposals, not approved by ACUD.
 
 ## Slide 3. Data
 
@@ -112,7 +124,7 @@ Speaker note: 0:45 · criterion 4. Live: type C1 in the search, set a priority l
 - Visual: four screen cards (screen 4 marked generated) and an alert-to-action arrow row.
 - Source: `docs/deliverables/user-guide.md` (screen subtitles), `docs/deliverables/audience-test.md`, `docs/deliverables/display-rules-check.md`.
 
-Speaker note: 0:30 · criterion 4. Name who uses each screen, follow the alert to the action, and say the committee-member test is still to be run.
+Speaker note: 0:15 · criterion 4. Name who uses each screen, follow the alert to the action, and say the committee-member test is still to be run.
 
 ## Slide 7. Backtest: 1 of 6 and why
 

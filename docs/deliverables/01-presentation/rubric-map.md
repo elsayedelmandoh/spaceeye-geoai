@@ -29,7 +29,7 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Evidence:** new process: cycle list of capacity 4, levels 1-4 with actions, committee decides (`docs/requirements/01-specs.md` sections 2 and 7; `docs/deliverables/kpi-cards.md`); scope limits in `docs/requirements/01-specs.md` section 1 (out of scope).
 - **Added for level 4:** `docs/deliverables/to-be.md`: new process map with roles; proposed targets on the as-is indicators, each with a data reason (capacity 4 covered every level 1-2 compound in 31 of 31 quarters; K4 met in all 372 compound-quarters; K2 threshold from `configs/data.yaml`); normal vs extreme conditions (load above capacity via S3, finance shocks S1/S2 move nothing, data outage); ISO 37122 and U4SSC mapping stated honestly (no matching indicator); limits. KPI cards A and K2 now carry proposed targets.
 - **Gap to level 4:** targets are proposals; the U4SSC indicator list was checked at framework level only; the backtest bar (5 of 6) is not met.
-- **Slide:** 2, 5 (partly).
+- **Slide:** 2, 2b (the to-be process as a flowchart, with roles and proposed targets from `docs/deliverables/to-be.md`), 5 (partly).
 
 ## 4. Targets translated into a dashboard for its audience (weight 10)
 
@@ -94,7 +94,7 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 4:** leadership-level persuasion: conveys the value strongly and handles hard questions with evidence and alternatives.
 - **Evidence:** decision requested in `docs/deliverables/decision-memo.md` and slide 11; prepared answers `docs/deliverables/expected-questions.md`; deck text `docs/deliverables/presentation.md`.
 - **Added for level 4:** eight prepared answers for the new material (as-is and to-be, why now, buyers affected, when it fails, false alarm vs missed case, safe start, responsibility, other districts) in `docs/deliverables/expected-questions.md`; the one-page decision is `docs/deliverables/decision-memo.md`, next to the team's one-page proposal `docs/deliverables/03-proposal/proposal.md`.
-- **Gap to level 4:** the deck was kept as it was (owner, 2026-11-04), so the as-is to to-be story has no slide of its own; timed rehearsals are still open (T-ALL-05).
+- **Gap to level 4:** the to-be process now has slide 2b; the as-is story still has no slide of its own (one line on slide 2); timed rehearsals are still open (T-ALL-05).
 - **Slide:** all; decision on 11.
 
 ## Bonus: transferability, scalability, sustainability (+10)
@@ -112,22 +112,23 @@ Slide numbers refer to [presentation.md](presentation.md).
 | --- | --- | --- | ---: |
 | 0 | 0 Title: project, slogan, supervisor, team | - | 0:15 |
 | 1 | 1 Problem in numbers | 1 | 0:30 |
-| 2 | 2 Question and decision (as-is → to-be in one line) | 1, 2, 3 | 0:30 |
-| 3 | 3 Data | 2, 8 | 0:30 |
-| 4 | 4 Seeing construction from space | 2, 6 | 0:30 |
-| 5 | 5 Track A rule | 3, 4 | 0:45 |
-| 6 | 6 Live demo (Track A) | 4 | 1:00 |
-| 7 | 6b Search, filters and map click | 4 | 0:45 |
-| 8 | 6c Four screens, one path from alert to action | 4 | 0:30 |
-| 9 | 7 Backtest: 1 of 6 and why | 6 | 1:00 |
-| 10 | 8 Track B (generated) | 6 | 0:45 |
-| 11 | 8b What-if scenario | 6 | 0:30 |
-| 12 | 8c Ask the project: the chatbot | 4 | 0:45 |
-| 13 | 8d What the chatbot knows, and its limits | 8, 9 | 0:45 |
-| 14 | 9 Value in EGP | 7 | 1:00 |
-| 15 | 10 Risks and responsible use | 8, 9 | 0:45 |
-| 16 | 10b Launching in production | 5, 9 | 0:30 |
-| 17 | 11 Decision, transition and next step | 5, 10, bonus | 0:45 |
+| 2 | 2 Question and decision (as-is → to-be in one line) | 1, 2, 3 | 0:15 |
+| 3 | 2b To-be: the new process (flowchart, roles, proposed targets) | 3, 5 | 0:30 |
+| 4 | 3 Data | 2, 8 | 0:30 |
+| 5 | 4 Seeing construction from space | 2, 6 | 0:30 |
+| 6 | 5 Track A rule | 3, 4 | 0:45 |
+| 7 | 6 Live demo (Track A) | 4 | 1:00 |
+| 8 | 6b Search, filters and map click | 4 | 0:45 |
+| 9 | 6c Four screens, one path from alert to action | 4 | 0:15 |
+| 10 | 7 Backtest: 1 of 6 and why | 6 | 1:00 |
+| 11 | 8 Track B (generated) | 6 | 0:45 |
+| 12 | 8b What-if scenario | 6 | 0:30 |
+| 13 | 8c Ask the project: the chatbot | 4 | 0:45 |
+| 14 | 8d What the chatbot knows, and its limits | 8, 9 | 0:45 |
+| 15 | 9 Value in EGP | 7 | 1:00 |
+| 16 | 10 Risks and responsible use | 8, 9 | 0:45 |
+| 17 | 10b Launching in production | 5, 9 | 0:30 |
+| 18 | 11 Decision, transition and next step | 5, 10, bonus | 0:45 |
 | | **Total** | | **12:00** |
 
-Criterion 6 (12 points) gets slides 7, 8 and 8b = 1:00 + 0:45 + 0:30 = 2:15 (it had 3:00 in the 14-slide plan). Criterion 7 (12 points) gets slide 9 = 1:00 (it had 1:30). The time went to criterion 4 (10 points), which now has slides 6, 6b, 6c and 8c = 1:00 + 0:45 + 0:30 + 0:45 = 3:00 of its own (slide 5 is shared); slide 8d (0:45) serves criteria 8 and 9 next to slide 10. This is a deliberate trade-off by the team lead: the dashboard and chatbot are shown, while the backtest and value slides are shorter. Criteria 2, 5 and 9 have no slide of their own; add one line each to slides 2, 11 and 10, or move them to prepared answers.
+Criterion 6 (12 points) gets slides 7, 8 and 8b = 1:00 + 0:45 + 0:30 = 2:15 (it had 3:00 in the 14-slide plan). Criterion 7 (12 points) gets slide 9 = 1:00 (it had 1:30). The time went to criterion 4 (10 points), which now has slides 6, 6b, 6c and 8c = 1:00 + 0:45 + 0:15 + 0:45 = 2:45 of its own (slide 5 is shared); slide 8d (0:45) serves criteria 8 and 9 next to slide 10. Criterion 3 gets slide 2b (0:30), taken from slides 2 and 6c (0:15 each). This is a deliberate trade-off by the team lead: the dashboard, chatbot and to-be process are shown, while the backtest and value slides are shorter. Criteria 2, 5 and 9 have no slide of their own; add one line each to slides 2, 11 and 10, or move them to prepared answers.

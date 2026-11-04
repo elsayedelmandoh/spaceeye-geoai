@@ -1,6 +1,6 @@
 # Presentation transcript: مين يقول إيه، slide بعد slide
 
-خطة الكلام للعرض أمام اللجنة في 12 دقيقة ([presentation.pptx](presentation.pptx)، 18 slides). كل عضو يقدّم الجزء اللي بناه بنفسه (الـ owners من [02-team-roles-and-tasks.md](../../requirements/02-team-roles-and-tasks.md))، عشان يقدر يدافع عنه في الأسئلة. الأوقات هي أوقات الـ speaker notes في الـ deck ومجموعها 12:00. الكلام بالعربي، والمصطلحات المهمة تفضل بالإنجليزي زي ما هي مكتوبة على الشاشة والـ slides. السرعة حوالي 130 كلمة في الدقيقة (0:30 ≈ 65 كلمة)؛ قولها بأسلوبك، لكن الأرقام تفضل بالظبط.
+خطة الكلام للعرض أمام اللجنة في 12 دقيقة ([presentation.pptx](presentation.pptx)، 19 slides). كل عضو يقدّم الجزء اللي بناه بنفسه (الـ owners من [02-team-roles-and-tasks.md](../../requirements/02-team-roles-and-tasks.md))، عشان يقدر يدافع عنه في الأسئلة. الأوقات هي أوقات الـ speaker notes في الـ deck ومجموعها 12:00. الكلام بالعربي، والمصطلحات المهمة تفضل بالإنجليزي زي ما هي مكتوبة على الشاشة والـ slides. السرعة حوالي 130 كلمة في الدقيقة (0:30 ≈ 65 كلمة)؛ قولها بأسلوبك، لكن الأرقام تفضل بالظبط.
 
 قواعد للكل: codes بس (C18، عمرنا ما نقول اسم)؛ نقول "priority level" وعمرنا ما نقول "risk level"؛ عمرنا ما نوصف compound حقيقي بإنه "distressed"؛ K5 هو "months eligible for review" ومش غرامة؛ أي حاجة من Track B هي "generated, Synthetic - for training only".
 
@@ -9,20 +9,20 @@
 | # | العضو | Slides | الوقت | Dashboard live |
 | --- | --- | --- | --- | --- |
 | 1 | السيد المندوه (lead) | 0 | 0:15 | - |
-| 2 | سلمى مجدي | 1, 2 | 1:00 | - |
+| 2 | سلمى مجدي | 1, 2, 2b | 1:15 | - |
 | 3 | أحمد عبد الحميد | 3, 4, 5 | 1:45 | - |
 | 4 | ندى شادي | 6 | 1:00 | Priority map ← Compound file ← visit form |
 | 5 | السيد المندوه | 6b | 0:45 | search و filter و map click |
-| 6 | ندى شادي | 6c | 0:30 | - |
+| 6 | ندى شادي | 6c | 0:15 | - |
 | 7 | أحمد عبد الحميد | 7 | 1:00 | District view (C21 early signal) |
 | 8 | فيرينا فؤاد | 8, 8b | 1:15 | Digital twin what if (Track B, S3 capacity) |
 | 9 | السيد المندوه | 8c | 0:45 | chatbot (💬) |
 | 10 | سلمى مجدي | 8d, 9, 10 | 2:30 | - |
 | 11 | أحمد عبد الحميد | 10b | 0:30 | - |
 | 12 | سلمى مجدي | 11 | 0:45 | - |
-| | **Total** | **18 slides** | **12:00** | |
+| | **Total** | **19 slides** | **12:00** | |
 
-لكل عضو (وبنى إيه): سلمى 4:15 (KPIs، value، governance، الـ presentation)، أحمد 3:15 (Track A، الـ backtest، الـ monitoring)، السيد 1:45 (الافتتاح، الـ search والـ filters والـ map click، الـ chatbot)، ندى 1:30 (الـ dashboard)، فيرينا 1:15 (Track B والـ what-if). المجموع 12:00.
+لكل عضو (وبنى إيه): سلمى 4:30 (KPIs، value، governance، الـ to-be، الـ presentation)، أحمد 3:15 (Track A، الـ backtest، الـ monitoring)، السيد 1:45 (الافتتاح، الـ search والـ filters والـ map click، الـ chatbot)، ندى 1:15 (الـ dashboard)، فيرينا 1:15 (Track B والـ what-if). المجموع 12:00.
 
 ## بطاقة كل عضو
 
@@ -31,9 +31,9 @@
 | العضو | Slides | الوقت | يعرض live على الـ dashboard | جاهز يفتحه في الأسئلة | يحضّر إيه |
 | --- | --- | --- | --- | --- | --- |
 | السيد المندوه | 0, 6b, 8c | 1:45 | **Search and filters** (C1 ← 6 من 12، level filter، map click، Clear selection)؛ الـ chatbot (سؤال + follow-up) | الـ chatbot بسؤال اللجنة نفسه | يتأكد إن الـ chatbot اتسأل مرة قبل العرض؛ يدير الأسئلة |
-| سلمى مجدي | 1, 2, 8d, 9, 10, 11 | 4:15 | - | District view ← **A false alarm against a missed case** (1 missed case ≈ 6.7 false alarms بالـ central assumptions) | slide 11 بالحرف؛ أرقام الـ value الثلاثة |
+| سلمى مجدي | 1, 2, 2b, 8d, 9, 10, 11 | 4:30 | - | District view ← **A false alarm against a missed case** (1 missed case ≈ 6.7 false alarms بالـ central assumptions) | slide 11 بالحرف؛ أرقام الـ value الثلاثة |
 | أحمد عبد الحميد | 3, 4, 5, 7, 10b | 3:15 | District view: **An early signal: C21** و **When the solution fails** | Compound file ← الـ KPI tiles (K2، K3، K6، K5) لأي compound | الـ backtest بالأرقام (1 من 6، 0 من 6، target 5) |
-| ندى شادي | 6, 6c (والماوس في كل الـ live) | 1:30 | Priority map ← cycle cards ← CSV ← Compound file C18 ← Visit form | أي شاشة؛ هي اللي بتضغط | الأربع tabs متظبطين؛ نسخة rehearsal من الـ app data |
+| ندى شادي | 6, 6c (والماوس في كل الـ live) | 1:15 | Priority map ← cycle cards ← CSV ← Compound file C18 ← Visit form | أي شاشة؛ هي اللي بتضغط | الأربع tabs متظبطين؛ نسخة rehearsal من الـ app data |
 | فيرينا فؤاد | 8, 8b | 1:15 | Digital twin what if ← **S3 · Capacity** (2 أو 6 بدل 4) | tabs **S1 · Cost shock** و **S2 · Collections drop** ("Nobody crosses a threshold") | أرقام الـ recall@4 والـ baseline 0.335 |
 
 ## Timing checkpoints
@@ -42,8 +42,8 @@
 
 | لما نوصل لآخر | الوقت المفروض |
 | --- | --- |
-| slide 2 (المشكلة والقرار) | 1:15 |
-| slide 5 (الـ rule) | 3:00 |
+| slide 2b (الـ to-be) | 1:30 |
+| slide 5 (الـ rule) | 3:15 |
 | slide 6c (الـ dashboard) | 5:15 |
 | slide 8c (الـ chatbot) | 8:15 |
 | slide 10 (الـ risks) | 10:45 |
@@ -81,7 +81,7 @@
 
 ---
 
-## 2. سلمى مجدي (المشكلة وصياغة القرار)
+## 2. سلمى مجدي (المشكلة، السؤال، والـ to-be)
 
 ### Slide 1 · Problem in numbers (0:30)
 
@@ -90,12 +90,19 @@
 
 **على الـ dashboard:** على الـ slide بس؛ شاوري على الـ stat callouts وإنتي بتقولي كل رقم. لو اتسأل "الأرقام دي منين؟": تصريحات رئيس مجلس الإدارة، مسجلة في `docs/requirements/01-specs.md` section 12.
 
-### Slide 2 · The question and the decision (0:30)
+### Slide 2 · The question and the decision (0:15)
 
 **تقول:**
-"منطقة واحدة، R7: 12 compound بـ codes، والربع 2026Q3. النهارده كل compound بياخد نفس الـ review كل 3 شهور. بكرة: list فيها 4 بالكتير في كل cycle، وكل واحد معاه reason sentence، ومن غير أي label على developer. الـ observatory بيرتّب، واللجنة هي اللي بتقرر. ACUD ما شاركتش أوقات الزيارات، فتكلفة النهارده مش متقاسة."
+"منطقة واحدة، R7: 12 compound بـ codes، والربع 2026Q3. السؤال: أنهي compounds اللجنة تزورها الأول في الـ cycle الجاي، وليه؟ الـ observatory بيرتّب، واللجنة هي اللي بتقرر."
 
 **على الـ dashboard:** على الـ slide بس؛ شاوري على الـ funnel (12 ← 4). الـ dashboard هيوريها live مع ندى بعد دقيقتين، فقولي: "وهتشوفوها live حالًا."
+
+### Slide 2b · To-be: the new process (0:30)
+
+**تقول:**
+"الـ public satellite data كل ربع والـ developer statements بيدخلوا الـ pipeline والـ quality gates، ويطلع priority list فيها levels 1 لـ 4 مع سبب مكتوب، والـ capacity أربعة. اللجنة تقرر: يا field visit، يا watch next quarter. نتيجة الزيارة بتتسجّل في الـ visit log، اللي بيعدّ الـ false alarms والـ misses ويرجع للـ pipeline. الـ target المقترح: كل compound في level 1 أو 2 يتزار في نفس الربع؛ والـ capacity 4 غطّت ده في 31 من 31 ربع. ده proposal مننا، لسه مش approved من ACUD."
+
+**على الـ dashboard:** على الـ slide بس؛ امشي بإيدك على الـ loop من الشمال لليمين وارجعي من تحت للـ visit log. قولي: "والـ visit form اللي ندى هتوريه live هو بالظبط الـ result recorded ده." لو اتسأل عن الأدوار: الـ Track A owner بيشغّل الـ pipeline كل ربع مع reviewer تاني، والـ field visit lead بيسجّل progressing أو stalled أو complete أو not done، والـ ACUD data custodian ماسك الـ code-to-name mapping (`docs/deliverables/to-be.md`).
 
 **Handover:** "الـ lists دي جاية منين؟ أحمد بنى الـ data والـ rule."
 
@@ -170,12 +177,12 @@ Live على Tab 1، جزء **Search and filters** فوق الـ map. ندى بت
 
 ## 6. ندى شادي (الأربع شاشات)
 
-### Slide 6c · Four screens, one path from alert to action (0:30)
+### Slide 6c · Four screens, one path from alert to action (0:15)
 
 **Switch:** `Alt+Tab` ← الـ slides.
 
 **تقول (على الـ slide):**
-"أربع شاشات، أربع أسئلة: مين الأول؟ ليه ده؟ السيستم بيدي إيه، وإمتى بيفشل؟ والأخيرة generated: مين هيتغير لو التكاليف أو التحصيل أو الـ capacity اتغيرت؟ والطريق: level، ثم cycle list، ثم compound file، ثم visit form، ثم recorded visit. الـ reviews بتاعة زمايلنا غيّرت الشاشات؛ والـ ten-second test مع عضو من اللجنة لسه هيتعمل."
+"أربع شاشات، أربع أسئلة: مين الأول؟ ليه ده؟ السيستم بيدي إيه وإمتى بيفشل؟ ومين هيتغير لو الظروف اتغيرت؟ والطريق: من الـ level لحد الـ recorded visit، زي الـ to-be loop بالظبط."
 
 **Handover:** "هل بيمسك المشاريع المتأخرة بدري؟ أحمد هيعرض الـ backtest، والـ clock متجمّد."
 

@@ -177,7 +177,7 @@ slides.push({
 
 // 2
 slides.push({
-  title: "The question and the decision", time: "0:30",
+  title: "The question and the decision", time: "0:15",
   md: [
     "- Question: which R7 compounds should the committee visit first next cycle, and why?",
     "- The observatory ranks; the committee decides.",
@@ -188,7 +188,7 @@ slides.push({
     "- Visual: as-is → to-be flow of two boxes and a 12 → 4 funnel (12 R7 compounds → 4 visits per cycle).",
   ],
   source: ["`configs/cost_assumptions.yaml` (`projects: 12`, `visits_per_year: 4`), `docs/requirements/01-specs.md` (sections 2, 7 and 12)."],
-  note: "Speaker note: 0:30 · criteria 1, 2, 3. One sentence from today's practice to the new list; the decision itself comes on slide 11.",
+  note: "Speaker note: 0:15 · criteria 1, 2, 3. The question and the scope; the new process follows on slide 2b and the decision on slide 11.",
   build(s) {
     const bw = 5.5;
     box(s, "s2 asis", MX, TOP + 0.1, bw, 1.3, "Today (as-is): every one of the 12 compounds gets a field review every 3 months, 4 visits a year each.", { fill: C.slate, pt: 16 });
@@ -205,6 +205,61 @@ slides.push({
       "ACUD has not given us visit times or missed cases, so the as-is pain is not measured.",
       "Wording rule: the list says \"no building activity since X\" or \"passed its first date by Y\", never a label on a developer.",
     ], MX, 4.25, W, 2.15, 16);
+  },
+});
+
+
+// 2b: to-be flow (docs/deliverables/to-be.md, "The new process")
+function link(slide, x1, y1, x2, y2) {
+  slide.addShape(pres.ShapeType.line, {
+    x: Math.min(x1, x2), y: Math.min(y1, y2), w: Math.max(Math.abs(x2 - x1), 0.001), h: Math.max(Math.abs(y2 - y1), 0.001),
+    flipH: x2 < x1, flipV: y2 < y1, line: { color: C.ink, width: 1.5, endArrowType: "triangle" },
+  });
+}
+function edgeLabel(slide, text, x, y, w, align = "left") {
+  slide.addText(text, { x, y, w, h: 0.4, fontFace: BODY, fontSize: 11, italic: true, color: C.ink, align, valign: "middle", margin: 0 });
+}
+slides.push({
+  title: "To-be: the new process", time: "0:30",
+  md: [
+    "- New process (proposed): public satellite data every quarter and published developer statements → pipeline and quality gates → priority list (levels 1-4 with a written reason, capacity 4) → the committee decides → field visit, or watch next quarter → the result is recorded on the Compound file screen in the visit log → the visit log counts false alarms and misses and feeds the next run.",
+    "- The system recommends; the committee decides.",
+    "- Roles: the Track A owner runs the pipeline and the quality gates every quarter, reviewed by a second team member; the committee decides which compounds to visit; the field visit lead records the result (progressing, stalled, complete, not done); the ACUD data custodian keeps the code-to-name mapping.",
+    "- Proposed targets: every compound at level 1 or 2 visited within the quarter (capacity 4 covered all of them in 31 of 31 quarters, 2019Q1-2026Q3); 12 of 12 visit results recorded in the pilot quarter.",
+    "- Status: proposed by the team, not approved by ACUD.",
+    "- Visual: flowchart of the new process (from `docs/deliverables/to-be.md`).",
+  ],
+  source: ["`docs/deliverables/to-be.md` (the new process, roles and proposed targets)."],
+  note: "Speaker note: 0:30 · criteria 3, 5. Walk the loop once from satellite data to the visit log; stress that the committee decides and every visit result comes back as ground truth. Targets are proposals, not approved by ACUD.",
+  build(s) {
+    const y0 = 2.15, bh = 0.75, cy = y0 + bh / 2;
+    box(s, "s2b S", MX, 1.5, 2.5, bh, "Public satellite data, every quarter", { fill: C.slate });
+    box(s, "s2b T", MX, 2.8, 2.5, bh, "Published developer statements", { fill: C.slate });
+    box(s, "s2b P", 3.7, y0, 2.3, bh, "Pipeline and quality gates", { fill: C.slate });
+    box(s, "s2b L", 6.7, y0, 2.3, bh, "Priority list, capacity 4", { fill: C.slate });
+    s.addShape(pres.ShapeType.diamond, { x: 9.55, y: 1.85, w: 2.4, h: 1.35, fill: { color: C.red }, line: { color: C.red } });
+    s.addText("Committee decides", { x: 9.85, y: 1.85, w: 1.8, h: 1.35, fontFace: BODY, fontSize: 14, bold: true, color: C.white, align: "center", valign: "middle", margin: 0 });
+    box(s, "s2b F", 8.1, 4.0, 2.1, 0.7, "Field visit", { fill: C.slate });
+    box(s, "s2b W", 10.45, 4.0, 2.28, 0.7, "Watch next quarter", { fill: C.slate });
+    box(s, "s2b R", 3.7, 4.0, 2.3, 0.7, "Visit log", { fill: C.red });
+    link(s, MX + 2.5, 1.5 + bh / 2, 3.7, cy - 0.12);
+    link(s, MX + 2.5, 2.8 + bh / 2, 3.7, cy + 0.12);
+    link(s, 6.0, cy, 6.7, cy);
+    edgeLabel(s, "levels 1-4 with a written reason", 5.2, 1.75, 2.3, "center");
+    link(s, 9.0, cy, 9.55, cy);
+    link(s, 10.4, 3.2, 9.15, 4.0);
+    edgeLabel(s, "visit", 9.0, 3.3, 0.8, "right");
+    link(s, 11.1, 3.2, 11.6, 4.0);
+    edgeLabel(s, "no visit", 11.45, 3.3, 1.2);
+    link(s, 8.1, 4.35, 6.0, 4.35);
+    edgeLabel(s, "result recorded on the Compound file screen", 6.0, 3.5, 2.6);
+    link(s, 4.85, 4.0, 4.85, y0 + bh);
+    edgeLabel(s, "counts false alarms and misses", 4.95, 3.0, 1.9);
+    bullets(s, "s2b bullets", [
+      "Roles: the Track A owner runs the pipeline and gates each quarter (second reviewer); the committee decides; the field visit lead records progressing, stalled, complete or not done; the ACUD data custodian keeps the code-to-name mapping.",
+      "Proposed targets: every level 1 or 2 compound visited within the quarter (capacity 4 covered all of them in 31 of 31 quarters); 12 of 12 visit results recorded in the pilot quarter.",
+      "Status: proposed by the team, not approved by ACUD. The system recommends; the committee decides.",
+    ], MX, 4.95, W, 1.55, 14);
   },
 });
 
@@ -364,7 +419,7 @@ slides.push({
 
 // 6c
 slides.push({
-  title: "Four screens, one path from alert to action", time: "0:30",
+  title: "Four screens, one path from alert to action", time: "0:15",
   md: [
     "- 1 Priority map: whom should the committee visit first?",
     "- 2 Compound file: why this one? Evidence behind the priority level.",
@@ -375,7 +430,7 @@ slides.push({
     "- Visual: four screen cards (screen 4 marked generated) and an alert-to-action arrow row.",
   ],
   source: ["`docs/deliverables/user-guide.md` (screen subtitles), `docs/deliverables/audience-test.md`, `docs/deliverables/display-rules-check.md`."],
-  note: "Speaker note: 0:30 · criterion 4. Name who uses each screen, follow the alert to the action, and say the committee-member test is still to be run.",
+  note: "Speaker note: 0:15 · criterion 4. Name who uses each screen, follow the alert to the action, and say the committee-member test is still to be run.",
   build(s) {
     const cards = [["1 · Priority map", "Whom first?"], ["2 · Compound file", "Why this one?"], ["3 · District view", "What does the system give, and when does it fail?"], ["4 · Digital twin what if", "Who changes if costs, collections or capacity change? Track B, generated"]];
     const cw = (W - 3 * 0.15) / 4;
@@ -716,9 +771,9 @@ slides.forEach((sp) => {
 });
 
 // ---------- markdown ----------
-const labels = ["0", "1", "2", "3", "4", "5", "6", "6b", "6c", "7", "8", "8b", "8c", "8d", "9", "10", "10b", "11"];
+const labels = ["0", "1", "2", "2b", "3", "4", "5", "6", "6b", "6c", "7", "8", "8b", "8c", "8d", "9", "10", "10b", "11"];
 const md = [
-  "# Presentation: 18 slides (title slide 0, then 1-11 with 6b and 6c after 6, 8b, 8c and 8d after 8, and 10b after 10)",
+  "# Presentation: 19 slides (title slide 0, then 1-11 with 2b after 2, 6b and 6c after 6, 8b, 8c and 8d after 8, and 10b after 10)",
   "",
   "Tasks T-SA-06 and T-EL-25. Draft text for review. This file holds the on-slide content and speaker notes of `presentation.pptx`, slide for slide in the same order. Length: 12 min, the limit set by criterion 10 of the instructor rubric (`docs/requirements/ACUD-Rubric.md`); the time budget and the criteria each slide answers follow `docs/deliverables/01-presentation/rubric-map.md` (presentation plan) and are stated in each speaker note (total 12:00). Numbers come only from repo files and carry an origin mark: 🟢 real · 🔵 derived · 🟠 generated (\"Synthetic - for training only\"). Compounds and developers appear as codes only; the only names are the supervisor and team on the title slide. The words \"risk level\", \"distressed\" (for a real compound) and any completion % are not used. Some caveats are in the speaker notes.",
   "",
