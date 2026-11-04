@@ -1,4 +1,4 @@
-# Presentation: 19 slides (title slide 0, then 1-11 with 2b after 2, 6b and 6c after 6, 8b, 8c and 8d after 8, and 10b after 10)
+# Presentation: 20 slides (title slide 0, then 1-11 with 2a and 2b after 2, 6b and 6c after 6, 8b, 8c and 8d after 8, and 10b after 10)
 
 Tasks T-SA-06 and T-EL-25. Draft text for review. This file holds the on-slide content and speaker notes of `presentation.pptx`, slide for slide in the same order. Length: 12 min, the limit set by criterion 10 of the instructor rubric (`docs/requirements/ACUD-Rubric.md`); the time budget and the criteria each slide answers follow `docs/deliverables/01-presentation/rubric-map.md` (presentation plan) and are stated in each speaker note (total 12:00). Numbers come only from repo files and carry an origin mark: 🟢 real · 🔵 derived · 🟠 generated ("Synthetic - for training only"). Compounds and developers appear as codes only; the only names are the supervisor and team on the title slide. The words "risk level", "distressed" (for a real compound) and any completion % are not used. Some caveats are in the speaker notes.
 
@@ -36,6 +36,17 @@ Speaker note: 0:30 · criterion 1. A committee cannot visit everything every cyc
 - Source: `configs/cost_assumptions.yaml` (`projects: 12`, `visits_per_year: 4`), `docs/requirements/01-specs.md` (sections 2, 7 and 12).
 
 Speaker note: 0:15 · criteria 1, 2, 3. The question and the scope; the new process follows on slide 2b and the decision on slide 11.
+
+## Slide 2a. As-is: how R7 is followed today
+
+- Today: the same field review every 3 months for every compound, 48 reviews a year in R7 (12 x 4).
+- 5 of the 6 public late cases ran 18 to 33 months past the original promise (median 25).
+- Three causes: effort is not matched to risk; progress comes from the developer's own statements; nobody compares pace with the promised date.
+- Rebuilt from public sources; ACUD's internal workflow was not observed and must be confirmed.
+- Visual: as-is process map (from docs/deliverables/as-is.md).
+- Source: `docs/deliverables/as-is.md` (process map, baseline, root causes).
+
+Speaker note: 0:30 · criteria 2, 1. The process map is rebuilt from public sources and must be confirmed with ACUD. The effort is the same for every compound.
 
 ## Slide 2b. To-be: the new process
 
@@ -111,7 +122,7 @@ Speaker note: 1:00 · criterion 4. Follow the alert to the action: level, cycle 
 - Screenshot: `assets/screen1-map-panel.png`, "Dashboard screenshot · Priority map, selected compound".
 - Source: `app.py` (`render_filters`, `open_clicked_compound`, `render_selected_compound_panel`), `src/dashboard/insights.py` (`filter_compounds`); board tasks T-NA-11, T-NA-12, T-NA-13 and T-EL-21 in `docs/requirements/02-team-roles-and-tasks.md`.
 
-Speaker note: 0:45 · criterion 4. Live: type C1 in the search, set a priority level filter, click a block on the map, show the sidebar panel, then Clear selection.
+Speaker note: 0:30 · criterion 4. Live: type C1 in the search, set a priority level filter, click a block on the map, show the sidebar panel, then Clear selection.
 
 ## Slide 6c. Four screens, one path from alert to action
 
@@ -189,7 +200,7 @@ Speaker note: 0:45 · criterion 4. Live: open the 💬 button, ask one question,
 - Visual: two stat callouts (8 of 8 · 5 of 5) and a call-budget box (200 calls).
 - Source: `chatbot/knowledge/SOURCES.csv`, `chatbot/evaluation_results.json`, `chatbot/retrieval_evaluation_results.json`, `configs/ai.yaml`.
 
-Speaker note: 0:45 · criteria 8, 9. Say the tests are the team's own and small; model calls need the owner's approval and stop at 200, then local answers. Codes only, not legal advice.
+Speaker note: 0:30 · criteria 8, 9. Say the tests are the team's own and small; model calls need the owner's approval and stop at 200, then local answers. Codes only, not legal advice.
 
 ## Slide 9. Value in EGP (3 settings)
 

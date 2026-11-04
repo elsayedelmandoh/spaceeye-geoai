@@ -210,15 +210,56 @@ slides.push({
 
 
 // 2b: to-be flow (docs/deliverables/to-be.md, "The new process")
-function link(slide, x1, y1, x2, y2) {
+function link(slide, x1, y1, x2, y2, dash) {
   slide.addShape(pres.ShapeType.line, {
     x: Math.min(x1, x2), y: Math.min(y1, y2), w: Math.max(Math.abs(x2 - x1), 0.001), h: Math.max(Math.abs(y2 - y1), 0.001),
-    flipH: x2 < x1, flipV: y2 < y1, line: { color: C.ink, width: 1.5, endArrowType: "triangle" },
+    flipH: x2 < x1, flipV: y2 < y1, line: { color: C.ink, width: 1.5, endArrowType: "triangle", ...(dash ? { dashType: "dash" } : {}) },
   });
 }
 function edgeLabel(slide, text, x, y, w, align = "left") {
   slide.addText(text, { x, y, w, h: 0.4, fontFace: BODY, fontSize: 11, italic: true, color: C.ink, align, valign: "middle", margin: 0 });
 }
+slides.push({
+  title: "As-is: how R7 is followed today", time: "0:30",
+  md: [
+    "- Today: the same field review every 3 months for every compound, 48 reviews a year in R7 (12 x 4).",
+    "- 5 of the 6 public late cases ran 18 to 33 months past the original promise (median 25).",
+    "- Three causes: effort is not matched to risk; progress comes from the developer's own statements; nobody compares pace with the promised date.",
+    "- Rebuilt from public sources; ACUD's internal workflow was not observed and must be confirmed.",
+    "- Visual: as-is process map (from docs/deliverables/as-is.md).",
+  ],
+  source: ["`docs/deliverables/as-is.md` (process map, baseline, root causes)."],
+  note: "Speaker note: 0:30 · criteria 2, 1. The process map is rebuilt from public sources and must be confirmed with ACUD. The effort is the same for every compound.",
+  build(s) {
+    const bh = 0.7;
+    box(s, "s2a Press", MX, 1.5, 2.3, bh, "Press and portals", { fill: C.slate });
+    box(s, "s2a Sup", 7.9, 1.5, 2.3, bh, "Site supervisor", { fill: C.slate });
+    box(s, "s2a Dev", MX, 3.3, 2.3, bh, "Developer", { fill: C.slate });
+    box(s, "s2a ACUD", 5.2, 3.3, 2.3, bh, "ACUD planning body", { fill: C.red });
+    box(s, "s2a Field", 10.4, 3.3, 2.3, bh, "Field team", { fill: C.slate });
+    link(s, 1.75, 3.3, 1.75, 2.2);
+    edgeLabel(s, "public statements: launch, progress, promised dates", 1.9, 2.4, 2.0);
+    link(s, 2.9, 1.85, 5.7, 3.3, true);
+    edgeLabel(s, "read by", 3.2, 1.5, 1.0);
+    link(s, 9.05, 2.2, 7.0, 3.3);
+    edgeLabel(s, "quarterly progress report, Law 119 art. 54", 9.2, 2.5, 2.5);
+    link(s, 2.9, 3.45, 5.2, 3.45);
+    edgeLabel(s, "half-yearly financial report, Decree 2184 art. 3", 2.95, 2.98, 2.0);
+    link(s, 5.2, 3.85, 2.9, 3.85);
+    edgeLabel(s, "warnings, new deadlines, terminations", 2.95, 4.0, 2.2);
+    link(s, 7.5, 3.45, 10.4, 3.45);
+    edgeLabel(s, "field review of every compound, every 3 months", 7.55, 2.98, 2.8);
+    link(s, 10.4, 3.85, 7.5, 3.85);
+    edgeLabel(s, "visit notes", 7.55, 4.0, 2.8);
+    bullets(s, "s2a bullets", [
+      "Today: the same field review every 3 months for every compound, 48 reviews a year in R7 (12 x 4).",
+      "5 of the 6 public late cases ran 18 to 33 months past the original promise (median 25).",
+      "Three causes: effort is not matched to risk; progress comes from the developer's own statements; nobody compares pace with the promised date.",
+      "Rebuilt from public sources; ACUD's internal workflow was not observed and must be confirmed.",
+    ], MX, 4.55, W, 1.95, 14);
+  },
+});
+
 slides.push({
   title: "To-be: the new process", time: "0:30",
   md: [
@@ -392,7 +433,7 @@ slides.push({
 
 // 6b
 slides.push({
-  title: "Search, filters and map click", time: "0:45",
+  title: "Search, filters and map click", time: "0:30",
   md: [
     "- One search box takes a compound code (C..) or a developer code (D..); a prefix works. Typing \"C1\" narrows the map to 6 of 12 compounds, and the level legend shows the counts.",
     "- Filters: as-of quarter, priority level, developer code, minimum K2 / K3 / K6 and \"Cycle list only\". The caption says how many compounds are shown, and unknown K values stay only while their minimum is 0.",
@@ -403,7 +444,7 @@ slides.push({
     ...shotMd(["search", "mapPanel"]),
   ],
   source: ["`app.py` (`render_filters`, `open_clicked_compound`, `render_selected_compound_panel`), `src/dashboard/insights.py` (`filter_compounds`); board tasks T-NA-11, T-NA-12, T-NA-13 and T-EL-21 in `docs/requirements/02-team-roles-and-tasks.md`."],
-  note: "Speaker note: 0:45 · criterion 4. Live: type C1 in the search, set a priority level filter, click a block on the map, show the sidebar panel, then Clear selection.",
+  note: "Speaker note: 0:30 · criterion 4. Live: type C1 in the search, set a priority level filter, click a block on the map, show the sidebar panel, then Clear selection.",
   build(s) {
     const iw = 3.9;
     shot(s, "search", MX, TOP, iw);
@@ -586,7 +627,7 @@ slides.push({
 
 // 8d
 slides.push({
-  title: "What the chatbot knows, and its limits", time: "0:45",
+  title: "What the chatbot knows, and its limits", time: "0:30",
   md: [
     "- Knowledge: 9 sourced documents (ACUD site, Decree 2184/2022, Building Law 119/2008 art. 54, Law 151/2020, Dynamic World, Open Buildings, Esri Wayback, ISO 37120/37122, team SLA note) plus the project's data.",
     "- Evaluation: 8 of 8 intent tests passed (2026-11-03) and 5 of 5 retrieval checks passed. These are the team's own small tests, not an accuracy claim.",
@@ -595,7 +636,7 @@ slides.push({
     "- Visual: two stat callouts (8 of 8 · 5 of 5) and a call-budget box (200 calls).",
   ],
   source: ["`chatbot/knowledge/SOURCES.csv`, `chatbot/evaluation_results.json`, `chatbot/retrieval_evaluation_results.json`, `configs/ai.yaml`."],
-  note: "Speaker note: 0:45 · criteria 8, 9. Say the tests are the team's own and small; model calls need the owner's approval and stop at 200, then local answers. Codes only, not legal advice.",
+  note: "Speaker note: 0:30 · criteria 8, 9. Say the tests are the team's own and small; model calls need the owner's approval and stop at 200, then local answers. Codes only, not legal advice.",
   build(s) {
     const w = 3.6;
     stat(s, "s8d a", MX, TOP + 0.05, w, 1.7, "8 of 8", "intent tests passed (2026-11-03)");
@@ -771,9 +812,9 @@ slides.forEach((sp) => {
 });
 
 // ---------- markdown ----------
-const labels = ["0", "1", "2", "2b", "3", "4", "5", "6", "6b", "6c", "7", "8", "8b", "8c", "8d", "9", "10", "10b", "11"];
+const labels = ["0", "1", "2", "2a", "2b", "3", "4", "5", "6", "6b", "6c", "7", "8", "8b", "8c", "8d", "9", "10", "10b", "11"];
 const md = [
-  "# Presentation: 19 slides (title slide 0, then 1-11 with 2b after 2, 6b and 6c after 6, 8b, 8c and 8d after 8, and 10b after 10)",
+  "# Presentation: 20 slides (title slide 0, then 1-11 with 2a and 2b after 2, 6b and 6c after 6, 8b, 8c and 8d after 8, and 10b after 10)",
   "",
   "Tasks T-SA-06 and T-EL-25. Draft text for review. This file holds the on-slide content and speaker notes of `presentation.pptx`, slide for slide in the same order. Length: 12 min, the limit set by criterion 10 of the instructor rubric (`docs/requirements/ACUD-Rubric.md`); the time budget and the criteria each slide answers follow `docs/deliverables/01-presentation/rubric-map.md` (presentation plan) and are stated in each speaker note (total 12:00). Numbers come only from repo files and carry an origin mark: 🟢 real · 🔵 derived · 🟠 generated (\"Synthetic - for training only\"). Compounds and developers appear as codes only; the only names are the supervisor and team on the title slide. The words \"risk level\", \"distressed\" (for a real compound) and any completion % are not used. Some caveats are in the speaker notes.",
   "",
