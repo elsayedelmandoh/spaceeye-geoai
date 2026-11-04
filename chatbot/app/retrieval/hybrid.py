@@ -168,6 +168,7 @@ DOCUMENT_TYPES = {
     "rules": "rule_summary",
     "complaints": "synthetic_complaint",
     "inspection_visits": "synthetic_visit",
+    "knowledge": "external_knowledge",
 }
 
 
@@ -337,7 +338,7 @@ def retrieve_hybrid(
     if intent in ("project_info", "inspection_priority"):
         search_targets.add("structured_data")
 
-    if intent in ("project_info", "inspection_priority"):
+    if intent in ("project_info", "inspection_priority", "knowledge"):
         search_targets.add("text_evidence")
 
     # 4. Retrieve structured data.
@@ -373,9 +374,10 @@ def retrieve_hybrid(
         if intent == "inspection_priority":
             document_type = None
 
+        # Knowledge chunks carry no compound code, so never filter them by one.
         evidence = _retrieve_evidence(
             query=rewritten_query,
-            compounds=compounds,
+            compounds=[] if intent == "knowledge" else compounds,
             document_type=document_type,
             n_results=n_results,
         )

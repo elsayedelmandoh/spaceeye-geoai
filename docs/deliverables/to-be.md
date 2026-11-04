@@ -58,7 +58,7 @@ Scenarios S1 and S2 use generated finance data (Track B); S3 re-ranks the real T
 | K2, K3, K6, levels and the list | Closest theme: urban planning in ISO 37122. None of the indicators in the public abstracts we read measures project-level construction progress; the full standards were not read. | The U4SSC set (91 indicators on ITU-T Y.4903, economy, environment, and society and culture dimensions) was checked at framework level only; no matching indicator was verified. |
 | Building permits (on the ACUD data request) | ISO 37122 urban-planning indicators: average time for building-permit approval (days) and the share of permits submitted electronically | not checked |
 
-The standards define indicators; they do not set targets for a district. The targets above are justified by R7 data and the thresholds fixed in `configs/data.yaml`, not by the standards. Sources: `data/knowledge/external/iso-37120-37122-city-indicators-en.md` (public abstracts) and the [ITU U4SSC KPI page](https://www.itu.int/en/ITU-T/ssc/pages/kpis-on-ssc.aspx).
+The standards define indicators; they do not set targets for a district. The targets above are justified by R7 data and the thresholds fixed in `configs/data.yaml`, not by the standards. Sources: `chatbot/knowledge/external/iso-37120-37122-city-indicators-en.md` (public abstracts) and the [ITU U4SSC KPI page](https://www.itu.int/en/ITU-T/ssc/pages/kpis-on-ssc.aspx).
 
 ## Not covered
 

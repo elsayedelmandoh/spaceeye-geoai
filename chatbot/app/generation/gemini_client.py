@@ -177,6 +177,7 @@ import logging
 from google import genai
 from google.genai import types
 
+from chatbot.app.core.budget import try_spend_gemini_call
 from chatbot.app.core.config import get_settings
 
 
@@ -308,6 +309,12 @@ def generate_answer(
     if not evidence_context or not evidence_context.strip():
         return (
             "لا توجد بيانات أو أدلة كافية للإجابة عن السؤال حاليًا."
+        )
+
+    if not try_spend_gemini_call():
+        return fallback_answer or (
+            "استخدام Gemini غير معتمد أو استُنفدت حصة الاستدعاءات، "
+            "ولا توجد إجابة محلية بديلة."
         )
 
     prompt = f"""

@@ -382,19 +382,17 @@
 
 import json
 import logging
-import os
 import re
 
 from google import genai
 from google.genai import types
 
+from chatbot.app.core.budget import try_spend_gemini_call
 from chatbot.app.core.config import get_settings
 from chatbot.app.retrieval.router import route_query
 
 
 logger = logging.getLogger(__name__)
-
-DEFAULT_MODEL = "gemini-3.1-flash-lite"
 
 VALID_INTENTS = {
     "project_info",
@@ -403,6 +401,7 @@ VALID_INTENTS = {
     "rules",
     "complaints",
     "inspection_visits",
+    "knowledge",
     "project_overview",
     "greeting",
     "out_of_scope",
@@ -503,6 +502,7 @@ QUERY_UNDERSTANDING_INSTRUCTION = """
 - rules: القواعد وملخصات اللوائح وحقوق المشتري وشروط التسليم.
 - complaints: الشكاوى والمدفوعات والتظلمات.
 - inspection_visits: الزيارات الميدانية ومحاضر التفتيش.
+- knowledge: المصادر المرجعية الخارجية: قانون البناء 119 وقرار 2184 وقانون حماية البيانات 151 ومعايير ISO 37120/37122 وDynamic World وOpen Buildings وEsri Wayback وموقع الهيئة وSLA.
 - project_overview: أسئلة عامة عن نظام SpaceEye.
 - greeting: التحية والشكر والردود الاجتماعية القصيرة.
 - out_of_scope: الأسئلة غير المرتبطة بوظائف النظام.
@@ -802,6 +802,11 @@ def _validate_result(
     if intent == "inspection_priority":
         targets = list(set(targets + ["structured_data", "text_evidence"]))
 
+    if intent == "knowledge":
+        targets = ["text_evidence"]
+        compounds = []
+        compound = None
+
     if intent in (
         "greeting",
         "out_of_scope",
@@ -884,10 +889,13 @@ def understand_query(
             last_compound,
         )
 
-    model = os.getenv(
-        "GEMINI_UNDERSTANDING_MODEL",
-        DEFAULT_MODEL,
-    )
+    if not try_spend_gemini_call():
+        return _fallback_understanding(
+            question,
+            last_compound,
+        )
+
+    model = settings.gemini_model
 
     prompt = f"""
 السؤال الحالي:

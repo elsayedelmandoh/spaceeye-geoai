@@ -366,6 +366,30 @@ def _format_visits(evidence: list[dict]) -> list[str]:
     return lines
 
 
+def _format_knowledge(evidence: list[dict]) -> list[str]:
+    lines = []
+
+    for item in evidence:
+        metadata = item.get("metadata") or {}
+
+        if metadata.get("document_type") != "external_knowledge":
+            continue
+
+        heading = metadata.get("section") or ""
+        title = metadata.get("title", "")
+        # Chunk text starts with the "Source document" / "Section" header lines.
+        text = (item.get("document") or "").split("\n", 2)[-1].strip()
+        lines.extend([
+            f"### {title}" + (f" - {heading}" if heading else ""),
+            text[:800],
+            f"المصدر: {metadata.get('source_url') or 'غير محدد'} "
+            f"({metadata.get('file_path', '')})",
+            "",
+        ])
+
+    return lines or ["لم يتم العثور على مصدر مرجعي مرتبط بالسؤال."]
+
+
 def _format_rules(evidence: list[dict]) -> list[str]:
     rules = []
 
@@ -532,6 +556,14 @@ def build_answer(result: dict) -> str:
             "يمكنك سؤالي عن بيانات المشروعات أو مؤشرات الأداء "
             "أو التصريحات أو القواعد أو سجلات التفتيش."
         )
+
+    # Sourced knowledge documents.
+    if intent == "knowledge":
+        return "\n".join([
+            "المصادر المرجعية المرتبطة بالسؤال:",
+            "",
+            *_format_knowledge(evidence),
+        ])
 
     # Rules.
     if intent == "rules":

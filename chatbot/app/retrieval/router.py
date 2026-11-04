@@ -16,6 +16,17 @@ VISIT_KEYWORDS = [
     "inspection visit", "inspection visits", "site visit",
 ]
 
+KNOWLEDGE_KEYWORDS = [
+    "قانون البناء", "قانون 119", "law 119", "building law",
+    "قرار 2184", "decree 2184", "قواعد بيع العقارات",
+    "حماية البيانات الشخصية", "قانون 151", "law 151",
+    "personal data protection",
+    "iso 37120", "iso 37122", "city indicators",
+    "dynamic world", "open buildings", "wayback",
+    "esri", "هيئة المجتمعات العمرانية",
+    "acud",
+]
+
 RULE_KEYWORDS = [
     "التأخير", "تأخر التسليم", "تأخير التسليم",
     "تأخر الاستلام", "حقوق المشتري", "حق المشتري",
@@ -212,6 +223,11 @@ def route_query(
         elif _is_inspection_priority_query(normalized_query):
             intent = "inspection_priority"
             document_type = None
+
+        elif _contains_keyword(normalized_query, KNOWLEDGE_KEYWORDS):
+            intent = "knowledge"
+            document_type = "external_knowledge"
+            compound = None
 
         elif _contains_keyword(normalized_query, RULE_KEYWORDS):
             intent = "rules"
