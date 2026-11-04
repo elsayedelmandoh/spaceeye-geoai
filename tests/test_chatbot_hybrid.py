@@ -98,7 +98,7 @@ def test_settings_model_matches_configs_ai_yaml_and_env_override(monkeypatch):
 
 
 def test_missing_api_key_gives_empty_key_not_an_error(monkeypatch):
-    def raise_missing():
+    def raise_missing(env_path=None):
         raise RuntimeError("GEMINI_API_KEY is not set")
 
     monkeypatch.setattr(config, "get_api_key", raise_missing)
