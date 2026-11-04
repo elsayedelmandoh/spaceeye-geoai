@@ -97,6 +97,25 @@ function table(slide, label, rows, x, y, w, colW, pt = 14, rowH = 0.5, headFill 
   slide.addTable(rows.map((r, i) => r.map((t) => cell(t, i === 0))), { x, y, w, colW, rowH, border: { type: "solid", pt: 1, color: C.sand }, margin: [0.04, 0.1, 0.04, 0.1] });
 }
 
+// Dashboard screenshots (1600x950 PNGs in assets/). crop = region in source pixels; aspect ratio is kept.
+const SHOTS = {
+  top: { file: "screen1-top.png", name: "Priority map" },
+  mapPanel: { file: "screen1-map-panel.png", name: "Priority map, selected compound" },
+  file: { file: "screen2-compound-file.png", name: "Compound file" },
+  district: { file: "screen3-district-view.png", name: "District view" },
+  twin: { file: "screen4-twin-what-if.png", name: "Digital twin what if", crop: { x: 400, y: 340, w: 1100, h: 205 } },
+};
+function shot(slide, key, x, y, w) {
+  const sh = SHOTS[key], cw = sh.crop ? sh.crop.w : 1600, ch = sh.crop ? sh.crop.h : 950, k = w / cw, h = ch * k;
+  const o = { path: path.join(__dirname, "..", "assets", sh.file), x, y, w: 1600 * k, h: 950 * k };
+  if (sh.crop) o.sizing = { type: "crop", x: sh.crop.x * k, y: sh.crop.y * k, w, h };
+  slide.addImage(o);
+  slide.addShape(pres.ShapeType.rect, { x, y, w, h, fill: { type: "none" }, line: { color: C.slate, width: 0.75 } });
+  slide.addText("Dashboard screenshot · " + sh.name, { x, y: y + h + 0.03, w, h: 0.22, fontFace: BODY, fontSize: 11, italic: true, color: C.ink, align: "left", valign: "top", margin: 0 });
+  return h;
+}
+const shotMd = (keys) => keys.map((k) => `- Screenshot: \`assets/${SHOTS[k].file}\`, "Dashboard screenshot · ${SHOTS[k].name}".`);
+
 // ---------- slide specs ----------
 const slides = [];
 
@@ -133,18 +152,24 @@ slides.push({
     "- 🟢 Real statement: About 7-8% of developers seriously late; 6 mutual terminations.",
     "- A committee cannot visit everything every cycle: whom to visit first?",
     "- These are the chairman's statements, not our measurement.",
-    "- Visual: five stat callouts (more than 400 developers · more than 500 projects · field review every 3 months · about 7-8% seriously late · 6 mutual terminations).",
+    "- The gap: with more than 500 projects and a review every 3 months, the open question is which compounds come first. ACUD's data (plot boundaries, handover dates, supervisor reports, field review records) is what would turn our public-data screening into operation.",
+    "- Visual: gap graphic (more than 500 projects, review every 3 months → which compounds first? → a short cycle list), five stat callouts (more than 400 developers · more than 500 projects · field review every 3 months · about 7-8% seriously late · 6 mutual terminations).",
   ],
-  source: ["statements by the ACUD chairman, as recorded in `docs/requirements/01-specs.md` (section 12, slide 1)."],
+  source: ["statements by the ACUD chairman, as recorded in `docs/requirements/01-specs.md` (section 12, slide 1 and the data request list)."],
   note: "Speaker note: 0:45 · criterion 1. A committee cannot visit everything every cycle, so the question is whom to visit first.",
   build(s) {
     const stats = [[">400", "developers"], [">500", "projects"], ["3 months", "between field reviews"], ["7-8%", "of developers seriously late"], ["6", "mutual terminations"]];
     const w = (W - 4 * 0.2) / 5;
     stats.forEach(([b, c], i) => stat(s, "s1 stat " + i, MX + i * (w + 0.2), TOP + 0.2, w, 1.9, b, c));
+    box(s, "s1 g1", MX, 3.75, 4.6, 0.95, "More than 500 projects, and a field review every 3 months", { fill: C.slate, pt: 16 });
+    arrow(s, MX + 4.75, 4.0, 0.45, 0.45);
+    box(s, "s1 g2", MX + 5.35, 3.75, 3.3, 0.95, "Which compounds come first?", { fill: C.red, pt: 16 });
+    arrow(s, MX + 8.8, 4.0, 0.45, 0.45);
+    box(s, "s1 g3", MX + 9.4, 3.75, W - 9.4, 0.95, "A short cycle list, with reasons", { fill: C.slate, pt: 16 });
     bullets(s, "s1 bullets", [
-      "A committee cannot visit everything every cycle: whom to visit first?",
-      "These are the chairman's statements, not our measurement.",
-    ], MX, 3.9, W, 1.8, 18);
+      "A committee cannot visit everything every cycle: whom to visit first? These are the chairman's statements, not our measurement.",
+      "The gap: ACUD's data (plot boundaries, handover dates, supervisor reports, field review records) is what would turn our public-data screening into operation.",
+    ], MX, 4.9, W, 1.5, 16);
   },
 });
 
@@ -157,21 +182,27 @@ slides.push({
     "- Scope: R7 only, 12 coded compounds, reporting quarter 2026Q3, cycle capacity 4.",
     "- As-is → to-be: today every one of the 12 compounds gets a field review every 3 months (4 visits a year each); tomorrow a cycle list of at most 4 compounds from levels 1-3, each with a reason sentence, and the committee decides.",
     "- ACUD has not given us visit times or missed cases, so the as-is pain is not measured.",
-    "- Visual: as-is → to-be flow of two boxes.",
+    "- Wording rule: the list says \"no building activity since X\" or \"passed its first date by Y\", never a label on a developer.",
+    "- Visual: as-is → to-be flow of two boxes and a 12 → 4 funnel (12 R7 compounds → 4 visits per cycle).",
   ],
   source: ["`configs/cost_assumptions.yaml` (`projects: 12`, `visits_per_year: 4`), `docs/requirements/01-specs.md` (sections 2, 7 and 12)."],
   note: "Speaker note: 0:45 · criteria 1, 2, 3. One sentence from today's practice to the new list; the decision itself comes on slide 11.",
   build(s) {
     const bw = 5.5;
-    box(s, "s2 asis", MX, TOP + 0.1, bw, 1.7, "Today (as-is): every one of the 12 compounds gets a field review every 3 months, 4 visits a year each.", { fill: C.slate, pt: 16 });
-    arrow(s, MX + bw + 0.3, TOP + 0.75, 0.5, 0.5);
-    box(s, "s2 tobe", MX + bw + 1.1, TOP + 0.1, bw + 0.03, 1.7, "Tomorrow (to-be): a cycle list of at most 4 compounds from levels 1-3, each with a reason sentence. The committee decides.", { fill: C.red, pt: 16 });
+    box(s, "s2 asis", MX, TOP + 0.1, bw, 1.3, "Today (as-is): every one of the 12 compounds gets a field review every 3 months, 4 visits a year each.", { fill: C.slate, pt: 16 });
+    arrow(s, MX + bw + 0.3, TOP + 0.55, 0.5, 0.5);
+    box(s, "s2 tobe", MX + bw + 1.1, TOP + 0.1, bw + 0.03, 1.3, "Tomorrow (to-be): a cycle list of at most 4 compounds from levels 1-3, each with a reason sentence. The committee decides.", { fill: C.red, pt: 16 });
+    const fw = 7.0;
+    box(s, "s2 f12", MX, 2.95, fw, 0.5, "12 R7 compounds in scope", { fill: C.slate, pt: 16 });
+    box(s, "s2 f4", MX, 3.5, (fw * 4) / 12, 0.5, "4 visits per cycle", { fill: C.red, pt: 14 });
+    s.addText("Capacity 4 of 12 compounds, from levels 1-3", { x: MX + (fw * 4) / 12 + 0.15, y: 3.5, w: 6, h: 0.5, fontFace: BODY, fontSize: 14, color: C.ink, align: "left", valign: "middle", margin: 0 });
     bullets(s, "s2 bullets", [
       "Question: which R7 compounds should the committee visit first next cycle, and why?",
       "The observatory ranks; the committee decides.",
       "Scope: R7 only, 12 coded compounds, reporting quarter 2026Q3, cycle capacity 4.",
       "ACUD has not given us visit times or missed cases, so the as-is pain is not measured.",
-    ], MX, 3.5, W, 2.9, 18);
+      "Wording rule: the list says \"no building activity since X\" or \"passed its first date by Y\", never a label on a developer.",
+    ], MX, 4.25, W, 2.15, 16);
   },
 });
 
@@ -182,9 +213,11 @@ slides.push({
     "- 1,009 of 1,026 documented facts passed independent review. This is the figure stated in the spec, not a recount.",
     "- Origin key on every number: 🟢 real, 🔵 derived, 🟠 generated.",
     "- Real: satellite series, statements, laws. Generated: finance, supervisor reports, meters, complaints (only ACUD holds the real ones).",
-    "- Visual: stat callout (1,009 of 1,026) and origin-key table.",
+    "- Pipeline: public sources → prepared v7 release (84 frozen inputs in data/REBUILD_INPUTS.csv) → dashboard.",
+    "- Public and derived tables: 12 compounds, 516 compound-quarters (2016Q1-2026Q3), 57 statements, 372 KPI rows (cutoffs 2019Q1-2026Q3).",
+    "- Visual: stat callout (1,009 of 1,026), origin-key table and a three-step pipeline graphic.",
   ],
-  source: ["`docs/requirements/01-specs.md` (section 12); `data/DATASET_CONTRACT.md` (tables)."],
+  source: ["`docs/requirements/01-specs.md` (section 12); `data/DATASET_CONTRACT.md` (tables and sizes); `data/REBUILD_INPUTS.csv` (84 inputs)."],
   note: "Speaker note: 0:45 · criteria 2, 8. Point to the origin key; it is used on every later slide. The installed data has no facts register, so 1,009 of 1,026 is the figure stated in the spec (section 12), not a recount; the dashboard's data-trust screen shows the same documented figure.",
   build(s) {
     stat(s, "s3 stat", MX, TOP + 0.1, 3.9, 2.2, "1,009 of 1,026", "documented facts passed independent review");
@@ -194,10 +227,15 @@ slides.push({
       ["🔵 Derived", "Computed from the real inputs"],
       ["🟠 Generated", "Finance, supervisor reports, meters, complaints (only ACUD holds the real ones)"],
     ], MX + 4.2, TOP + 0.1, W - 4.2, [2.0, W - 4.2 - 2.0], 14, 0.55);
+    const pw = (W - 2 * 0.5) / 3;
+    ["Public sources and statements (🟢 real)", "Prepared v7 release: 84 frozen inputs (data/REBUILD_INPUTS.csv)", "Dashboard: Track A real or derived; Track B marked 🟠"].forEach((tx, i) => {
+      box(s, "s3 pipe " + i, MX + i * (pw + 0.5), 3.85, pw, 0.85, tx, { fill: i === 2 ? C.red : C.slate, pt: 14 });
+      if (i < 2) arrow(s, MX + i * (pw + 0.5) + pw + 0.05, 4.07, 0.4, 0.4);
+    });
     bullets(s, "s3 bullets", [
-      "The figure is the one stated in the spec, not a recount.",
-      "The origin key (🟢 🔵 🟠) is on every later number.",
-    ], MX, 3.9, W, 1.8, 18);
+      "The figure is the one stated in the spec, not a recount. The origin key (🟢 🔵 🟠) is on every later number.",
+      "Public and derived tables: 12 compounds, 516 compound-quarters (2016Q1-2026Q3), 57 statements, 372 KPI rows.",
+    ], MX, 4.9, W, 1.5, 16);
   },
 });
 
@@ -210,7 +248,8 @@ slides.push({
     "- Wayback before/after images (with capture date and attribution) are for display; Esri terms to be confirmed before use.",
     "- A quarter is assessable only with at least 6 Dynamic World images and a boundary with a reviewed confidence label (K4).",
     "- Limit: satellites show whether building is happening, not interior finishing. No completion % or finishing % is given.",
-    "- Visual: three-row source table (source · gives · role).",
+    "- Visual: three-row source table (source · gives · role), with the compound file screen.",
+    ...shotMd(["file"]),
   ],
   source: ["`docs/requirements/01-specs.md` and `data/DATASET_CONTRACT.md`."],
   note: "Speaker note: 0:30 · criteria 2, 6. Say what the satellite sees and what it cannot.",
@@ -224,7 +263,8 @@ slides.push({
     bullets(s, "s4 bullets", [
       "A quarter is assessable only with at least 6 Dynamic World images and a boundary with a reviewed confidence label (K4).",
       "Limit: satellites show whether building is happening, not interior finishing. No completion % or finishing % is given.",
-    ], MX, 4.2, W, 2.1, 18);
+    ], MX, 4.15, W - 3.7, 2.25, 16);
+    shot(s, "file", MX + W - 3.4, 4.1, 3.4);
   },
 });
 
@@ -272,7 +312,8 @@ slides.push({
     "- Priority map, cycle list (capacity 4, levels 1-3), open one compound, read its reason sentence, open the inspection file, record a visit result.",
     "- Everything on screen in Track A is real or derived. No generated number appears on the map.",
     "- Dependency: the demo needs the dashboard to run from stored files. Run command: `make run (team_run --full, which calls run_all)`, the one run command per board task T-AH-19.",
-    "- Visual: five-step flow (priority map → cycle list → reason sentence → inspection file → visit result).",
+    "- Visual: five-step flow (priority map → cycle list → reason sentence → inspection file → visit result), with two dashboard screenshots.",
+    ...shotMd(["top", "mapPanel"]),
   ],
   source: ["`docs/deliverables/user-guide.md`; board task T-AH-19 in `docs/requirements/02-team-roles-and-tasks.md`."],
   note: "Speaker note: 1:15 · criterion 4. Follow the alert to the action: level, cycle list, inspection file, visit form.",
@@ -280,13 +321,15 @@ slides.push({
     const steps = ["Priority map", "Cycle list (capacity 4, levels 1-3)", "Compound reason sentence", "Inspection file", "Visit result recorded"];
     const bw = 1.95, gap = (W - 5 * bw) / 4;
     steps.forEach((t, i) => {
-      box(s, "s6 step " + i, MX + i * (bw + gap), TOP + 0.2, bw, 1.5, t, { fill: i === 4 ? C.red : C.navy, pt: 16 });
-      if (i < 4) arrow(s, MX + i * (bw + gap) + bw + (gap - 0.3) / 2, TOP + 0.75, 0.3, 0.4);
+      box(s, "s6 step " + i, MX + i * (bw + gap), TOP, bw, 0.9, t, { fill: i === 4 ? C.red : C.navy, pt: 14 });
+      if (i < 4) arrow(s, MX + i * (bw + gap) + bw + (gap - 0.3) / 2, TOP + 0.25, 0.3, 0.4);
     });
+    const iw = (W - 0.2) / 2;
+    shot(s, "top", MX, 2.3, iw);
+    shot(s, "mapPanel", MX + iw + 0.2, 2.3, iw);
     bullets(s, "s6 bullets", [
-      "Everything on screen in Track A is real or derived. No generated number appears on the map.",
-      "Dependency: the dashboard runs from stored files. Run command: make run (team_run --full, which calls run_all), the one run command per board task T-AH-19.",
-    ], MX, 3.6, W, 2.7, 18);
+      "Track A on screen is real or derived, no generated number on the map. Run: make run (T-AH-19), from stored files.",
+    ], MX, 6.08, W, 0.45, 14);
   },
 });
 
@@ -300,7 +343,8 @@ slides.push({
     "- Imaging was sufficient in every case (at least 10 images per quarter). In the five missed cases the sites were seen as active, so the rule had no stall to detect. The rule measures stalls and passed dates, not pace against plan.",
     "- The one hit (C21) came from a start date set by publication timing and a lag in the activity score, not from a real stall during construction, so it does not carry over to the other five.",
     "- These counts do not prove why each delay happened.",
-    "- Visual: three stat callouts (1 of 6 · 0 of 6 · 5 required, not achieved).",
+    "- Visual: three stat callouts (1 of 6 · 0 of 6 · 5 required, not achieved), with the C21 district view.",
+    ...shotMd(["district"]),
   ],
   source: ["`data/BACKTEST_CURRENT.md`, `data/experiments/35_backtest_diagnosis/DIAGNOSIS.md`."],
   note: "Speaker note: 1:30 · criterion 6. Lead with the miss, and say the target was fixed before computing.",
@@ -314,7 +358,8 @@ slides.push({
       "Imaging was sufficient in every case (at least 10 images per quarter). In the five misses the sites looked active, so the rule had no stall to detect. The rule measures stalls and passed dates, not pace against plan.",
       "The one hit (C21) came from a start date set by publication timing and a lag in the activity score, not a real stall; it does not carry over to the other five.",
       "These counts do not prove why each delay happened.",
-    ], MX, 3.15, W, 3.25, 16);
+    ], MX, 3.15, 7.2, 3.25, 16);
+    shot(s, "district", MX + 7.4, 3.15, W - 7.4);
   },
 });
 
@@ -341,7 +386,7 @@ slides.push({
       "96 training rows, 48 test rows; only 4 test rows are distressed, so power is very low.",
       "Boosting 4 of 4 rests partly on height; without height (v2a) it is 1 of 4.",
       "Random top-4 baseline: mean 0.335, 95% interval 0.000 to 0.750 (2,000 draws).",
-      "With 4 cases the methods cannot be separated. Scores are diagnostic, not real-world accuracy.",
+      "With 4 cases the methods cannot be separated, and combining ACUD-style data did not clearly help. Scores are diagnostic, not real-world accuracy.",
     ], MX, 1.95, 5.5, 4.45, 14);
     s.addChart(pres.charts.BAR, [{ name: "Recall@4 (of 4)", labels: RECALL.map((r) => r[0]), values: RECALL.map((r) => r[1]) }], {
       x: 6.4, y: 1.95, w: 6.33, h: 4.45, barDir: "col", chartColors: [C.orange], showLegend: false,
@@ -362,7 +407,8 @@ slides.push({
     "- Scenarios: S1 dollar shock, S2 collections drop, S3 inspection capacity change. Demo S3 live: who enters or leaves the cycle list at 2 or 6 visits instead of 4 (45 of 744 rows change list membership: 28 at capacity 2, 17 at capacity 6; levels never change).",
     "- S1 and S2 change nothing in the list or the levels (0 of 216 rows each).",
     "- Generated (🟠), orange banner on screen, no map. Not a 3D or real-time observatory.",
-    "- Visual: scenario table (S1 · S2 · S3 and rows changed).",
+    "- Visual: scenario table (S1 · S2 · S3 and rows changed) and the scenario panel of the dashboard (cropped).",
+    ...shotMd(["twin"]),
   ],
   source: ["`logs/review-05.md` (scenario row counts)."],
   note: "Speaker note: 0:30 · criterion 6. Show S3 only; say S1 and S2 change nothing.",
@@ -373,12 +419,13 @@ slides.push({
       ["S1", "Dollar shock", "0 of 216; levels never change"],
       ["S2", "Collections drop", "0 of 216; levels never change"],
       ["S3", "Inspection capacity 2 or 6 instead of 4", "45 of 744 (28 at capacity 2, 17 at capacity 6); levels never change"],
-    ], MX, 2.0, W, [1.6, 4.0, W - 5.6], 14, 0.6, C.orange);
+    ], MX, 1.95, W, [1.6, 4.0, W - 5.6], 14, 0.5, C.orange);
+    shot(s, "twin", MX, 4.3, 6.6);
     bullets(s, "s8b bullets", [
-      "Light compound-level observatory: observed state from satellites and statements, simulated hidden state from the generator, what-if scenarios.",
+      "Light compound-level observatory: observed state from satellites and statements, simulated hidden state from the generator.",
       "Demo S3 live. Say plainly that S1 and S2 change nothing in the list or levels.",
       "Orange banner on screen, no map. Not a 3D or real-time observatory.",
-    ], MX, 4.7, W, 1.7, 16);
+    ], MX + 6.85, 4.3, W - 6.85, 2.1, 14);
   },
 });
 
@@ -430,12 +477,23 @@ slides.push({
     ...RISKS.map(([a, b]) => `- ${a}: ${b}`),
     "- The committee decides; every visit result is recorded to build real ground truth.",
     "- Knowledge transfer: technical operations guide, committee user guide, handover pack, method card and final checklist are in the repo; the user guide was checked against the code, not in a browser.",
-    "- Visual: risk and control table.",
+    "- Visual: eight cards (seven risks and the committee-decides control).",
   ],
   source: ["`docs/deliverables/responsible-ai.md`, `docs/requirements/01-specs.md` (Law 151/2020).", "(knowledge transfer) `docs/deliverables/technical-track-a.md`, `docs/deliverables/user-guide.md`, `docs/deliverables/knowledge-transfer.md`, `docs/deliverables/method-card.md`, `docs/deliverables/final-checklist.md`."],
   note: "Speaker note: 1:00 · criteria 8, 9. A level sets the visit order and finds nothing against anyone. Then give one line on the handover documents. The committee decides, and every visit result is recorded to build real ground truth. The user guide was checked against the code, not in a browser.",
   build(s) {
-    table(s, "s10 table", [["Topic", "Rule or limit"], ...RISKS], MX, TOP, W, [2.7, W - 2.7], 14, 0.58);
+    const cards = [...RISKS, ["The committee decides", "Every visit result is recorded to build real ground truth."]];
+    const cw = (W - 3 * 0.15) / 4, ch = 2.35;
+    cards.forEach(([a, b], i) => {
+      const x = MX + (i % 4) * (cw + 0.15), y = TOP + Math.floor(i / 4) * (ch + 0.12), last = i === cards.length - 1;
+      s.addShape(pres.ShapeType.rect, { x, y, w: cw, h: ch, fill: { color: last ? C.red : C.card }, line: { color: last ? C.red : C.card } });
+      s.addShape(pres.ShapeType.rect, { x, y, w: cw, h: 0.08, fill: { color: last ? C.navy : C.red }, line: { color: last ? C.navy : C.red } });
+      check("s10 card " + i, [a, b], 14, cw - 0.3, ch - 0.2);
+      s.addText([
+        { text: a, options: { bold: true, fontFace: HEAD, fontSize: 16, breakLine: true } },
+        { text: b, options: { fontFace: BODY, fontSize: 14 } },
+      ].map((r) => ({ text: r.text, options: { color: last ? C.white : C.ink, paraSpaceAfter: 4, ...r.options } })), { x: x + 0.15, y: y + 0.18, w: cw - 0.3, h: ch - 0.26, align: "left", valign: "top", margin: 0 });
+    });
   },
 });
 
@@ -448,7 +506,8 @@ slides.push({
     "- Controls: thresholds and capacity change only by reviewed decision; chatbot model calls stay off until approved with a call budget (`configs/ai.yaml`); every visit result is recorded in ops_visits.",
     "- Monitoring: the quarterly procedure and its quality gates; any STOP keeps outputs for diagnosis, writes no manifest and blocks packaging.",
     "- Rollback: switch the activity source to K1 (a recorded decision) and keep prior releases available, as slide 11 says.",
-    "- Visual: four-step flow (prepare data → run rule → publish dashboard → committee visits and records).",
+    "- Quarterly cycle: quarter data refresh → gates (STOP/FIX/FLAG) → cycle list → visits → recorded results → next quarter. A FLAG needs a recorded review decision; a STOP blocks delivery. If source coverage fails, affected observations are marked not assessable; an automatic K1 switch is not yet established.",
+    "- Visual: four-step flow (prepare data → run rule → publish dashboard → committee visits and records), a six-step quarterly cycle and a STOP / rollback box.",
   ],
   source: ["`README.md`, `CLAUDE.md`, `docs/deliverables/technical-track-a.md` (quarterly monitoring procedure, STOP, K1 switch; states no deployment is implied), `docs/deliverables/data-request.md`, `docs/deliverables/responsible-ai.md`, `docs/deliverables/governance-cards.md`, `configs/ai.yaml`, `src/dashboard/ops_visits.py`."],
   note: "Speaker note: 0:30 · criteria 5, 9. Technical launch only; phases are on the next slide. Hosting is a proposal to agree with ACUD, not a deployed system. Any STOP writes no manifest; the fallback is K1 and the prior release.",
@@ -459,12 +518,18 @@ slides.push({
       box(s, "s10b step " + i, MX + i * (bw + gap), TOP + 0.05, bw, 1.0, t, { fill: i === 3 ? C.red : C.navy, pt: 14 });
       if (i < 3) arrow(s, MX + i * (bw + gap) + bw + (gap - 0.3) / 2, TOP + 0.35, 0.3, 0.4);
     });
+    const cyc = ["Quarter data refresh", "Gates (STOP / FIX / FLAG)", "Cycle list", "Visits", "Results recorded", "Next quarter"];
+    const cw = (W - 5 * 0.3) / 6;
+    cyc.forEach((tx, k) => {
+      box(s, "s10b cyc " + k, MX + k * (cw + 0.3), 2.65, cw, 0.8, tx, { fill: k === 1 ? C.red : C.slate, pt: 14 });
+      if (k < 5) arrow(s, MX + k * (cw + 0.3) + cw + 0.02, 2.9, 0.26, 0.3);
+    });
     bullets(s, "s10b bullets", [
       "Runs: Streamlit dashboard, quarterly team_run, prepared data v7 (releases/ready-data).",
-      "Where (proposed, not deployed): ACUD-managed server or VM inside ACUD's network. Data stays with ACUD; codes only; private mappings stay with the custodian.",
-      "Controls: thresholds and capacity change only by reviewed decision; chatbot model calls off until approved with a call budget; every visit result recorded.",
-      "Monitoring: quarterly gates; a STOP writes no manifest. Rollback: K1 and the prior release.",
-    ], MX, 2.75, W, 3.6, 16);
+      "Where (proposed, not deployed): ACUD-managed server or VM inside ACUD's network. Data stays with ACUD; codes only.",
+      "Controls: thresholds and capacity change only by reviewed decision; chatbot model calls off until approved; every visit result recorded.",
+    ], MX, 3.65, 7.4, 2.75, 14);
+    box(s, "s10b stop", MX + 7.65, 3.65, W - 7.65, 2.7, "STOP and rollback: a STOP keeps outputs for diagnosis, writes no manifest and blocks packaging. If source coverage fails, mark affected observations not assessable and review. Fallback: K1 (a recorded decision) with prior releases kept; an automatic switch is not yet established.", { fill: C.red, pt: 14 });
   },
 });
 
@@ -564,10 +629,17 @@ const sections = slides.map((sp, i) => {
     const [name, slogan, ...rest] = sp.md.map((l) => l.replace(/^- /, ""));
     return `<section id="${id}" class="cover" aria-label="Slide ${labels[i]}">\n<p class="logos"><img src="../02-video/logo-ACUD.png" alt="ACUD" height="48"> <img src="../02-video/logo-digilians.png" alt="Digilians" height="62"></p>\n<h1 dir="auto">${inline(name)}</h1>\n<p class="slogan" dir="auto">${inline(slogan)}</p>\n${rest.map((r) => `<p dir="auto">${inline(r)}</p>`).join("\n")}\n<p class="note" dir="auto">${inline(sp.note)}</p>\n</section>`;
   }
-  const lines = sp.md.filter((l) => !l.includes(SYN_TEXT));
+  const lines = sp.md.filter((l) => !l.includes(SYN_TEXT) && !l.startsWith("- Screenshot: "));
+  const figs = sp.md.filter((l) => l.startsWith("- Screenshot: ")).map((l) => {
+    const [, file, cap] = l.match(/`assets\/([^`]+)`, "([^"]+)"/);
+    const c = Object.values(SHOTS).find((v) => v.file === file).crop;
+    const st = c ? ` style="width:${((1600 / c.w) * 100).toFixed(2)}%;margin-left:-${((c.x / c.w) * 100).toFixed(2)}%;margin-top:-${((c.y / c.w) * 100).toFixed(2)}%"` : "";
+    const img = `<img src="assets/${file}" alt="${esc(cap)}"${st}>`;
+    return `<figure>${c ? `<div class="cropbox" style="--ar:${c.w}/${c.h}">${img}</div>` : img}<figcaption>${esc(cap)}</figcaption></figure>`;
+  }).join("\n");
   const banner = sp.md.some((l) => l.includes(SYN_TEXT)) ? `<p class="banner">${esc(SYN)}</p>\n` : "";
   const srcs = sp.source.map((src) => `<p class="source" dir="auto">Source${src.startsWith("(knowledge transfer)") ? " (knowledge transfer)" : ""}: ${inline(src.replace("(knowledge transfer) ", ""))}</p>`).join("\n");
-  return `<section id="${id}"${sp.dark ? ' class="dark"' : ""} aria-label="Slide ${labels[i]}">\n<h2 dir="auto"><span class="num">Slide ${labels[i]}.</span> ${inline(sp.title)}</h2>\n${banner}${htmlList(lines)}\n${srcs}\n<p class="note" dir="auto">${inline(sp.note)}</p>\n</section>`;
+  return `<section id="${id}"${sp.dark ? ' class="dark"' : ""} aria-label="Slide ${labels[i]}">\n<h2 dir="auto"><span class="num">Slide ${labels[i]}.</span> ${inline(sp.title)}</h2>\n${banner}${htmlList(lines)}\n${figs ? `<div class="figs">${figs}</div>\n` : ""}${srcs}\n<p class="note" dir="auto">${inline(sp.note)}</p>\n</section>`;
 });
 const CSS = `
 *{box-sizing:border-box}
@@ -580,6 +652,12 @@ h2{font-family:Cambria,Georgia,serif;font-size:1.7em;margin:0 0 .6em;border-bott
 .logos{margin:0;display:flex;justify-content:center;align-items:center;gap:16px}
 .slogan{color:#E31B23;font-size:1.5em;font-family:Cambria,Georgia,serif}
 .banner{display:inline-block;background:#E31B23;color:#FFFFFF;font-weight:bold;padding:4px 14px;margin:0 0 .8em}
+.figs{display:flex;flex-wrap:wrap;gap:12px;margin:.6em 0}
+figure{margin:0;flex:1 1 300px;max-width:100%}
+figure img{display:block;width:100%;height:auto;border:1px solid #111111}
+.cropbox{overflow:hidden;border:1px solid #111111;aspect-ratio:var(--ar)}
+.cropbox img{max-width:none;border:0}
+figcaption{font-size:.75em;font-style:italic}
 ul{padding-left:1.3em}li{margin:.35em 0}
 code{background:#F1F1F1;color:#1A1A1A;padding:0 .25em;overflow-wrap:anywhere}
 .dark code{background:#1A1A1A;color:#FFFFFF}
