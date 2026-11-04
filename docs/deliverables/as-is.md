@@ -17,23 +17,23 @@ flowchart LR
     P -.->|read by| A
 ```
 
-| Step | Who | When | What we know | What we do not know |
-| --- | --- | --- | --- | --- |
-| Progress report | Site supervisor | Quarterly | Required by Law 119 art. 54 | Whether ACUD receives and checks them for R7; their content |
-| Financial report | Developer | Half-yearly | Required by Decree 2184 art. 3 | Contents for R7 |
-| Field review | ACUD field team | Every 3 months, every compound | Chairman statement | Visit length, team size, what is recorded |
-| Public statements | Developer | Irregular | 0 to 3 published progress figures per compound; 5 of 12 have none | How ACUD uses them |
-| Action | ACUD | After review | 6 mutual terminations across the city (chairman statement) | Thresholds and timing of warnings |
+| Step              | Who             | When                           | What we know                                                      | What we do not know                                         |
+| ----------------- | --------------- | ------------------------------ | ----------------------------------------------------------------- | ----------------------------------------------------------- |
+| Progress report   | Site supervisor | Quarterly                      | Required by Law 119 art. 54                                       | Whether ACUD receives and checks them for R7; their content |
+| Financial report  | Developer       | Half-yearly                    | Required by Decree 2184 art. 3                                    | Contents for R7                                             |
+| Field review      | ACUD field team | Every 3 months, every compound | Chairman statement                                                | Visit length, team size, what is recorded                   |
+| Public statements | Developer       | Irregular                      | 0 to 3 published progress figures per compound; 5 of 12 have none | How ACUD uses them                                          |
+| Action            | ACUD            | After review                   | 6 mutual terminations across the city (chairman statement)        | Thresholds and timing of warnings                           |
 
 ## Baseline in numbers (R7, 12 compounds, as of 2026Q3)
 
-| Indicator | Value | Source |
-| --- | --- | --- |
-| Field reviews per year | 48 (12 compounds x 4) | `configs/cost_assumptions.yaml` |
-| Public late cases with a known delay | 5 of 6; 18 to 33 months past the original promise, median 25 (C10 33, C12 28, C21 25, C19 19, C02 18); C14 not yet delivered | `real/eval_outcomes` |
-| Compounds with months eligible for contract review (K5) | 7 of 12, 106 months in total (C18 45, C10 21, C21 14, C02 11, C14 9, C12 4, C19 2) | `real/kpi_values` K5 |
-| Homes in those 7 compounds | 9,937 (published unit counts) | `real/compounds` |
-| Priority level today | level 1: 1, level 2: 2, level 3: 3, level 4: 6 compounds | `real/kpi_values` |
+| Indicator                                               | Value                                                                                                                        | Source                            |
+| ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| Field reviews per year                                  | 48 (12 compounds x 4)                                                                                                        | `configs/cost_assumptions.yaml` |
+| Public late cases with a known delay                    | 5 of 6; 18 to 33 months past the original promise, median 25 (C10 33, C12 28, C21 25, C19 19, C02 18); C14 not yet delivered | `real/eval_outcomes`            |
+| Compounds with months eligible for contract review (K5) | 7 of 12, 106 months in total (C18 45, C10 21, C21 14, C02 11, C14 9, C12 4, C19 2)                                           | `real/kpi_values` K5            |
+| Homes in those 7 compounds                              | 9,937 (published unit counts)                                                                                                | `real/compounds`                |
+| Priority level today                                    | level 1: 1, level 2: 2, level 3: 3, level 4: 6 compounds                                                                     | `real/kpi_values`               |
 
 ## Root causes, with evidence
 
