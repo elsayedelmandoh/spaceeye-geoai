@@ -57,6 +57,12 @@ section:last-child{break-after:auto;page-break-after:auto}
 <p class="source" dir="auto">Source: <code>configs/cost_assumptions.yaml</code> (<code>projects: 12</code>, <code>visits_per_year: 4</code>), <code>docs/requirements/01-specs.md</code> (sections 2, 7 and 12).</p>
 <p class="note" dir="auto">Speaker note: 0:15 · criteria 1, 2, 3. The question and the scope; the new process follows on slide 2b and the decision on slide 11.</p>
 </section>
+<section id="slide-2a" aria-label="Slide 2a">
+<h2 dir="auto"><span class="num">Slide 2a.</span> As-is: how R7 is followed today</h2>
+<ul><li dir="auto">Today: the same field review every 3 months for every compound, 48 reviews a year in R7 (12 x 4).</li><li dir="auto">5 of the 6 public late cases ran 18 to 33 months past the original promise (median 25).</li><li dir="auto">Three causes: effort is not matched to risk; progress comes from the developer's own statements; nobody compares pace with the promised date.</li><li dir="auto">Rebuilt from public sources; ACUD's internal workflow was not observed and must be confirmed.</li><li dir="auto">Visual: as-is process map (from docs/deliverables/as-is.md).</li></ul>
+<p class="source" dir="auto">Source: <code>docs/deliverables/as-is.md</code> (process map, baseline, root causes).</p>
+<p class="note" dir="auto">Speaker note: 0:30 · criteria 2, 1. The process map is rebuilt from public sources and must be confirmed with ACUD. The effort is the same for every compound.</p>
+</section>
 <section id="slide-2b" aria-label="Slide 2b">
 <h2 dir="auto"><span class="num">Slide 2b.</span> To-be: the new process</h2>
 <ul><li dir="auto">New process (proposed): public satellite data every quarter and published developer statements → pipeline and quality gates → priority list (levels 1-4 with a written reason, capacity 4) → the committee decides → field visit, or watch next quarter → the result is recorded on the Compound file screen in the visit log → the visit log counts false alarms and misses and feeds the next run.</li><li dir="auto">The system recommends; the committee decides.</li><li dir="auto">Roles: the Track A owner runs the pipeline and the quality gates every quarter, reviewed by a second team member; the committee decides which compounds to visit; the field visit lead records the result (progressing, stalled, complete, not done); the ACUD data custodian keeps the code-to-name mapping.</li><li dir="auto">Proposed targets: every compound at level 1 or 2 visited within the quarter (capacity 4 covered all of them in 31 of 31 quarters, 2019Q1-2026Q3); 12 of 12 visit results recorded in the pilot quarter.</li><li dir="auto">Status: proposed by the team, not approved by ACUD.</li><li dir="auto">Visual: flowchart of the new process (from <code>docs/deliverables/to-be.md</code>).</li></ul>
@@ -96,7 +102,7 @@ section:last-child{break-after:auto;page-break-after:auto}
 <div class="figs"><figure><img src="assets/screen1-search-filters.png" alt="Dashboard screenshot · Priority map, search and filters"><figcaption>Dashboard screenshot · Priority map, search and filters</figcaption></figure>
 <figure><img src="assets/screen1-map-panel.png" alt="Dashboard screenshot · Priority map, selected compound"><figcaption>Dashboard screenshot · Priority map, selected compound</figcaption></figure></div>
 <p class="source" dir="auto">Source: <code>app.py</code> (<code>render_filters</code>, <code>open_clicked_compound</code>, <code>render_selected_compound_panel</code>), <code>src/dashboard/insights.py</code> (<code>filter_compounds</code>); board tasks T-NA-11, T-NA-12, T-NA-13 and T-EL-21 in <code>docs/requirements/02-team-roles-and-tasks.md</code>.</p>
-<p class="note" dir="auto">Speaker note: 0:45 · criterion 4. Live: type C1 in the search, set a priority level filter, click a block on the map, show the sidebar panel, then Clear selection.</p>
+<p class="note" dir="auto">Speaker note: 0:30 · criterion 4. Live: type C1 in the search, set a priority level filter, click a block on the map, show the sidebar panel, then Clear selection.</p>
 </section>
 <section id="slide-6c" aria-label="Slide 6c">
 <h2 dir="auto"><span class="num">Slide 6c.</span> Four screens, one path from alert to action</h2>
@@ -137,7 +143,7 @@ section:last-child{break-after:auto;page-break-after:auto}
 <h2 dir="auto"><span class="num">Slide 8d.</span> What the chatbot knows, and its limits</h2>
 <ul><li dir="auto">Knowledge: 9 sourced documents (ACUD site, Decree 2184/2022, Building Law 119/2008 art. 54, Law 151/2020, Dynamic World, Open Buildings, Esri Wayback, ISO 37120/37122, team SLA note) plus the project's data.</li><li dir="auto">Evaluation: 8 of 8 intent tests passed (2026-11-03) and 5 of 5 retrieval checks passed. These are the team's own small tests, not an accuracy claim.</li><li dir="auto">Governance: model calls only with approval in <code>configs/ai.yaml</code> (<code>chatbot.approval: approved</code>, <code>max_calls_total: 200</code>, approved by the project owner on 2026-11-04), then local answers.</li><li dir="auto">Codes only. Not legal advice.</li><li dir="auto">Visual: two stat callouts (8 of 8 · 5 of 5) and a call-budget box (200 calls).</li></ul>
 <p class="source" dir="auto">Source: <code>chatbot/knowledge/SOURCES.csv</code>, <code>chatbot/evaluation_results.json</code>, <code>chatbot/retrieval_evaluation_results.json</code>, <code>configs/ai.yaml</code>.</p>
-<p class="note" dir="auto">Speaker note: 0:45 · criteria 8, 9. Say the tests are the team's own and small; model calls need the owner's approval and stop at 200, then local answers. Codes only, not legal advice.</p>
+<p class="note" dir="auto">Speaker note: 0:30 · criteria 8, 9. Say the tests are the team's own and small; model calls need the owner's approval and stop at 200, then local answers. Codes only, not legal advice.</p>
 </section>
 <section id="slide-9" aria-label="Slide 9">
 <h2 dir="auto"><span class="num">Slide 9.</span> Value in EGP (3 settings)</h2>

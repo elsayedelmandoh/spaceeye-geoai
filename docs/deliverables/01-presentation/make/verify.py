@@ -16,4 +16,4 @@ html=open(path.join(HERE, '..', 'presentation.html'), encoding='utf-8').read()
 n_html=len(re.findall(r'<section[\s>]',html))
 print('html sections',n_html)
 assert n_html==n_md, f'html sections {n_html} != md slides {n_md}'
-assert (len(sl), len(nt), n_md, n_html) == (19, 19, 19, 19), (len(sl), len(nt), n_md, n_html)
+assert (len(sl), len(nt), n_md, n_html) == (20, 20, 20, 20), (len(sl), len(nt), n_md, n_html)

@@ -20,7 +20,7 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Evidence:** current practice "field review every 3 months" for all projects (`docs/requirements/01-specs.md` section 12 and the visit formula; `configs/cost_assumptions.yaml` `visits_per_year: 4`, `projects: 12`); per-compound K2/K3/K6 baselines in `docs/deliverables/kpi-cards.md`; per-case root-cause diagnosis of the backtest in `data/experiments/35_backtest_diagnosis/DIAGNOSIS.md`.
 - **Added for level 4:** `docs/deliverables/as-is.md`: process map rebuilt from public sources (mermaid, who/when/what is unknown); baseline in numbers (48 reviews a year; 5 of 6 public late cases 18-33 months late, median 25; 7 of 12 compounds with 106 fine-eligible months and 9,937 homes; level counts 1/2/3/6); three root causes with evidence (even effort, developer-sourced progress: C19 70% claimed vs 28% of built area at 20 m+, no pace-vs-promise check: C14 35% three months before its date); what the average hides (activity 0.03-0.90 around a 0.61 mean, developers with compounds at levels 1 and 4, delay range).
 - **Gap to level 4:** no ACUD records (visit logs, visit time, warnings, supervisor reports); the process map must be confirmed with ACUD.
-- **Slide:** no slide yet (slide 1 states the review cycle only).
+- **Slide:** 2a (as-is process map, baseline and root causes from `docs/deliverables/as-is.md`).
 
 ## 3. Target state, to-be (weight 10)
 
@@ -94,7 +94,7 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 4:** leadership-level persuasion: conveys the value strongly and handles hard questions with evidence and alternatives.
 - **Evidence:** decision requested in `docs/deliverables/decision-memo.md` and slide 11; prepared answers `docs/deliverables/expected-questions.md`; deck text `docs/deliverables/presentation.md`.
 - **Added for level 4:** eight prepared answers for the new material (as-is and to-be, why now, buyers affected, when it fails, false alarm vs missed case, safe start, responsibility, other districts) in `docs/deliverables/expected-questions.md`; the one-page decision is `docs/deliverables/decision-memo.md`, next to the team's one-page proposal `docs/deliverables/03-proposal/proposal.md`.
-- **Gap to level 4:** the to-be process now has slide 2b; the as-is story still has no slide of its own (one line on slide 2); timed rehearsals are still open (T-ALL-05).
+- **Gap to level 4:** the as-is and to-be story now has slides 2a and 2b; timed rehearsals are still open (T-ALL-05).
 - **Slide:** all; decision on 11.
 
 ## Bonus: transferability, scalability, sustainability (+10)
@@ -113,22 +113,23 @@ Slide numbers refer to [presentation.md](presentation.md).
 | 0 | 0 Title: project, slogan, supervisor, team | - | 0:15 |
 | 1 | 1 Problem in numbers | 1 | 0:30 |
 | 2 | 2 Question and decision (as-is → to-be in one line) | 1, 2, 3 | 0:15 |
-| 3 | 2b To-be: the new process (flowchart, roles, proposed targets) | 3, 5 | 0:30 |
-| 4 | 3 Data | 2, 8 | 0:30 |
-| 5 | 4 Seeing construction from space | 2, 6 | 0:30 |
-| 6 | 5 Track A rule | 3, 4 | 0:45 |
-| 7 | 6 Live demo (Track A) | 4 | 1:00 |
-| 8 | 6b Search, filters and map click | 4 | 0:45 |
-| 9 | 6c Four screens, one path from alert to action | 4 | 0:15 |
-| 10 | 7 Backtest: 1 of 6 and why | 6 | 1:00 |
-| 11 | 8 Track B (generated) | 6 | 0:45 |
-| 12 | 8b What-if scenario | 6 | 0:30 |
-| 13 | 8c Ask the project: the chatbot | 4 | 0:45 |
-| 14 | 8d What the chatbot knows, and its limits | 8, 9 | 0:45 |
-| 15 | 9 Value in EGP | 7 | 1:00 |
-| 16 | 10 Risks and responsible use | 8, 9 | 0:45 |
-| 17 | 10b Launching in production | 5, 9 | 0:30 |
-| 18 | 11 Decision, transition and next step | 5, 10, bonus | 0:45 |
+| 3 | 2a As-is: how R7 is followed today (process map, baseline, root causes) | 2, 1 | 0:30 |
+| 4 | 2b To-be: the new process (flowchart, roles, proposed targets) | 3, 5 | 0:30 |
+| 5 | 3 Data | 2, 8 | 0:30 |
+| 6 | 4 Seeing construction from space | 2, 6 | 0:30 |
+| 7 | 5 Track A rule | 3, 4 | 0:45 |
+| 8 | 6 Live demo (Track A) | 4 | 1:00 |
+| 9 | 6b Search, filters and map click | 4 | 0:30 |
+| 10 | 6c Four screens, one path from alert to action | 4 | 0:15 |
+| 11 | 7 Backtest: 1 of 6 and why | 6 | 1:00 |
+| 12 | 8 Track B (generated) | 6 | 0:45 |
+| 13 | 8b What-if scenario | 6 | 0:30 |
+| 14 | 8c Ask the project: the chatbot | 4 | 0:45 |
+| 15 | 8d What the chatbot knows, and its limits | 8, 9 | 0:30 |
+| 16 | 9 Value in EGP | 7 | 1:00 |
+| 17 | 10 Risks and responsible use | 8, 9 | 0:45 |
+| 18 | 10b Launching in production | 5, 9 | 0:30 |
+| 19 | 11 Decision, transition and next step | 5, 10, bonus | 0:45 |
 | | **Total** | | **12:00** |
 
-Criterion 6 (12 points) gets slides 7, 8 and 8b = 1:00 + 0:45 + 0:30 = 2:15 (it had 3:00 in the 14-slide plan). Criterion 7 (12 points) gets slide 9 = 1:00 (it had 1:30). The time went to criterion 4 (10 points), which now has slides 6, 6b, 6c and 8c = 1:00 + 0:45 + 0:15 + 0:45 = 2:45 of its own (slide 5 is shared); slide 8d (0:45) serves criteria 8 and 9 next to slide 10. Criterion 3 gets slide 2b (0:30), taken from slides 2 and 6c (0:15 each). This is a deliberate trade-off by the team lead: the dashboard, chatbot and to-be process are shown, while the backtest and value slides are shorter. Criteria 2, 5 and 9 have no slide of their own; add one line each to slides 2, 11 and 10, or move them to prepared answers.
+Criterion 6 (12 points) gets slides 7, 8 and 8b = 1:00 + 0:45 + 0:30 = 2:15 (it had 3:00 in the 14-slide plan). Criterion 7 (12 points) gets slide 9 = 1:00 (it had 1:30). The time went to criterion 4 (10 points), which now has slides 6, 6b, 6c and 8c = 1:00 + 0:30 + 0:15 + 0:45 = 2:30 of its own (slide 5 is shared); slide 8d (0:30) serves criteria 8 and 9 next to slide 10. Criterion 3 gets slide 2b (0:30), taken from slides 2 and 6c (0:15 each); criterion 2 now has slide 2a (0:30). This is a deliberate trade-off by the team lead: the dashboard, chatbot and to-be process are shown, while the backtest and value slides are shorter. Criteria 2, 5 and 9 have no slide of their own; add one line each to slides 2, 11 and 10, or move them to prepared answers.
