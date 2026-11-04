@@ -1,4 +1,4 @@
-# Presentation: 14 slides (title slide 0, then 1-11 with 8b after 8 and 10b after 10)
+# Presentation: 18 slides (title slide 0, then 1-11 with 6b and 6c after 6, 8b, 8c and 8d after 8, and 10b after 10)
 
 Tasks T-SA-06 and T-EL-25. Draft text for review. This file holds the on-slide content and speaker notes of `presentation.pptx`, slide for slide in the same order. Length: 12 min, the limit set by criterion 10 of the instructor rubric (`docs/requirements/ACUD-Rubric.md`); the time budget and the criteria each slide answers follow `docs/deliverables/01-presentation/rubric-map.md` (presentation plan) and are stated in each speaker note (total 12:00). Numbers come only from repo files and carry an origin mark: 🟢 real · 🔵 derived · 🟠 generated ("Synthetic - for training only"). Compounds and developers appear as codes only; the only names are the supervisor and team on the title slide. The words "risk level", "distressed" (for a real compound) and any completion % are not used. Some caveats are in the speaker notes.
 
@@ -22,7 +22,7 @@ Speaker note: 0:15 · opening. Name the project and the slogan, thank the superv
 - Visual: gap graphic (more than 500 projects, review every 3 months → which compounds first? → a short cycle list), five stat callouts (more than 400 developers · more than 500 projects · field review every 3 months · about 7-8% seriously late · 6 mutual terminations).
 - Source: statements by the ACUD chairman, as recorded in `docs/requirements/01-specs.md` (section 12, slide 1 and the data request list).
 
-Speaker note: 0:45 · criterion 1. A committee cannot visit everything every cycle, so the question is whom to visit first.
+Speaker note: 0:30 · criterion 1. A committee cannot visit everything every cycle, so the question is whom to visit first.
 
 ## Slide 2. The question and the decision
 
@@ -35,7 +35,7 @@ Speaker note: 0:45 · criterion 1. A committee cannot visit everything every cyc
 - Visual: as-is → to-be flow of two boxes and a 12 → 4 funnel (12 R7 compounds → 4 visits per cycle).
 - Source: `configs/cost_assumptions.yaml` (`projects: 12`, `visits_per_year: 4`), `docs/requirements/01-specs.md` (sections 2, 7 and 12).
 
-Speaker note: 0:45 · criteria 1, 2, 3. One sentence from today's practice to the new list; the decision itself comes on slide 11.
+Speaker note: 0:30 · criteria 1, 2, 3. One sentence from today's practice to the new list; the decision itself comes on slide 11.
 
 ## Slide 3. Data
 
@@ -47,7 +47,7 @@ Speaker note: 0:45 · criteria 1, 2, 3. One sentence from today's practice to th
 - Visual: stat callout (1,009 of 1,026), origin-key table and a three-step pipeline graphic.
 - Source: `docs/requirements/01-specs.md` (section 12); `data/DATASET_CONTRACT.md` (tables and sizes); `data/REBUILD_INPUTS.csv` (84 inputs).
 
-Speaker note: 0:45 · criteria 2, 8. Point to the origin key; it is used on every later slide. The installed data has no facts register, so 1,009 of 1,026 is the figure stated in the spec (section 12), not a recount; the dashboard's data-trust screen shows the same documented figure.
+Speaker note: 0:30 · criteria 2, 8. Point to the origin key; it is used on every later slide. The installed data has no facts register, so 1,009 of 1,026 is the figure stated in the spec (section 12), not a recount; the dashboard's data-trust screen shows the same documented figure.
 
 ## Slide 4. Seeing construction from space
 
@@ -73,7 +73,7 @@ Speaker note: 0:30 · criteria 2, 6. Say what the satellite sees and what it can
 - Visual: rule flow (K2, K3, K6 → worst signal → cap) and level-action table.
 - Source: `docs/deliverables/kpi-cards.md` (cap count), `configs/data.yaml`, `docs/requirements/01-specs.md` (level table: 24 months right to refund).
 
-Speaker note: 1:00 · criteria 3, 4. The worst signal sets the level, without weights, and each level maps to an action.
+Speaker note: 0:45 · criteria 3, 4. The worst signal sets the level, without weights, and each level maps to an action.
 
 ## Slide 6. Live demo (Track A)
 
@@ -85,7 +85,34 @@ Speaker note: 1:00 · criteria 3, 4. The worst signal sets the level, without we
 - Screenshot: `assets/screen1-map-panel.png`, "Dashboard screenshot · Priority map, selected compound".
 - Source: `docs/deliverables/user-guide.md`; board task T-AH-19 in `docs/requirements/02-team-roles-and-tasks.md`.
 
-Speaker note: 1:15 · criterion 4. Follow the alert to the action: level, cycle list, inspection file, visit form.
+Speaker note: 1:00 · criterion 4. Follow the alert to the action: level, cycle list, inspection file, visit form.
+
+## Slide 6b. Search, filters and map click
+
+- One search box takes a compound code (C..) or a developer code (D..); a prefix works. Typing "C1" narrows the map to 6 of 12 compounds, and the level legend shows the counts.
+- Filters: as-of quarter, priority level, developer code, minimum K2 / K3 / K6 and "Cycle list only". The caption says how many compounds are shown, and unknown K values stay only while their minimum is 0.
+- The rank stays the quarter's visit order while you filter.
+- Click a block on the map: the sidebar opens the "Selected compound" panel with its stored values and drill-downs ("Open compound file" button). "Clear selection" resets it.
+- Codes only, no names.
+- Visual: two dashboard screenshots (search "C1"; map click and sidebar panel).
+- Screenshot: `assets/screen1-search-filters.png`, "Dashboard screenshot · Priority map, search and filters".
+- Screenshot: `assets/screen1-map-panel.png`, "Dashboard screenshot · Priority map, selected compound".
+- Source: `app.py` (`render_filters`, `open_clicked_compound`, `render_selected_compound_panel`), `src/dashboard/insights.py` (`filter_compounds`); board tasks T-NA-11, T-NA-12, T-NA-13 and T-EL-21 in `docs/requirements/02-team-roles-and-tasks.md`.
+
+Speaker note: 0:45 · criterion 4. Live: type C1 in the search, set a priority level filter, click a block on the map, show the sidebar panel, then Clear selection.
+
+## Slide 6c. Four screens, one path from alert to action
+
+- 1 Priority map: whom should the committee visit first?
+- 2 Compound file: why this one? Evidence behind the priority level.
+- 3 District view: what does the system give the committee, and when does it fail?
+- 4 Digital twin what if: who would change if costs, collections or visit capacity changed? (Track B, generated)
+- Alert → action: level → cycle list → compound file → visit form → recorded visit.
+- Audience test: what the teammate reviews changed is logged; the ten-second test with a committee member is still to be run.
+- Visual: four screen cards (screen 4 marked generated) and an alert-to-action arrow row.
+- Source: `docs/deliverables/user-guide.md` (screen subtitles), `docs/deliverables/audience-test.md`, `docs/deliverables/display-rules-check.md`.
+
+Speaker note: 0:30 · criterion 4. Name who uses each screen, follow the alert to the action, and say the committee-member test is still to be run.
 
 ## Slide 7. Backtest: 1 of 6 and why
 
@@ -99,7 +126,7 @@ Speaker note: 1:15 · criterion 4. Follow the alert to the action: level, cycle 
 - Screenshot: `assets/screen3-district-view.png`, "Dashboard screenshot · District view".
 - Source: `data/BACKTEST_CURRENT.md`, `data/experiments/35_backtest_diagnosis/DIAGNOSIS.md`.
 
-Speaker note: 1:30 · criterion 6. Lead with the miss, and say the target was fixed before computing.
+Speaker note: 1:00 · criterion 6. Lead with the miss, and say the target was fixed before computing.
 
 ## Slide 8. Track B: generated data
 
@@ -113,7 +140,7 @@ Speaker note: 1:30 · criterion 6. Lead with the miss, and say the target was fi
 - Visual: native bar chart of recall@4 for the six methods.
 - Source: `docs/deliverables/complaints_eval.csv`, `data/EW_V2A_VS_V1.md`.
 
-Speaker note: 1:00 · criterion 6. Generated data only; with 4 test cases the methods cannot be separated. For questions, complaints classifier: the keyword baseline scored 0.27 accuracy on the 104-row benchmark and 0.37 on the 30-item check set; TF-IDF plus logistic scored 0.22 and 0.30, respectively. Accuracy on texts written by the team does not prove accuracy on real complaints.
+Speaker note: 0:45 · criterion 6. Generated data only; with 4 test cases the methods cannot be separated. For questions, complaints classifier: the keyword baseline scored 0.27 accuracy on the 104-row benchmark and 0.37 on the 30-item check set; TF-IDF plus logistic scored 0.22 and 0.30, respectively. Accuracy on texts written by the team does not prove accuracy on real complaints.
 
 ## Slide 8b. The observatory: one what-if scenario
 
@@ -128,6 +155,30 @@ Speaker note: 1:00 · criterion 6. Generated data only; with 4 test cases the me
 
 Speaker note: 0:30 · criterion 6. Show S3 only; say S1 and S2 change nothing.
 
+## Slide 8c. Ask the project: the chatbot
+
+- Flow: question → intent router (10 intents: greeting, out_of_scope, complaints, inspection_visits, inspection_priority, knowledge, rules, published_statements, project_info, project_overview) → hybrid retrieval (DuckDB facts from the v7 release + Chroma vector search over statements, complaints and knowledge documents) → answer → sources shown.
+- Answer: the Gemini model set in `configs/ai.yaml` when model calls are approved and within the call budget, otherwise a local answer.
+- Opens from the dashboard's 💬 button (port 8001).
+- Follow-up questions keep the last compound code of the conversation.
+- Generated items stay labelled: the complaints and visit records are synthetic.
+- Visual: native flow of five steps and a chatbot answer screenshot.
+- Screenshot: `assets/chatbot-home.png`, "Dashboard screenshot · Chatbot, start screen".
+- Source: `chatbot/app/retrieval/router.py` (intents), `chatbot/app/retrieval/hybrid.py`, `chatbot/app/api/main.py` (session context), `chatbot/app/generation/gemini_client.py`, `configs/ai.yaml`, `README.md`.
+
+Speaker note: 0:45 · criterion 4. Live: open the 💬 button, ask one question, show the cited sources; say generated items stay labelled.
+
+## Slide 8d. What the chatbot knows, and its limits
+
+- Knowledge: 9 sourced documents (ACUD site, Decree 2184/2022, Building Law 119/2008 art. 54, Law 151/2020, Dynamic World, Open Buildings, Esri Wayback, ISO 37120/37122, team SLA note) plus the project's data.
+- Evaluation: 8 of 8 intent tests passed (2026-11-03) and 5 of 5 retrieval checks passed. These are the team's own small tests, not an accuracy claim.
+- Governance: model calls only with approval in `configs/ai.yaml` (`chatbot.approval: approved`, `max_calls_total: 200`, approved by the project owner on 2026-11-04), then local answers.
+- Codes only. Not legal advice.
+- Visual: two stat callouts (8 of 8 · 5 of 5) and a call-budget box (200 calls).
+- Source: `chatbot/knowledge/SOURCES.csv`, `chatbot/evaluation_results.json`, `chatbot/retrieval_evaluation_results.json`, `configs/ai.yaml`.
+
+Speaker note: 0:45 · criteria 8, 9. Say the tests are the team's own and small; model calls need the owner's approval and stop at 200, then local answers. Codes only, not legal advice.
+
 ## Slide 9. Value in EGP (3 settings)
 
 - Visiting 4 compounds per cycle instead of all 12: 16 visits a year instead of visiting every compound each cycle.
@@ -139,7 +190,7 @@ Speaker note: 0:30 · criterion 6. Show S3 only; say S1 and S2 change nothing.
 - Visual: two stat callouts (0.007 and 0.102 million EGP per year) and a three-setting table (cost per visit, operating cost, missed cases per year).
 - Source: `configs/cost_assumptions.yaml` (the same file holds the three settings, the proxy values and the placeholder); `docs/deliverables/01-presentation/rubric-map.md` (criterion 6 gap).
 
-Speaker note: 1:30 · criterion 7. Compare with the current policy of visiting all 12; say the conservative setting is positive but small. The cost of a late case is a placeholder of 20,000 EGP per missed case in all three settings.
+Speaker note: 1:00 · criterion 7. Compare with the current policy of visiting all 12; say the conservative setting is positive but small. The cost of a late case is a placeholder of 20,000 EGP per missed case in all three settings.
 
 ## Slide 10. Risks and responsible use
 
@@ -147,7 +198,7 @@ Speaker note: 1:30 · criterion 7. Compare with the current policy of visiting a
 - Unknown stays unknown: Missing evidence is never read as negative. K3 relies on developer statements, not independent measurement.
 - Generated data: Never mixed with real data; Track B is marked and hidden from the map. It shows nothing about real accuracy or fairness.
 - Small samples: 6 real cases and 4 test cases: counts only, no percentages.
-- Complaint text: Masking does not prove every real name is removed; real text needs further review. No external AI call is enabled.
+- Complaint text: Masking does not prove every real name is removed; real text needs further review. The chatbot sees only generated complaints.
 - Law 151/2020: Interpretation needs the data custodian's review. Not legal advice.
 - Handover: Guides, method card and checklist are in the repo; no one outside the team has rebuilt the system from them yet.
 - The committee decides; every visit result is recorded to build real ground truth.
@@ -156,13 +207,13 @@ Speaker note: 1:30 · criterion 7. Compare with the current policy of visiting a
 - Source: `docs/deliverables/responsible-ai.md`, `docs/requirements/01-specs.md` (Law 151/2020).
 - Source (knowledge transfer): `docs/deliverables/technical-track-a.md`, `docs/deliverables/user-guide.md`, `docs/deliverables/knowledge-transfer.md`, `docs/deliverables/method-card.md`, `docs/deliverables/final-checklist.md`.
 
-Speaker note: 1:00 · criteria 8, 9. A level sets the visit order and finds nothing against anyone. Then give one line on the handover documents. The committee decides, and every visit result is recorded to build real ground truth. The user guide was checked against the code, not in a browser.
+Speaker note: 0:45 · criteria 8, 9. A level sets the visit order and finds nothing against anyone. Then give one line on the handover documents. The committee decides, and every visit result is recorded to build real ground truth. The user guide was checked against the code, not in a browser.
 
 ## Slide 10b. Launching in production
 
 - What runs: the Streamlit dashboard (`uv run --locked streamlit run app.py`), the quarterly data run (`uv run --locked --offline python -m src.pipeline.team_run`) and prepared data v7 (`releases/ready-data`).
 - Where (proposed, not deployed): a server or VM managed by ACUD, inside ACUD's network, to be agreed with ACUD. Data stays with ACUD; exports use codes only; private mappings never leave the data custodian.
-- Controls: thresholds and capacity change only by reviewed decision; chatbot model calls stay off until approved with a call budget (`configs/ai.yaml`); every visit result is recorded in ops_visits.
+- Controls: thresholds and capacity change only by reviewed decision; chatbot model calls only with owner approval and within the approved budget of 200 calls (`configs/ai.yaml`), then local answers; every visit result is recorded in ops_visits.
 - Monitoring: the quarterly procedure and its quality gates; any STOP keeps outputs for diagnosis, writes no manifest and blocks packaging.
 - Rollback: switch the activity source to K1 (a recorded decision) and keep prior releases available, as slide 11 says.
 - Quarterly cycle: quarter data refresh → gates (STOP/FIX/FLAG) → cycle list → visits → recorded results → next quarter. A FLAG needs a recorded review decision; a STOP blocks delivery. If source coverage fails, affected observations are marked not assessable; an automatic K1 switch is not yet established.

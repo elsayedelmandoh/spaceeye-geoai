@@ -37,8 +37,10 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 4:** leads from alert to action; tested with audience representatives and changed after the test.
 - **Evidence:** `app.py` (`SCREENS`: 1 Priority map, 2 Compound file, 3 District view, 4 Digital twin what if, 5 Real names and sources; track switch); committee guide `docs/deliverables/user-guide.md`; display-rules check and fixes `docs/deliverables/display-rules-check.md`; alert → action path: level → cycle list → inspection file → visit form (`docs/requirements/01-specs.md` sections 7 and 9).
 - **Added for level 4:** `docs/deliverables/audience-test.md`: change log of what the teammate reviews found and what changed (PR #101, PR #102), and a ten-second test sheet for screen 1 with an answer key from the current release.
+- **Added for the deck (slides 6b and 6c):** evidence for 6b: a search box and four filters on screen 1 (as-of quarter, priority level, developer code, minimum K2/K3/K6, plus "Cycle list only"), and a map click that opens the "Selected compound" sidebar panel (`app.py` `render_filters`, `open_clicked_compound`, `render_selected_compound_panel`; `insights.filter_compounds`; board tasks T-NA-11, T-NA-12, T-NA-13, T-EL-21). Evidence for 6c: the four screens and the question each answers (subtitles from `docs/deliverables/user-guide.md`), the alert → action path (level → cycle list → compound file → visit form → recorded visit), `docs/deliverables/audience-test.md` and `docs/deliverables/display-rules-check.md`.
+- **Chatbot (slides 8c, 8d):** the hybrid RAG chatbot (`chatbot/`, opened from the dashboard's 💬 button, port 8001) answers the audience's question in Arabic with the stored values and their origin labels.
 - **Gap to level 4:** the reviewers were team members, not committee members; the ten-second test with a real committee member still has to be run and recorded on the sheet (T-NA-08).
-- **Slide:** 6 (live demo).
+- **Slide:** 6 (live demo), 6b (search, filters and map click), 6c (four screens, alert to action), 8c (chatbot), 8d (what the chatbot knows).
 
 ## 5. Transition from current to target (weight 10)
 
@@ -72,8 +74,9 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 4:** an integrated system: change and version control, audit log, periodic review, risk management with owners.
 - **Evidence:** ownership, access and sharing per data group plus "Version and change controls" (`docs/deliverables/governance-cards.md`); quality gates and run id (`docs/deliverables/quality-report.md`); privacy, masking, Law 151/2020 note (`docs/deliverables/responsible-ai.md`); recorded reviews (`logs/review-05.md`); risks with fallbacks (`docs/requirements/01-specs.md` section 13).
 - **Added for level 4:** `docs/deliverables/governance.md`: RACI over nine activities, risk register with an owner role and early sign per risk, review schedule (quarterly to yearly), decision log (2026-10-26 to PR #107), and the 2019Q2 FLAG explained (1 compound with a level, so 1 of 1) with a proposed review decision.
+- **Added for the deck (slide 8d):** chatbot governance: model calls only with approval and a call budget (`configs/ai.yaml`: `chatbot.approval: approved`, `max_calls_total: 200`, approved by the project owner on 2026-11-04; counter in `chatbot/vector_db/gemini_calls.json`, then local answers), codes only, generated items labelled, not legal advice.
 - **Gap to level 4:** roles, schedule and the FLAG decision are proposals; the second reviewer and ACUD have not signed them.
-- **Slide:** 10.
+- **Slide:** 10, 8d.
 
 ## 9. Documentation and knowledge transfer (weight 6)
 
@@ -81,8 +84,9 @@ Slide numbers refer to [presentation.md](presentation.md).
 - **Level 4:** another team can run and maintain it without the original team.
 - **Evidence:** `docs/deliverables/technical-track-a.md`, `docs/deliverables/user-guide.md`, `docs/deliverables/knowledge-transfer.md`, `docs/deliverables/method-card.md`, `docs/deliverables/final-checklist.md`.
 - **Added for level 4:** clean-room run recorded in `docs/REVIEW_SETUP.md` (2026-11-04): fresh clone of main, section 1 only, setup 323 files, backtest replay 1 of 6, 451 tests passed, all five screens open with no page errors; the stale v6 name in the setup page and "four screens" in the README fixed.
+- **Added for the deck (slide 8d):** the chatbot's knowledge is a list of sourced documents, `chatbot/knowledge/SOURCES.csv` (9 entries with URL and retrieval date), and its own small checks (`chatbot/evaluation_results.json`: 8 of 8 intent tests; `chatbot/retrieval_evaluation_results.json`: 5 of 5 retrieval checks), which are the team's tests, not an accuracy claim.
 - **Gap to level 4:** the clean-room run was done by the team, not by a person outside it.
-- **Slide:** no slide yet (mention in slide 11 or in answers).
+- **Slide:** 8d (chatbot knowledge and sources); otherwise no slide of its own (mention in slide 10 or in answers).
 
 ## 10. Presentation and answers (weight 10)
 
@@ -107,19 +111,23 @@ Slide numbers refer to [presentation.md](presentation.md).
 | Order | Slide | Criteria | Time |
 | --- | --- | --- | ---: |
 | 0 | 0 Title: project, slogan, supervisor, team | - | 0:15 |
-| 1 | 1 Problem in numbers | 1 | 0:45 |
-| 2 | 2 Question and decision (add as-is → to-be in one line) | 1, 2, 3 | 0:45 |
-| 3 | 3 Data | 2, 8 | 0:45 |
+| 1 | 1 Problem in numbers | 1 | 0:30 |
+| 2 | 2 Question and decision (as-is → to-be in one line) | 1, 2, 3 | 0:30 |
+| 3 | 3 Data | 2, 8 | 0:30 |
 | 4 | 4 Seeing construction from space | 2, 6 | 0:30 |
-| 5 | 5 Track A rule | 3, 4 | 1:00 |
-| 6 | 6 Live demo | 4 | 1:15 |
-| 7 | 7 Backtest: 1 of 6 and why | 6 | 1:30 |
-| 8 | 8 Track B (generated) | 6 | 1:00 |
-| 9 | 8b What-if scenario | 6 | 0:30 |
-| 10 | 9 Value in EGP | 7 | 1:30 |
-| 11 | 10 Risks and governance | 8, 9 | 1:00 |
-| 12 | 10b Launching in production | 5, 9 | 0:30 |
-| 13 | 11 Ask, transition step and next step | 5, 10, bonus | 0:45 |
+| 5 | 5 Track A rule | 3, 4 | 0:45 |
+| 6 | 6 Live demo (Track A) | 4 | 1:00 |
+| 7 | 6b Search, filters and map click | 4 | 0:45 |
+| 8 | 6c Four screens, one path from alert to action | 4 | 0:30 |
+| 9 | 7 Backtest: 1 of 6 and why | 6 | 1:00 |
+| 10 | 8 Track B (generated) | 6 | 0:45 |
+| 11 | 8b What-if scenario | 6 | 0:30 |
+| 12 | 8c Ask the project: the chatbot | 4 | 0:45 |
+| 13 | 8d What the chatbot knows, and its limits | 8, 9 | 0:45 |
+| 14 | 9 Value in EGP | 7 | 1:00 |
+| 15 | 10 Risks and responsible use | 8, 9 | 0:45 |
+| 16 | 10b Launching in production | 5, 9 | 0:30 |
+| 17 | 11 Decision, transition and next step | 5, 10, bonus | 0:45 |
 | | **Total** | | **12:00** |
 
-Criteria 6 and 7 (12 points each) get 4:30 of the 12 minutes. Criteria 2, 5 and 9 have no slide of their own; add one line each to slides 2, 11 and 10, or move them to prepared answers.
+Criterion 6 (12 points) gets slides 7, 8 and 8b = 1:00 + 0:45 + 0:30 = 2:15 (it had 3:00 in the 14-slide plan). Criterion 7 (12 points) gets slide 9 = 1:00 (it had 1:30). The time went to criterion 4 (10 points), which now has slides 6, 6b, 6c and 8c = 1:00 + 0:45 + 0:30 + 0:45 = 3:00 of its own (slide 5 is shared); slide 8d (0:45) serves criteria 8 and 9 next to slide 10. This is a deliberate trade-off by the team lead: the dashboard and chatbot are shown, while the backtest and value slides are shorter. Criteria 2, 5 and 9 have no slide of their own; add one line each to slides 2, 11 and 10, or move them to prepared answers.
