@@ -12,15 +12,15 @@ Rules for everyone: codes only (C18, never a name); "priority level", never "ris
 | 2 | Verina Fouad | 1, 2 | 1:30 | - |
 | 3 | Ahmed Abdelhameed | 3, 4, 5 | 2:15 | - |
 | 4 | Nada Shady | 6 | 1:15 | Priority map → Compound file → visit form |
-| 5 | Salma Magdy | 7 | 1:30 | District view (C21 early signal) |
-| 6 | Verina Fouad | 8 | 1:00 | - |
-| 7 | Elsayed Elmandoh | 8b | 0:30 | Digital twin what if (Track B, S3 capacity) |
-| 8 | Salma Magdy | 9, 10 | 2:30 | - |
+| 5 | Verina Fouad | 7 | 1:30 | District view (C21 early signal) |
+| 6 | Elsayed Elmandoh | 8, 8b | 1:30 | Digital twin what if (Track B, S3 capacity) |
+| 7 | Salma Magdy | 9 | 1:30 | - |
+| 8 | Nada Shady | 10 | 1:00 | - |
 | 9 | Ahmed Abdelhameed | 10b | 0:30 | - |
-| 10 | Nada Shady | 11 | 0:45 | - (chatbot kept for Q&A) |
+| 10 | Salma Magdy | 11 | 0:45 | - (chatbot kept for Q&A) |
 | | **Total** | **14 slides** | **12:00** | |
 
-Per member: Elsayed 0:45, Verina 2:30, Ahmed 2:45, Nada 2:00, Salma 4:00.
+Per member: Elsayed 1:45, Verina 3:00, Ahmed 2:45, Nada 2:15, Salma 2:15.
 
 ## Before you start (10 minutes earlier)
 
@@ -32,7 +32,7 @@ Per member: Elsayed 0:45, Verina 2:30, Ahmed 2:45, Nada 2:00, Salma 4:00.
 - Switching: `Alt+Tab` from slides to browser, `Ctrl+1/2/3` for the tab, `Alt+Tab` back. Rehearse it; it should take under 2 seconds.
 - Visit form: use a rehearsal copy of the app data folder, because a saved visit is a real row in the visits file.
 - Backup: if the dashboard does not load, stay on the slide; slides 6, 7 and 8b carry the same screens as screenshots. Say "here is the same screen" and continue. Never debug in front of the committee.
-- One person (Nada) holds the mouse for every live part; the speaker talks, Nada clicks on cue (for Salma on slide 7 and Elsayed on slide 8b).
+- One person (Nada) holds the mouse for every live part; the speaker talks, Nada clicks on cue (for Verina on slide 7 and Elsayed on slide 8b).
 
 ## How we switch speakers
 
@@ -107,11 +107,11 @@ Every handover is one sentence that names the next person and the question they 
 
 **Switch:** `Alt+Tab` → slides.
 
-**Handover:** "Does it catch late projects early? Salma will show the backtest, with the clock frozen."
+**Handover:** "Does it catch late projects early? Verina will show the backtest, with the clock frozen."
 
 ---
 
-## 5. Salma Magdy (KPIs, value, governance)
+## 5. Verina Fouad (backtest)
 
 ### Slide 7 · Backtest: 1 of 6 and why (1:30)
 
@@ -129,22 +129,18 @@ Every handover is one sentence that names the next person and the question they 
 
 **Say:** "These counts do not prove why each delay happened; that needs ACUD's records."
 
-**Handover:** "With ACUD's data, could a model do better? Verina tested that on generated data."
+**Handover:** "With ACUD's data, could a model do better? Elsayed shows what we tested on generated data."
 
 ---
 
-## 6. Verina Fouad (Track B: generated data)
+## 6. Elsayed Elmandoh (Track B: generated data and what-if)
 
 ### Slide 8 · Track B: generated data (1:00)
 
 **Say:**
 "Everything on this slide is synthetic, for training only. We generated ACUD-style finance, reports and complaints, and asked one question: will a compound be distressed in the next six months? We had 96 training rows and 48 test rows, with only 4 distressed test cases. The chart shows how many of those 4 each method put in its top 4. The public rule found 3, boosting on satellite data found 4, but that 4 rests partly on height, and without height it drops to 1. A random list scores 0.335 on average. Our honest reading: with 4 cases the methods cannot be separated, and adding ACUD-style data did not clearly help. This is a diagnostic, not real accuracy."
 
-**Handover:** "What changes if the committee has a different number of visits? Elsayed shows one scenario."
-
----
-
-## 7. Elsayed Elmandoh (what-if)
+**Say as you move on:** "And what changes if the committee has a different number of visits? One scenario, live."
 
 ### Slide 8b · The observatory: one what-if scenario (0:30)
 
@@ -159,12 +155,18 @@ Every handover is one sentence that names the next person and the question they 
 
 ---
 
-## 8. Salma Magdy (value, risks)
+## 7. Salma Magdy (value)
 
 ### Slide 9 · Value in EGP, 3 settings (1:30)
 
 **Say:**
 "We compare against today's policy of visiting all 12. Visiting 4 per cycle means 16 visits a year. Under our assumptions the value ranges from 0.007 to 0.102 million EGP a year. Three settings: a visit costs 2,000, 3,000 or 4,000 EGP, a team of three at published engineer pay plus transport. The operating cost and missed cases are public proxies; the cost of a late case is a placeholder of 20,000 EGP. Even the conservative setting is positive, but it is small, and it is not a measured saving. What we cannot measure yet is the cost of a false alarm against a missed case; with ACUD's data, this slide becomes real."
+
+**Handover:** "Value is one side; is it safe to use? Nada."
+
+---
+
+## 8. Nada Shady (risks and responsible use)
 
 ### Slide 10 · Risks and responsible use (1:00)
 
@@ -182,11 +184,11 @@ Every handover is one sentence that names the next person and the question they 
 **Say:**
 "Technically it is three things: the dashboard, one quarterly data run, and the prepared release. Proposed, not deployed: a server inside ACUD's network, so data stays with ACUD and exports use codes only. Every quarter: refresh, quality gates, list, visits, recorded results. Any STOP blocks the release, and the fallback is the simpler K1 check and the prior release. The chatbot calls the AI model only within an approved budget."
 
-**Handover:** "And what do we ask of you today? Nada closes with the decision."
+**Handover:** "And what do we ask of you today? Salma closes with the decision."
 
 ---
 
-## 10. Nada Shady (decision)
+## 10. Salma Magdy (decision)
 
 ### Slide 11 · Decision, transition and next step (0:45)
 
