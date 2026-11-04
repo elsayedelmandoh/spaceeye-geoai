@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from chatbot.app.core.config import REPO_ROOT
+from chatbot.app.retrieval.knowledge import build_knowledge_chunks
 
 
 CONTEXTS_DIR = (
@@ -312,6 +313,9 @@ def build_documents() -> list[dict]:
                 metadata,
             )
         )
+
+    # 5. Sourced knowledge documents (chatbot/knowledge/external/*.md)
+    chunks.extend(build_knowledge_chunks())
 
     return chunks
 

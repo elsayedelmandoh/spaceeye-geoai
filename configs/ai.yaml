@@ -16,8 +16,8 @@ gemini:
     inspection_paragraph: prompts/templates/inspection_paragraph.md
     visit_questions: prompts/templates/visit_questions.md
 
-# Optional model summaries for the document chatbot. The extractive RAG answer
-# remains available while approval is pending.
+# Model calls of the hybrid RAG chatbot (chatbot/). Without approval or once the
+# budget is used up it answers from its local, non-model path.
 chatbot:
-  approval: pending  # allowed: pending | approved
-  max_calls_total: 0
+  approval: approved  # approved by the project owner on 2026-11-04
+  max_calls_total: 200  # approved by the project owner on 2026-11-04

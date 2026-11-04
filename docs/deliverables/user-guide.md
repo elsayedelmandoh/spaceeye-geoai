@@ -161,6 +161,10 @@ Below the form, the card "🗒️ Recorded visits" shows three metrics, **Total 
 
 *Implementation note:* `render_ops_visits_form`, `_render_form_card`, `_render_visits_card`, `append_visit`, `load_visits`, `validate_code`, `normalise_code`, `RESULT_OPTIONS` (src/dashboard/ops_visits.py); `last_recorded_visit` (app.py).
 
+## Ask the chatbot
+
+The chatbot is the hybrid RAG app in `chatbot/` (the dashboard has no built-in Q&A). The floating 💬 button at the bottom of the dashboard opens it at http://127.0.0.1:8001/, so start it first from the repository root: `uv sync --locked --extra chatbot`, then `uv run --locked --extra chatbot uvicorn chatbot.app.api.main:app --port 8001` (set `SPACEYE_DB_PATH` to the v7 `spaceeye_ready.duckdb`). It answers about compounds, rules, complaints and visits, and about the sourced documents in `chatbot/knowledge/` (laws, decree, data-source and indicator notes), citing title, section and source link. Model calls are limited by the approval and budget in `configs/ai.yaml`; when they are off or used up, it gives a plain local answer. Its answers are not legal advice. After adding documents to `chatbot/knowledge/`, rebuild the index with `uv run --locked --extra chatbot python -m chatbot.app.retrieval.build_index --knowledge-only`.
+
 ## If a message appears
 
 - **Waiting for real/kpi_values.parquet.** The KPI file is not in the app data folder. Screens 1 to 3 need it.
