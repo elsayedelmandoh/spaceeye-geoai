@@ -4,7 +4,7 @@
 
 Updated: 28 October 2026. Implementation: [IMPLEMENTED_DATA_SPEC.md](IMPLEMENTED_DATA_SPEC.md). Handoff: [HANDOFF.md](HANDOFF.md).
 User-requested imported-spec extension is implemented by src.pipeline.complete_data. Current handoff: Project/DATA_COMPLETION_FROM_SPECS.md. The binary dataset below is retained as historical evaluation evidence; the expanded dataset is the current data deliverable.
-Latest missing-data extension: fine_assumptions.parquet also stores generated allocation dates bounded by the earliest public/observed anchor and vintage-based prices. Retrospectively generated allocation dates are excluded from X/public K6. Quarterly land values prefer already-available generated installments over the independent estimate. Optional50%discount and12-month scheduling amounts are separate scenarios gated at the2024-11-18news publication, with no universal entitlement or known expiry claimed. Exact1%monthly fine and6–18month allocation lead remain unsupported assumptions. Sources/limits: configs/synthetic_sources.json. Calibration context published in2026 is retrospective, not a fact available at old model cutoffs.
+Latest missing-data extension: fine_assumptions.parquet also stores generated allocation dates bounded by the earliest public/observed anchor and vintage-based prices. Retrospectively generated allocation dates are excluded from X/public K6. Quarterly land values prefer already-available generated installments over the independent estimate. Optional50%discount and12-month scheduling amounts are separate scenarios gated at the2024-11-18news publication, with no universal entitlement or known expiry claimed. Exact 0.5% monthly fine and6–18month allocation lead remain unsupported assumptions. Sources/limits: configs/synthetic_sources.json. Calibration context published in2026 is retrospective, not a fact available at old model cutoffs.
 Generated tables and scenario paths carry **Synthetic - for training only**.
 
 ## Locations and origin
@@ -111,7 +111,7 @@ Both label_distress_next_6m and y_outcome_6m are evaluation-only encodings of th
 
 Expanded complaint rate uses complaints over90days per1000units SOLD at cutoff, with own-history percentile requiring12prior valid months. The older binary experiment used total register units; its results are not copied onto this schema.
 
-sim_clean/fin_quarterly.parquet:180rows, flows summed over the quarter, stocks at its last month, latest valid supervisor report available by cutoff, K5/K6 and generated-only fine EGP. sim_clean/fine_assumptions.parquet stores12explicit assumed land values and the illustrative1%monthly rate. No real fine amount is asserted.
+sim_clean/fin_quarterly.parquet:180rows, flows summed over the quarter, stocks at its last month, latest valid supervisor report available by cutoff, K5/K6 and generated-only fine EGP. sim_clean/fine_assumptions.parquet stores12explicit assumed land values and the illustrative 0.5% monthly rate. No real fine amount is asserted.
 
 data_completion/inspection_capacity.csv stores quarter/code selections for capacities2/4/6. It changes selection only, never levels, finance or progress. cycle_list.csv is the current latest selection; ops_visits_template.csv is an empty future-data schema, not fabricated visit records.
 

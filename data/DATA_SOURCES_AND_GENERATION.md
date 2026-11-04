@@ -63,7 +63,7 @@ Synthetic allocation is6–18months before the earliest public/observed anchor,b
 
 Fallback land-price envelopes are2500–5000EGP/m2before2023and5000–12000otherwise. They are interpolation assumptions informed by old/new offer-price context,not individual contract prices. Available generated positive installments take precedence:median installment times16provides the quarterly land-value estimate without reading future dues.
 
-`K5_egp = K5_months * assumed_land_value_egp * 0.01`. The1%monthly rate is illustrative and not established by the news. The EGPfield is not deducted from historical/forward cash ledgers. Optional50%relief and12-month scheduling are separate cases gated at18November2024,with no universal eligibility or known permanent expiry claimed.
+`K5_egp = K5_months * assumed_land_value_egp * 0.005`. The 0.5% monthly rate (owner decision, 3 November 2026; was 1%) is illustrative and not established by the news. The EGPfield is not deducted from historical/forward cash ledgers. Optional50%relief and12-month scheduling are separate cases gated at18November2024,with no universal eligibility or known permanent expiry claimed.
 
 Context references: [land-offer price reporting](https://banker.news/155071),[relief reporting](https://hapijournal.com/2024/11/18/خفض-غرامات-التنفيذ-50-العاصمة-الإدارية/),[contract-dependent enforcement reporting](https://www.cairo24.com/879515). The exact sampled dates/rates remain generated. Sources do not identify a coded project's private contract.
 

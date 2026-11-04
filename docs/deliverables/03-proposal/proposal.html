@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SpaceEye GeoAI - Project proposal</title>
+<style>
+  @page { size: A4 portrait; margin: 14mm; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #fff; color: #1A1A1A;
+    font-family: Calibri, Arial, Helvetica, sans-serif; font-size: 10.5pt; line-height: 1.32; }
+  header { display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 3px solid #E31B23; padding-bottom: 6px; margin-bottom: 8px; }
+  header img { height: 48px; width: auto; }
+  h1 { margin: 0; font-size: 20pt; color: #111; text-align: center; line-height: 1.1; }
+  .slogan { margin: 0; text-align: center; color: #E31B23; font-weight: 700; font-size: 11.5pt; }
+  .team { margin: 4px 0 0; font-size: 9.5pt; color: #333; text-align: center; }
+  h2 { margin: 9px 0 3px; font-size: 11.5pt; color: #111; border-left: 4px solid #E31B23; padding-left: 6px; }
+  p { margin: 0 0 3px; }
+  ul, ol { margin: 0 0 3px; padding-left: 18px; }
+  li { margin: 0 0 1.5px; }
+  table { border-collapse: collapse; width: 100%; margin: 3px 0; font-size: 10pt; }
+  th { background: #111; color: #fff; text-align: left; padding: 2px 6px; }
+  td { padding: 2px 6px; border-bottom: 1px solid #ddd; }
+  tr:nth-child(even) td { background: #F1F1F1; }
+  td:first-child, th:first-child { width: 60px; text-align: center; }
+  .decision { background: #F1F1F1; border-left: 4px solid #E31B23; padding: 3px 8px; margin-bottom: 3px; }
+  .vision { margin-top: 6px; padding-top: 4px; border-top: 1px solid #ddd; font-size: 10pt; }
+  b.red { color: #E31B23; }
+</style>
+</head>
+<body>
+<header>
+  <img src="../02-video/logo-ACUD.png" alt="ACUD">
+  <div>
+    <h1>SpaceEye GeoAI</h1>
+    <p class="slogan">New Capital Radar: a company that owns a city.</p>
+  </div>
+  <img src="../02-video/logo-digilians.png" alt="Digilians">
+</header>
+<p class="team"><b>Supervisor:</b> Dr. Nadim Abdin - Partner &amp; VP Business Development<br>
+<b>Team:</b> Elsayed Elmandoh, Verina Fouad, Ahmed Abdelhameed, Nada Shady, Salma Magdy</p>
+
+<h2>The problem</h2>
+<p>Eng. Khaled Abbas, chairman of ACUD, said in a public TV interview that there are about 500 real-estate developers and about 600 projects, and that no more than 7-8% of developers are late. He also said that field review happens every 3 months and that there were 6 mutual terminations.</p>
+<p>A committee cannot visit everything every cycle, so the question is: which compounds first?</p>
+<p>Our scope is R7: 12 coded compounds, a review every 3 months, and room for 4 visits per cycle.</p>
+
+<h2>What SpaceEye does</h2>
+<ul>
+  <li>Reads public satellite data every quarter for each compound.</li>
+  <li>A fixed rule (Track A) ranks the compounds from level 1 (inspect now) to level 4 (routine) and builds a cycle list of at most 4 compounds, each with a one-sentence reason.</li>
+  <li>A dashboard shows the map, a file for each compound, and a chatbot that answers from project documents.</li>
+  <li>The system recommends; the committee decides.</li>
+</ul>
+
+<h2>Evidence and honest limits</h2>
+<ul>
+  <li><b>Backtest:</b> on six public R7 cases the rule gave an early alert in <b class="red">1 of 6</b> cases. The target of 5 was fixed before computing and was not met. In the five missed cases the sites were seen as active, so the rule had no stall to detect: it measures stalls and passed dates, not pace against plan.</li>
+  <li><b>Value:</b> under these assumptions, from 0.007 to 0.102 million EGP per year (illustrative; cost inputs are public proxies or assumptions). It is not a measured saving.</li>
+  <li><b>Generated data:</b> Track B (a trial model) uses only data marked "Synthetic - for training only". It shows nothing about real accuracy.</li>
+  <li>Satellites show whether building is happening, not interior finishing. A level is not a finding against anyone.</li>
+</ul>
+
+<h2>What we ask ACUD for</h2>
+<p>We ask for a coded export through an authorized channel; ACUD keeps the identity mapping. A small verified sample is enough to start. Top priorities:</p>
+<table>
+  <tr><th>Priority</th><th>Data</th></tr>
+  <tr><td>1</td><td>Dated inspection and handover outcomes</td></tr>
+  <tr><td>1</td><td>Allocation and contract register</td></tr>
+  <tr><td>1</td><td>Authorized parcel geometry</td></tr>
+  <tr><td>2</td><td>Monthly financials, supervisor reports, masked complaints</td></tr>
+</table>
+
+<h2>Next step</h2>
+<div class="decision"><b>Decision requested:</b> use the priority list to choose which R7 compounds the committee visits first next cycle.</div>
+<ol>
+  <li>Run one pilot cycle with the list.</li>
+  <li>Record every visit result, to build real ground truth.</li>
+  <li>The current 3-month review keeps running, so going back costs at most one rerun.</li>
+</ol>
+<p>People and dates are to be agreed with ACUD. This is what public data alone can do; with ACUD data the demo parts become real operation.</p>
+
+<p class="vision"><b>Alignment with Egypt Vision 2030:</b> goal 4, knowledge and innovation (geographic AI that reads satellite images), and goal 6, governance (field inspections directed by data with a known source).</p>
+</body>
+</html>

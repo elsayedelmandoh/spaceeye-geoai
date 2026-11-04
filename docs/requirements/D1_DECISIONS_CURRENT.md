@@ -8,7 +8,7 @@ Tasks ALL-01/02: implemented technical decisions, not team signatures. Calendar 
 | Two tracks | Public/derived observations separated from generated operations and scenarios |
 | Light twin | Cutoff-based state and hypothetical S1/S2/S3; no live/3D or validated handover forecast |
 | Priority | Worst applicable K2/K3/K6 signal, assessability and completion cap; financial B triggers separately documented |
-| Fine policy | K5 union of screening months; 12-month grace; illustrative 1% monthly rate and synthetic land values, not assessed fines |
+| Fine policy | K5 union of screening months; 12-month grace; illustrative 0.5% monthly rate and synthetic land values, not assessed fines |
 | Capacity | 4, with 2/4/6 sensitivity; eligible levels 1–3 for operational selection |
 | Labels | Binary next-six-month distressed/not_distressed; completion prediction removed by the team lead |
 | Thresholds | Fixed configuration; no changes to obtain a successful backtest or model score |

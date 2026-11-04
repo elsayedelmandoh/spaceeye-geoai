@@ -1,0 +1,49 @@
+{
+  "narration": "../gamal-ramzy-cloned-voice.wav",
+  "title_seconds": 3.5,
+  "end_seconds": 7.9,
+  "shots": [
+    {
+      "still": "s1.png",
+      "seconds": 6.91,
+      "zoom": "in"
+    },
+    {
+      "still": "s2.png",
+      "seconds": 9.54,
+      "zoom": "out"
+    },
+    {
+      "still": "s3.png",
+      "seconds": 10.07,
+      "zoom": "in"
+    },
+    {
+      "still": "s4.png",
+      "seconds": 9.18,
+      "zoom": "out"
+    },
+    {
+      "still": "s5.png",
+      "seconds": 6.06,
+      "zoom": "in",
+      "crop": "iw*0.55:ih*0.55:iw*0.02:ih*0.2"
+    },
+    {
+      "still": "s6.png",
+      "seconds": 2.76,
+      "zoom": "in"
+    }
+  ],
+  "inserts": [
+    "../khaled-abbas-1.mp4",
+    "../khaled-abbas-2.mp4",
+    "../khaled-abbas-3.mp4"
+  ],
+  "cards_before_end": [
+    {
+      "card": "vision",
+      "seconds": 5.5
+    }
+  ]
+}

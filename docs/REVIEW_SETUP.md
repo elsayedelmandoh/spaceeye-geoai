@@ -12,13 +12,13 @@ uv run --locked python -m src.pipeline.setup_review
 uv run --locked python -m src.pipeline.rerun_backtest
 ```
 
-The checked-in v6 ZIP is already downloaded by `git clone`; do not download another version. Setup verifies its SHA-256, all 292 manifest entries, and the seven [saved review artifacts](../releases/ready-data/review/README.md). It unpacks the complete release and installs the prepared tables/training inputs used by the current evaluation code. Repeating setup keeps identical files; a collision with different existing data stops before overwriting any file.
+The checked-in v7 ZIP is already downloaded by `git clone`; do not download another version. Setup verifies its SHA-256, all 292 manifest entries, and the seven [saved review artifacts](../releases/ready-data/review/README.md). It unpacks the complete release and installs the prepared tables/training inputs used by the current evaluation code. Repeating setup keeps identical files; a collision with different existing data stops before overwriting any file.
 
 Default data locations, relative to the **repository root** (not the terminal working directory):
 
 ```text
 <checkout-parent>/Project/
-  ready-data/             complete unpacked v6 delivery
+  ready-data/             complete unpacked v7 delivery
   app_data/              prepared tables, saved review logs and generated outputs
   private/               prepared training export; locally generated truth stays here
   real_data/             original source caches, only after source installation
@@ -102,6 +102,8 @@ Record actual findings, revision, date and review evidence before accepting a ta
 
 [Validation record](../data/PORTABLE_REVIEW_VALIDATION.json): 89 tests passed; isolated checkout launched from a different working directory; prepared setup and extracted-package verification passed; prepared and complete-source binary refits matched saved primary predictions/metrics; a clean full rebuild passed 61 data-audit checks and all four frozen-clock checks. This execution used Windows; POSIX/WSL path handling is implemented but those operating systems were not executed in this check. The original backtest success criterion and 2019Q2 FLAG remain unchanged.
 
+
+Clean-room run, 2026-11-04 (Windows): fresh `git clone` of `main` at 4f4ef71 into an empty folder, following section 1 only with `SPACEEYE_DATA_ROOT=./.spaceeye`. `uv sync --locked` passed; `setup_review` installed 323 prepared review files; `rerun_backtest` matched all 6 cases (after-start 1, point-in-time 0); `uv run --locked --offline pytest -q` gave 451 passed, 1 skipped; `uv run --locked streamlit run app.py` opened all five screens with no page errors (screens 2 and 4 also in Track B). Gap found and fixed: this page still named the v6 ZIP. If a conda or other virtual environment is active, `uv` prints a `VIRTUAL_ENV` warning and uses the project `.venv`; it is harmless.
 
 ## Optional observed imagery
 

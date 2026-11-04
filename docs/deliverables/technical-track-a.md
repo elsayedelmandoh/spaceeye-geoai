@@ -45,6 +45,17 @@ The switch is a recorded decision, never chosen after seeing levels. Its effect 
 - The two-run check runs in one process. A code hash enters `run_id` at the next accepted bundle.
 - The 2019Q2 `data_or_city` FLAG comes from a one-compound denominator; it stays visible.
 
+## When the rule fails and what an error costs
+
+The same content is on the District view screen ("When the solution fails", "A false alarm against a missed case").
+
+- **Result.** The frozen-clock backtest flagged 1 of 6 public late cases after construction started, at least 6 months before the first handover date. The bar fixed before testing was 5 of 6 ([backtest](../../data/BACKTEST_CURRENT.md)).
+- **What it can do.** A stall seen from space raises the level: K2 of 2 or more gave level 1 or 2 in 3 of 12 compounds at some quarter since 2019 (C01, C03, C07; current `kpi_values`, all quarters). In C12 and C21 K2 also reached 2 or more, but both may be complete, so the rule caps them at level 3. No real late case yet confirms a stall caught during construction.
+- **Where it fails.** Sites active every quarter but too slow for the promised date (C14, C12, C19): no indicator compares pace with the promise. Delays in finishing or handover (C10, C02): not visible from space. Imagery was not the cause: every quarter before the cutoff had 10 or more images. Details: [diagnosis](../../data/experiments/35_backtest_diagnosis/DIAGNOSIS.md).
+- **Error costs.** A false alarm costs one wasted visit; a missed case costs a late detection. One missed case is worth R = (cost of a missed case) / (cost of a visit) false alarms, so an extra alert is worth a visit when at least 1 in R flagged compounds is a real case. With the central assumptions in `configs/cost_assumptions.yaml` (3,000 EGP per visit, 20,000 EGP per missed case, the second a placeholder with no public proxy), R is about 6.7. Both inputs are assumptions.
+- **Not measured.** No false-alarm rate on real cases exists: all six backtest cases were late, so the backtest counts misses but not false alarms.
+- **Candidate fix, untested.** A pace-against-promise indicator, fixed and recorded before scoring, calibrated on data outside these six cases.
+
 ## Quarterly monitoring procedure
 
 Proposed accountable operator: Track A owner; reviewer: another team member. These are operating responsibilities, not signed assignments.

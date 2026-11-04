@@ -2,7 +2,7 @@
 
 Synthetic - for training only
 
-648rows. See COMPONENT_DATA_PROTOCOL.md for definitions and limits.
+864rows. See COMPONENT_DATA_PROTOCOL.md for definitions and limits.
 
 | Column | Type | Meaning |
 | --- | --- | --- |

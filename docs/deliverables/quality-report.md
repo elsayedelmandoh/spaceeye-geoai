@@ -3,10 +3,10 @@
 Task T-AH-12. Snapshot of saved data-only checks; rendering this report does not rerun them.
 
 Source: `app_data/data_completion/quality_checks.csv` (external configured input).
-Source SHA256: `d10487c275305bb1140f630b86fefe1dee821e046052e1e7f6af777576e0c44e`.
-Source: `data_completion/quality_checks.csv` (ten-gate run of complete_data). The Track A run keeps its own record in `real/quality_checks_log.parquet` with the same run id.
+Source SHA256: `82892741ac43c3d851140f024c069f488ff6cfcf378b826eb52e21f0e4044f10`.
+Source: `data_completion/quality_checks.csv` (11-gate run of complete_data). The Track A run keeps its own record in `real/quality_checks_log.parquet` with the same run id.
 
-Run id: `R1-e7ddf4b1c0`.
+Run id: `R1-00c42ebb27`.
 Computed at: `2026-10-30`.
 
 Results: 1 FLAG, 10 PASS.

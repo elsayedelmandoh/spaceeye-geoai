@@ -54,7 +54,7 @@ MEANINGS = {
     "assumed_land_value_egp": "Land area times generated price; in quarterly data replaced by value inferred from available installments when present.",
     "land_value_from_known_installments_egp": "Median positive land installment available by cutoff times16; generated-ledger inference, null without positive dues.",
     "land_value_basis": "Whether current value comes from available generated installments or vintage-based fallback.",
-    "fine_rate_month": "Illustrative1%monthly fraction; explicit assumption, not a published universal contract rate.",
+    "fine_rate_month": "Illustrative 0.5% monthly fraction; explicit assumption, not a published universal contract rate.",
     "K5_egp": "K5_months times assumed land value times assumed monthly rate. Not an assessed fine or a cash-ledger deduction.",
     "K5_egp_discount_scenario": "Optional50%discount scenario; null before2024-11-18publication; no automatic entitlement or known expiry asserted.",
     "K5_egp_installment_scenario_monthly": "Gross assumed fine divided by12; separate scheduling scenario after2024-11-18, not combined automatically with discount.",

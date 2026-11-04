@@ -19,8 +19,10 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-# Same data root as app.py (override with SPACEEYE_APP_DATA); default "app_data".
-APP_DATA = Path(os.environ.get("SPACEEYE_APP_DATA", "app_data"))
+from src.pipeline.common import APP as PIPELINE_APP_DATA
+
+# Same data root as app.py: SPACEEYE_APP_DATA, else the configured app_data folder.
+APP_DATA = Path(os.environ.get("SPACEEYE_APP_DATA") or PIPELINE_APP_DATA)
 OPS_VISITS_PATH = APP_DATA / "ops_visits.csv"
 
 COLUMNS = ["code", "date", "result", "note"]
@@ -87,17 +89,18 @@ def _borderless_form(key: str):
         return st.form(key, clear_on_submit=True)
 
 
-def _render_form_card() -> None:
-    """The input card. Saving logic is exactly the same as before."""
+def _render_form_card(codes: list[str], default_code: str) -> None:
+    """The input card. The code is picked from the monitored compounds, never typed."""
     with st.container(border=True):
         st.markdown("#### 📝 Record a visit")
-        st.caption("Codes only (e.g. C07). Do not write compound or developer names.")
+        st.caption("Pick the compound code. Do not write compound or developer names in the note.")
 
         with _borderless_form("ops_visits_form"):
             # Row 1: code and date side by side
             col_code, col_date = st.columns(2)
-            code = col_code.text_input("Code", placeholder="e.g. C07")
-            visit_date = col_date.date_input("Date", value=date.today())
+            code = col_code.selectbox("Code", codes, index=codes.index(default_code)
+                                      if default_code in codes else 0)
+            visit_date = col_date.date_input("Date", value=date.today(), max_value=date.today())
 
             # Row 2: result (half width, matches the column grid above)
             col_result, _ = st.columns(2)
@@ -155,7 +158,7 @@ def _render_visits_card() -> None:
 
         st.dataframe(
             visits.iloc[::-1],  # newest first
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
             column_config={
                 "code": st.column_config.TextColumn("Code", width="small"),
@@ -167,7 +170,7 @@ def _render_visits_card() -> None:
         st.caption(f"Stored in {OPS_VISITS_PATH.as_posix()}")
 
 
-def render_ops_visits_form() -> None:
+def render_ops_visits_form(codes: list[str], default_code: str) -> None:
     """Visit form card + recorded-visits card."""
-    _render_form_card()
+    _render_form_card(codes, default_code)
     _render_visits_card()

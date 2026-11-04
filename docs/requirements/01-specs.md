@@ -331,7 +331,7 @@ Inspection procedure (proposed; ACUD sets the real one): confirm with a second s
 | S4 | Material cost jump | Rebar + cement +40% | Next |
 | S5 | Grace change | Handover grace 12 → 6 months (policy test) | Next |
 
-**Display rules:** ≤ 4 main tiles; each tile = value + unit + denominator + "as of" + origin; no card = no colour; never colour alone (level written as a word); the 5 forbidden mistakes (% without denominator, truncated axis, different-season comparison, average hiding spread, unannounced coverage change); the ten-second test on screen 1.
+**Display rules:** ≤ 4 main tiles; each tile = value + unit + denominator + "as of" + origin; no card = no colour; never colour alone (level written as a word); the 4 forbidden mistakes (% without denominator, truncated axis, average hiding spread, unannounced coverage change; image comparisons across seasons are allowed since 3 November 2026, owner decision); the ten-second test on screen 1.
 
 ---
 
@@ -473,5 +473,5 @@ Use [the current decision register](D1_DECISIONS_CURRENT.md) and [binary scope d
 | --- | --- | --- | --- |
 | 1 | Resolved: retire the unattributed first-build percentage claim. Use current binary protocol/report with method, view and denominators. | BINARY_SCOPE_DECISION.md | Sections 0 and 3 |
 | 2 | Program day remains unconfirmed; calendar date is 28 October 2026. No team signatures or rehearsals are inferred. | Team lead | Section 10 timeline |
-| 3 | Implemented: illustrative monthly fine rate 1%, assumption=true; actual contract eligibility/rate unknown. | configs/data.yaml | Section 2 K5 |
+| 3 | Implemented: illustrative monthly fine rate 0.5% (1% before 3 November 2026), assumption=true; actual contract eligibility/rate unknown. | configs/data.yaml | Section 2 K5 |
 | 4 | Resolved: 12 R7 compounds, six public backtest cases, capacity 4; current real and synthetic checks exported. | Current coded register, BACKTEST_CURRENT.md, EW_REPORT_CURRENT.md | Sections 0, 2, 3, 9 |

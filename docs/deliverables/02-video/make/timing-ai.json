@@ -1,0 +1,48 @@
+{
+  "narration": "../ai-voice-narration.wav",
+  "title_seconds": 3.5,
+  "end_seconds": 7.62,
+  "shots": [
+    {
+      "still": "s1.png",
+      "seconds": 5.09,
+      "zoom": "in"
+    },
+    {
+      "still": "s2.png",
+      "seconds": 8.36,
+      "zoom": "out"
+    },
+    {
+      "still": "s3.png",
+      "seconds": 9.09,
+      "zoom": "in"
+    },
+    {
+      "still": "s4.png",
+      "seconds": 7.61,
+      "zoom": "out"
+    },
+    {
+      "still": "s5.png",
+      "seconds": 6.71,
+      "zoom": "in",
+      "crop": "iw*0.55:ih*0.55:iw*0.02:ih*0.2"
+    },
+    {
+      "still": "s6.png",
+      "seconds": 5.68,
+      "zoom": "in"
+    },
+    {
+      "card": "vision",
+      "seconds": 7.5,
+      "zoom": "in"
+    }
+  ],
+  "inserts": [
+    "../khaled-abbas-1.mp4",
+    "../khaled-abbas-2.mp4",
+    "../khaled-abbas-3.mp4"
+  ]
+}

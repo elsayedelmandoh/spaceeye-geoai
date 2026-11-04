@@ -220,6 +220,9 @@ docs/.internal/
 .remember/
 .codegraph/
 graphify-out/
+# Streamlit agent skills (environment-specific symlinks)
+.agents/skills/developing-with-streamlit
+.claude/skills/developing-with-streamlit
 
 # Local portable workspaces, source caches and generated private audit data.
 .spaceeye/
@@ -239,3 +242,5 @@ docs/plan/
 
 chatbot/.env
 chatbot/vector_db/
+# Local copies of the team source inputs from the F: data folder (checked by SHA-256 only; never commit).
+data/source/

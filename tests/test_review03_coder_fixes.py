@@ -184,7 +184,7 @@ def test_quality_report_identifies_source_and_run_id(monkeypatch, tmp_path):
 
     report = (repo / "docs" / "deliverables" / "quality-report.md").read_text(encoding="utf-8")
     assert (
-        "Source: `data_completion/quality_checks.csv` (ten-gate run of complete_data). "
+        "Source: `data_completion/quality_checks.csv` (1-gate run of complete_data). "
         "The Track A run keeps its own record in `real/quality_checks_log.parquet` "
         "with the same run id."
     ) in report

@@ -1,5 +1,13 @@
 # Value in EGP for the inspection policy (T-SA-03), three settings.
-# ALL cost inputs are ASSUMPTIONS (assumption: true). No cost figure exists in the repo.
+# Cost inputs are public PROXIES or ASSUMPTIONS (assumption: true), never ACUD actuals.
+# Sources (retrieved 2026-11-03):
+#  S1 Central Bank of Egypt average market rate, 01 Nov 2026: EUR sell 62.61 EGP, USD sell 55.832 EGP.
+#     https://www.cbe.org.eg/en/economic-research/statistics/exchange-rates
+#  S2 Hetzner Cloud cost-optimized servers: EUR 5.99 / 8.99 / 16.49 per month excl. VAT.
+#     https://www.hetzner.com/cloud/cost-optimized/
+#  S3 Civil engineer pay about 8,000 EGP/month (WageIndicator Egypt 2026: 3,153-10,812), 22 days -> about 364 EGP/day.
+#  S4 ACUD chairman statement: about 7-8% of developers seriously late (docs/requirements/01-specs.md section 12,
+#     deck slide 1; repeated in a public TV interview: "of the 500 no more than 7-8%").
 # Illustrative, not a measured saving. Formula: docs/requirements/01-specs.md section 12.
 assumption: true
 currency: EGP
@@ -13,19 +21,22 @@ cycle_list_visits: 4 # cycle_capacity in configs/data.yaml
 settings:
   conservative:
     cost_per_visit: 2000 # assumption (method above)
-    operating_cost: 30000 # PLACEHOLDER, EGP per year, needs reviewer value
-    missed_cases: 2 # PLACEHOLDER, per year
-    cost_late_detection: 20000 # PLACEHOLDER, EGP per missed case
+    operating_cost: 16800 # PROXY: S2 x S1 + S3 days (see comment): 12 x EUR 16.49 x 62.61 + 12 days x 364, EGP per year
+    missed_cases: 2 # PROXY (anchored on the chairman's 7-8% late share, S4); how many the current policy actually misses is unknown
+    cost_late_detection: 20000 # PLACEHOLDER: no public proxy; needs ACUD
   central:
     cost_per_visit: 3000 # assumption (method above)
-    operating_cost: 20000 # PLACEHOLDER
-    missed_cases: 1 # PLACEHOLDER
-    cost_late_detection: 20000 # PLACEHOLDER
+    operating_cost: 9700 # PROXY: S2 x S1 + S3 days (see comment): 12 x EUR 8.99 x 62.61 + 8 days x 364
+    missed_cases: 1 # PROXY (anchored on the chairman's 7-8% late share, S4); how many the current policy actually misses is unknown
+    cost_late_detection: 20000 # PLACEHOLDER: no public proxy; needs ACUD
   optimistic:
     cost_per_visit: 4000 # assumption (method above)
-    operating_cost: 10000 # PLACEHOLDER
-    missed_cases: 1 # PLACEHOLDER
-    cost_late_detection: 20000 # PLACEHOLDER
+    operating_cost: 6000 # PROXY: S2 x S1 + S3 days (see comment): 12 x EUR 5.99 x 62.61 + 4 days x 364
+    missed_cases: 1 # PROXY (anchored on the chairman's 7-8% late share, S4); how many the current policy actually misses is unknown
+    cost_late_detection: 20000 # PLACEHOLDER: no public proxy; needs ACUD
 
 # Required wording (T-SA-03). Recompute with the settings above if any input changes.
-wording: "Under these assumptions, from -0.006 to 0.098 million EGP per year (illustrative; all cost inputs are assumptions)."
+wording: "Under these assumptions, from 0.007 to 0.102 million EGP per year (illustrative; cost inputs are public proxies or assumptions)."
+
+# District view calculator (false alarm against a missed case).
+false_alarms_per_year: 2 # PLACEHOLDER: no real false-alarm rate (all six backtest cases were late)

@@ -8,14 +8,14 @@ meta:
   cycle_capacity: 4
   eligible_levels: [1, 2, 3]
   origin_key: { real: green, derived: blue, generated: orange }
-  tags_note: "TODO: 2 tags per kpi_reference.csv (file not in repo; asked reviewer)"
+  tags_note: "tags from the program format table in 01-specs.md; reviewer to confirm (kpi_reference.csv is not in the repo)"
 
 kpis:
   A:
     name: Activity score
     origin: derived
     track: A
-    tags: TODO
+    tags: [Leading, Urban planning]
     fields:
       purpose: Is it building?
       unit: Probability 0-1
@@ -33,7 +33,7 @@ kpis:
     name: Quarters with no activity
     origin: derived
     track: A
-    tags: TODO
+    tags: [Leading, Urban planning]
     fields:
       purpose: For how long has it not been?
       unit: Quarters
@@ -46,13 +46,13 @@ kpis:
       leading_lagging: Leading
       international_axis: Urban planning
     thresholds_numeric: { l1_min: 4, l2_min: 2 } # 2-3 -> level 2, 1 -> level 3
-    note: Counted only after construction started. Unknown never raises a level.
+    note: Counted only after construction started (4 active quarters in a row, or a published launch or delivery event). Unknown never raises a level.
 
   K3:
     name: Handover clock
     origin: real
     track: A
-    tags: TODO
+    tags: [Lagging, Housing]
     fields:
       purpose: Has it passed its first commitment?
       unit: Months
@@ -65,13 +65,13 @@ kpis:
       leading_lagging: Lagging
       international_axis: Housing
     thresholds_numeric: { l1_gt: 24, l2_min: 13 } # 13-24 -> level 2, 1-12 -> level 3
-    note: Measured from the FIRST announced handover date; later promises never reset it. Nearest month (days / 30.44).
+    note: Measured from the FIRST announced handover date; later promises never move it. 0 once a handover is published. Nearest month (days / 30.44).
 
   K4:
     name: Assessability
     origin: real
     track: A
-    tags: TODO
+    tags: [Guard, Governance/data]
     fields:
       purpose: Can we trust the signal?
       unit: Yes/No
@@ -90,7 +90,7 @@ kpis:
     name: Fine exposure (policy screening months)
     origin: derived
     track: A (months) / B (EGP, generated only)
-    tags: TODO
+    tags: [Lagging, Governance/data]
     fields:
       purpose: How long has it been fine-eligible?
       unit: Months (real); EGP (generated only)
@@ -104,7 +104,7 @@ kpis:
       international_axis: Governance/data
     illustrative_assumptions: # mirrors configs/data.yaml fines block
       assumption: true
-      fine_rate_month: 0.01
+      fine_rate_month: 0.005
       land_price_egp_m2: [2500, 12000]
       allocation_lead_months: [6, 18]
     note: Illustrative policy screening only, not an assessed legal fine. It never sets a priority level. K5 uses calendar months.
@@ -113,7 +113,7 @@ kpis:
     name: Never-started clock
     origin: derived
     track: A
-    tags: TODO
+    tags: [Leading, Urban planning]
     fields:
       purpose: Is land held without building?
       unit: Months
@@ -129,7 +129,7 @@ kpis:
     note: Months without a confirmed observed start. Unknown if any quarter since the launch/promise is not assessable, and unknown never raises a level. Nearest month (days / 30.44).
 
 priority:
-  rule: Worst applicable level among K2, K3 and K6, no weights. K2 counts only after construction started.
+  rule: Worst applicable level among K2, K3 and K6, no weights. K2 counts only after construction started (4 active quarters in a row, or a published launch or delivery event).
   levels:
     1:
       label: Inspect now

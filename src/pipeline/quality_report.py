@@ -24,7 +24,7 @@ def render_report(rows: list[dict[str, str]], source_sha: str, target) -> str:
         "Task T-AH-12. Snapshot of saved data-only checks; rendering this report does not rerun them.", "",
         "Source: `app_data/data_completion/quality_checks.csv` (external configured input).",
         f"Source SHA256: `{source_sha}`.",
-        "Source: `data_completion/quality_checks.csv` (ten-gate run of complete_data). The Track A run keeps its own record in `real/quality_checks_log.parquet` with the same run id.", "",
+        f"Source: `data_completion/quality_checks.csv` ({len(rows)}-gate run of complete_data). The Track A run keeps its own record in `real/quality_checks_log.parquet` with the same run id.", "",
         f"Run id: `{run_id}`.",
         f"Computed at: `{computed_at}`.", "",
         "Results: " + ", ".join(f"{count} {status}" for status, count in sorted(counts.items())) + ".", "",

@@ -16,14 +16,27 @@ import altair as alt  # ships with Streamlit
 import pandas as pd
 import pydeck as pdk
 import streamlit as st
+import yaml
 
-from src.dashboard.ops_visits import render_ops_visits_form  # T-NA-04
+from src.chatbot.answer import AnswerOptions, answer_question
+from src.chatbot.retrieve import get_default_retriever
+from src.dashboard import insights
+from src.dashboard.exports import export_csv
+from src.dashboard.ops_visits import load_visits, render_ops_visits_form  # T-NA-04
+from src.inference.ai_config import load_ai_yaml_config
+from src.pipeline.common import APP as PIPELINE_APP_DATA
+from src.pipeline.common import CFG
 
 # --------------------------------------------------------------------------- #
 # Configuration
 # --------------------------------------------------------------------------- #
 
-APP_DATA = Path(os.environ.get("SPACEEYE_APP_DATA", "app_data"))
+REPO_DIR = Path(__file__).resolve().parent
+# Same folder that setup_review installs into (configs/data.yaml or SPACEEYE_DATA_ROOT);
+# SPACEEYE_APP_DATA still overrides it.
+APP_DATA = Path(os.environ.get("SPACEEYE_APP_DATA") or PIPELINE_APP_DATA)
+# The unpacked v7 release sits next to app_data (setup_review): what-if, backtest, model outputs.
+READY_DATA = APP_DATA.parent / "ready-data"
 
 BANNER_TEXT = "Synthetic - for training only"
 
@@ -32,7 +45,7 @@ ORIGIN_DERIVED = "🔵"    # derived from real data
 ORIGIN_GENERATED = "🟠"  # generated (stand-in for ACUD data)
 
 # Folders under app_data/ whose content is generated (separation rule).
-GENERATED_PREFIXES = ("sim/", "ml/", "scenarios/")
+GENERATED_PREFIXES = ("sim/", "sim_clean/", "component_data/", "ml/", "scenarios/")
 
 # Columns that could carry names: dropped before anything is rendered.
 FORBIDDEN_COLUMNS = {
@@ -54,12 +67,21 @@ TRACK_A = Track("A", "Track A: images", generated=False)
 TRACK_B = Track("B", "Track B: images + numbers (generated)", generated=True)
 TRACKS = {t.label: t for t in (TRACK_A, TRACK_B)}  # Track A first = default
 
+
+@dataclass(frozen=True)
+class SelectedCompound:
+    latest_row: pd.Series
+    asof: str
+    quarterly_kpis: pd.DataFrame
+    capture_frames: list[dict]
+    capture_stages: dict[int, str]
+
 SCREENS = [
     "1 · Priority map",
     "2 · Compound file",
-    "3 · Would it have warned?",
-    "4 · Data trust",
-    "5 · What if? (twin)",
+    "3 · District view",
+    "4 · Digital twin what if",
+    "5 · Real names and sources",
 ]
 
 # --------------------------------------------------------------------------- #
@@ -67,15 +89,15 @@ SCREENS = [
 # --------------------------------------------------------------------------- #
 
 PALETTE = {
-    "bg": "#0A0E17",          # deep space
-    "bg_alt": "#0D1220",      # sidebar
-    "surface": "#121A2B",     # cards
-    "surface_hi": "#182238",  # hover / inputs
-    "border": "#223049",
-    "text": "#E6EDF7",
-    "muted": "#8A9BB8",
-    "accent": "#38BDF8",      # Track A cyan
-    "accent_b": "#FB923C",    # Track B amber
+    "bg": "#0E2235",          # survey plate: deep blueprint blue
+    "bg_alt": "#0B1C2C",      # sidebar
+    "surface": "#13304A",     # cards
+    "surface_hi": "#1A3D5C",  # hover / inputs
+    "border": "#2B4E6E",      # ruled lines
+    "text": "#E9EFF5",
+    "muted": "#9DB3C8",
+    "accent": "#F2C14E",      # surveyor's chalk: Track A
+    "accent_b": "#F28C38",    # generated data: Track B
 }
 
 
@@ -83,9 +105,9 @@ PALETTE = {
 # Stored-file access (no live computation) + no-names gate
 # --------------------------------------------------------------------------- #
 
-# Generated hand-off folders that sit under real/ (the v7 release): what-if results and the
-# S1..S3 scenario tables. They are generated, so Track A must refuse them too.
-GENERATED_PATH_RE = re.compile(r"(^|/)(what_if/|(tables|csv)/current/S\d\.)")
+# Generated parts of the v7 release: what-if results, current model outputs (tables/current),
+# the training export and the model metrics. Track A must refuse them too.
+GENERATED_PATH_RE = re.compile(r"(^|/)(what_if/|training/|(tables|csv)/current/|docs/CURRENT_MODEL_)")
 
 
 def is_generated_path(rel_path: str) -> bool:
@@ -130,221 +152,143 @@ def _read_file(path_str: str) -> pd.DataFrame:
     return _read_file_cached(path_str, Path(path_str).stat().st_mtime_ns)
 
 
-def load_table(rel_path: str, track: Track) -> pd.DataFrame | None:
+def load_table(rel_path: str, track: Track, root: Path = APP_DATA) -> pd.DataFrame | None:
     """Load a stored table. Returns None if the file does not exist yet."""
     if is_generated_path(rel_path) and not track.generated:
         raise PermissionError(
             f"Generated table '{rel_path}' must not be loaded in Track A."
         )
-    path = APP_DATA / rel_path
+    path = root / rel_path
     if not path.exists():
         return None
     return enforce_no_names(_read_file(str(path)), rel_path)
 
 
 # --------------------------------------------------------------------------- #
-# Presentation helpers (origin tags, banner, tiles)
+# Presentation helpers (banner, tiles)
 # --------------------------------------------------------------------------- #
-
-def tag_generated(value: object) -> str:
-    """Every generated number carries the orange tag."""
-    return f"{value} {ORIGIN_GENERATED}"
-
-
-def tag_generated_columns(df: pd.DataFrame, skip: tuple[str, ...] = ("code", "quarter")) -> pd.DataFrame:
-    """Append the orange tag to the headers of a generated table."""
-    return df.rename(
-        columns={c: f"{c} {ORIGIN_GENERATED}" for c in df.columns if c not in skip}
-    )
-
 
 def metric_tile(label: str, value: object, unit: str, denominator: str,
                 as_of: str, origin: str) -> None:
     """One KPI tile = value + unit + denominator + 'as of' + origin (section 9)."""
-    shown = tag_generated(value) if origin == ORIGIN_GENERATED else f"{value}"
     with st.container(border=True):
-        st.metric(label=f"{origin} {label}", value=f"{shown} {unit}".strip())
+        st.metric(label=f"{origin} {label}", value=f"{value} {unit}".strip())
         st.caption(f"{denominator} · as of {as_of}")
 
 
 def page_header(icon: str, title: str, subtitle: str = "") -> None:
-    """Consistent screen title: icon chip + title + muted one-line subtitle."""
+    """Screen title + the question the screen answers. Text only: emoji icons are not shown."""
     sub = f'<div class="se-sub">{subtitle}</div>' if subtitle else ""
-    st.markdown(
-        f"""
-        <div class="se-header">
-          <div class="se-icon">{icon}</div>
-          <div><div class="se-title">{title}</div>{sub}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    st.markdown(f'<div class="se-header"><div><div class="se-title">{title}</div>{sub}</div></div>',
+                unsafe_allow_html=True)
 
 
 def section_title(icon: str, text: str) -> None:
-    """Small uppercase section label used above cards."""
-    st.markdown(
-        f'<div class="se-section">{icon}&nbsp; {text}</div>',
-        unsafe_allow_html=True,
-    )
+    """Section label above cards (the emoji argument is kept for call sites but not shown)."""
+    st.markdown(f'<div class="se-section">{text}</div>', unsafe_allow_html=True)
+
+
+def finding(text: str) -> None:
+    """The screen's main finding in one plain sentence, built from the stored data."""
+    st.markdown(f'<div class="se-finding">{text}</div>', unsafe_allow_html=True)
 
 
 def inject_css() -> None:
-    """Dark tech theme."""
+    """Survey-plate theme: flat ruled cards on blueprint blue, one type family for Arabic and Latin,
+    tabular figures for numbers. The 3D priority map is the one bold element."""
     p = PALETTE
     st.markdown(
         f"""
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
-
-        html, body, [class*="css"], .stApp {{
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap');
+        html, body, [class*="css"], .stApp, button, input, textarea {{
+            font-family: 'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, sans-serif;
         }}
-        .stApp {{
-            background:
-              radial-gradient(1100px 500px at 85% -10%, rgba(56,189,248,0.08), transparent 60%),
-              radial-gradient(900px 450px at -10% 0%, rgba(99,102,241,0.07), transparent 55%),
-              {p['bg']};
-            color: {p['text']};
-        }}
-        .block-container {{ padding-top: 1.6rem; padding-bottom: 3rem; max-width: 1280px; }}
+        .stApp {{ background: {p['bg']}; color: {p['text']}; }}
+        .block-container {{ padding-top: 1.4rem; padding-bottom: 3rem; max-width: 1240px; }}
         header[data-testid="stHeader"] {{ background: transparent; }}
         #MainMenu, footer {{ visibility: hidden; }}
         h1, h2, h3, h4, p, label, span, li {{ color: {p['text']}; }}
-        h2, h3 {{ letter-spacing: -0.01em; font-weight: 700; }}
+        p, li {{ line-height: 1.6; }}
         [data-testid="stCaptionContainer"], .stCaption {{ color: {p['muted']} !important; }}
         hr {{ border-color: {p['border']}; }}
+        :focus-visible {{ outline: 2px solid {p['accent']} !important; outline-offset: 2px; }}
 
-        .se-header {{ display: flex; align-items: center; gap: 0.9rem; margin: 0 0 1.4rem 0; }}
-        .se-icon {{
-            width: 48px; height: 48px; border-radius: 14px; font-size: 1.5rem;
-            display: flex; align-items: center; justify-content: center;
-            background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(99,102,241,0.18));
-            border: 1px solid {p['border']};
-            box-shadow: 0 6px 20px rgba(0,0,0,0.35);
-        }}
-        .se-title {{ font-size: 1.7rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; }}
-        .se-sub {{ color: {p['muted']}; font-size: 0.92rem; margin-top: 0.15rem; }}
-        .se-section {{
-            color: {p['muted']}; font-size: 0.74rem; font-weight: 700;
-            letter-spacing: 0.12em; text-transform: uppercase; margin: 1.2rem 0 0.55rem 0;
-        }}
+        .se-header {{ display: flex; align-items: baseline; gap: 0.8rem; margin: 0 0 1.2rem 0;
+                      padding-bottom: 0.8rem; border-bottom: 1px solid {p['border']}; }}
+        .se-icon {{ font-size: 1.4rem; }}
+        .se-title {{ font-size: 1.9rem; font-weight: 700; letter-spacing: -0.015em; line-height: 1.15; }}
+        .se-sub {{ color: {p['muted']}; font-size: 1rem; margin-top: 0.2rem; }}
+        .se-finding {{ border-left: 4px solid {p['accent']}; background: {p['surface']};
+                       padding: 0.8rem 1rem; margin: 0 0 1rem 0; font-size: 1.08rem; line-height: 1.55; }}
+        .se-section {{ color: {p['text']}; font-size: 1.02rem; font-weight: 600; margin: 1.3rem 0 0.5rem 0; }}
 
-        /* ضمان تساوي ارتفاع جميع الكاردز بنسبة 100% */
-        [data-testid="stHorizontalBlock"] > div {{
-            display: flex;
-            flex-direction: column;
-        }}
+        [data-testid="stHorizontalBlock"] > div {{ display: flex; flex-direction: column; }}
         [data-testid="stVerticalBlockBorderWrapper"] {{
-            background: linear-gradient(180deg, {p['surface']} 0%, {p['bg_alt']} 100%);
+            background: {p['surface']};
             border: 1px solid {p['border']} !important;
-            border-radius: 16px;
-            padding: 0.5rem 0.7rem;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.28);
+            border-radius: 6px;
+            padding: 0.45rem 0.65rem;
             height: 100% !important;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
         }}
-
-        [data-testid="stMetric"] {{
-            padding: 0.1rem 0.2rem;
-            overflow: visible;
-        }}
+        [data-testid="stMetric"] {{ padding: 0.1rem 0.2rem; }}
         [data-testid="stMetricLabel"] p {{
-            color: {p['muted']} !important;
-            font-size: 0.72rem !important;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
+            color: {p['muted']} !important; font-size: 0.86rem !important; font-weight: 500;
             white-space: normal !important;
-            word-break: break-word !important;
         }}
-        [data-testid="stMetricValue"] div {{
-            font-family: 'JetBrains Mono', ui-monospace, monospace;
-            font-weight: 700;
-            color: {p['text']};
-            font-size: clamp(1.1rem, 1.5vw, 1.5rem) !important;
-            white-space: normal !important;
-            word-break: break-word !important;
-            line-height: 1.25 !important;
-            overflow-wrap: break-word !important;
+        [data-testid="stMetricValue"] div, [data-testid="stMetricValue"] p {{
+            font-variant-numeric: tabular-nums lining-nums;
+            font-weight: 700; color: {p['text']};
+            font-size: clamp(1.15rem, 1.6vw, 1.6rem) !important;
+            white-space: normal !important; line-height: 1.25 !important;
         }}
-
         [data-testid="stAlert"] {{
-            background: {p['surface']}; border: 1px solid {p['border']};
-            border-left: 4px solid {p['accent']}; border-radius: 12px;
-            padding: 0.9rem 1.1rem; color: {p['text']};
+            background: {p['bg_alt']}; border: 1px solid {p['border']};
+            border-left: 3px solid {p['accent']}; border-radius: 4px; color: {p['text']};
         }}
         [data-testid="stAlert"] p {{ color: {p['text']}; }}
+        [data-testid="stDataFrame"] {{ border: 1px solid {p['border']}; border-radius: 4px; }}
+        [dir="auto"], .se-rtl {{ unicode-bidi: plaintext; }}
+        .se-rtl {{ direction: rtl; text-align: right; font-size: 1.05rem; }}
 
-        [data-testid="stDataFrame"] {{
-            border: 1px solid {p['border']}; border-radius: 14px; overflow: hidden;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-        }}
-
-        [data-testid="stSidebar"] {{
-            background: linear-gradient(180deg, {p['bg_alt']} 0%, #090D16 100%);
-            border-right: 1px solid {p['border']};
-        }}
+        [data-testid="stSidebar"] {{ background: {p['bg_alt']}; border-right: 1px solid {p['border']}; }}
         [data-testid="stSidebar"] .block-container {{ padding-top: 1rem; }}
-        [data-testid="stSidebar"] hr {{ margin: 1rem 0; border-color: {p['border']}; }}
-        .se-brand {{ display: flex; align-items: center; gap: 0.7rem; margin: 0.2rem 0 0.4rem 0; }}
-        .se-brand-logo {{
-            width: 40px; height: 40px; border-radius: 12px; font-size: 1.3rem;
-            display: flex; align-items: center; justify-content: center;
-            background: linear-gradient(135deg, #38BDF8, #6366F1);
-            box-shadow: 0 6px 18px rgba(56,189,248,0.35);
-        }}
-        .se-brand-name {{ font-weight: 800; font-size: 1.1rem; letter-spacing: -0.01em; }}
-        .se-brand-sub {{ color: {p['muted']}; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; }}
-        .se-side-label {{
-            color: {p['muted']}; font-size: 0.7rem; font-weight: 700;
-            letter-spacing: 0.14em; text-transform: uppercase; margin: 0.2rem 0 0.1rem 0;
-        }}
+        [data-testid="stSidebar"] hr {{ margin: 0.9rem 0; border-color: {p['border']}; }}
+        .se-brand {{ display: flex; align-items: center; gap: 0.6rem; margin: 0.2rem 0 0.3rem 0; }}
+        .se-brand-logo {{ font-size: 1.4rem; }}
+        .se-brand-name {{ font-weight: 700; font-size: 1.15rem; }}
+        .se-brand-sub {{ color: {p['muted']}; font-size: 0.85rem; }}
+        .se-side-label {{ color: {p['muted']}; font-size: 0.85rem; font-weight: 500; margin: 0.2rem 0 0.1rem 0; }}
         [data-testid="stSidebar"] [data-baseweb="select"] > div {{
-            background: {p['surface_hi']}; border: 1px solid {p['border']}; border-radius: 10px;
+            background: {p['surface']}; border: 1px solid {p['border']}; border-radius: 4px;
         }}
         [data-testid="stSidebar"] [data-baseweb="select"] * {{ color: {p['text']}; }}
-        [data-testid="stSidebar"] [role="radiogroup"] {{ gap: 0.25rem; }}
         [data-testid="stSidebar"] [role="radiogroup"] label {{
-            background: transparent; border: 1px solid transparent; border-radius: 10px;
-            padding: 0.45rem 0.7rem; transition: all 0.15s ease; width: 100%;
-        }}
-        [data-testid="stSidebar"] [role="radiogroup"] label:hover {{
-            background: {p['surface_hi']}; border-color: {p['border']};
+            border-left: 3px solid transparent; padding: 0.4rem 0.6rem; width: 100%;
         }}
         [data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) {{
-            background: linear-gradient(90deg, rgba(56,189,248,0.16), rgba(56,189,248,0.04));
-            border-color: rgba(56,189,248,0.45);
+            border-left-color: {p['accent']}; background: {p['surface']};
         }}
         .se-pill {{
-            display: inline-block; padding: 0.22rem 0.65rem; border-radius: 999px;
-            font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em;
-            border: 1px solid {p['border']}; background: {p['surface']};
+            display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px;
+            font-size: 0.85rem; font-weight: 500; border: 1px solid {p['border']};
         }}
-        .se-pill-a {{ color: {p['accent']}; border-color: rgba(56,189,248,0.45); }}
-        .se-pill-b {{ color: {p['accent_b']}; border-color: rgba(251,146,60,0.55); }}
-
+        .se-pill-a {{ color: {p['accent']}; border-color: {p['accent']}; }}
+        .se-pill-b {{ color: {p['accent_b']}; border-color: {p['accent_b']}; }}
+        .se-move {{ padding: 0.6rem 0; border-bottom: 1px solid {p['border']}; }}
+        .se-move-why {{ color: {p['muted']}; margin-top: 0.25rem; }}
+        .se-card-head {{ display: flex; justify-content: space-between; align-items: center;
+                         gap: 0.4rem; margin-top: 0.3rem; }}
+        .se-card-why {{ color: {p['muted']}; font-size: 0.92rem; line-height: 1.45; margin-top: 0.35rem; }}
+        [data-testid="stMetricValue"], [data-testid="stMetricValue"] > div {{ white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.2; }}
         .synthetic-banner {{
             position: sticky; top: 0.5rem; z-index: 1000;
-            display: flex; align-items: center; justify-content: center; gap: 0.7rem;
-            margin: 0 0 1.4rem 0; padding: 0.8rem 1.2rem;
-            background: linear-gradient(100deg, #FF6A00 0%, #FF8A00 45%, #FFB300 100%);
-            color: #1A0E00; font-weight: 800; font-size: 1.02rem;
-            letter-spacing: 0.08em; text-transform: uppercase; text-align: center;
-            border-radius: 14px;
-            border: 1px solid rgba(255,255,255,0.35);
-            box-shadow: 0 10px 28px rgba(255,122,0,0.38),
-                        0 2px 6px rgba(0,0,0,0.45),
-                        inset 0 1px 0 rgba(255,255,255,0.45);
-            text-shadow: 0 1px 0 rgba(255,255,255,0.25);
+            display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+            margin: 0 0 1.2rem 0; padding: 0.6rem 1rem;
+            background: {p['accent_b']}; color: #1F1102; font-weight: 700; font-size: 1rem;
+            border-radius: 4px;
         }}
-        .synthetic-banner .dot {{
-            width: 10px; height: 10px; border-radius: 50%; background: #1A0E00;
-            box-shadow: 0 0 0 3px rgba(26,14,0,0.25); animation: se-pulse 1.8s ease-in-out infinite;
-        }}
-        @keyframes se-pulse {{ 0%,100% {{ opacity: 1; }} 50% {{ opacity: 0.35; }} }}
+        .synthetic-banner .dot {{ width: 8px; height: 8px; border-radius: 50%; background: #1F1102; }}
         /* Floating SpaceEye Chat Button */
             .se-floating-chat {{
                 position: fixed;
@@ -389,12 +333,12 @@ def render_banner(track: Track) -> None:
 # --------------------------------------------------------------------------- #
 
 LEVELS: dict[int, tuple[str, str]] = {
-    1: ("Inspect now", "#EF4444"),
-    2: ("Inspect this cycle", "#F97316"),
-    3: ("Document review", "#EAB308"),
-    4: ("Routine", "#22C55E"),
+    1: (insights.level_word(1), "#EF4444"),
+    2: (insights.level_word(2), "#F97316"),
+    3: (insights.level_word(3), "#EAB308"),
+    4: (insights.level_word(4), "#22C55E"),
 }
-NOT_ASSESSABLE: tuple[str, str] = ("Not assessable", "#6B7280")  # grey
+NOT_ASSESSABLE: tuple[str, str] = (insights.NOT_ASSESSABLE_WORD, "#6B7280")  # grey
 
 REQUIRED_KPI_COLUMNS = {"code", "quarter", "level"}
 
@@ -407,7 +351,7 @@ def _level_style(level: object) -> tuple[str, str]:
 
 
 def level_word(level: object) -> str:
-    return _level_style(level)[0]
+    return insights.level_word(level)
 
 
 def _hex_to_rgba(hex_color: str, alpha: int = 175) -> list[int]:
@@ -466,7 +410,10 @@ def build_cycle_list(latest_df: pd.DataFrame) -> pd.DataFrame:
         df = df[df["cycle_rank"].notna()].sort_values("cycle_rank")
     else:
         df = df[df["level"].isin([1, 2, 3])].sort_values(["level", "code"])
-    wanted = ("cycle_rank", "code", "level_word", "reason_ar", "K2", "K3", "K6")
+    if "K6_status" in df.columns:  # an empty K6 has a stated reason; show it instead of a blank
+        df["K6"] = [("does not apply" if status == "not_applicable_started" else "unknown") if _missing(k6)
+                    else str(int(k6)) for k6, status in zip(df["K6"], df["K6_status"])]
+    wanted =("cycle_rank", "code", "level_word", "reason", "K2", "K3", "K6")
     return df[[c for c in wanted if c in df.columns]].reset_index(drop=True)
 
 
@@ -486,7 +433,50 @@ def _geo_points(geometry: dict | None) -> list[list[float]]:
     return points
 
 
-def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None) -> None:
+MAP_HEIGHT_EXAGGERATION = 10  # 20-30 m buildings on 0.5-1 km plots would look flat at true scale
+
+
+def latest_heights() -> dict[str, tuple[float, int]]:
+    """{code: (mean building height in m, year)}: the latest approved year (to 2024) with a value."""
+    yearly = load_table("real/sat_yearly.parquet", TRACK_A)
+    if yearly is None or not {"code", COL_YEAR, COL_HEIGHT} <= set(yearly.columns):
+        return {}
+    known = yearly[(yearly[COL_YEAR] <= MAX_HEIGHT_YEAR) & yearly[COL_HEIGHT].notna()]
+    last = known.sort_values(COL_YEAR).groupby("code").tail(1)
+    return {r["code"]: (float(r[COL_HEIGHT]), int(r[COL_YEAR])) for _, r in last.iterrows()}
+
+
+MAP_LAYER_ID = "compounds"
+MAP_KEY = "pm_map"
+SELECTED_COMPOUND_KEY = "selected_compound"
+VISIT_SELECTION_KEY = "pm_visit_selection"
+
+
+def open_clicked_compound() -> None:
+    """Map click callback: select the compound; the sidebar panel owns navigation."""
+    event = st.session_state.get(MAP_KEY)
+    code = insights.picked_code(None if event is None else event.selection, MAP_LAYER_ID)
+    if code is not None and CODE_PATTERN.match(code):
+        st.session_state[SELECTED_COMPOUND_KEY] = code
+
+
+def select_visit_compound() -> None:
+    """Visit-list callback: select a code, or clear the panel for the empty choice."""
+    code = st.session_state.get(VISIT_SELECTION_KEY)
+    if code is not None and CODE_PATTERN.match(str(code)):
+        st.session_state[SELECTED_COMPOUND_KEY] = str(code)
+    else:
+        st.session_state[SELECTED_COMPOUND_KEY] = None
+
+
+def clear_selected_compound() -> None:
+    """Remove the selected compound and its sidebar panel."""
+    st.session_state[SELECTED_COMPOUND_KEY] = None
+
+
+def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None,
+                    hidden: frozenset[str] = frozenset()) -> None:
+    """`hidden` holds the codes the screen-1 filters removed; boundaries without a KPI row stay grey."""
     if track.generated:
         return
     section_title("🗺️", "Priority map")
@@ -501,42 +491,65 @@ def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None) -> No
 
     latest_df, asof = latest
     levels = dict(zip(latest_df["code"], latest_df["level"]))
+    heights = latest_heights()
 
-    features, points = [], []
+    features, points, labels = [], [], []
     counts = {word: 0 for word, _ in [*LEVELS.values(), NOT_ASSESSABLE]}
     for feat in geojson["features"]:
         code = feat["properties"]["code"]
+        if code in hidden:
+            continue
         word, color = _level_style(levels.get(code))
         counts[word] += 1
-        points += _geo_points(feat["geometry"])
+        outline = _geo_points(feat["geometry"])
+        points += outline
+        if outline:
+            top = heights.get(code, (0.0, 0))[0] * MAP_HEIGHT_EXAGGERATION + 40
+            labels.append({"code": code, "position": [sum(x for x, _ in outline) / len(outline),
+                                                      sum(y for _, y in outline) / len(outline), top]})
         features.append({
             "type": "Feature",
             "geometry": feat["geometry"],
             "properties": {"code": code, "level_word": word,
-                           "fill_color": _hex_to_rgba(color)},
+                           "fill_color": _hex_to_rgba(color),
+                           # Flat when no height was measured (construction too recent).
+                           "elevation": heights.get(code, (0.0, 0))[0],
+                           "height_text": (f"mean height {heights[code][0]:.0f} m ({heights[code][1]})"
+                                           if code in heights else "no height on file")},
         })
 
     with st.container(border=True):
         if not features:
-            st.info("No R7 boundaries in the file.")
+            st.info("No compound matches the filters." if hidden else "No R7 boundaries in the file.")
             return
         layer = pdk.Layer(
             "GeoJsonLayer",
+            id=MAP_LAYER_ID,
             data={"type": "FeatureCollection", "features": features},
             get_fill_color="properties.fill_color",
-            get_line_color=[255, 255, 255, 220],
+            get_line_color=[232, 238, 244, 200],
+            get_elevation="properties.elevation",
+            elevation_scale=MAP_HEIGHT_EXAGGERATION,
             line_width_min_pixels=1,
-            stroked=True, filled=True, pickable=True,
+            stroked=True, filled=True, extruded=True, wireframe=True, pickable=True,
         )
+        codes = pdk.Layer("TextLayer", data=labels, get_position="position", get_text="code",
+                          get_size=15, get_color=[233, 239, 245, 255], get_alignment_baseline="'bottom'",
+                          billboard=True)
         view = pdk.data_utils.compute_view(points, view_proportion=0.9) if points else None
+        if view is not None:
+            view.pitch, view.bearing = 50, -18
         st.pydeck_chart(
             pdk.Deck(
-                layers=[layer],
+                layers=[layer, codes],
                 initial_view_state=view,
                 map_style="dark",
-                tooltip={"text": "{code}\n{level_word}"},
+                tooltip={"text": "{code}\n{level_word}\n{height_text}"},
             ),
-            use_container_width=True,
+            width="stretch",
+            on_select=open_clicked_compound,
+            selection_mode="single-object",
+            key=MAP_KEY,
         )
         legend = "".join(
             f'<span class="se-pill" style="border-color:{color};margin-right:0.4rem">'
@@ -544,43 +557,185 @@ def render_map_slot(track: Track, latest: tuple[pd.DataFrame, str] | None) -> No
             for word, color in [*LEVELS.values(), NOT_ASSESSABLE]
         )
         st.markdown(legend, unsafe_allow_html=True)
-        st.caption(f"{ORIGIN_DERIVED} derived · as of {asof} · grey = not assessable")
+        st.caption(f"{ORIGIN_DERIVED} derived · as of {asof} · colour = priority level, grey = not "
+                   "assessable · block height = mean building height (Google Open Buildings, latest "
+                   f"year to {MAX_HEIGHT_YEAR}), drawn {MAP_HEIGHT_EXAGGERATION}× taller · "
+                   "right-drag to tilt or turn · click a compound to select it in the sidebar")
 
 
-def render_cycle_list(latest: tuple[pd.DataFrame, str] | None) -> None:
-    section_title("📋", "Cycle list")
+def reason_text(row: pd.Series) -> str:
+    """The short stored reason; names the phase when the first handover date was only a phase date."""
+    statements = load_table("real/statements.parquet", TRACK_A)
+    note = None if statements is None else insights.first_deadline_note(
+        statements, str(row.get("code")), row.get("k3_first_deadline"), str(row.get("quarter")))
+    return insights.short_reason(row.get("reason"), note)
+
+
+def cycle_headline(latest_df: pd.DataFrame, asof: str) -> str:
+    """One sentence that states the cycle decision, built only from the stored level and reason."""
+    cycle = build_cycle_list(latest_df)
+    if cycle.empty:
+        return f"No compound needs a visit this cycle ({asof})."
+    first = latest_df[latest_df["code"] == cycle.iloc[0]["code"]].iloc[0]
+    why = reason_text(first)
+    eligible = int(latest_df["level"].isin([1, 2, 3]).sum())
+    waiting = eligible - len(cycle)
+    rest = f" {waiting} more at levels 1-3 wait for the next cycle." if waiting > 0 else ""
+    return (f"<b>Visit {', '.join(cycle['code'])} this cycle</b> ({len(cycle)} of {len(latest_df)} "
+            f"compounds, {asof}). {cycle.iloc[0]['code']} comes first: {html.escape(why)}.{rest}")
+
+
+def load_promises_ahead(latest_df: pd.DataFrame, asof: str) -> list[dict]:
+    statements = load_table("real/statements.parquet", TRACK_A)
+    if statements is None:
+        return []
+    return insights.upcoming_promises(statements, list(latest_df["code"].astype(str)), asof)
+
+
+def render_summary_tiles(latest_df: pd.DataFrame, asof: str, promises: list[dict]) -> None:
+    cycle = build_cycle_list(latest_df)
+    months = latest_df["K5_months"].dropna() if "K5_months" in latest_df.columns else pd.Series(dtype=float)
+    fined = months[months > 0]
+    compounds = load_table("real/compounds.parquet", TRACK_A)
+    footprint = ""
+    if compounds is not None:
+        f = insights.cycle_footprint(compounds, list(cycle["code"]), CFG["compounds"]["feddan_m2"])
+        n = len(cycle)
+        footprint = (f" · {f['homes']:,} published homes"
+                     + (f" in {f['homes_compounds']} of {n}" if f["homes_compounds"] < n else "")
+                     + f" · {f['feddan']:g} feddan" + (f" in {f['land_compounds']} of {n}" if f["land_compounds"] < n else ""))
+    tiles = st.columns(4)
+    with tiles[0]:
+        metric_tile("To visit this cycle", len(cycle), "compound" if len(cycle) == 1 else "compounds",
+                    f"of {len(latest_df)}{footprint}", asof, ORIGIN_DERIVED)
+    with tiles[1]:
+        metric_tile("At level 1", int((latest_df["level"] == 1).sum()),
+                    "compound" if int((latest_df["level"] == 1).sum()) == 1 else "compounds",
+                    f"of {len(latest_df)} assessed compounds", asof,
+                    ORIGIN_DERIVED)
+    with tiles[2]:
+        metric_tile("Months eligible for review under contract terms", int(round(fined.sum())), "months",
+                    f"in {len(fined)} compounds · the committee decides any action", asof, ORIGIN_DERIVED)
+    with tiles[3]:
+        metric_tile("Promised dates ahead", len(promises), "dates",
+                    f"in {len({p['code'] for p in promises})} compounds", asof, ORIGIN_DERIVED)
+
+
+def visit_table(latest_df: pd.DataFrame, cycle: pd.DataFrame, statements: pd.DataFrame | None = None,
+                asof: str = "") -> pd.DataFrame:
+    """The listed compounds in order with the suggested action and the stored reason.
+    Rank is the visit order of the whole quarter (set before filtering), so filtering keeps it."""
+    rows = latest_df.set_index("code").loc[cycle["code"]]
+    ranks = rows["visit_rank"] if "visit_rank" in rows.columns else insights.visit_ranks(rows.reset_index()).to_numpy()
+    table = {
+        "Rank": pd.array(ranks, dtype="Int64"),
+        "Compound": rows.index,
+        "List": [insights.list_status(r) for _, r in rows.iterrows()],
+        "Level": rows["level"].map(level_word).to_numpy(),
+        "Suggested action": [insights.suggested_action(r)[0] for _, r in rows.iterrows()],
+        "Why": [reason_text(r) for _, r in rows.reset_index().iterrows()],
+    }
+    table = pd.DataFrame(table)
+    if statements is not None:
+        table.insert(4, "Handover", [insights.handover_status(statements, code, asof) for code in rows.index])
+    return table
+
+
+def listed_codes(latest_df: pd.DataFrame, cycle_only: bool) -> pd.DataFrame:
+    """The cycle list in visit order, followed (when not cycle-only) by the other compounds by level."""
+    cycle = build_cycle_list(latest_df)
+    if cycle_only:
+        return cycle
+    ranks = latest_df["visit_rank"] if "visit_rank" in latest_df.columns else insights.visit_ranks(latest_df)
+    return latest_df.assign(_rank=ranks).sort_values("_rank")[["code"]].reset_index(drop=True)
+
+
+def render_visit_list(latest: tuple[pd.DataFrame, str] | None, track: Track, cycle_only: bool = True) -> None:
+    section_title("📋", "Visit list")
     if latest is None:
         st.info("Waiting for real/kpi_values.parquet.")
         return
 
     latest_df, asof = latest
     cycle = build_cycle_list(latest_df)
-    if cycle.empty:
-        st.info(f"No compounds in the cycle list for {asof}.")
+    listed = listed_codes(latest_df, cycle_only)
+    if listed.empty:
+        st.info(f"No compounds in the {'cycle list' if cycle_only else 'list'} for {asof}.")
         return
 
+    st.caption("Suggested actions are proposals; the committee decides. Rank = visit order as of "
+               f"{asof}: level first, then quarters without activity (K2), then months past the first "
+               "handover date (K3); remaining ties go by code. \"This cycle\" = the visits capacity allows now.")
+    statements = load_table("real/statements.parquet", TRACK_A)
+    # Tall enough for every row, so no compound hides behind the table's own scroll bar.
+    st.dataframe(visit_table(latest_df, listed, statements, asof), hide_index=True, width="stretch",
+                 height=35 * (len(listed) + 1) + 3, column_config={"Why": st.column_config.TextColumn("Why", width="large")})
+    options = ["Select a compound", *sorted(listed["code"].astype(str))]
+    st.selectbox(
+        "Select compound",
+        options=options,
+        key=VISIT_SELECTION_KEY,
+        on_change=select_visit_compound,
+    )
+
+    # The inspection files quote simulated buyer complaints, so only the generated track serves them.
+    files = []
+    if track.generated:
+        found = ((code, find_inspection_file(code, asof)) for code in sorted(latest_df["code"].astype(str)))
+        files = [(code, path) for code, path in found if path is not None]
+    buttons = st.columns(len(files) + 1)
+    for column, (code, path) in zip(buttons, files):
+        column.download_button(f"{ORIGIN_GENERATED} {code} inspection file (includes generated figures)",
+                               data=path.read_bytes(), file_name=path.name,
+                               mime="text/html", key=f"visit_file_{code}")
     export = cycle.rename(columns={"level_word": "level"})
-    with st.container(border=True):
-        st.dataframe(
-            export,
-            use_container_width=True,
-            hide_index=True,
-            column_config={
-                "cycle_rank": st.column_config.NumberColumn("Rank", width="small"),
-                "code": st.column_config.TextColumn("Code", width="small"),
-                "level": st.column_config.TextColumn("Priority level", width="medium"),
-                "reason_ar": st.column_config.TextColumn("السبب (Arabic reason)", width="large"),
-            },
-        )
-        left, right = st.columns([3, 1])
-        left.caption(f"{ORIGIN_DERIVED} derived · {len(export)} compound(s) · as of {asof}")
-        right.download_button(
-            "⬇️ Download CSV",
-            data=export.to_csv(index=False).encode("utf-8-sig"),
+    try:
+        csv_data = export_csv(export, "cycle list")
+    except ValueError as exc:
+        buttons[-1].error(str(exc))
+    else:
+        buttons[-1].download_button(
+            "⬇️ Cycle list (CSV)",
+            data=csv_data,
             file_name=f"cycle_list_{asof}.csv",
             mime="text/csv",
-            use_container_width=True,
         )
+
+
+def _level_move(change: dict) -> str:
+    was = "none" if change["was"] is None else change["was"]
+    return f"level {was} to {'none' if change['now'] is None else change['now']}"
+
+
+def render_changes(asof: str) -> None:
+    kpis = load_table(KPI_FILE, TRACK_A)
+    changes = None if kpis is None or "cycle_rank" not in kpis.columns else insights.cycle_changes(kpis, asof)
+    if changes is None:
+        return
+    section_title("🔄", f"Changes since {changes['prev']}")
+    for column, (title, colour, key) in zip(st.columns(2), (
+            ("Joined the list", "#F87171", "joined"), ("Left the list", "#34D399", "left"))):
+        with column, st.container(border=True):
+            st.markdown(f"**{title}**")
+            if not changes[key]:
+                st.markdown("No change.")
+            for item in changes[key]:
+                st.markdown(
+                    f'<div class="se-move"><span style="color:{colour};font-weight:700">{html.escape(item["code"])}'
+                    f'</span> · {_level_move(item)}'
+                    f'<div dir="auto" class="se-move-why">{html.escape(item["why"])}</div></div>',
+                    unsafe_allow_html=True)
+
+
+def render_promises_ahead(promises: list[dict]) -> None:
+    section_title("📅", "Promised dates ahead")
+    if not promises:
+        st.info("No promised date is still ahead.")
+        return
+    st.caption("A visit before these dates can check the developer's own promise.")
+    table = pd.DataFrame(promises).rename(
+        columns={"code": "Compound", "claim": "Promise", "said": "Said in", "end": "Due by"})
+    st.dataframe(table, hide_index=True, width="stretch")
 
 
 # --------------------------------------------------------------------------- #
@@ -588,21 +743,19 @@ def render_cycle_list(latest: tuple[pd.DataFrame, str] | None) -> None:
 # --------------------------------------------------------------------------- #
 
 KPI_FILE = "real/kpi_values.parquet"
-CONTEXT_FILES = ("real/sat_yearly.parquet", "real/sat_quarterly.parquet")
 ANNOUNCE_FILES = ("real/statements.parquet",)
-FILES_DIR = APP_DATA / "files"
-PREDICTIONS_FILE = "ml/predictions.parquet"
-K5_EGP_FILE, K5_EGP_COL = "ml/ml_dataset.parquet", "k5_egp"
+# Inspection files: written by the pipeline into app_data, or the stored set committed in the repo.
+FILES_DIRS = (APP_DATA / "files", REPO_DIR / "app_data" / "files")
+IMAGERY_DIR = REPO_DIR / "data" / "imagery"
 
 COL_A, COL_DW = "activity_prob", "built_prob_mean"
-COL_HEIGHT, COL_VEG, COL_YEAR = "height_mean_m", "veg_share", "year"
+COL_HEIGHT, COL_YEAR = "height_mean_m", "year"
 MAX_HEIGHT_YEAR = 2024
-VEG_COMPLETE_THRESHOLD = 0.10
 
-K_ORIGIN = {"A": ORIGIN_DERIVED, "K2": ORIGIN_DERIVED, "K3": ORIGIN_REAL,
-            "K4": ORIGIN_REAL, "K5": ORIGIN_DERIVED, "K6": ORIGIN_DERIVED}
-SERIES_COLORS = {"Activity score A": "#38BDF8", "Dynamic World built probability": "#818CF8"}
-MARKER_COLOR = "#A78BFA"
+# Every K is computed from real inputs (K3 from a published date), so all are derived.
+K_ORIGIN = {"K2": ORIGIN_DERIVED, "K3": ORIGIN_DERIVED, "K5": ORIGIN_DERIVED, "K6": ORIGIN_DERIVED}
+SERIES_COLORS = {"Activity score A": "#F2C14E", "Dynamic World built probability": "#7FB2DE"}
+MARKER_COLOR = "#E9EFF5"
 
 
 def _missing(value: object) -> bool:
@@ -631,7 +784,12 @@ def load_kpi_history(code: str) -> pd.DataFrame | None:
     kpis = load_table(KPI_FILE, TRACK_A)
     if kpis is None or not {"code", "quarter"} <= set(kpis.columns):
         return None
-    return kpis[kpis["code"] == code].sort_values("quarter").reset_index(drop=True)
+    history = kpis[kpis["code"] == code]
+    # The Dynamic World series lives in sat_quarterly, not in kpi_values.
+    sat = load_table("real/sat_quarterly.parquet", TRACK_A)
+    if sat is not None and COL_DW not in history.columns and {"code", "quarter", COL_DW} <= set(sat.columns):
+        history = history.merge(sat.loc[sat["code"] == code, ["quarter", COL_DW]], on="quarter", how="left")
+    return history.sort_values("quarter").reset_index(drop=True)
 
 
 def load_announcements(code: str, asof: str) -> pd.DataFrame | None:
@@ -645,84 +803,21 @@ def load_announcements(code: str, asof: str) -> pd.DataFrame | None:
     except Exception:
         return None
     df = df[df["published_date"] <= cutoff]
-    if "handover_date" in df.columns:
-        df["handover_date"] = pd.to_datetime(df["handover_date"], errors="coerce")
     return df.sort_values("published_date").reset_index(drop=True)
 
 
-def first_announced_date(ann: pd.DataFrame | None) -> tuple[pd.Timestamp, pd.Timestamp] | None:
-    if ann is None or "handover_date" not in ann.columns:
-        return None
-    dated = ann.dropna(subset=["handover_date"])
-    if dated.empty:
-        return None
-    first = dated.iloc[0]
-    return first["handover_date"], first["published_date"]
-
-
-def load_images(code: str) -> dict[str, tuple[Path, str]]:
-    """Smart image loader supporting both main and subfolder layouts."""
-    imagery_dir = Path("data/imagery")
-    images_sub = imagery_dir / "images"
-    
-    index_path = imagery_dir / "images.csv"
-    if not index_path.exists():
-        index_path = imagery_dir / "IMAGERY_MANIFEST.csv"
-
-    index = None
-    if index_path.exists():
-        try:
-            df = pd.read_csv(index_path)
-            drop = [c for c in df.columns if c.lower() in FORBIDDEN_COLUMNS]
-            if drop:
-                df = df.drop(columns=drop)
-            index = df
-        except Exception:
-            pass
-
-    found: dict[str, tuple[Path, str]] = {}
-    type_col = "image_type" if index is not None and "image_type" in index.columns else "kind"
-
-    for kind in ("before", "after"):
-        possible_paths = [
-            images_sub / f"{code}_{kind}.jpg",
-            images_sub / f"{code.lower()}_{kind}.jpg",
-            imagery_dir / f"{code}_{kind}.jpg",
-            imagery_dir / f"{code.lower()}_{kind}.jpg",
-        ]
-        
-        path = next((p for p in possible_paths if p.exists()), None)
-        if path is None:
-            continue
-
-        captured, credit = "capture date n/a", "Esri World Imagery Wayback"
-        if index is not None and {"code", type_col} <= set(index.columns):
-            hit = index[(index["code"].astype(str).str.upper() == code.upper()) & 
-                        (index[type_col] == kind)]
-            if not hit.empty:
-                row = hit.iloc[0]
-                if "capture_date" in index.columns and not _missing(row.get("capture_date")):
-                    captured = f"captured {row['capture_date']}"
-                if "attribution" in index.columns and not _missing(row.get("attribution")):
-                    credit = str(row["attribution"])
-
-        found[kind] = (path, f"{kind.capitalize()} · {captured} · {credit}")
-
-    return found
-
-
 def find_inspection_file(code: str, asof: str) -> Path | None:
-    exact = FILES_DIR / f"{code}_{asof}.html"
-    if exact.exists():
-        return exact
-    matches = sorted(FILES_DIR.glob(f"{code}_*.html"))
-    return matches[-1] if matches else None
+    for files_dir in FILES_DIRS:
+        for pattern in (f"{code}_{asof}.html", f"{code}_{asof}_*.html"):
+            matches = sorted(files_dir.glob(pattern))
+            if matches:
+                return matches[-1]
+    return None
 
 
 # ---- screen 2 renderers ----------------------------------------------------- #
 
 def render_kpi_tiles(row: pd.Series | None, asof: str) -> None:
-    section_title("📊", "Indicators")
     get = (lambda c: None) if row is None else (lambda c: row.get(c))
 
     tiles = st.columns(4)
@@ -731,38 +826,31 @@ def render_kpi_tiles(row: pd.Series | None, asof: str) -> None:
                     "worst of K2, K3, K6", asof, ORIGIN_DERIVED)
     with tiles[1]:
         _kpi_tile("K2 no activity", get("K2"), "quarter(s)",
-                  "counted only after construction started", asof, K_ORIGIN["K2"])
+                  "counted after the start: 4 active quarters or a published launch", asof, K_ORIGIN["K2"])
     with tiles[2]:
-        _kpi_tile("K3 handover clock", get("K3"), "months",
-                  "since first announced handover date", asof, K_ORIGIN["K3"])
+        k3_text = None if row is None else insights.k3_text(row)
+        if k3_text:
+            metric_tile("K3 handover clock", k3_text, "", "since first announced handover date", asof,
+                        K_ORIGIN["K3"])
+        else:
+            _kpi_tile("K3 handover clock", get("K3"), "months",
+                      "since first announced handover date", asof, K_ORIGIN["K3"])
     with tiles[3]:
-        _kpi_tile("K6 never started", get("K6"), "months",
-                  "since first launch/promise, no construction start", asof, K_ORIGIN["K6"])
-
-    k4 = get("K4")
-    k4_text = "unknown" if _missing(k4) else ("Yes" if k4 in (True, 1, "True", "Yes") else
-                                             "No" if k4 in (False, 0, "False", "No") else str(k4))
-    context = pd.DataFrame({
-        "Indicator": ["A activity score", "K4 assessable", "K5 fine-eligible months"],
-        "Value": [_fmt(get(COL_A), 2), k4_text, _fmt(get("K5"), 0)],
-        "Unit": ["probability 0-1", "yes/no (≥ 6 images)", "months (real part)"],
-        "Origin": [K_ORIGIN["A"], K_ORIGIN["K4"], K_ORIGIN["K5"]],
-    })
-    with st.container(border=True):
-        st.caption("Context: shown, but they do not set the level.")
-        st.dataframe(context, use_container_width=True, hide_index=True)
+        if _missing(get("K6")) and get("K6_status") == "not_applicable_started":
+            metric_tile("K6 never started", "does not apply", "",
+                        "construction start was observed", asof, K_ORIGIN["K6"])
+        else:
+            _kpi_tile("K6 never started", get("K6"), "months",
+                      "since first launch/promise, no construction start", asof, K_ORIGIN["K6"])
+    k5, k5_status = get("K5_months"), get("K5_status")
+    k5_text = ("no published deadline" if _missing(k5) and k5_status == "no_published_deadline"
+               else "unknown" if _missing(k5) else f"{_fmt(k5, 0)} months")
+    st.caption(f"{K_ORIGIN['K5']} Context, not a tile: K5 months eligible for review under contract terms "
+               f"{k5_text} · the committee decides any action · as of {asof}")
 
 
-def render_lineage(row: pd.Series | None, asof: str) -> None:
-    if row is None:
-        return
-    parts = [f"origin {row.get('origin', 'n/a')}", f"run_id {row.get('run_id', 'n/a')}"]
-    if "computed_at" in row.index and not _missing(row["computed_at"]):
-        parts.append(f"computed {row['computed_at']}")
-    st.caption("🧬 Lineage · " + " · ".join(parts) + f" · as of {asof}")
-
-
-def render_curves(code: str, history: pd.DataFrame | None, ann: pd.DataFrame | None) -> None:
+def render_curves(code: str, history: pd.DataFrame | None, ann: pd.DataFrame | None,
+                  row: pd.Series | None, height: int = 300) -> None:
     section_title("📈", "Satellite curves")
     with st.container(border=True):
         wanted = {COL_A: "Activity score A", COL_DW: "Dynamic World built probability"}
@@ -783,7 +871,7 @@ def render_curves(code: str, history: pd.DataFrame | None, ann: pd.DataFrame | N
             color=alt.Color("series:N", title=None,
                             scale=alt.Scale(domain=list(SERIES_COLORS),
                                             range=list(SERIES_COLORS.values())),
-                            legend=alt.Legend(orient="bottom")),
+                            legend=alt.Legend(orient="bottom", labelLimit=0)),
             tooltip=["quarter", "series", alt.Tooltip("value:Q", format=".2f")],
         )
         chart = lines
@@ -799,179 +887,300 @@ def render_curves(code: str, history: pd.DataFrame | None, ann: pd.DataFrame | N
                     rules = alt.Chart(marks).mark_rule(color=MARKER_COLOR, strokeDash=[4, 4]).encode(
                         x=alt.X("quarter:N", sort=order), tooltip=["quarter", "label"])
                     chart = lines + rules
-        st.altair_chart(chart.properties(height=300), use_container_width=True)
+        st.altair_chart(chart.properties(height=height), width="stretch")
 
-        first = first_announced_date(ann)
-        if first is not None:
-            handover, published = first
-            st.markdown(f"📌 **First announced handover date:** {handover:%b %Y} "
-                        f"(published {published:%b %Y})")
+        # The same first deadline that K3 counts from (kpi_values.k3_first_deadline).
+        first = None if row is None else row.get("k3_first_deadline")
+        if not _missing(first):
+            st.markdown(f"📌 **First announced handover date:** {pd.Timestamp(first):%b %Y} "
+                        "(the date K3 counts from)")
         else:
             st.caption("📌 No announced handover date on file for this compound yet.")
         st.caption(f"{ORIGIN_DERIVED} derived · gaps = quarters not assessable · "
                    "dashed lines = quarter of a published developer statement")
 
 
-def render_context_charts(code: str) -> None:
-    section_title("🏗️", "Height and vegetation")
-    ctx = _load_first(CONTEXT_FILES)
-    left, right = st.columns(2)
+STAGE_TABLE = REPO_DIR / "data" / "experiments" / "42_r7_stage_table" / "r7_stage_table.csv"
+STAGE_WORDS = {"S0": "land or ground works", "S1": "under construction", "S2": "complete"}
 
-    with left, st.container(border=True):
-        st.markdown("**Mean building height (m)**")
-        if ctx is None or not {"code"} <= set(ctx.columns):
-            st.info("Waiting for annual context (height).")
-        else:
-            has_year = COL_YEAR in ctx.columns
-            has_height = COL_HEIGHT in ctx.columns
-            if not (has_year and has_height):
-                st.info("Height columns not found in context data.")
-            else:
-                h = ctx[(ctx["code"] == code) & (ctx[COL_YEAR] <= MAX_HEIGHT_YEAR)]
-                h = h[[COL_YEAR, COL_HEIGHT]].copy()
-                h["kind"] = h[COL_YEAR].map(lambda y: "estimate (v4)" if y == MAX_HEIGHT_YEAR else "observed")
-                if h[COL_HEIGHT].notna().sum() == 0:
-                    st.info("No height value for this compound.")
-                else:
-                    st.altair_chart(
-                        alt.Chart(h).mark_bar().encode(
-                            x=alt.X(f"{COL_YEAR}:O", title=None),
-                            y=alt.Y(f"{COL_HEIGHT}:Q", title="m"),
-                            opacity=alt.Opacity("kind:N", legend=alt.Legend(orient="bottom", title=None),
-                                                scale=alt.Scale(domain=["observed", "estimate (v4)"],
-                                                                range=[1.0, 0.5])),
-                            color=alt.value("#38BDF8"),
-                            tooltip=[COL_YEAR, alt.Tooltip(COL_HEIGHT, format=".1f"), "kind"],
-                        ).properties(height=240),
-                        use_container_width=True)
-                st.caption(f"{ORIGIN_DERIVED} estimate · approved context through {MAX_HEIGHT_YEAR}")
 
-    with right, st.container(border=True):
-        st.markdown("**Vegetation share (Sentinel-2)**")
-        if ctx is None or not {"code"} <= set(ctx.columns):
-            st.info("Waiting for annual context (vegetation).")
-        else:
-            has_year = COL_YEAR in ctx.columns
-            has_veg = COL_VEG in ctx.columns
-            if not (has_year and has_veg):
-                st.info("Vegetation columns not found in context data.")
-            else:
-                v = ctx[ctx["code"] == code][[COL_YEAR, COL_VEG]]
-                if v[COL_VEG].notna().sum() == 0:
-                    st.info("No vegetation value for this compound.")
-                else:
-                    line = alt.Chart(v).mark_line(point=True, color="#22C55E").encode(
-                        x=alt.X(f"{COL_YEAR}:O", title=None),
-                        y=alt.Y(f"{COL_VEG}:Q", title="share 0-1", scale=alt.Scale(domain=[0, 1])),
-                        tooltip=[COL_YEAR, alt.Tooltip(COL_VEG, format=".2f")])
-                    rule = alt.Chart(pd.DataFrame({"y": [VEG_COMPLETE_THRESHOLD]})).mark_rule(
-                        color=MARKER_COLOR, strokeDash=[4, 4]).encode(y="y:Q")
-                    st.altair_chart((line + rule).properties(height=240), use_container_width=True)
-                st.caption(f"{ORIGIN_DERIVED} derived · dashed line = {VEG_COMPLETE_THRESHOLD:.2f}")
+def render_stage_strip(code: str) -> None:
+    """Construction stage per year, read from the stored stage table (experiment 42)."""
+    section_title("🏗️", "Construction stage by year")
+    with st.container(border=True):
+        if not STAGE_TABLE.exists():
+            st.info("The stage table (data/experiments/42_r7_stage_table) is not in this checkout.")
+            return
+        table = enforce_no_names(_read_file(str(STAGE_TABLE)), "r7_stage_table.csv")
+        mine = table.loc[table["code"] == code, ["year", "stage", "stage_source"]].copy()
+        if mine.empty:
+            st.info(f"No stage rows for {code}.")
+            return
+        mine["meaning"] = mine["stage"].map(STAGE_WORDS)
+        chart = alt.Chart(mine).mark_rect(stroke=PALETTE["bg"], strokeWidth=2).encode(
+            x=alt.X("year:O", title=None, axis=alt.Axis(labelAngle=0)),
+            y=alt.value(0), y2=alt.value(34),
+            color=alt.Color("meaning:N", title=None, legend=alt.Legend(orient="bottom"),
+                            scale=alt.Scale(domain=list(STAGE_WORDS.values()),
+                                            range=["#8A7A5C", PALETTE["accent"], "#46A758"])),
+            tooltip=["year", "stage", "meaning", "stage_source"],
+        )
+        st.altair_chart(chart.properties(height=100), width="stretch")
+        start = mine.loc[mine["stage"] != "S0", "year"]
+        st.caption(f"Construction first seen in {int(start.min()) if not start.empty else 'no year yet'}.")
+
+
+def frame_stage(frame: dict, stages: dict[int, str]) -> str:
+    return stages.get(int(frame["date"][:4]), "stage not on file")
+
+
+def render_frame(frame: dict, stages: dict[int, str], caption: str = "") -> None:
+    st.image(str(frame["path"]), caption=f"{caption}{frame['date']} · {frame_stage(frame, stages)}",
+             width="stretch")
+
+
+def render_frame_compare(code: str, frames: list[dict], stages: dict[int, str]) -> None:
+    dates = [f["date"] for f in frames]
+    if len(dates) < 2:
+        st.info("Only one capture on file, so there is nothing to compare.")
+        return
+    pickers = st.columns(2)
+    start = pickers[0].selectbox("Compare: from", dates[:-1], index=0, key=f"cmp_from_{code}")
+    later = [d for d in dates if d > start]
+    chosen = [start, pickers[1].selectbox("Compare: to", later, index=len(later) - 1,
+                                          key=f"cmp_to_{code}")]
+    for column, date in zip(st.columns(2), chosen):
+        with column:
+            render_frame(frames[dates.index(date)], stages)
 
 
 def render_images(code: str) -> None:
-    section_title("🛰️", "Wayback images")
-    images = load_images(code)
+    section_title("🛰️", "Wayback timeline")
+    frames, stages = space_frames(code), stage_of_year(code)
     with st.container(border=True):
-        if not images:
-            st.info("Waiting for Wayback images in data/imagery/.")
+        if not frames:
+            st.info(f"No Wayback timeline for {code} in data/imagery/figures/timeline.")
             return
-        cols = st.columns(2)
-        for col, kind in zip(cols, ("before", "after")):
-            with col:
-                if kind in images:
-                    path, caption = images[kind]
-                    st.image(str(path), caption=caption, use_container_width=True)
-                else:
-                    st.info(f"No '{kind}' image for {code} yet.")
-        st.caption("Judged by eye: images support the visit, they are not a measurement.")
+        dates = [f["date"] for f in frames]
+        date = st.select_slider("Capture date", options=dates, value=dates[-1], key=f"timeline_{code}")
+        shown = frames[dates.index(date)]
+        big, side = st.columns([3, 1])
+        with big:
+            st.image(str(shown["path"]), width="stretch")
+        with side:
+            metric_tile("Captured", date, "", f"capture {dates.index(date) + 1} of {len(frames)}", date, ORIGIN_REAL)
+            metric_tile(f"Stage in {date[:4]}", frame_stage(shown, stages), "",
+                        "stage table, see the stage strip", date, ORIGIN_DERIVED)
+            st.caption(f"{dates.index(date) + 1} of {len(frames)} captures")
+        st.markdown("**Compare two captures**")
+        render_frame_compare(code, frames, stages)
 
 
 def render_inspection_button(code: str, asof: str) -> None:
     section_title("📄", "Inspection file")
     path = find_inspection_file(code, asof)
     if path is None:
+        stored = sorted({p.name.split("_")[0] for d in FILES_DIRS for p in d.glob(f"C*_{asof}*.html")})
         st.button("📄 Inspection file (Arabic)", disabled=True, key=f"insp_{code}")
-        st.caption("Not ready yet: files/<code>_<quarter>.html arrives with T-EL-06.")
+        st.caption(f"No inspection file stored for {code} in {asof}. Stored files cover: "
+                   f"{', '.join(stored) if stored else 'none'}.")
         return
-    st.download_button("📄 Open inspection file (Arabic HTML)", data=path.read_bytes(),
-                       file_name=path.name, mime="text/html", key=f"insp_{code}")
-    st.caption("Drafted by AI from stored facts and reviewed before committee use.")
-
-
-def render_track_b_extras(code: str, track: Track) -> None:
-    if not track.generated:
-        return
-    section_title("🧠", "Generated-data model (Track B)")
-
-    preds = load_table(PREDICTIONS_FILE, track)
-    cols = st.columns(3)
-    if preds is not None and {"code", "quarter"} <= set(preds.columns):
-        mine = preds[preds["code"] == code]
-        if not mine.empty:
-            last = mine.sort_values("quarter").iloc[-1]
-            with cols[0]:
-                _kpi_tile("Probability: distressed", last.get("p_distressed"), "",
-                          "generated label, next 6 months", str(last["quarter"]),
-                          ORIGIN_GENERATED, digits=2)
-            with cols[1]:
-                _kpi_tile("Probability: not distressed", last.get("p_not_distressed"), "",
-                          "generated label, next 6 months", str(last["quarter"]),
-                          ORIGIN_GENERATED, digits=2)
-        else:
-            cols[0].info(f"No prediction row for {code}.")
-    else:
-        cols[0].info("Waiting for ml/predictions.parquet.")
-
-    egp = load_table(K5_EGP_FILE, track)
-    with cols[2]:
-        if egp is not None and {"code", "quarter", K5_EGP_COL} <= set(egp.columns):
-            mine = egp[egp["code"] == code].sort_values("quarter")
-            if not mine.empty:
-                last = mine.iloc[-1]
-                _kpi_tile("K5 fine exposure", last[K5_EGP_COL], "EGP",
-                          "eligible months × assumed rate × land value", str(last["quarter"]),
-                          ORIGIN_GENERATED)
-        else:
-            st.info(f"Waiting for {K5_EGP_FILE}.")
-    st.caption(f"{ORIGIN_GENERATED} Generated for training.")
+    st.download_button(f"{ORIGIN_GENERATED} Open inspection file (Arabic HTML, includes generated figures)",
+                       data=path.read_bytes(), file_name=path.name, mime="text/html", key=f"insp_{code}")
 
 
 # --------------------------------------------------------------------------- #
-# Screen 3 data (T-NA-05): real-case backtest (Track A) + model metrics (Track B)
+# Generated developer file (Track B): what the screen shows once ACUD's own files are connected.
+# Every value here is generated (sim_clean/); the fine rate is an illustrative input, not a contract rate.
 # --------------------------------------------------------------------------- #
 
-BACKTEST_CASES_FILE = "releases/ready-data/backtest/cases.csv"        # Updated path
-BACKTEST_SUMMARY_FILE = "releases/ready-data/backtest/summary.json"   # Updated path
-METRICS_FILE = "ml/metrics.csv"                   # contract: elsayed -> nada (D3), generated
-B_SIGNALS_FILE = "ml/ml_dataset.parquet"          # ASSUMED home of the stored B1-B5 columns
+COMPLAINT_COLOURS = {"stoppage": "#F87171", "delay": "#F28C38", "quality": "#F2C14E", "payment": "#60A5FA",
+                     "other": "#9DB3C8"}
 
-EARLY_WARNING_MONTHS = 6     # spec section 0: level 1-2 at least 6 months before the delay was public
-SUCCESS_TARGET_DEFAULT = 5   # spec section 0; used only if summary.json carries no target
 
-# Column / key aliases updated to match cases.csv structure
-CASE_ALIASES = {
-    "code": ("code", "compound_code", "case"),
-    "outcome": ("outcome", "outcome_type", "event_type", "event", "first_deadline"),
-    "event_date": ("event_date", "outcome_date", "public_date", "delay_public_date", "first_deadline"),
-    "level": ("level_reached", "first_level", "best_level", "level_at_cutoff", "level", "level_at_freeze"),
-    "months_early": ("months_early", "lead_months", "lead_time_months", "months_before", "after_start_months_before"),
-    "warned": ("warned_early", "warned", "early_warning", "hit", "after_start"),
-    "what": ("what_happened", "happened", "what", "literal"),
-    "why": ("why", "why_explanation", "reason", "driver"),
-    "next": ("what_next", "next_step", "next"),
-    "competing": ("competing_explanation", "rejected_explanation", "competing"),
-    "competing_n": ("competing_number", "rejected_number", "evidence_number"),
-}
-SUMMARY_ALIASES = {
-    "warned": ("warned_early", "n_warned", "warned", "hits"),
-    "total": ("n_cases", "cases", "total", "n_total", "n"),
-    "frozen": ("warned_frozen", "warned_at_frozen_cutoff", "frozen_cutoff", "n_warned_frozen"),
-    "target": ("target", "success_target", "target_cases"),
-    "asof": ("asof", "as_of", "as_of_quarter", "run_id"),
-}
-DENOMINATOR_COLUMNS = ("n", "denominator", "support", "n_test", "n_rows", "of")
+def egp_millions(value: float) -> str:
+    return f"EGP {value / 1e6:,.1f} M"
+
+
+def render_fine_exposure(code: str, row: pd.Series, asof: str, track: Track) -> None:
+    land = load_table("sim_clean/fine_assumptions.parquet", track)
+    k5 = None if row is None else row.get("K5_months")
+    if land is None or land[land["code"] == code].empty:
+        return
+    mine = land[land["code"] == code].iloc[0]
+    value = float(mine["assumed_land_value_egp"])
+    # The default is the release's illustrative rate (0.5% since 3 November 2026); the committee enters its own.
+    rate = st.number_input("Fine rate (% of the land value per month): enter your contract rate", min_value=0.0,
+                           max_value=5.0, value=float(mine["fine_rate_month"]) * 100, step=0.1, format="%.1f",
+                           key="fine_rate_pct")
+    if _missing(k5):
+        status = str(row.get("K5_status") or "unknown").replace("_", " ")
+        st.markdown(f"No exposure figure: K5 is not known for {code} ({status}). Unknown is not zero.")
+        return
+    months = int(k5)
+    tiles = st.columns(3)
+    with tiles[0]:
+        metric_tile("Fine exposure", egp_millions(months * rate / 100 * value), "",
+                    f"{months} months x {rate:.1f}% x land value", asof, ORIGIN_GENERATED)
+    with tiles[1]:
+        metric_tile("Assumed land value", egp_millions(value), "", "generated assumption", asof, ORIGIN_GENERATED)
+    with tiles[2]:
+        metric_tile("K5 months", months, "months", "eligible for review under contract terms", asof, K_ORIGIN["K5"])
+    st.caption("Exposure = K5 months x rate x land value. Generated land value and an illustrative rate: "
+               "a screening figure, not an assessed fine. The contract and the committee decide.")
+
+
+def render_developer_money(code: str, asof: str, track: Track) -> None:
+    fin = load_table("sim_clean/fin_monthly.parquet", track)
+    snap = None if fin is None else insights.finance_snapshot(fin, code, asof)
+    if snap is None:
+        return
+    tiles = st.columns(2)
+    with tiles[0]:
+        metric_tile("Collections", egp_millions(snap["collections_12m"]), "", "from buyers, last 12 months", asof,
+                    ORIGIN_GENERATED)
+    with tiles[1]:
+        metric_tile("Cover balance", egp_millions(snap["cover_balance"]), "", "escrow for construction", asof,
+                    ORIGIN_GENERATED)
+
+
+def render_complaints(code: str, asof: str, track: Track) -> None:
+    complaints = load_table("sim_clean/complaints.parquet", track)
+    if complaints is None:
+        return
+    table = insights.complaints_by_quarter(complaints, code, asof)
+    if table.empty:
+        st.markdown("No buyer complaints on file.")
+        return
+    recent = table[table["quarter"].isin(insights.last_quarters(asof, 4))]
+    stoppage = int(recent.loc[recent["category"] == "stoppage", "complaints"].sum())
+    finding(f"{ORIGIN_GENERATED} <b>{int(recent['complaints'].sum())} buyer complaints</b> in the last four quarters, "
+            f"{stoppage} about work stopping. Read them beside the satellite curve.")
+    chart = alt.Chart(table).mark_bar().encode(
+        x=alt.X("quarter:N", title=None, axis=alt.Axis(labelAngle=0)),
+        y=alt.Y("complaints:Q", title="Complaints", axis=alt.Axis(tickMinStep=1)),
+        color=alt.Color("category:N", title=None, legend=alt.Legend(orient="bottom"),
+                        scale=alt.Scale(domain=list(COMPLAINT_COLOURS), range=list(COMPLAINT_COLOURS.values()))),
+        tooltip=["quarter", "category", "complaints"])
+    st.altair_chart(chart.properties(height=240), width="stretch")
+
+
+def render_developer_file(code: str, row: pd.Series | None, asof: str, track: Track) -> None:
+    """Fine exposure and developer money; buyer complaints sit beside the site image at the top."""
+    section_title("💰", "Fine exposure")
+    render_fine_exposure(code, row, asof, track)
+    section_title("📒", "Developer money")
+    render_developer_money(code, asof, track)
+
+
+def render_site_now(code: str, asof: str, track: Track) -> None:
+    """The latest capture and, in Track B, buyer complaints: the visual check beside the satellite curve."""
+    section_title("🛰️", "The site now")
+    frames = space_frames(code)
+    with st.container(border=True):
+        if frames:
+            render_frame(frames[-1], stage_of_year(code), "Latest capture · ")
+        else:
+            st.info(f"No Wayback capture for {code} in data/imagery/figures/timeline.")
+        if track.generated:
+            render_complaints(code, asof, track)
+
+
+def last_recorded_visit(code: str) -> dict | None:
+    visits = load_visits()
+    if visits is None or visits.empty:
+        return None
+    mine = visits[visits["code"] == code].sort_values("date")
+    return None if mine.empty else {"date": str(mine.iloc[-1]["date"]), "result": str(mine.iloc[-1]["result"])}
+
+
+def generated_visit(code: str, asof: str, track: Track) -> dict | None:
+    """Track B only: the latest generated visit up to the quarter, standing in for ACUD's visit records."""
+    visits = load_table("component_data/synthetic_visits.parquet", track) if track.generated else None
+    mine = None if visits is None else visits[
+        (visits["code"] == code)
+        & (pd.to_datetime(visits["visit_date"]) <= pd.Period(asof, "Q").end_time)].sort_values("visit_date")
+    if mine is None or mine.empty:
+        return None
+    return {"date": str(pd.Timestamp(mine.iloc[-1]["visit_date"]).date()), "result": str(mine.iloc[-1]["result"]),
+            "generated": True}
+
+
+def render_compound_header(row: pd.Series | None, code: str, track: Track = TRACK_A,
+                           reason: str | None = None) -> None:
+    """Level, suggested action, last recorded visit and the reason for the level in one card."""
+    if row is None:
+        return
+    action, why = insights.suggested_action(row)
+    visit = last_recorded_visit(code) or generated_visit(code, str(row.get("quarter")), track)
+    seen = "no visit recorded yet" if visit is None else f"{visit['date']} ({html.escape(visit['result'])})"
+    if visit is not None and visit.get("generated"):
+        seen = f"{ORIGIN_GENERATED} none recorded; last generated visit {seen}, not fieldwork"
+    number = insights.level_number(row.get("level"))
+    level = level_word(row.get("level")) if number is None else f"Level {number} · {level_word(number)}"
+    because = f"<br><b>Why:</b> {html.escape(reason)}" if reason else ""
+    finding(f"<b>{level}.</b> Suggested action: <b>{action}</b>. {html.escape(why)} Last recorded visit: {seen}."
+            f"{because}")
+    st.caption("The action is a suggestion; the committee decides.")
+
+
+def level_scale() -> tuple[list[str], list[str]]:
+    """Level words and their colours for charts, not assessable last."""
+    return ([*(word for word, _ in LEVELS.values()), NOT_ASSESSABLE[0]],
+            [*(colour for _, colour in LEVELS.values()), NOT_ASSESSABLE[1]])
+
+
+def render_level_history(code: str) -> None:
+    section_title("🗓️", "Level history")
+    kpis = load_table(KPI_FILE, TRACK_A)
+    if kpis is None:
+        return
+    history = insights.level_history(kpis)
+    mine = history[history["code"] == code].copy()
+    mine["Level"] = mine["level"].map(level_word)
+    words, colours = level_scale()
+    chart = alt.Chart(mine).mark_rect(stroke=PALETTE["bg"], strokeWidth=2).encode(
+        x=alt.X("quarter:O", title=None, sort=sorted(mine["quarter"].unique()), axis=alt.Axis(labelAngle=0, labelExpr="indexof(datum.value, 'Q1') > 0 ? slice(datum.value, 0, 4) : ''")),
+        color=alt.Color("Level:N", title=None, legend=alt.Legend(orient="bottom"),
+                        scale=alt.Scale(domain=words, range=colours)),
+        y=alt.value(0), y2=alt.value(34),  # a fixed-height band: no y field to stretch
+        tooltip=["quarter", "Level"],
+    )
+    with st.container(border=True):
+        # Streamlit sizes the whole chart (axis and legend included) to this height.
+        st.altair_chart(chart.properties(height=100), width="stretch")
+
+
+def stage_of_year(code: str) -> dict[int, str]:
+    if not STAGE_TABLE.exists():
+        return {}
+    table = enforce_no_names(_read_file(str(STAGE_TABLE)), "r7_stage_table.csv")
+    mine = table[table["code"] == code]
+    return {int(y): STAGE_WORDS.get(stage, stage) for y, stage in zip(mine["year"], mine["stage"])}
+
+
+def space_frames(code: str) -> list[dict]:
+    """The dated Wayback captures of one compound, oldest first, as {date, path} dicts."""
+    frames = insights.timeline_frames(code, IMAGERY_DIR / "figures" / "timeline")
+    return [{"date": date, "path": path} for date, path in frames]
+
+
+def _due_text(due: dict | None) -> str:
+    if due is None:
+        return ""
+    if not due["passed"]:
+        return f"{due['year']} still ahead"
+    return f"{due['year']} passed, space showed {due['stage']}" if due["stage"] else f"{due['year']} passed"
+
+
+def render_claims(code: str, ann: pd.DataFrame | None, asof: str) -> None:
+    section_title("📣", "Developer claims vs what space showed")
+    rows = [] if ann is None or ann.empty or "verdict" not in ann.columns else insights.promise_rows(
+        ann, space_frames(code), stage_of_year(code), asof)
+    if not rows:
+        st.info(f"No confirmed developer claim for {code}.")
+        return
+    st.dataframe(claims_table(rows), hide_index=True, width="stretch")
 
 
 def _find_col(df: pd.DataFrame, aliases: tuple[str, ...]) -> str | None:
@@ -995,340 +1204,6 @@ def _as_bool(value: object) -> bool | None:
     return True if number == 1 else (False if number == 0 else None)
 
 
-def _as_int(value: object) -> int | None:
-    try:
-        return None if _missing(value) else int(float(value))
-    except (TypeError, ValueError):
-        return None
-
-
-def _yes_no(flag: bool | None) -> str:
-    return "unknown" if flag is None else ("Yes" if flag else "No")
-
-
-@st.cache_data(show_spinner=False)
-def _read_json(path_str: str, mtime_ns: int = 0) -> object:
-    return json.loads(Path(path_str).read_text(encoding="utf-8"))
-
-
-def load_backtest_summary() -> dict | None:
-    path = APP_DATA.parent / BACKTEST_SUMMARY_FILE if not Path(BACKTEST_SUMMARY_FILE).exists() else Path(BACKTEST_SUMMARY_FILE)
-    if not path.exists():
-        path = Path(BACKTEST_SUMMARY_FILE)
-    if not path.exists():
-        return None
-    try:
-        data = _read_json(str(path), path.stat().st_mtime_ns)
-    except (OSError, ValueError):
-        return None
-    return data if isinstance(data, dict) else None
-
-
-def _summary_value(summary: dict | None, aliases: tuple[str, ...]) -> object:
-    """First matching key, searching nested objects too. Only numbers/labels are read:
-    the raw JSON is never printed, so nothing unexpected can reach the screen."""
-    queue = [summary] if summary else []
-    while queue:
-        node = queue.pop(0)
-        for key, val in node.items():
-            if str(key).lower() in aliases and not isinstance(val, (dict, list)):
-                return val
-        queue += [v for v in node.values() if isinstance(v, dict)]
-    return None
-
-
-def _level_text(value: object) -> str:
-    if _missing(value):
-        return "unknown"
-    try:
-        return level_word(int(float(value)))
-    except (TypeError, ValueError):
-        return str(value)  # already a word such as "Inspect now"
-
-
-def _tag_numeric_headers(df: pd.DataFrame) -> pd.DataFrame:
-    """Orange tag on the headers of numeric columns of a generated table."""
-    return df.rename(columns={c: f"{c} {ORIGIN_GENERATED}" for c in df.columns
-                              if pd.api.types.is_numeric_dtype(df[c])})
-
-
-# ---- Track A: frozen-clock table -------------------------------------------- #
-
-def render_backtest_cases() -> None:
-    path = Path(BACKTEST_CASES_FILE)
-    if not path.exists():
-        path = APP_DATA.parent / BACKTEST_CASES_FILE
-    
-    cases = enforce_no_names(_read_file(str(path)), BACKTEST_CASES_FILE) if path.exists() else None
-    summary = load_backtest_summary()
-    if cases is None or cases.empty:
-        st.info("Waiting for releases/ready-data/backtest/cases.csv.")
-        return
-
-    col = {field: _find_col(cases, names) for field, names in CASE_ALIASES.items()}
-    flags = ([_as_bool(v) for v in cases[col["warned"]]] if col["warned"] else [None] * len(cases))
-
-    total = _as_int(_summary_value(summary, SUMMARY_ALIASES["total"])) or len(cases)
-    warned = _as_int(_summary_value(summary, SUMMARY_ALIASES["warned"]))
-    if warned is None and col["warned"]:
-        warned = sum(1 for f in flags if f)
-    frozen = _as_int(_summary_value(summary, SUMMARY_ALIASES["frozen"]))
-    target = _as_int(_summary_value(summary, SUMMARY_ALIASES["target"])) or SUCCESS_TARGET_DEFAULT
-    asof = str(_summary_value(summary, SUMMARY_ALIASES["asof"]) or "stored run")
-    met = None if warned is None else warned >= target
-
-    section_title("🧊", "Frozen-clock backtest (real public cases)")
-    tiles = st.columns(3 if frozen is not None else 2)
-    with tiles[0]:
-        metric_tile("Warned early", "unknown" if warned is None else f"{warned} of {total}",
-                    "" if warned is None else "cases",
-                    f"level 1-2 at least {EARLY_WARNING_MONTHS} months before the delay was public",
-                    asof, ORIGIN_DERIVED)
-    with tiles[1]:
-        metric_tile("Success criterion",
-                    "unknown" if met is None else ("Met" if met else "Not met"), "",
-                    f"needs {target} of {total} cases · fixed before any computation",
-                    asof, ORIGIN_DERIVED)
-    if frozen is not None:
-        with tiles[2]:
-            metric_tile("At the frozen cutoff", f"{frozen} of {total}", "cases",
-                        "using only data published before each quarter", asof, ORIGIN_DERIVED)
-
-    # Per-case table: one row per case, level as a word, yes/no in words
-    table = pd.DataFrame({"Case": cases[col["code"]].astype(str) if col["code"]
-                          else [f"Case {i + 1}" for i in range(len(cases))]})
-    for field, heading in (("outcome", "Outcome"), ("event_date", "Event date")):
-        if col[field]:
-            table[heading] = cases[col[field]].astype(str)
-    if col["level"]:
-        table["Level reached"] = cases[col["level"]].map(_level_text)
-    if col["months_early"]:
-        table["Months early"] = cases[col["months_early"]].map(lambda v: _fmt(v, 0))
-    table["Warned early"] = [_yes_no(f) for f in flags]
-
-    with st.container(border=True):
-        st.dataframe(table, use_container_width=True, hide_index=True)
-        st.caption(f"{ORIGIN_DERIVED} derived from real public cases · counts only, no percentages "
-                   f"(small sample) · 'early' = level 1-2 at least {EARLY_WARNING_MONTHS} months "
-                   "before the delay became public")
-
-    # Why: per-case reasoning (what happened / why / what next / rejected explanation)
-    section_title("🔎", "Why, case by case")
-    for i, (_, r) in enumerate(cases.iterrows()):
-        label = table.iloc[i]["Case"]
-        with st.expander(f"{label} · warned early: {_yes_no(flags[i])}"):
-            shown = False
-            for field, heading in (("what", "What happened"), ("why", "Why"),
-                                   ("next", "What next")):
-                if col[field] and not _missing(r[col[field]]):
-                    st.markdown(f"**{heading}.** {r[col[field]]}")
-                    shown = True
-            if col["competing"] and not _missing(r[col["competing"]]):
-                number = ""
-                if col["competing_n"] and not _missing(r[col["competing_n"]]):
-                    number = f" ({r[col['competing_n']]})"
-                st.markdown(f"**Competing explanation, rejected.** {r[col['competing']]}{number}")
-                shown = True
-            if not shown:
-                st.caption("No explanation text in cases.csv for this case yet.")
-
-    if met is False:
-        with st.container(border=True):
-            st.markdown(
-                "**What it means.** Satellites tell 'building or not' well, but the saved rule did "
-                "not raise early alerts in this small set of cases. Early warning of delay needs "
-                "ACUD's data (supervisor reports, contractual dates, meters, escrow). The counts "
-                "alone do not show why a delay happened.")
-
-
-# ---- Track B: model metrics + B1-B5 ----------------------------------------- #
-
-def render_model_metrics(track: Track) -> None:
-    section_title("📐", "Binary classifier on generated data")
-    metrics = load_table(METRICS_FILE, track)  # generated: loaded only in Track B
-    if metrics is None or metrics.empty:
-        st.info("Waiting for ml/metrics.csv (hand-off from elsayed, D3).")
-        return
-
-    m_col = _find_col(metrics, ("metric", "metric_name", "measure", "metric_key"))
-    v_col = _find_col(metrics, ("value", "score", "result"))
-    if m_col is None or v_col is None:
-        st.warning("ml/metrics.csv has no 'metric' / 'value' columns: showing the raw table.")
-        st.dataframe(_tag_numeric_headers(metrics), use_container_width=True, hide_index=True)
-        return
-
-    metrics = metrics.copy()
-    metrics[v_col] = pd.to_numeric(metrics[v_col], errors="coerce").round(2)
-    text = metrics[m_col].astype(str).str.lower()
-    
-    # Safe blob conversion preventing float/type aggregation issues
-    blob = metrics.astype(str).fillna("").agg(lambda x: " ".join(x.astype(str)), axis=1).str.lower()
-    
-    # Updated filters matching metrics.csv structure (macro_f1_binary, distressed_recall_at_4, class_recall)
-    is_macro = text.str.contains("macro|f1", regex=True)
-    is_at_n = text.str.contains(r"@|_at_|recall_at|at_\d", regex=True)
-    is_class = (text.str.contains("recall|class") & ~is_at_n & ~is_macro) | (text == "class_recall")
-    is_random = blob.str.contains("random") | text.str.contains("random")
-
-    def block(title: str, rows: pd.DataFrame, empty_msg: str) -> None:
-        with st.container(border=True):
-            st.markdown(f"**{title}**")
-            if rows.empty:
-                st.info(empty_msg)
-            else:
-                st.dataframe(_tag_numeric_headers(rows), use_container_width=True, hide_index=True)
-
-    block("Per-class recall", metrics[is_class],
-          "No per-class recall rows found in ml/metrics.csv.")
-    block("Macro-F1 (two classes)", metrics[is_macro],
-          "No macro-F1 rows found in ml/metrics.csv.")
-
-    at_n = metrics[is_at_n | (is_random & text.str.contains("recall"))].copy()
-    block("Recall@N for 'distressed' vs random ranking", at_n,
-          "No recall@N rows found in ml/metrics.csv.")
-    if not at_n.empty:
-        group_cols = [c for c in at_n.columns if c not in (m_col, v_col)
-                      and not pd.api.types.is_numeric_dtype(at_n[c])
-                      and c.lower() not in DENOMINATOR_COLUMNS]
-        at_n["compared"] = (at_n[group_cols].astype(str).agg(" · ".join, axis=1)
-                            if group_cols else "model")
-        at_n.loc[is_random.loc[at_n.index], "compared"] = "random ranking"
-        enc = dict(x=alt.X("compared:N", title=None,
-                           axis=alt.Axis(labelAngle=-20, labelLimit=240)),
-                   y=alt.Y(f"{v_col}:Q", title="recall (0-1)", scale=alt.Scale(domain=[0, 1])),
-                   color=alt.Color(f"{m_col}:N", title=None, legend=alt.Legend(orient="bottom")),
-                   tooltip=["compared", m_col, alt.Tooltip(f"{v_col}:Q", format=".2f")])
-        try:
-            chart = alt.Chart(at_n).mark_bar().encode(xOffset=f"{m_col}:N", **enc)
-        except Exception:  # older Altair without xOffset
-            chart = alt.Chart(at_n).mark_bar().encode(**enc)
-        with st.container(border=True):
-            st.altair_chart(chart.properties(height=260), use_container_width=True)
-
-    if _find_col(metrics, DENOMINATOR_COLUMNS) is None:
-        st.warning("No denominator column (n) in ml/metrics.csv: every metric must show its n.")
-    st.caption(f"{ORIGIN_GENERATED} Generated data: a diagnostic of the generator and model "
-               "workflow, not real-world accuracy. The test split has very few 'distressed' rows, "
-               "so one row can move a recall value by a large step: differences of one row are "
-               "noise. Always compare with the random baseline and read the denominators.")
-
-
-def render_b_signals(track: Track) -> None:
-    section_title("🧾", "B1-B5 signals per compound")
-    data = load_table(B_SIGNALS_FILE, track)  # generated: loaded only in Track B
-    if data is None or not {"code", "quarter"} <= set(data.columns):
-        st.info(f"Waiting for {B_SIGNALS_FILE} (B1-B5 columns).")
-        return
-
-    # خريطة البحث تشمل الأسماء المختصرة والأسماء الكاملة الموجودة في ملف الـ dataset
-    labels = {
-        1: "B1 escrow cover", 
-        2: "B2 land arrears", 
-        3: "B3 complaint rate",
-        4: "B4 occupancy gap (context only)", 
-        5: "B5 plan gap"
-    }
-    
-    # الكلمات المفتاحية البديلة لكل مؤشر في الملف
-    keywords = {
-        1: ["b1", "escrow"],
-        2: ["b2", "arrear"],
-        3: ["b3", "complaint"],
-        4: ["b4", "occupancy"],
-        5: ["b5", "plan"]
-    }
-
-    found = {}
-    for n, label in labels.items():
-        match = None
-        # البحث بالكلمات المفتاحية المرنة
-        for col in data.columns:
-            col_lower = str(col).lower()
-            if any(kw in col_lower for kw in keywords[n]):
-                match = col
-                break
-        if match:
-            found[label] = match
-
-    if not found:
-        st.info(f"No B1-B5 columns found in {B_SIGNALS_FILE}.")
-        return
-
-    asof = str(data["quarter"].max())
-    latest = data[data["quarter"] == data["quarter"].max()].sort_values("code")
-    table = pd.DataFrame({"Code": latest["code"].astype(str).values})
-    
-    for label, source in found.items():
-        values = latest[source]
-        flags = [_as_bool(v) for v in values]
-        known = values.dropna()
-        name = str(source).lower()
-        looks_like_amount = any(w in name for w in ("month", "pct", "pts", "point", "egp",
-                                                    "kwh", "rate", "ratio", "count"))
-        is_flag = (not known.empty and known.isin([0, 1, True, False]).all()
-                   and (values.dtype == bool or any(w in name for w in ("flag", "trigger", "hit"))
-                        or not looks_like_amount))
-        if is_flag:
-            word = "Gap" if label.startswith("B4") else "Triggered"
-            table[f"{label} {ORIGIN_GENERATED}"] = [
-                "unknown" if f is None else (word if f else "No") for f in flags]
-        else:
-            digits = 0 if (known % 1 == 0).all() else 1
-            table[f"{label} {ORIGIN_GENERATED}"] = [_fmt(v, digits) for v in values]
-
-    with st.container(border=True):
-        st.dataframe(table, use_container_width=True, hide_index=True)
-        st.caption(f"{ORIGIN_GENERATED} generated · {len(table)} compound(s) · as of {asof} · "
-                   "B1, B2, B3, B5 raise the level to at least 2 when triggered; "
-                   "B4 is context only. Missing stays 'unknown', never 'No'.")
-
-
-# --------------------------------------------------------------------------- #
-# Screen 4 data (T-NA-06): gates, coverage, facts counter, colour key
-# --------------------------------------------------------------------------- #
-
-QUALITY_LOG_FILES = (
-    "releases/ready-data/review/real/quality_checks_log.parquet",
-    "ready-data/review/real/quality_checks_log.parquet",
-    "review/real/quality_checks_log.parquet",
-    "real/quality_checks_log.parquet",
-    "real/quality_checks_log.csv",
-)  # contract: ahmed -> nada
-COMPOUNDS_FILE = "real/compounds.parquet"                                                # contract: ahmed -> nada
-FACTS_FILES = ("real/facts_register.parquet", "real/facts_register.csv",
-               "real/facts.parquet", "real/facts.csv")                                   # ASSUMED (not in the contract)
-DOCUMENTED_FACTS = (1009, 1026)  # 01-specs section 12 (slide 3). Fallback only: used when no facts register file exists
-
-# The 10 quality gates (01-specs section 8): key, dimension, rule, owner role, if it fails.
-GATES = (
-    ("source", "Accuracy", "Every fact has a record_id and an accepted verdict", "R2", "Fix: excluded"),
-    ("completeness", "Completeness", "At least 6 Dynamic World images in the quarter", "R3", "Flag: not assessable"),
-    ("validity", "Validity", "Probabilities 0-1, counts ≥ 0, levels 1-4, valid dates", "R1", "Stop"),
-    ("uniqueness", "Uniqueness", "(compound, quarter) and (compound, year) are unique", "R1", "Stop"),
-    ("consistency", "Consistency", "Every code is in the register; row counts equal after joins", "R1", "Stop"),
-    ("freshness", "Freshness", "Last quarter at most 1 quarter before computation", "R3", "Flag: stale"),
-    ("separation", "Consistency", "No generated column in a real table; every column has an origin", "R1", "Stop"),
-    ("data_or_city", "Accuracy", "More than 30% of compounds switch to 'no activity' in one quarter", "R4", "Flag and review"),
-    ("stuck_series", "Accuracy", "Same value 4 quarters in a row", "R3", "Flag and review"),
-    ("no_names", "Privacy", "No compound or developer name in any output file", "R1", "Stop"),
-)
-
-_PASS = {"pass", "passed", "ok", "true", "1", "1.0", "yes"}
-_FLAG = {"flag", "flagged", "warn", "warning", "stale", "review"}
-_FAIL = {"fail", "failed", "false", "0", "0.0", "no", "stop", "stopped", "error"}
-STATUS_WORD = {"Pass": "✅ Pass", "Flag": "⚠️ Flag", "Fail": "⛔ Fail", "unknown": "❔ not in log"}
-
-# Dashboard-side audit: which stored tables are checked, and what must never appear in a real one.
-AUDIT_REAL_FILES = (KPI_FILE, COMPOUNDS_FILE, "real/statements.parquet", "real/sat_yearly.parquet",
-                    "real/sat_quarterly.parquet", "real/quality_checks_log.parquet")
-AUDIT_GENERATED_FILES = (PREDICTIONS_FILE, METRICS_FILE, B_SIGNALS_FILE,
-                         "sim/fin_monthly.parquet", "sim/complaints.parquet")
-GENERATED_COLUMN_HINTS = {  # columns that exist only in generated tables (spec sections 2, 5, 9)
-    "p_distressed", "p_not_distressed", "k5_egp", "cover_balance_egp", "cover_required_egp",
-    "planned_pct", "reported_pct", "land_months_late", "complaints", "kwh", "meters_active",
-}
-
-
 def _safe(label: str, fn, *args, default=None):
     """Run a loader; if a stored file is corrupt, say so and keep the screen alive.
     (st.stop() is not an Exception, so the no-names gate still stops the app.)"""
@@ -1339,361 +1214,121 @@ def _safe(label: str, fn, *args, default=None):
         return default
 
 
-def _norm(text: object) -> str:
-    return re.sub(r"[^a-z0-9]+", "_", str(text).lower()).strip("_")
-
-
-def _gate_status(value: object) -> str:
-    text = str(value).strip().lower()
-    if text in _PASS:
-        return "Pass"
-    if text in _FLAG:
-        return "Flag"
-    if text in _FAIL:
-        return "Fail"
-    return "unknown"
-
-
-def load_quality_log() -> pd.DataFrame | None:
-    """Read the quality checks log from relative paths or directly from the project root."""
-    possible_paths = [
-        Path("releases/ready-data/review/real/quality_checks_log.parquet"),
-        Path("ready-data/review/real/quality_checks_log.parquet"),
-        Path("review/real/quality_checks_log.parquet"),
-        APP_DATA / "real/quality_checks_log.parquet",
-        APP_DATA / "quality_checks_log.parquet",
-    ]
-    for path in possible_paths:
-        if path.exists():
-            try:
-                return pd.read_parquet(path)
-            except Exception:
-                pass
-    return None
-
-
-def gate_results(log: pd.DataFrame | None) -> dict[str, tuple[str, str]]:
-    """{gate key: (Pass | Flag | Fail | unknown, impact/detail text)}; the latest row wins."""
-    results: dict[str, tuple[str, str]] = {}
-    if log is None:
-        return results
-    g_col = _find_col(log, ("gate", "check", "check_id", "gate_name", "check_name", "test"))
-    s_col = _find_col(log, ("status", "result", "verdict", "outcome", "passed", "state"))
-    if g_col is None or s_col is None:
-        return results
-    d_col = _find_col(log, ("impact_on_indicator", "impact", "detail", "details", "message", "note"))
-    t_col = _find_col(log, ("computed_at", "checked_at", "timestamp"))
-    ordered = log.sort_values(t_col) if t_col else log
-    for _, row in ordered.iterrows():
-        name = _norm(row[g_col])
-        key = next((k for k, *_ in GATES if name == k or k in name), None)
-        if key:
-            detail = "" if d_col is None or _missing(row[d_col]) else str(row[d_col])
-            results[key] = (_gate_status(row[s_col]), detail)
-    return results
-
-
-def load_facts_count() -> tuple[int, int, str, bool]:
-    """(accepted, documented, source label, read from a stored file?).
-    Reads a facts register when one exists; otherwise falls back to the figure
-    documented in the spec, and says so. Nothing is invented."""
-    register = _load_first(FACTS_FILES)
-    if register is not None and not register.empty:
-        v_col = _find_col(register, ("verdict", "status", "review_verdict"))
-        id_col = _find_col(register, ("record_id",))
-        if v_col:
-            accepted = (register[v_col].astype(str).str.strip().str.lower()
-                        .isin({"accepted", "accept", "ok", "verified", "true", "1"}))
-            if id_col:
-                accepted &= register[id_col].notna()
-            return int(accepted.sum()), len(register), "facts register", True
-    return DOCUMENTED_FACTS[0], DOCUMENTED_FACTS[1], "01-specs §12, not recomputed", False
-
-
-def compute_coverage() -> dict | None:
-    """Assessable vs not assessable, per quarter and now, from the stored kpi_values."""
-    kpis = load_table(KPI_FILE, TRACK_A)
-    if kpis is None or kpis.empty or not {"code", "quarter"} <= set(kpis.columns):
-        return None
-    k4_col = _find_col(kpis, ("k4", "k4_assessable", "assessable"))
-    frame = kpis.copy()
-    frame["quarter"] = frame["quarter"].astype(str)
-    if k4_col:
-        frame["_ok"] = frame[k4_col].map(_as_bool)  # True / False / None (unknown)
-    elif "level" in frame.columns:  # fallback: no K4 column, infer from the level
-        frame["_ok"] = frame["level"].notna().map(bool)
-    else:
-        return None
-    asof = frame["quarter"].max()
-    latest = frame[frame["quarter"] == asof]
-    per_quarter = (frame.groupby("quarter")
-                   .agg(total=("code", "nunique"),
-                        assessable=("_ok", lambda s: int(sum(1 for x in s if x is True))))
-                   .reset_index())
-    codes = set(latest["code"].astype(str))
-    geo = load_boundaries()
-    boundary_codes = None if geo is None else {f["properties"]["code"] for f in geo["features"]}
-    return {
-        "asof": asof, "used_k4": k4_col is not None, "per_quarter": per_quarter,
-        "total": len(latest),
-        "ok": sum(1 for x in latest["_ok"] if x is True),
-        "not_codes": sorted(latest.loc[[x is False for x in latest["_ok"]], "code"].astype(str)),
-        "unknown": sum(1 for x in latest["_ok"] if x is None),
-        "with_boundary": None if boundary_codes is None else len(codes & boundary_codes),
-    }
-
-
-def _audit_file(rel: str, track: Track) -> dict | None:
-    """Non-stopping audit of one stored table (the live gate in load_table stops instead)."""
-    # تحديد المسارات المحتملة للملف (سواء داخل app_data أو في مسارات الـ releases الخارجية)
-    possible_paths = [
-        APP_DATA / rel,
-        Path(rel),
-        Path("releases/ready-data/review") / rel,
-        Path("ready-data/review") / rel,
-    ]
-    
-    path = None
-    for p in possible_paths:
-        if p.exists():
-            path = p
-            break
-
-    if path is None or path.suffix.lower() not in (".csv", ".parquet"):
-        return None
-        
-    generated = is_generated_path(rel)
-    if generated and not track.generated:
-        return None  # separation: never opened in Track A
-        
-    df = _read_file(str(path))
-    name_cols = [c for c in df.columns if str(c).lower() in FORBIDDEN_COLUMNS]
-    bad = 0
-    for col in df.columns:
-        if str(col).lower() in CODE_COLUMNS:
-            values = df[col].dropna().astype(str)
-            bad += int((~values.str.match(CODE_PATTERN)).sum())
-    stray = []
-    if not generated:
-        stray = sorted(c for c in df.columns if str(c).lower() in GENERATED_COLUMN_HINTS)
-        origin = _find_col(df, ("origin",))
-        if origin and df[origin].astype(str).str.lower().str.contains("generated").any():
-            stray.append("origin = generated")
-    ok = bad == 0 and not stray
-    return {"File": rel, "Zone": f"{ORIGIN_GENERATED} generated" if generated else "real / derived",
-            "Name-like columns dropped": len(name_cols), "Non-code values": bad,
-            "Generated content in a real table": ", ".join(stray) if stray else "none",
-            "Result": "✅ Pass" if ok else "⛔ Fail"}
-
-
-def separation_guard_holds() -> bool:
-    """Live self-test: opening a generated table as Track A must be refused."""
-    try:
-        load_table(PREDICTIONS_FILE, TRACK_A)
-    except PermissionError:
-        return True
-    return False
-
-
-# ---- screen 4 renderers ----------------------------------------------------- #
-
-def render_trust_tiles(cov: dict | None, results: dict, log: pd.DataFrame | None,
-                       facts: tuple[int, int, str, bool]) -> None:
-    section_title("📊", "Trust at a glance")
-    tiles = st.columns(4)
-
-    with tiles[0]:
-        if not results:
-            metric_tile("Quality gates", "unknown", "",
-                        "waiting for real/quality_checks_log (hand-off from ahmed, D3)",
-                        "n/a", ORIGIN_DERIVED)
-        else:
-            n_pass = sum(1 for s, _ in results.values() if s == "Pass")
-            n_flag = sum(1 for s, _ in results.values() if s == "Flag")
-            n_fail = sum(1 for s, _ in results.values() if s == "Fail")
-            run_col = _find_col(log, ("run_id",)) if log is not None else None
-            run = str(log[run_col].iloc[-1]) if run_col else "stored log"
-            metric_tile("Quality gates passed", f"{n_pass} of {len(GATES)}", "",
-                        f"{len(results)} reported · {n_flag} flagged · {n_fail} failed",
-                        run, ORIGIN_DERIVED)
-
-    with tiles[1]:
-        if cov is None:
-            metric_tile("Assessable", "unknown", "", "waiting for real/kpi_values.parquet",
-                        "n/a", ORIGIN_DERIVED)
-        else:
-            metric_tile("Assessable compounds", f"{cov['ok']} of {cov['total']}", "",
-                        "K4 passed: at least 6 images and a reviewed boundary",
-                        cov["asof"], ORIGIN_DERIVED)
-
-    with tiles[2]:
-        if cov is None:
-            metric_tile("Not assessable", "unknown", "", "waiting for real/kpi_values.parquet",
-                        "n/a", ORIGIN_DERIVED)
-        else:
-            extra = f" · {cov['unknown']} unknown" if cov["unknown"] else ""
-            metric_tile("Not assessable compounds", f"{len(cov['not_codes'])} of {cov['total']}", "",
-                        f"K4 failed: fix location/images first{extra}", cov["asof"], ORIGIN_DERIVED)
-
-    with tiles[3]:
-        accepted, documented, source, _ = facts
-        metric_tile("Facts verified", f"{accepted:,} of {documented:,}", "",
-                    f"documented facts with a record_id and an accepted verdict · "
-                    f"{documented - accepted:,} excluded", source, ORIGIN_REAL)
-
-    if not facts[3]:
-        st.caption("ℹ️ Facts counter: no facts register file found in app_data/real/, so the "
-                   "figure documented in 01-specs §12 is shown (not recomputed). It switches to "
-                   "the stored register automatically once one exists.")
-
-
-def render_gates_table(results: dict, log: pd.DataFrame | None) -> None:
-    section_title("🚦", "Quality gates")
-    rows = []
-    for key, dimension, rule, owner, on_fail in GATES:
-        status, detail = results.get(key, ("unknown", ""))
-        rows.append({"Gate": key, "Dimension": dimension, "Rule": rule, "Owner": owner,
-                     "If it fails": on_fail, "Result": STATUS_WORD[status], "Impact on indicator": detail})
-    table = pd.DataFrame(rows)
-    if not results:
-        table = table.drop(columns=["Impact on indicator"])
-    with st.container(border=True):
-        if log is None:
-            st.info("Waiting for real/quality_checks_log (hand-off from ahmed, D3): "
-                    "the gates and rules are listed, results appear once the log exists.")
-        st.dataframe(table, use_container_width=True, hide_index=True, column_config={
-            "Gate": st.column_config.TextColumn(width="small"),
-            "Dimension": st.column_config.TextColumn(width="small"),
-            "Rule": st.column_config.TextColumn(width="large"),
-            "Owner": st.column_config.TextColumn(width="small"),
-            "If it fails": st.column_config.TextColumn(width="medium"),
-            "Result": st.column_config.TextColumn(width="small"),
-            "Impact on indicator": st.column_config.TextColumn(width="medium"),
-        })
-        st.caption(f"{ORIGIN_DERIVED} derived from the stored quality log · owners are roles · "
-                   "'not in log' = the pipeline has not reported that gate yet")
-
-
-def render_coverage(cov: dict | None) -> None:
-    section_title("🛰️", "Coverage and not assessable")
-    with st.container(border=True):
-        if cov is None:
-            st.info("Waiting for real/kpi_values.parquet (needs code, quarter and K4 or level).")
-            return
-
-        per_q = cov["per_quarter"]
-        top = int(per_q["total"].max())
-        chart = alt.Chart(per_q).mark_bar(color="#38BDF8").encode(
-            x=alt.X("quarter:N", sort=list(per_q["quarter"]), title=None,
-                    axis=alt.Axis(labelAngle=-45)),
-            y=alt.Y("assessable:Q", title=f"assessable compounds (of {top})",
-                    scale=alt.Scale(domain=[0, top])),  # axis starts at 0 and ends at the total
-            tooltip=["quarter", "assessable", "total"],
-        )
-        st.altair_chart(chart.properties(height=220), use_container_width=True)
-        st.caption(f"{ORIGIN_DERIVED} derived · each bar = compounds assessable in that quarter, "
-                   "out of the compounds on file that quarter · a change in coverage is shown, "
-                   "never hidden")
-
-        if cov["not_codes"]:
-            codes = ", ".join(f"`{c}`" for c in cov["not_codes"])
-            st.markdown(f"**Not assessable in {cov['asof']}:** {codes} · "
-                        f"{len(cov['not_codes'])} of {cov['total']} compounds. "
-                        "Action: fix location/images first. They stay grey on the map.")
-        else:
-            st.markdown(f"**All {cov['total']} compounds are assessable in {cov['asof']}.**")
-        if cov["unknown"]:
-            st.caption(f"{cov['unknown']} compound(s) have no K4 value: counted as unknown, "
-                       "never as assessable.")
-        if cov["with_boundary"] is not None:
-            st.caption(f"Reviewed boundary on file for {cov['with_boundary']} of "
-                       f"{cov['total']} compounds.")
-        if not cov["used_k4"]:
-            st.caption("K4 column not found: assessability is inferred from the level (a missing "
-                       "level counts as not assessable).")
-
-
-def render_dashboard_audit(track: Track) -> None:
-    section_title("🔒", "Enforced by this dashboard")
-    rows, missing = [], 0
-    for rel in (*AUDIT_REAL_FILES, *(AUDIT_GENERATED_FILES if track.generated else ())):
-        row = _safe(rel, _audit_file, rel, track)
-        if row is None:
-            missing += 1
-        else:
-            rows.append(row)
-    guard = separation_guard_holds()
-
-    with st.container(border=True):
-        st.markdown(
-            f"**no_names** · name-like columns are dropped on load and a non-code value in a code "
-            f"column stops the screen ({len(FORBIDDEN_COLUMNS)} name-like column names watched).  \n"
-            f"**separation** · opening a generated table as Track A is refused: "
-            f"{'✅ confirmed just now' if guard else '⛔ NOT refused: fix load_table'}. "
-            f"Generated tables load only in Track B, under the orange banner, tagged {ORIGIN_GENERATED}.")
-        if rows:
-            table = pd.DataFrame(rows)
-            st.dataframe(table, use_container_width=True, hide_index=True)
-            failed = int((table["Result"] != "✅ Pass").sum())
-            st.caption(f"{len(rows)} stored table(s) checked now · {failed} with a finding"
-                       + (f" · {missing} not on file yet" if missing else ""))
-        else:
-            st.info("No stored tables found yet to audit.")
-        if not track.generated:
-            st.caption("Generated tables are not opened in Track A, so they are not audited here.")
-
-
-def render_colour_key() -> None:
-    section_title("🎨", "Colour key and trust")
-    cards = (
-        (ORIGIN_REAL, "Real", "as published",
-         "Published statements, registers and public records, used as published with their source.",
-         "Highest trust. Each fact carries a record_id; still read the date it was published."),
-        (ORIGIN_DERIVED, "Derived", "computed from real data",
-         "Numbers worked out from real data by a stated rule: activity score A, K2, K4, K6, "
-         "priority levels, the height estimate.",
-         "As good as its inputs. Read the 'as of' quarter and the gaps; unknown stays unknown."),
-        (ORIGIN_GENERATED, "Generated", "stand-in for ACUD data",
-         "Simulated finance, complaints, classifier probabilities and scenarios. "
-         "'Synthetic - for training only'.",
-         "For training and what-if only. Track B only, never on the map, never a statement "
-         "about a real compound."),
-    )
-    cols = st.columns(3)
-    for col, (icon, name, short, what, trust) in zip(cols, cards):
-        with col, st.container(border=True):
-            st.markdown(f"### {icon} {name}")
-            st.caption(short)
-            st.markdown(what)
-            st.markdown(f"**How far to trust.** {trust}")
-    with st.container(border=True):
-        st.markdown(
-            f"**Trust order:** {ORIGIN_REAL} real → {ORIGIN_DERIVED} derived → {ORIGIN_GENERATED} "
-            "generated. A figure that mixes origins carries the least trusted tag: K5 is "
-            f"{ORIGIN_DERIVED} in months and {ORIGIN_GENERATED} in EGP.  \n"
-            "**Reading rules:** a level is always written as a word (colour is never the only cue) · "
-            "'unknown' is never shown as 0 · counts are 'n of m' · every tile shows its "
-            "'as of' quarter and origin.")
-
-
 # --------------------------------------------------------------------------- #
 # Screens
 # --------------------------------------------------------------------------- #
 
+def render_cycle_cards(latest: tuple[pd.DataFrame, str] | None) -> None:
+    """This cycle's visits as cards: the latest view from space, the level and the reason in one line."""
+    if latest is None:
+        return
+    latest_df, _ = latest
+    cycle = build_cycle_list(latest_df)
+    if cycle.empty:
+        return
+    section_title("📋", "This cycle's visits")
+    for col, (_, item) in zip(st.columns(len(cycle)), cycle.iterrows()):
+        row = latest_df[latest_df["code"] == item["code"]].iloc[0]
+        word, colour = _level_style(row["level"])
+        frames = insights.timeline_frames(item["code"], IMAGERY_DIR / "figures" / "timeline")
+        with col, st.container(border=True):
+            if frames:
+                st.image(str(frames[-1][1]), width="stretch")
+            st.markdown(
+                f'<div class="se-card-head"><b>{int(item["cycle_rank"])} · {item["code"]}</b>'
+                f'<span class="se-pill" style="border-color:{colour};color:{colour}">{word}</span></div>'
+                f'<div class="se-card-why">{html.escape(reason_text(row))}</div>',
+                unsafe_allow_html=True)
+            if frames:
+                st.caption(f"Wayback capture {frames[-1][0]}")
+
+
+def compounds_with_developer(kpis: pd.DataFrame) -> pd.DataFrame:
+    """Adds developer_code (codes only) from real/compounds.parquet when it is available."""
+    compounds = load_table("real/compounds.parquet", TRACK_A)
+    if compounds is None or not {"code", "developer_code"} <= set(compounds.columns):
+        return kpis
+    return kpis.merge(compounds[["code", "developer_code"]], on="code", how="left")
+
+
+def render_filters() -> tuple[tuple[pd.DataFrame, str] | None, frozenset[str], bool]:
+    """Search and filters for the map and the visit list (T-NA-11/12): (shown, hidden codes, cycle only)."""
+    kpis = load_table(KPI_FILE, TRACK_A)
+    if kpis is None or kpis.empty or not REQUIRED_KPI_COLUMNS <= set(kpis.columns):
+        return load_latest_kpis(), frozenset(), True
+    kpis = compounds_with_developer(kpis)
+    quarters = sorted(kpis["quarter"].dropna().astype(str).unique())
+    level_of = {word: number for number, (word, _) in LEVELS.items()}
+    developers = (sorted(kpis["developer_code"].dropna().astype(str).unique())
+                  if "developer_code" in kpis.columns else [])
+    section_title("🔎", "Search and filters")
+    with st.container(border=True):
+        top = st.columns([2, 1, 2, 2])
+        search = top[0].text_input("Search code", key="pm_search", placeholder="C10 or D05 (prefix works)")
+        asof = top[1].selectbox("As of", quarters, index=len(quarters) - 1, key="pm_quarter")
+        picked = top[2].multiselect("Priority level", list(level_of), key="pm_levels")
+        devs = top[3].multiselect("Developer", developers, key="pm_devs")
+        row = st.columns([1, 1, 1, 2])
+        k2 = row[0].number_input("Min K2 (quarters)", min_value=0, step=1, key="pm_k2")
+        k3 = row[1].number_input("Min K3 (months)", min_value=0, step=1, key="pm_k3")
+        k6 = row[2].number_input("Min K6 (months)", min_value=0, step=1, key="pm_k6")
+        cycle_only = row[3].toggle("Cycle list only", key="pm_cycle_only")
+        frame = kpis[kpis["quarter"].astype(str) == asof]
+        frame = frame.assign(visit_rank=insights.visit_ranks(frame))
+        shown = insights.filter_compounds(
+            frame, search, tuple(level_of[w] for w in picked), tuple(devs), k2, k3, k6, cycle_only)
+        st.caption(f"Showing {len(shown)} of {len(frame)} compounds · as of {asof} · "
+                   "unknown K values stay only while their minimum is 0")
+    hidden = frozenset(frame["code"].astype(str)) - frozenset(shown["code"].astype(str))
+    return (shown.copy(), asof), hidden, cycle_only
+
+
 def screen_priority_map(track: Track) -> None:
     page_header("🛰️", "Priority map", "Whom should the committee visit first?")
     latest = load_latest_kpis()
-    render_map_slot(track, latest)
-    render_cycle_list(latest)
+    promises = []
+    if latest is not None:
+        finding(cycle_headline(*latest))
+        promises = load_promises_ahead(*latest)
+        render_summary_tiles(*latest, promises)
+    render_cycle_cards(latest)
+    shown, hidden, cycle_only = render_filters()
+    render_map_slot(track, shown, hidden)
+    render_visit_list(shown, track, cycle_only)
+    if latest is not None:
+        render_changes(latest[1])
+        render_promises_ahead(promises)
 
-    if track.generated:
-        section_title("🧠", "Classifier probabilities")
-        preds = load_table("ml/predictions.parquet", track)
-        if preds is None:
-            st.info("Waiting for ml/predictions.parquet.")
-        else:
-            st.dataframe(tag_generated_columns(preds.head(10)),
-                         use_container_width=True, hide_index=True)
+
+# Track B model outputs, stored in the v7 release (never refitted here).
+ML_CURRENT = "tables/current/ml_current.parquet"
+MODEL_METRICS = "docs/CURRENT_MODEL_METRICS.csv"
+MODEL_METADATA = "docs/CURRENT_MODEL_METADATA.json"
+
+
+def render_classifier(code: str, track: Track) -> None:
+    """Track B: the stored distressed / not_distressed probabilities of all four methods (K5 in EGP is in
+    the fine exposure section, at the rate the committee enters)."""
+    section_title("🟠", f"{ORIGIN_GENERATED} Classifier probabilities (generated)")
+    probs = _safe(ML_CURRENT, load_table, ML_CURRENT, track, READY_DATA)
+    rows = None if probs is None else probs[probs["code"].astype(str) == code]
+    if rows is None or rows.empty:
+        st.info(f"No stored classifier output for {code} in ready-data/{ML_CURRENT}.")
+        return
+    quarter = str(rows["quarter"].max())
+    latest = rows[rows["quarter"].astype(str) == quarter]
+    view = pd.DataFrame({
+        "Method": latest["method"].astype(str),
+        "Split": latest["split"].astype(str),
+        "🟠 Predicted class": latest["predicted_class"].astype(str),
+        "🟠 P(distressed)": latest["p_distressed"].round(2),
+        "🟠 P(not_distressed)": latest["p_not_distressed"].round(2),
+    })
+    with st.container(border=True):
+        st.caption(f"{ORIGIN_GENERATED} Generated · {BANNER_TEXT} · {code} · {quarter}")
+        st.dataframe(view, width="stretch", hide_index=True)
+        st.caption("satellite = images; combined = images + numbers. The rule, not these probabilities, "
+                   "selects the cycle list. Not_distressed does not mean completed or financially healthy.")
 
 
 def screen_compound_file(track: Track) -> None:
@@ -1713,9 +1348,11 @@ def screen_compound_file(track: Track) -> None:
             if not ranked.empty and str(ranked.iloc[0]["code"]) in codes:
                 default = codes.index(str(ranked.iloc[0]["code"]))
 
-        pick, _ = st.columns([1, 2])
+        pick, decision = st.columns([1, 3])
+        # A default index next to a value already in session state raises a Streamlit warning.
+        start = {} if "compound_code" in st.session_state else {"index": default}
         code = pick.selectbox(
-            "Compound", codes, index=default, key="compound_code",
+            "Compound", codes, key="compound_code", **start,
             format_func=lambda c: f"{c} · {level_word(levels.get(c))}",
         )
 
@@ -1724,316 +1361,796 @@ def screen_compound_file(track: Track) -> None:
         row = now.iloc[0] if not now.empty else None
         ann = load_announcements(code, asof)
 
-        if row is None:
-            st.warning(f"{code} has no KPI row for {asof}: shown as not assessable.")
-        reason = None if row is None else row.get("reason_ar")
-        if not _missing(reason) and str(reason).strip():
-            st.markdown(f"**السبب:** {reason}")
+        reason = None if row is None else reason_text(row)
+        with decision:
+            if row is None:
+                st.warning(f"{code} has no KPI row for {asof}: shown as not assessable.")
+            render_compound_header(row, code, track,
+                                   None if _missing(reason) or not str(reason).strip() else str(reason))
 
         render_kpi_tiles(row, asof)
-        render_lineage(row, asof)
-        render_curves(code, history, ann)
-        render_context_charts(code)
-        render_images(code)
-        render_inspection_button(code, asof)
-        render_track_b_extras(code, track)
+        # Decision, curve and image in one view; the rest of the evidence opens on demand.
+        site_col, curve_col = st.columns([2, 3])
+        with site_col:
+            render_site_now(code, asof, track)
+        with curve_col:
+            render_curves(code, history, ann, row, height=260)
+        with st.expander("More evidence: level history, image timeline, developer statements"
+                         + (", money and classifier" if track.generated else "")):
+            render_level_history(code)
+            render_stage_strip(code)
+            render_images(code)
+            render_claims(code, ann, asof)
+            if track.generated:
+                render_developer_file(code, row, asof, track)
+                render_classifier(code, track)
+                render_inspection_button(code, asof)
 
-    section_title("📝", "Visit form")
-    render_ops_visits_form()
+        section_title("📝", "Visit form")
+        render_ops_visits_form(codes, code)
 
 
-def screen_backtest(track: Track) -> None:
-    page_header("⏱️", "Would it have warned?", "Backtest and early-warning evidence.")
-    if not track.generated:
-        render_backtest_cases()  # Track A: real public cases, frozen clock
+# --------------------------------------------------------------------------- #
+# Screen 3: district view (what the system gives the committee)
+# --------------------------------------------------------------------------- #
+
+BACKTEST_CASES = "current/backtest/cases_explained.csv"
+LEVEL_CHART_HEIGHT_PER_COMPOUND = 30
+
+
+def open_compound_file(code: str) -> None:
+    st.session_state["compound_code"] = code
+    st.session_state["screen"] = SCREENS[1]
+
+
+def open_button(code: str, section: str, label: str = "") -> None:
+    st.button(label or f"Open {code}", key=f"open_{section}_{code}", on_click=open_compound_file, args=(code,))
+
+
+def level_text(level: int | None) -> str:
+    return NOT_ASSESSABLE[0] if level is None else f"Level {level} · {level_word(level)}"
+
+
+def render_frame_pair(pair: list[dict], stages: dict[int, str], anchor_caption: str) -> None:
+    """An anchor capture beside the latest one, or the latest alone."""
+    if not pair:
+        st.caption("No capture near this date.")
         return
-    st.info("Real-case backtest (frozen clock): switch to Track A in the sidebar.")
-    render_model_metrics(track)  # Track B: generated data only
-    render_b_signals(track)
+    render_frame_row(pair, stages, [anchor_caption, "Latest capture"][-len(pair):])
 
 
-def screen_data_trust(track: Track) -> None:
-    page_header("🛡️", "Data trust", "How far can each number be trusted?")
-    log = _safe("quality_checks_log", load_quality_log)
-    results = gate_results(log)
-    cov = _safe("kpi_values", compute_coverage)
-    facts = _safe("facts register", load_facts_count,
-                  default=(*DOCUMENTED_FACTS, "01-specs §12, not recomputed", False))
-
-    render_trust_tiles(cov, results, log, facts)
-    render_gates_table(results, log)
-    render_coverage(cov)
-    render_dashboard_audit(track)
-    render_colour_key()
+def render_frame_row(frames: list[dict], stages: dict[int, str], captions: list[str]) -> None:
+    for column, frame, caption in zip(st.columns(max(len(frames), 2)), frames, captions):
+        with column:
+            render_frame(frame, stages, f"{caption} · ")
 
 
-# --------------------------------------------------------------------------- #
-# Screen 5: What if? (twin)  -- T-NA-07
-#
-# Reads the stored v7 what-if hand-off (never recomputes):
-#   real/SpaceEye_R7_READY_DATA_2026-10-31_v7/what_if/<S1|S2|S3>/who_moved_and_why.csv
-#   real/SpaceEye_R7_READY_DATA_2026-10-31_v7/tables/current/<S>.parquet  (csv/current/<S>.csv as fallback)
-#
-# ASSUMPTIONS (change in one place):
-#   * The columns of who_moved_and_why.csv are not documented here, so they are found by
-#     tolerant aliases (WHATIF_ALIASES). Whatever the file holds is also shown unchanged
-#     in the full table, so nothing is hidden if an alias misses.
-#   * If a newer release folder (..._v8) is dropped in, the newest SpaceEye_R7_READY_DATA_*
-#     folder that holds the file is used.
-#   * Both folders are generated content. is_generated_path() treats them as generated,
-#     so Track A refuses them even though they sit under real/.
-#   * Scenario names come from the spec (section 9): S1 dollar shock, S2 collections drop,
-#     S3 inspection capacity N ± 2 (re-rank only).
-# --------------------------------------------------------------------------- #
-
-WHATIF_RELEASE = "real/SpaceEye_R7_READY_DATA_2026-10-31_v7"
-WHATIF_RELEASE_GLOB = "real/SpaceEye_R7_READY_DATA_*"
-WHATIF_SCENARIOS = ("S1", "S2", "S3")
-SCENARIO_NOTES = {
-    "S1": "Dollar shock · USD/EGP +30%",
-    "S2": "Collections drop · buyer payments −25% for 6 months",
-    "S3": "Inspection capacity · N ± 2 (re-rank only, no generator re-run)",
-}
-WHATIF_ALIASES = {
-    "code": ("code", "compound_code", "compound"),
-    "before": ("level_base", "base_level", "baseline_level", "level_baseline", "level_before",
-               "before_level", "before", "from_level", "level_from", "old_level", "level"),
-    "after": ("level_scenario", "scenario_level", "level_after", "after_level", "after",
-              "to_level", "level_to", "new_level"),
-    "moved": ("selection_changed", "moved", "changed", "level_changed", "moves", "did_move"),  # <-- التعديل هنا
-    "reason": ("reason", "why", "reason_text", "reason_en", "reason_ar", "explanation"),
-}
-LEVEL_NUMBER = {word.lower(): n for n, (word, _) in LEVELS.items()}   # word -> 1..4 (1 = most urgent)
-MAX_MOVED_CARDS = 25
-
-
-def _whatif_rel(scenario: str, tail: str) -> str | None:
-    """Path (relative to the data folder) of a stored what-if file, newest release first."""
-    candidates = [f"{WHATIF_RELEASE}/{tail.format(s=scenario)}"]
-    releases = sorted(p.name for p in (APP_DATA / "real").glob("SpaceEye_R7_READY_DATA_*") if p.is_dir()) \
-        if (APP_DATA / "real").exists() else []
-    candidates += [f"real/{name}/{tail.format(s=scenario)}" for name in reversed(releases)]
-    return next((c for c in candidates if (APP_DATA / c).exists()), None)
-
-
-def _whatif_load(scenario: str, track: Track) -> dict:
-    """All stored pieces for one scenario. Each load is isolated (one bad file never blanks the screen)."""
-    out: dict = {"moved": None, "moved_rel": None, "table": None, "table_rel": None}
-    rel = _whatif_rel(scenario, "what_if/{s}/who_moved_and_why.csv")
-    if rel:
-        out["moved_rel"] = rel
-        out["moved"] = _safe(f"what_if/{scenario}/who_moved_and_why.csv", load_table, rel, track)
-    for tail in ("tables/current/{s}.parquet", "csv/current/{s}.csv"):
-        rel = _whatif_rel(scenario, tail)
-        if rel:
-            out["table_rel"] = rel
-            out["table"] = _safe(f"{tail.format(s=scenario)}", load_table, rel, track)
-            if out["table"] is not None:
-                break
-    return out
-
-
-def _level_text(value: object) -> str:
-    """A level always as a word. Unknown stays 'unknown' (never 0)."""
-    if _missing(value) or str(value).strip() == "":
-        return "unknown"
-    text = str(value).strip()
-    if text.lower() in LEVEL_NUMBER:
-        return next(w for w, _ in LEVELS.values() if w.lower() == text.lower())
-    try:
-        number = int(float(text))
-    except ValueError:
-        return text
-    return level_word(number) if number in LEVELS else "unknown"
-
-
-def _level_number(word: str) -> int | None:
-    return LEVEL_NUMBER.get(word.lower())
-
-
-def _tagged_table(df: pd.DataFrame) -> pd.DataFrame:
-    return _tag_numeric_headers(df)
-
-
-def _prepare_moved(raw: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
-    """Standard view of who_moved_and_why: code, before, in scenario, change, reason."""
-    cols = {k: _find_col(raw, a) for k, a in WHATIF_ALIASES.items()}
-    view = pd.DataFrame({"code": raw[cols["code"]].astype(str)}) if cols["code"] else pd.DataFrame(index=raw.index)
-    if cols["before"]:
-        view["before"] = raw[cols["before"]].map(_level_text)
-    if cols["after"]:
-        view["in scenario"] = raw[cols["after"]].map(_level_text)
-
-    def change(i: int) -> str:
-        if cols["before"] and cols["after"]:
-            b, a = view.iloc[i]["before"], view.iloc[i]["in scenario"]
-            nb, na = _level_number(b), _level_number(a)
-            if nb is None or na is None:
-                return "unknown"
-            return "moves up" if na < nb else ("moves down" if na > nb else "unchanged")
-        if cols["moved"]:
-            flag = _as_bool(raw.iloc[i][cols["moved"]])
-            return "unknown" if flag is None else ("changes level" if flag else "unchanged")
-        return "listed as moved"   # the file only lists compounds that moved
-
-    view["change"] = [change(i) for i in range(len(raw))]
-    view["reason"] = raw[cols["reason"]].fillna("").astype(str) if cols["reason"] else ""
-    return view, cols
-
-
-def _render_whatif_waiting(scenario: str) -> None:
-    st.info(
-        f"Scenario {scenario} results are not stored yet. Waiting for "
-        f"`{WHATIF_RELEASE}/what_if/{scenario}/who_moved_and_why.csv`. "
-        "The screen fills in by itself once the file is in the data folder."
-    )
+def render_early_warning(case: dict | None) -> None:
+    if case is None:
+        section_title("⏰", "An early signal")
+        st.info("No public late case in the backtest was flagged after construction started.")
+        return
+    code = case["code"]
+    section_title("⏰", f"An early signal: {code}")
+    frames, stages = space_frames(code), stage_of_year(code)
+    index = insights.first_frame_after(frames, pd.Period(case["alert"], "Q").end_time)
+    pair = insights.frame_pair(frames, index)
     with st.container(border=True):
-        st.markdown("#### 👀 Preview: what this screen will show")
-        st.caption(f"{ORIGIN_GENERATED} expected shape (empty preview, no numbers invented)")
-        st.dataframe(pd.DataFrame({"code": pd.Series(dtype="object"), "before": pd.Series(dtype="object"),
-                                   "in scenario": pd.Series(dtype="object"),
-                                   "change": pd.Series(dtype="object"), "reason": pd.Series(dtype="object")}),
-                     use_container_width=True, hide_index=True)
+        finding(f"<b>{code}</b> was first flagged in {case['alert']}, {case['months']} months before its first "
+                f"handover date ({case['deadline']}).")
+        # The backtest reads the clock as it stood then; today's history may differ after later images.
+        st.markdown(f"**What space saw in {case['alert']}**, with the data available then: "
+                    f"{html.escape(case['saw'][:1].lower() + case['saw'][1:])}.")
+        if case["level_at_freeze"] is not None:
+            st.markdown(f"By the freeze date ({case['freeze']}) it was back at level {case['level_at_freeze']} "
+                        f"({level_word(case['level_at_freeze'])}).")
+        reported = f", reported {case['reported']}" if case["reported"] else ""
+        st.markdown(f"**What happened.** {html.escape(case['outcome'].capitalize())}{reported}.")
+        render_frame_pair(pair, stages, "First capture after the alert")
 
 
-def render_scenario_picker() -> str:
-    section_title("🎛️", "Choose a scenario")
+DIAGNOSIS_FILE = "data/experiments/35_backtest_diagnosis/DIAGNOSIS.md"
+# From DIAGNOSIS_FILE (summary table). The case codes are the five public late cases the rule missed.
+FAILURE_MODES = """| What the late case looked like | Cases | Why the rule missed it |
+| --- | --- | --- |
+| Building every quarter, but too slowly for the promised date | C14, C12, C19 | The site never stopped, so the stall rule had nothing to count. No indicator compares pace with the promised date. |
+| Structure nearly done; the delay sat in finishing or handover | C10, C02 | Finishing work and handover are not visible from space. |
+"""
+
+
+def render_failures(cases: pd.DataFrame | None, kpis: pd.DataFrame | None) -> None:
+    section_title("🧭", "When the solution fails")
     with st.container(border=True):
-        chosen = st.radio("Scenario", WHATIF_SCENARIOS, horizontal=True, key="whatif_scenario",
-                          label_visibility="collapsed")
-        st.caption(f"{ORIGIN_GENERATED} {SCENARIO_NOTES.get(chosen, '')} · hypothetical, "
-                   "the base run is never overwritten")
-    return chosen
+        if cases is not None:
+            caught, total = insights.caught_cases(cases)
+            finding(f"At least 6 months before the first handover date, the rule flagged <b>{caught} of {total}</b> public late "
+                    "cases after construction started. The bar set before testing was 5 of 6.")
+        st.markdown(FAILURE_MODES)
+        if kpis is not None:
+            k2_min = CFG["levels"]["k2_l2"]
+            codes = insights.stall_codes(kpis, k2_min)
+            st.markdown(f"**What it can do.** A stall seen from space raises the level: a stall count of {k2_min:g} "
+                        f"quarters or more gave level 1 or 2 in {len(codes)} of {kpis['code'].nunique()} compounds "
+                        f"at some quarter since 2019 ({', '.join(codes)}). No real late case yet confirms a stall "
+                        "caught during construction. Imagery was never the limit in the six cases: every quarter "
+                        "before the cutoff had 10 or more images.")
+        st.markdown("**What could close the gap (untested).** A pace-against-promise indicator, fixed and "
+                    "recorded before scoring, built from data outside these six cases.")
+        st.caption(f"Source: {DIAGNOSIS_FILE}")
 
 
-def render_whatif_tiles(view: pd.DataFrame, total: int | None, asof: str) -> None:
-    changed = view[view["change"].isin(["moves up", "moves down", "changes level", "listed as moved"])]
-    n, up, down = len(changed), int((view["change"] == "moves up").sum()), int((view["change"] == "moves down").sum())
-    unknown = int((view["change"] == "unknown").sum())
-    of = f"{n} of {total}" if total else f"{n}"
-    with_reason = int((changed["reason"].str.strip() != "").sum())
-    c1, c2, c3, c4 = st.columns(4)
-    with c1:
-        metric_tile("Change level", of, "", "compounds whose level changes"
-                    + (f" · {unknown} unknown" if unknown else "") + ("" if total else " · total not stored"),
-                    asof, ORIGIN_GENERATED)
-    directed = bool(view["change"].isin(["moves up", "moves down", "unchanged"]).any())
-    with c2:
-        metric_tile("Move up", f"{up} of {n}" if directed else "unknown", "",
-                    "more urgent than in the base run" if directed else "direction not in the stored file",
-                    asof, ORIGIN_GENERATED)
-    with c3:
-        metric_tile("Move down", f"{down} of {n}" if directed else "unknown", "",
-                    "less urgent than in the base run" if directed else "direction not in the stored file",
-                    asof, ORIGIN_GENERATED)
-    with c4:
-        metric_tile("With a reason", f"{with_reason} of {n}", "", "changed compounds that carry a reason",
-                    asof, ORIGIN_GENERATED)
+@st.cache_data(show_spinner=False)
+def load_cost_assumptions() -> dict:
+    return yaml.safe_load((REPO_DIR / "configs" / "cost_assumptions.yaml").read_text(encoding="utf-8"))
 
 
-def render_whatif_moved(view: pd.DataFrame) -> None:
-    section_title("🔀", "Who changes level, and why")
+def render_alarm_tradeoff() -> None:
+    section_title("⚖️", "A false alarm against a missed case")
+    costs = load_cost_assumptions()
+    central = costs["settings"]["central"]
     with st.container(border=True):
-        changed = view[view["change"].isin(["moves up", "moves down", "changes level", "listed as moved"])]
-        if changed.empty:
-            st.info("No compound changes level in this scenario.")
+        st.caption("Assumptions, not data · defaults from configs/cost_assumptions.yaml (central "
+                   "setting). Most are placeholders until a reviewer sets them. Change any input.")
+        cols = st.columns(4)
+        visit = cols[0].number_input("Cost of a false alarm (EGP)", min_value=0, help="One wasted visit.",
+                                     value=int(central["cost_per_visit"]), step=500)
+        missed_cost = cols[1].number_input("Cost of one missed case (EGP)", min_value=0,
+                                           value=int(central["cost_late_detection"]), step=5000)
+        false_alarms = cols[2].number_input("False alarms per year", min_value=0,
+                                            value=int(costs["false_alarms_per_year"]), step=1)
+        missed = cols[3].number_input("Missed cases per year", min_value=0,
+                                      value=int(central["missed_cases"]), step=1)
+        t = insights.alarm_tradeoff(visit, missed_cost, false_alarms, missed)
+        if t["break_even"] is not None:
+            finding(f"One missed case costs as much as <b>{t['break_even']:,.1f} false alarms</b>. "
+                    f"An extra alert is worth a visit if at least 1 in {t['break_even']:,.1f} flagged "
+                    "compounds is a real case.")
+        tiles = st.columns(3)
+        for col, label, key in zip(tiles, ("False alarms", "Missed cases", "Total"),
+                                   ("false_alarms", "missed", "total")):
+            with col, st.container(border=True):
+                st.metric(label=label, value=f"{t[key]:,.0f} EGP")
+                st.caption("per year, under these assumed inputs")
+        st.caption("No false-alarm rate on real cases exists yet: all six backtest cases were late, "
+                   "so the backtest can count misses but not false alarms.")
+
+
+def render_flagged_early(rows: list[dict]) -> None:
+    section_title("🚩", "Flagged now, before any handover date passed")
+    with st.container(border=True):
+        if not rows:
+            st.markdown("No compound on the visit list is flagged before a handover date.")
             return
-        arrow = {"moves up": "▲", "moves down": "▼"}
-        color = {"moves up": "#F87171", "moves down": "#34D399"}   # up = more urgent = red
-        rows = []
-        for _, r in changed.head(MAX_MOVED_CARDS).iterrows():
-            path = (f'{html.escape(r["before"])} → <b>{html.escape(r["in scenario"])}</b>'
-                    if "before" in r and "in scenario" in r else html.escape(r["change"]))
-            why = html.escape(r["reason"]) if r["reason"].strip() else '<i style="color:#8A9BB8">no reason stored</i>'
-            c = color.get(r["change"], PALETTE["muted"])
-            rows.append(
-                f'<div style="padding:10px 0;border-bottom:1px solid {PALETTE["border"]}">'
-                f'<span style="color:{c};font-weight:700">{arrow.get(r["change"], "●")} '
-                f'{html.escape(str(r.get("code", "")))}</span> &nbsp;·&nbsp; {path}'
-                f'<div dir="auto" style="color:{PALETTE["muted"]};margin-top:4px">{why}</div></div>')
-        st.markdown("".join(rows), unsafe_allow_html=True)
-        extra = len(changed) - MAX_MOVED_CARDS
-        st.caption(f"{ORIGIN_GENERATED} ▲ moves up = more urgent to inspect · ▼ moves down = less urgent"
-                   + (f" · {extra} more in the table below" if extra > 0 else ""))
+        for row in rows:
+            code_col, level_col, why_col, open_col = st.columns([1, 2, 6, 2])
+            code_col.markdown(f"**{row['code']}**")
+            level_col.markdown(level_text(row["level"]))
+            why_col.markdown(html.escape(row["why"]))
+            with open_col:
+                open_button(row["code"], "early")
 
 
-def render_whatif_table(raw: pd.DataFrame, view: pd.DataFrame, scenario: str) -> None:
-    section_title("📋", "Full table as stored")
-    with st.container(border=True):
-        st.dataframe(_tagged_table(raw), use_container_width=True, hide_index=True)
-        st.caption(f"{ORIGIN_GENERATED} every column of who_moved_and_why.csv for {scenario}, unchanged")
-        st.download_button("⬇️ Download this scenario (CSV)",
-                           data=view.to_csv(index=False).encode("utf-8-sig"),
-                           file_name=f"who_moved_{scenario}.csv", mime="text/csv", key="whatif_download")
+def claims_table(rows: list[dict]) -> pd.DataFrame:
+    return pd.DataFrame({
+        "Published": [r["said"] for r in rows],
+        "Claim": [r["claim"] for r in rows],
+        "Promised year": [_due_text(r["due"]) for r in rows],
+        "Nearest capture": ["none within a year" if r["capture"] is None else
+                            f"{r['capture']['date']}: {r['capture']['stage'] or 'stage not on file'}"
+                            for r in rows],
+    })
 
 
-def render_whatif_result_table(table: pd.DataFrame | None, scenario: str) -> None:
-    if table is None:
+def render_strongest_claim(latest_df: pd.DataFrame, asof: str) -> None:
+    section_title("📣", "The developer said, space saw")
+    statements = load_table("real/statements.parquet", TRACK_A)
+    claim = None if statements is None else insights.strongest_claim(latest_df, statements, asof)
+    if claim is None:
+        st.info("No compound has a confirmed developer claim.")
         return
-    with st.expander(f"Scenario {scenario} result table ({len(table):,} rows)"):
-        st.dataframe(_tagged_table(table.head(500)), use_container_width=True, hide_index=True)
-        st.caption(f"{ORIGIN_GENERATED} stored result of the scenario run"
-                   + (" · first 500 rows shown" if len(table) > 500 else ""))
+    code = claim["code"]
+    frames, stages = space_frames(code), stage_of_year(code)
+    rows = insights.promise_rows(statements[statements["code"] == code], frames, stages, asof)
+    index = insights.nearest_frame(frames, claim["last_claim"])
+    pair = insights.frame_pair(frames, index)
+    row = latest_df[latest_df["code"] == code].iloc[0]
+    note = insights.first_deadline_note(statements, code, row.get("k3_first_deadline"), asof)
+    with st.container(border=True):
+        finding(f"<b>{code}</b>: as of {asof}, {claim['k3']} months past the first announced handover date "
+                f"({claim['deadline']}{f', {note}' if note else ''}).")
+        st.dataframe(claims_table(rows), hide_index=True, width="stretch")
+        render_frame_pair(pair, stages, "Nearest to the last claim")
+
+
+def render_homes_waiting(compounds: pd.DataFrame, latest_df: pd.DataFrame, asof: str) -> None:
+    section_title("🏠", "Homes in compounds eligible for review under contract terms")
+    waiting = insights.homes_waiting(compounds, latest_df)
+    if not waiting["rows"]:
+        st.info("No compound with a published unit count is eligible for review under contract terms.")
+        return
+    words, colours = level_scale()
+    table = pd.DataFrame(waiting["rows"])
+    table["Level"] = table["level"].map(level_word)
+    table["label"] = table["k5"].astype(str) + " months"
+    base = alt.Chart(table).encode(y=alt.Y("code:N", sort=list(table["code"]), title=None,
+                                           axis=alt.Axis(labelOverlap=False)),
+                                   x=alt.X("units:Q", title="Homes (published unit count)"))
+    bars = base.mark_bar().encode(
+        color=alt.Color("Level:N", title=None, legend=alt.Legend(orient="bottom"),
+                        scale=alt.Scale(domain=words, range=colours)),
+        tooltip=["code", "units", "k5", "Level"])
+    labels = base.mark_text(align="left", dx=4, color=PALETTE["text"]).encode(text="label:N")
+    with st.container(border=True):
+        finding(f"{ORIGIN_DERIVED} <b>{waiting['homes']:,} homes</b> in {waiting['compounds']} "
+                f"compounds eligible for review under contract terms, as of {asof}.")
+        # Streamlit counts the axis and legend inside the height, so add room for them.
+        st.altair_chart((bars + labels).properties(height=34 * waiting["compounds"] + 90), width="stretch")
+        st.caption("Label = months eligible for review under contract terms.")
+
+
+def render_late_promises(outcomes: pd.DataFrame) -> None:
+    section_title("⌛", "How late R7 promises ran")
+    delays = insights.late_delays(outcomes)
+    if not delays["rows"]:
+        st.info("No public case has a delay on file.")
+        return
+    table = pd.DataFrame(delays["rows"])
+    median = delays["median"]
+    base = alt.Chart(table).encode(y=alt.Y("code:N", sort=list(table["code"]), title=None,
+                                           axis=alt.Axis(labelOverlap=False)))
+    bars = base.mark_bar(color=PALETTE["accent"]).encode(x=alt.X("months:Q", title="Months after the promised date"),
+                                                         tooltip=["code", "months"])
+    labels = base.mark_text(align="left", dx=4, color=PALETTE["text"]).encode(x="months:Q", text="months:Q")
+    rule = alt.Chart(pd.DataFrame({"median": [median]})).mark_rule(color=PALETTE["text"], strokeDash=[4, 4]).encode(
+        x="median:Q")
+    words = insights.NUMBER_WORDS[len(table)] if len(table) < len(insights.NUMBER_WORDS) else str(len(table))
+    with st.container(border=True):
+        finding(f"{words} R7 compounds began handing over {table['months'].min()}-{table['months'].max()} months after "
+                f"the promised date (median {median:g}).")
+        st.altair_chart((bars + labels + rule).properties(height=34 * len(table) + 50), width="stretch")
+        kinds = outcomes.set_index("code")["outcome_type"]
+        for code in delays["pending"]:
+            st.markdown(f"**{code}**: {insights.outcome_text(kinds.get(code))}.")
+        st.caption("Dashed line = median.")
+
+
+def render_fine_months(latest_df: pd.DataFrame, asof: str) -> None:
+    section_title("⚖️", "Months eligible for review under contract terms")
+    fines = insights.fine_months(latest_df)
+    if not fines["rows"]:
+        st.info("No compound has months eligible for review under contract terms.")
+        return
+    table = pd.DataFrame(fines["rows"])
+    chart = alt.Chart(table).mark_bar(color=PALETTE["accent"]).encode(
+        x=alt.X("code:N", sort=list(table["code"]), title=None, axis=alt.Axis(labelAngle=0)),
+        y=alt.Y("months:Q", title="months eligible for review under contract terms"), tooltip=["code", "months"])
+    with st.container(border=True):
+        finding(f"{ORIGIN_DERIVED} <b>{fines['total']} months eligible for review under contract terms</b> "
+                f"over {fines['compounds']} compounds, as of {asof}.")
+        st.altair_chart(chart.properties(height=220), width="stretch")
+        st.caption("The committee decides any action.")
+
+
+def render_developer_groups(compounds: pd.DataFrame, latest_df: pd.DataFrame) -> None:
+    section_title("🏢", "Developers with several compounds")
+    groups = insights.developer_groups(compounds, latest_df)
+    if not groups:
+        st.info("No developer has more than one compound.")
+        return
+    width = max(len(g["compounds"]) for g in groups)
+    with st.container(border=True):
+        for group in groups:
+            cells = st.columns([1] + [2] * width)
+            cells[0].markdown(f"**{group['developer']}**")
+            for cell, item in zip(cells[1:], group["compounds"]):
+                with cell:
+                    open_button(item["code"], f"dev{group['developer']}", f"{item['code']} · {level_text(item['level'])}")
+
+
+def render_activity_spread(latest_df: pd.DataFrame, asof: str) -> None:
+    section_title("📉", "What the district average hides")
+    spread = insights.activity_spread(latest_df)
+    table = latest_df.dropna(subset=["activity_prob"]).sort_values("activity_prob", ascending=False)
+    table = table.assign(Level=table["level"].map(level_word), score=table["activity_prob"].round(2))
+    words, colours = level_scale()
+    base = alt.Chart(table).encode(y=alt.Y("code:N", sort=list(table["code"]), title=None,
+                                           axis=alt.Axis(labelOverlap=False)))
+    bars = base.mark_bar().encode(
+        x=alt.X("score:Q", title="Building activity score (0-1)", scale=alt.Scale(domain=[0, 1])),
+        color=alt.Color("Level:N", title=None, legend=alt.Legend(orient="bottom"),
+                        scale=alt.Scale(domain=words, range=colours)),
+        tooltip=["code", "score", "Level"])
+    labels = base.mark_text(align="left", dx=4, color=PALETTE["text"]).encode(
+        x="score:Q", text=alt.Text("score:Q", format=".2f"))
+    mean = alt.Chart(pd.DataFrame({"mean": [spread["mean"]]})).mark_rule(
+        color=PALETTE["text"], strokeDash=[4, 4]).encode(x="mean:Q")
+    statements = load_table("real/statements.parquet", TRACK_A)
+    low = [code if statements is None else f"{code}, {insights.handover_status(statements, code, asof)}"
+           for code in spread["below_half"]]
+    hidden = f". Below half of it: {'; '.join(low)}" if low else ""
+    with st.container(border=True):
+        finding(f"{ORIGIN_DERIVED} District average activity <b>{spread['mean']:.2f}</b> as of {asof}{hidden}.")
+        st.altair_chart((bars + labels + mean).properties(height=34 * len(table) + 90), width="stretch")
+        st.caption("Dashed line = district average. Activity score = the model's latest probability that space "
+                   "saw building activity. Low activity after a published handover can mean finished, not stalled.")
+
+
+def render_district_levels() -> None:
+    section_title("🗓️", "Level history, all compounds")
+    kpis = load_table(KPI_FILE, TRACK_A)
+    if kpis is None:
+        return
+    history = insights.level_history(kpis)
+    history["Level"] = history["level"].map(level_word)
+    order = insights.codes_by_current_level(history)
+    words, colours = level_scale()
+    chart = alt.Chart(history).mark_rect(stroke=PALETTE["bg"], strokeWidth=1).encode(
+        x=alt.X("quarter:O", title=None, axis=alt.Axis(labelAngle=0, labelExpr="indexof(datum.value, 'Q1') > 0 ? slice(datum.value, 0, 4) : ''")),
+        y=alt.Y("code:N", sort=order, title=None, axis=alt.Axis(labelOverlap=False)),
+        color=alt.Color("Level:N", title=None, legend=alt.Legend(orient="bottom"),
+                        scale=alt.Scale(domain=words, range=colours)),
+        tooltip=["code", "quarter", "Level"])
+    with st.container(border=True):
+        st.altair_chart(chart.properties(height=LEVEL_CHART_HEIGHT_PER_COMPOUND * len(order)),
+                        width="stretch")
+
+
+def screen_district(track: Track) -> None:
+    page_header("🏘️", "District view", "What does the system give the committee?")
+    latest = load_latest_kpis()
+    if latest is None:
+        st.info("Waiting for real/kpi_values.parquet.")
+        return
+    latest_df, asof = latest
+    cases = _safe(BACKTEST_CASES, load_table, BACKTEST_CASES, TRACK_A, READY_DATA)
+    compounds = load_table("real/compounds.parquet", TRACK_A)
+    outcomes = load_table("real/eval_outcomes.parquet", TRACK_A)
+    render_early_warning(None if cases is None else insights.warning_case(cases))
+    render_failures(cases, load_table(KPI_FILE, TRACK_A))
+    render_alarm_tradeoff()
+    render_flagged_early(insights.flagged_early(latest_df))
+    render_strongest_claim(latest_df, asof)
+    render_activity_spread(latest_df, asof)
+    if compounds is not None:
+        render_homes_waiting(compounds, latest_df, asof)
+    if outcomes is not None:
+        render_late_promises(outcomes)
+    render_fine_months(latest_df, asof)
+    if compounds is not None:
+        render_developer_groups(compounds, latest_df)
+    render_district_levels()
+    if track.generated:
+        render_model_metrics(track)
+
+
+def _read_json(path: Path) -> dict | None:
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+
+
+def render_model_metrics(track: Track) -> None:
+    """Track B: stored frozen-protocol metrics per method, the stored random baseline, B1-B5 status."""
+    section_title("🟠", f"{ORIGIN_GENERATED} Classifier evaluation, frozen protocol (generated)")
+    metrics = _safe(MODEL_METRICS, load_table, MODEL_METRICS, track, READY_DATA)
+    if metrics is None or metrics.empty:
+        st.info(f"Waiting for ready-data/{MODEL_METRICS}. Run python -m src.pipeline.setup_review.")
+        return
+    meta = _safe(MODEL_METADATA, _read_json, READY_DATA / MODEL_METADATA) or {}
+    test = meta.get("test_classes", {})
+    holdout = meta.get("developer_holdout", {}).get("status", "not stored")
+    with st.container(border=True):
+        st.caption(f"{ORIGIN_GENERATED} Generated · {BANNER_TEXT} · time test: "
+                   f"{meta.get('test_rows', 'not stored')} rows, {test.get('distressed', 'not stored')} distressed")
+        st.dataframe(insights.model_metrics_table(metrics, meta.get("random_at_4")),
+                     width="stretch", hide_index=True)
+        st.caption("satellite = images; combined = images + numbers; *_rule = the priority rule's top 4. "
+                   f"Developer hold-out has no distressed rows (stored status {holdout}) and is not shown. "
+                   "Frozen-protocol models only.")
+        st.markdown(f"{ORIGIN_GENERATED} **B1-B5 per compound:** not stored in the v7 release.")
+
+
+# --------------------------------------------------------------------------- #
+# Screen 4: fewer or more visits per cycle
+#
+# Reads the stored v7 capacity scenario (never recomputes):
+#   ready-data/what_if/S3/who_moved_and_why.csv  (data/SCENARIO_CONTRACT_CURRENT.md)
+# One row per compound, quarter and capacity variant (2 or 6 versus 4); selection only,
+# levels never change.
+# --------------------------------------------------------------------------- #
+
+CAPACITY_FILE = "what_if/S3/who_moved_and_why.csv"
+CAPACITY_VARIANTS = {"capacity_minus_2": "2 visits instead of 4", "capacity_plus_2": "6 visits instead of 4"}
+
+
+def whatif_view(raw: pd.DataFrame, reasons: dict[str, str] | None = None) -> tuple[pd.DataFrame, str]:
+    """The latest quarter of one capacity variant: one row per compound, baseline versus scenario,
+    with each compound's stored English level reason for that quarter."""
+    label = str(raw["quarter"].max())
+    latest = raw[raw["quarter"].astype(str) == label]
+    view = pd.DataFrame({"code": latest["code"].astype(str)})
+    view["change"] = [("joins the list" if _as_bool(s) else "leaves the list") if _as_bool(c) else "unchanged"
+                      for s, c in zip(latest["selected"], latest["selection_changed"])]
+    view["reason"] = view["code"].map(reasons or {}).fillna("").map(insights.short_reason)
+    return view.reset_index(drop=True), label
+
+
+def render_capacity_variant(raw: pd.DataFrame, variant: str) -> None:
+    part = raw[raw["scenario_id"] == variant]
+    kpis = load_table(KPI_FILE, TRACK_A)
+    quarter = str(part["quarter"].max())
+    reasons = {} if kpis is None else dict(
+        zip(kpis.loc[kpis["quarter"].astype(str) == quarter, "code"], kpis.loc[kpis["quarter"].astype(str) == quarter, "reason"]))
+    view, label = whatif_view(part, reasons)
+    moved = view[view["change"] != "unchanged"]
+    with st.container(border=True):
+        st.markdown(f"**{CAPACITY_VARIANTS[variant]}**")
+        if moved.empty:
+            st.markdown("The list does not change.")
+        for _, r in moved.iterrows():
+            colour = "#34D399" if r["change"] == "leaves the list" else "#F87171"
+            st.markdown(
+                f'<div class="se-move"><span style="color:{colour};font-weight:700">'
+                f'{html.escape(r["code"])}</span> · {html.escape(r["change"])}'
+                f'<div class="se-move-why">{html.escape(r["reason"])}</div></div>',
+                unsafe_allow_html=True)
+        st.caption(f"{ORIGIN_GENERATED} Generated · {label}")
+
+
+SCENARIO_TABS = {"S1": "S1 · Cost shock", "S2": "S2 · Collections drop", "S3": "S3 · Capacity"}
+SCENARIO_NOTES = {"S1": "Imported cost +30%.", "S2": "Collections -25% for six months."}
+SCENARIO_EFFECTS = {
+    "S1": "What changes: generated costs, so progress, a compound's hypothetical level and the list can move. "
+          "Real satellite readings stay as they are.",
+    "S2": "What changes: generated collections, so progress, a compound's hypothetical level and the list can move. "
+          "Real satellite readings stay as they are.",
+    "S3": "What changes: only who fits on the visit list. Levels, reasons and project data stay the same.",
+}
+
+
+def hypothetical_text(level: float) -> str:
+    return level_text(None if pd.isna(level) else int(level))
+
+
+def render_scenario_moves(view: pd.DataFrame) -> None:
+    moved = view[view["changed"]]
+    if moved.empty:
+        st.markdown("Nobody crosses a threshold: no compound changes level or list position.")
+        return
+    for _, r in moved.iterrows():
+        change = (f"hypothetical baseline {hypothetical_text(r['baseline_level'])}, "
+                  f"scenario {hypothetical_text(r['level'])}")
+        if r["baseline_listed"] != r["listed"]:
+            change += ", joins the list" if r["listed"] else ", leaves the list"
+        st.markdown(
+            f'<div class="se-move"><span style="color:{PALETTE["accent_b"]};font-weight:700">'
+            f'{html.escape(r["code"])}</span> · {html.escape(change)}'
+            f'<div dir="auto" class="se-move-why">{html.escape(r["reason"])}</div></div>',
+            unsafe_allow_html=True)
+
+
+def render_scenario_levels(view: pd.DataFrame) -> None:
+    counts = insights.level_counts(view)
+    counts["Level"] = counts["level"].map(level_word)
+    words, _ = level_scale()
+    chart = alt.Chart(counts).mark_bar().encode(
+        x=alt.X("Level:N", sort=words, title=None, axis=alt.Axis(labelAngle=0)),
+        xOffset=alt.XOffset("case:N", sort=[insights.BASELINE_LABEL, "Scenario"]),
+        y=alt.Y("compounds:Q", title="Compounds", axis=alt.Axis(tickMinStep=1)),
+        color=alt.Color("case:N", title=None, legend=alt.Legend(orient="bottom"),
+                        scale=alt.Scale(domain=[insights.BASELINE_LABEL, "Scenario"],
+                                        range=[PALETTE["muted"], PALETTE["accent_b"]])),
+        tooltip=["case", "Level", "compounds"])
+    st.altair_chart(chart.properties(height=200), width="stretch")
+
+
+def render_finance_scenario(scenario: str, track: Track) -> None:
+    rel = f"what_if/{scenario}/who_moved_and_why.csv"
+    raw = _safe(rel, load_table, rel, track, READY_DATA)
+    if raw is None or raw.empty:
+        st.info(f"Waiting for ready-data/{rel}. Run python -m src.pipeline.setup_review.")
+        return
+    view, month = insights.scenario_view(raw)
+    with st.container(border=True):
+        st.caption(f"{ORIGIN_GENERATED} Generated · {SCENARIO_NOTES[scenario]} · {month}")
+        render_scenario_moves(view)
+        if view["changed"].any():
+            render_scenario_levels(view)
+
+
+PROGRESS_FILE = "what_if/progress_vs_baseline.csv"
+
+
+def render_progress_vs_baseline(track: Track) -> None:
+    """How far each finance shock moves progress against the baseline run (generated, same seed)."""
+    raw = _safe(PROGRESS_FILE, load_table, PROGRESS_FILE, track, READY_DATA)
+    section_title("📈", "Progress against the baseline run")
+    if raw is None or raw.empty:
+        st.info(f"Waiting for ready-data/{PROGRESS_FILE}. It is written by src/generator/twin_progress.py.")
+        return
+    view, month = insights.progress_view(raw)
+    with st.container(border=True):
+        st.caption(f"{ORIGIN_GENERATED} Generated · latest month {month} · the baseline and both shocks come from one run")
+        st.dataframe(view, use_container_width=True, hide_index=True)
+        st.caption("Change in percent points of progress. A shock that moves no compound to another level "
+                   "or visit-list place is a result, not a missing value.")
 
 
 def screen_what_if(track: Track) -> None:
-    page_header("🧪", "What if?", "Compound-level twin: who moves up if conditions change?")
+    page_header("🧪", "Digital twin what if", "Who would change if costs, collections or visit capacity changed?")
     if not track.generated:
-        st.warning(
-            "Scenarios use generated data. Switch to Track B in the sidebar to open them."
-        )
+        st.warning("Digital twin what if uses generated data. Switch to Track B in the sidebar to open it.")
         return
-    # No map on this screen by design: generated numbers never sit on the real map.
+    render_progress_vs_baseline(track)
+    tabs = st.tabs(list(SCENARIO_TABS.values()))
+    for tab, scenario in zip(tabs, SCENARIO_TABS):
+        tab.markdown(SCENARIO_EFFECTS[scenario])
+    for tab, scenario in zip(tabs[:2], ("S1", "S2")):
+        with tab:
+            render_finance_scenario(scenario, track)
+    with tabs[2]:
+        raw = _safe(CAPACITY_FILE, load_table, CAPACITY_FILE, track, READY_DATA)
+        if raw is None or raw.empty:
+            st.info(f"Waiting for ready-data/{CAPACITY_FILE}. Run python -m src.pipeline.setup_review.")
+            return
+        for column, variant in zip(st.columns(2), CAPACITY_VARIANTS):
+            with column:
+                render_capacity_variant(raw, variant)
 
-    scenario = render_scenario_picker()
-    stored = _whatif_load(scenario, track)
-    raw = stored["moved"]
-    if raw is None:
-        _render_whatif_waiting(scenario)
-        render_whatif_result_table(stored["table"], scenario)
+
+# --------------------------------------------------------------------------- #
+# Screen 5: real names and sources (only what public sources and satellites gave us)
+# --------------------------------------------------------------------------- #
+# names/ holds the R7 code-to-name map and the public sources behind every statement. It sits outside data/
+# on purpose: the release and data/ stay codes only, and the no_names gate keeps scanning them.
+
+NAMES_DIR = REPO_DIR / "names"
+NAMES_MAP_KEY, NAMES_LAYER_ID, NAMES_CODE_KEY = "names_map", "named", "names_code"
+
+
+@st.cache_data(show_spinner=False)
+def load_names() -> tuple[pd.DataFrame, pd.DataFrame] | None:
+    compounds, sources = NAMES_DIR / "compounds.csv", NAMES_DIR / "sources.csv"
+    if not (compounds.exists() and sources.exists()):
+        return None
+    return pd.read_csv(compounds, encoding="utf-8"), pd.read_csv(sources, encoding="utf-8")
+
+
+def pick_named_compound() -> None:
+    event = st.session_state.get(NAMES_MAP_KEY)
+    code = insights.picked_code(None if event is None else event.selection, NAMES_LAYER_ID)
+    if code is not None and CODE_PATTERN.match(code):
+        st.session_state[NAMES_CODE_KEY] = code
+
+
+def render_names_map(names: pd.DataFrame, chosen: str) -> None:
+    geojson = load_boundaries()
+    if geojson is None:
         return
-    if raw.empty:
-        st.info(f"Scenario {scenario}: who_moved_and_why.csv is stored but has no rows.")
+    label_of = dict(zip(names["code"], names["name_en"]))
+    features, points, labels = [], [], []
+    for feat in geojson["features"]:
+        code = feat["properties"]["code"]
+        if code not in label_of:
+            continue
+        outline = _geo_points(feat["geometry"])
+        points += outline
+        if outline:
+            labels.append({"text": f"{code} · {label_of[code]}",
+                           "position": [sum(x for x, _ in outline) / len(outline),
+                                        sum(y for _, y in outline) / len(outline)]})
+        colour = PALETTE["accent"] if code == chosen else PALETTE["muted"]
+        features.append({"type": "Feature", "geometry": feat["geometry"],
+                         "properties": {"code": code, "name": label_of[code], "fill_color": _hex_to_rgba(colour)}})
+    layer = pdk.Layer("GeoJsonLayer", id=NAMES_LAYER_ID, data={"type": "FeatureCollection", "features": features},
+                      get_fill_color="properties.fill_color", get_line_color=[232, 238, 244, 200],
+                      line_width_min_pixels=1, stroked=True, filled=True, pickable=True)
+    text = pdk.Layer("TextLayer", data=labels, get_position="position", get_text="text", get_size=13,
+                     get_color=[233, 239, 245, 255], get_alignment_baseline="'bottom'", billboard=True)
+    view = pdk.data_utils.compute_view(points, view_proportion=0.9) if points else None
+    with st.container(border=True):
+        st.pydeck_chart(pdk.Deck(layers=[layer, text], initial_view_state=view, map_style="dark",
+                                 tooltip={"text": "{code}\n{name}"}),
+                        width="stretch", on_select=pick_named_compound, selection_mode="single-object",
+                        key=NAMES_MAP_KEY)
+        st.caption("Click a compound, or pick it below. Highlighted = the compound shown.")
+
+
+def render_named_compound(code: str, names: pd.DataFrame, sources: pd.DataFrame) -> None:
+    who = names.set_index("code").loc[code]
+    latest = load_latest_kpis()
+    asof = latest[1] if latest is not None else "the latest quarter"
+    compounds = load_table("real/compounds.parquet", TRACK_A)
+    facts = None if compounds is None else compounds.set_index("code").loc[code]
+    st.markdown(f'<div class="se-title" style="font-size:1.6rem">{html.escape(who["name_en"])} · '
+                f'<bdi dir="rtl">{html.escape(who["name_ar"])}</bdi></div>', unsafe_allow_html=True)
+    tiles = st.columns(4)
+    with tiles[0]:
+        metric_tile("Developer", who["developer"], "", f"code {who['developer_code']}", asof, ORIGIN_REAL)
+    with tiles[1]:
+        metric_tile("District", who["district"], "", "New Administrative Capital", asof, ORIGIN_REAL)
+    if facts is not None:
+        with tiles[2]:
+            real = facts["land_area_origin"] == "real"
+            metric_tile("Land area", f"{facts['land_area_m2'] / CFG['compounds']['feddan_m2']:,.0f}" if real
+                        else "not published", "feddan" if real else "",
+                        "published" if real else "generated on other screens", asof,
+                        ORIGIN_REAL if real else ORIGIN_GENERATED)
+        with tiles[3]:
+            real = facts["units_origin"] == "real"
+            metric_tile("Homes", f"{int(facts['units']):,}" if real else "not published", "",
+                        "published unit count" if real else "generated on other screens", asof,
+                        ORIGIN_REAL if real else ORIGIN_GENERATED)
+
+    section_title("🛰️", "What space saw")
+    if latest is not None:
+        latest_df = latest[0]
+        now = latest_df[latest_df["code"] == code]
+        if not now.empty:
+            row = now.iloc[0]
+            started = row.get("observed_start_quarter")
+            finding(f"{ORIGIN_DERIVED} As of {asof}: <b>{level_word(row.get('level'))}</b>. "
+                    f"{html.escape(reason_text(row))}."
+                    + ("" if _missing(started) else f" Construction start seen in {started}."))
+    frames = space_frames(code)
+    if frames:
+        with st.container(border=True):
+            render_frame_compare(code, frames, stage_of_year(code))
+
+    section_title("📰", "What public sources said")
+    rows = insights.source_rows(sources, code)
+    if rows.empty:
+        st.markdown("We found no public statement about this compound: everything on file for it comes from space.")
+    else:
+        finding(f"{ORIGIN_REAL} <b>{len(rows)} public statements</b>, {rows['Published'].iloc[0][:4]} to "
+                f"{rows['Published'].iloc[-1][:4]}, from {rows['Publisher'].nunique()} publishers.")
+        st.dataframe(rows, hide_index=True, width="stretch", column_config={
+            "Says": st.column_config.TextColumn("Says", width="large"),
+            "Link": st.column_config.LinkColumn("Link", display_text="open")})
+        if rows["What"].str.contains("check case").any():
+            st.caption('"Check case" rows are the published outcomes used to test the method.')
+
+    section_title("🟠", "Generated on the other screens for this compound")
+    st.markdown("These stand in for ACUD's own files and are not facts about the compound: "
+                + "; ".join(insights.generated_elsewhere(facts if facts is not None else pd.Series(dtype=object)))
+                + ".")
+
+
+def screen_names(track: Track) -> None:
+    page_header("🪪", "Real names and sources", "Who are these compounds, what did we learn, and where from?")
+    finding("The other screens use codes. Here are the real compounds behind them, with only what public sources "
+            "and satellites gave us. Orange values elsewhere are generated stand-ins for ACUD's own files.")
+    loaded = load_names()
+    if loaded is None:
+        st.info("names/compounds.csv and names/sources.csv are not in this checkout.")
         return
-
-    view, cols = _prepare_moved(raw)
-    if not cols["code"]:
-        st.warning("who_moved_and_why.csv has no compound code column, so it cannot be shown by compound.")
-        render_whatif_table(raw, view, scenario)
-        return
-    if not (cols["before"] and cols["after"] or cols["moved"]):
-        st.caption("Level before/after columns were not recognised: every row is treated as a compound that moved.")
-
-    table = stored["table"]
-    total = None
-    if table is not None:
-        code_col = _find_col(table, WHATIF_ALIASES["code"])
-        total = int(table[code_col].nunique()) if code_col else None
-    elif cols["before"] and cols["after"]:
-        total = len(view)
-    asof = _find_col(raw, ("as_of", "asof", "quarter", "cutoff"))
-    asof_text = str(raw[asof].dropna().astype(str).max()) if asof and raw[asof].notna().any() else "unknown"
-
-    render_whatif_tiles(view, total, asof_text)
-    render_whatif_moved(view)
-    render_whatif_table(raw, view, scenario)
-    render_whatif_result_table(table, scenario)
-    st.caption(f"{ORIGIN_GENERATED} {BANNER_TEXT}. Hypothetical interventions on generated data: "
-               "they show who would move up in priority, not what will happen.")
+    names, sources = loaded
+    codes = list(names["code"])
+    if st.session_state.get(NAMES_CODE_KEY) not in codes:
+        st.session_state[NAMES_CODE_KEY] = codes[0]
+    render_names_map(names, st.session_state[NAMES_CODE_KEY])
+    label_of = dict(zip(names["code"], names["name_en"]))
+    pick, _ = st.columns([1, 2])
+    code = pick.selectbox("Compound", codes, key=NAMES_CODE_KEY, format_func=lambda c: f"{c} · {label_of[c]}")
+    render_named_compound(code, names, sources)
 
 
 SCREEN_FUNCTIONS = {
     SCREENS[0]: screen_priority_map,
     SCREENS[1]: screen_compound_file,
-    SCREENS[2]: screen_backtest,
-    SCREENS[3]: screen_data_trust,
-    SCREENS[4]: screen_what_if,
+    SCREENS[2]: screen_district,
+    SCREENS[3]: screen_what_if,
+    SCREENS[4]: screen_names,
 }
+
+
+def selected_compound_context(code: str) -> SelectedCompound | None:
+    """Load the stored details needed for one selected compound."""
+    kpis = load_table(KPI_FILE, TRACK_A)
+    if kpis is None or kpis.empty or not {"code", "quarter"} <= set(kpis.columns):
+        return None
+    compound_kpis = kpis[kpis["code"].astype(str) == code].copy()
+    compound_kpis["quarter"] = compound_kpis["quarter"].astype(str)
+    if compound_kpis.empty:
+        latest_row = pd.Series({"code": code, "level": None})
+        asof = str(kpis["quarter"].astype(str).max())
+    else:
+        latest_row = compound_kpis.sort_values("quarter").iloc[-1]
+        asof = str(latest_row["quarter"])
+    return SelectedCompound(latest_row, asof, kpis, space_frames(code), stage_of_year(code))
+
+
+def render_compound_details(panel_rows: list[dict]) -> None:
+    """Render the selected compound's labelled stored values."""
+    for panel_row in panel_rows:
+        if panel_row["label"] == "Reason":
+            st.markdown(
+                f'<b>Reason</b><div dir="rtl" class="se-rtl">{html.escape(str(panel_row["value"]))}</div>',
+                unsafe_allow_html=True,
+            )
+            continue
+        detail = f" · {panel_row['detail']}" if panel_row.get("detail") else ""
+        st.markdown(f"**{panel_row['label']}:** {html.escape(str(panel_row['value']))}{detail}")
+
+
+def render_compound_drilldowns(signal_history: pd.DataFrame, capture_history: list[dict]) -> None:
+    """Render the selected compound's history and capture expanders."""
+    with st.expander("Signal history"):
+        if signal_history.empty:
+            st.info("no signal history stored")
+        else:
+            st.dataframe(signal_history, hide_index=True, width="stretch")
+    with st.expander("Captures"):
+        if not capture_history:
+            st.info("no capture stored")
+        else:
+            st.dataframe(pd.DataFrame(capture_history), hide_index=True, width="stretch")
+
+
+def render_selected_compound_panel() -> None:
+    """Selected compound details and drill-downs in the sidebar."""
+    selected_code = st.session_state.get(SELECTED_COMPOUND_KEY)
+    if selected_code is None or not CODE_PATTERN.match(str(selected_code)):
+        return
+    code = str(selected_code)
+    compound_context = selected_compound_context(code)
+    if compound_context is None:
+        return
+    panel_rows = insights.compound_panel_rows(
+        compound_context.latest_row, compound_context.asof,
+        compound_context.capture_frames, compound_context.capture_stages)
+    signal_history = insights.signal_history_table(compound_context.quarterly_kpis, code)
+    capture_history = insights.capture_rows(
+        compound_context.capture_frames, compound_context.capture_stages)
+    with st.sidebar, st.container(border=True):
+        st.markdown("**Selected compound**")
+        render_compound_details(panel_rows)
+        st.button("Open compound file", key=f"selected_open_{code}",
+                  on_click=open_compound_file, args=(code,))
+        render_compound_drilldowns(signal_history, capture_history)
+        st.button("Clear selection", key="clear_selected_compound", on_click=clear_selected_compound)
 
 
 # --------------------------------------------------------------------------- #
 # Sidebar + entry point
 # --------------------------------------------------------------------------- #
+
+def render_document_chatbot() -> None:
+    """Render the document-grounded Q&A control in the sidebar."""
+    with st.sidebar.expander("Ask the documents"):
+        st.caption(
+            "Answers come only from the listed documents and are not legal advice."
+        )
+        with st.form("document_chatbot_form"):
+            question = st.text_input("Question", key="document_chatbot_question")
+            submitted = st.form_submit_button("Ask")
+        if submitted:
+            cleaned_question = question.strip()
+            if not cleaned_question:
+                st.info("Enter a question about the documents.")
+            else:
+                answer = answer_question(
+                    cleaned_question,
+                    get_default_retriever(),
+                    AnswerOptions(config=load_ai_yaml_config()),
+                )
+                history = st.session_state.setdefault("document_chatbot_history", [])
+                history.append(
+                    {
+                        "question": cleaned_question,
+                        "answer": answer.text,
+                        "citations": answer.citations,
+                    }
+                )
+                st.session_state["document_chatbot_history"] = history[-5:]
+
+        for chat_record in st.session_state.get("document_chatbot_history", []):
+            st.markdown("**Question**")
+            st.text(chat_record["question"])
+            st.markdown(chat_record["answer"])
+            if chat_record["citations"]:
+                st.markdown("**Citations**")
+                for citation in chat_record["citations"]:
+                    st.text(citation)
+
 
 def render_sidebar() -> tuple[Track, str]:
     st.sidebar.markdown(
@@ -2075,8 +2192,9 @@ def render_sidebar() -> tuple[Track, str]:
             f'<span class="se-pill se-pill-a">{ORIGIN_REAL} REAL · {ORIGIN_DERIVED} DERIVED</span>',
             unsafe_allow_html=True,
         )
-        st.sidebar.caption("Public and derived data only")
-    st.sidebar.caption("🔒 Codes only: no compound or developer names.")
+    if screen == SCREENS[0]:
+        render_selected_compound_panel()
+    render_document_chatbot()
     return track, screen
 
 

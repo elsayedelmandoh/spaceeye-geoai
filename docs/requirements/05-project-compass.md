@@ -1,4 +1,4 @@
-> Program reference and unfinished project-signoff worksheet. Current technical decisions are in [D1_DECISIONS_CURRENT.md](D1_DECISIONS_CURRENT.md). This reference is not a signed SpaceEye compass; T-SA-01 remains pending.
+> Program reference and unfinished project-signoff worksheet. Current technical decisions are in [D1_DECISIONS_CURRENT.md](D1_DECISIONS_CURRENT.md). This reference is not a signed SpaceEye compass; the instructor sign-off of T-SA-01 remains pending. The instructor rubric and the presentation length have been received (section 10).
 
 # 07 | project compass
 
@@ -112,6 +112,30 @@ the instructor signs off when the use-case canvas answers all eight checks:
 | day 10 | sprint and mid-project review; 10 minutes per team |
 | day 11 | delivery and knowledge transfer |
 | day 12 | presentations to the idea evaluation panel |
+
+
+## 10. instructor rubric (received)
+
+The instructor sent the evaluation rubric: [ACUD-Rubric.md](ACUD-Rubric.md) (Arabic source table; photo [ACUD-Rubric.jpeg](ACUD-Rubric.jpeg)). Cells marked [؟] were unclear in the photo and need checking against the original file. Each criterion is scored on four levels: 1 below standard, 2 emerging, 3 proficient, 4 distinguished. The map from criteria to project evidence and slides is [rubric-map.md](../deliverables/01-presentation/rubric-map.md).
+
+| # | criterion (English summary) | weight |
+| --- | --- | ---: |
+| 1 | problem and challenge: description, framing, measurement | 10 |
+| 2 | current state (as-is): situation analysis | 10 |
+| 3 | target state (to-be) | 10 |
+| 4 | translating the targets into a dashboard that fits its audience | 10 |
+| 5 | transition from current to target state | 10 |
+| 6 | solution effectiveness: reactive, preventive or predictive | 12 |
+| 7 | return on investment | 12 |
+| 8 | governance | 10 |
+| 9 | documentation and knowledge transfer | 6 |
+| 10 | presentation to the panel and answers | 10 |
+| | total | 100 |
+| bonus | transferability, scalability and sustainability (0-10) | +10 |
+
+Presentation length: **12 minutes** (criterion 10, level 3: "١٢ دقيقة"). This replaces the "12-15 min, length to confirm" range in the specification.
+
+Still open for T-SA-01: the instructor's sign-off of the use-case canvas against the eight checks in section 7. No sign-off, signature, date or attendance is recorded here.
 
 ---
 
