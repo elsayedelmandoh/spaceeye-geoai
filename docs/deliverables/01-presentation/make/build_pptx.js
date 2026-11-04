@@ -14,6 +14,7 @@ const pres = new PptxGenJS();
 pres.layout = "LAYOUT_WIDE";
 pres.title = "SpaceEye committee presentation";
 
+const TOTAL_SECONDS = 870; // 14:30 talk in the 20-minute slot, about 5:30 for questions (team lead, 2026-11-04)
 const warnings = [];
 // Rough text-height estimate (Calibri ~0.5 em average glyph width); there is no renderer here.
 function estH(text, pt, wIn) {
@@ -124,7 +125,7 @@ const slides = [];
 // 0 (title slide)
 slides.push({
   cover: true,
-  title: "SpaceEye GeoAI", time: "0:15",
+  title: "SpaceEye GeoAI", time: "0:30",
   md: [
     "- SpaceEye GeoAI",
     "- New Capital Radar: a company that owns a city.",
@@ -132,7 +133,7 @@ slides.push({
     "- Team: Elsayed Elmandoh, Verina Fouad, Ahmed Abdelhameed, Nada Shady, Salma Magdy",
   ],
   source: [],
-  note: "Speaker note: 0:15 · opening. Name the project and the slogan, thank the supervisor, introduce the team in one line.",
+  note: "Speaker note: 0:30 · opening. Name the project and the slogan, thank the supervisor, introduce the team in one line.",
   build(s) {
     logos(s, 1.0, MX + W / 2 + (ACUD_AR + 0.3 + DIG_SCALE) / 2, 0.95, 0.3);
     s.addText("SpaceEye GeoAI", { x: MX, y: 1.7, w: W, h: 1.2, fontFace: HEAD, fontSize: 54, bold: true, color: C.text, align: "center", valign: "middle", margin: 0 });
@@ -177,7 +178,7 @@ slides.push({
 
 // 2
 slides.push({
-  title: "The question and the decision", time: "0:15",
+  title: "The question and the decision", time: "0:30",
   md: [
     "- Question: which R7 compounds should the committee visit first next cycle, and why?",
     "- The observatory ranks; the committee decides.",
@@ -185,10 +186,11 @@ slides.push({
     "- As-is → to-be: today every one of the 12 compounds gets a field review every 3 months (4 visits a year each); tomorrow a cycle list of at most 4 compounds from levels 1-3, each with a reason sentence, and the committee decides.",
     "- ACUD has not given us visit times or missed cases, so the as-is pain is not measured.",
     "- Wording rule: the list says \"no building activity since X\" or \"passed its first date by Y\", never a label on a developer.",
+    "- Frame: preventive · Buildings & Facilities · normal conditions · stability. Affected: buyers (6,474 homes in the five late public cases). Why now: C18 is 57 months past its first announced handover date.",
     "- Visual: as-is → to-be flow of two boxes and a 12 → 4 funnel (12 R7 compounds → 4 visits per cycle).",
   ],
-  source: ["`configs/cost_assumptions.yaml` (`projects: 12`, `visits_per_year: 4`), `docs/requirements/01-specs.md` (sections 2, 7 and 12)."],
-  note: "Speaker note: 0:15 · criteria 1, 2, 3. The question and the scope; the new process follows on slide 2b and the decision on slide 11.",
+  source: ["`configs/cost_assumptions.yaml` (`projects: 12`, `visits_per_year: 4`), `docs/requirements/01-specs.md` (sections 0, 2, 7 and 12); `docs/deliverables/decision-memo.md` (6,474 homes, why now)."],
+  note: "Speaker note: 0:30 · criteria 1, 2, 3. The question and the scope; say the frame, who is affected and why now in one line. The new process follows on slide 2b and the decision on slide 11.",
   build(s) {
     const bw = 5.5;
     box(s, "s2 asis", MX, TOP + 0.1, bw, 1.3, "Today (as-is): every one of the 12 compounds gets a field review every 3 months, 4 visits a year each.", { fill: C.slate, pt: 16 });
@@ -204,7 +206,8 @@ slides.push({
       "Scope: R7 only, 12 coded compounds, reporting quarter 2026Q3, cycle capacity 4.",
       "ACUD has not given us visit times or missed cases, so the as-is pain is not measured.",
       "Wording rule: the list says \"no building activity since X\" or \"passed its first date by Y\", never a label on a developer.",
-    ], MX, 4.25, W, 2.15, 16);
+      "Frame: preventive · Buildings & Facilities · normal conditions · stability. Affected: buyers (6,474 homes in the five late public cases). Why now: C18 is 57 months past its first announced handover date.",
+    ], MX, 4.1, W, 2.35, 14);
   },
 });
 
@@ -220,16 +223,17 @@ function edgeLabel(slide, text, x, y, w, align = "left") {
   slide.addText(text, { x, y, w, h: 0.4, fontFace: BODY, fontSize: 11, italic: true, color: C.ink, align, valign: "middle", margin: 0 });
 }
 slides.push({
-  title: "As-is: how R7 is followed today", time: "0:30",
+  title: "As-is: how R7 is followed today", time: "0:45",
   md: [
     "- Today: the same field review every 3 months for every compound, 48 reviews a year in R7 (12 x 4).",
     "- 5 of the 6 public late cases ran 18 to 33 months past the original promise (median 25).",
     "- Three causes: effort is not matched to risk; progress comes from the developer's own statements; nobody compares pace with the promised date.",
+    "- Evidence: C19 claimed 70% progress while 28% of its built area was 20 m or taller that year (different measures: a reason to look, not proof); C14 reported 35% three months before its promised date and moved the date; activity ranges 0.03 to 0.90 around a 0.61 mean.",
     "- Rebuilt from public sources; ACUD's internal workflow was not observed and must be confirmed.",
     "- Visual: as-is process map (from docs/deliverables/as-is.md).",
   ],
   source: ["`docs/deliverables/as-is.md` (process map, baseline, root causes)."],
-  note: "Speaker note: 0:30 · criteria 2, 1. The process map is rebuilt from public sources and must be confirmed with ACUD. The effort is the same for every compound.",
+  note: "Speaker note: 0:45 · criteria 2, 1. The process map is rebuilt from public sources and must be confirmed with ACUD. The effort is the same for every compound.",
   build(s) {
     const bh = 0.7;
     box(s, "s2a Press", MX, 1.5, 2.3, bh, "Press and portals", { fill: C.slate });
@@ -252,26 +256,27 @@ slides.push({
     link(s, 10.4, 3.85, 7.5, 3.85);
     edgeLabel(s, "visit notes", 7.55, 4.0, 2.8);
     bullets(s, "s2a bullets", [
-      "Today: the same field review every 3 months for every compound, 48 reviews a year in R7 (12 x 4).",
-      "5 of the 6 public late cases ran 18 to 33 months past the original promise (median 25).",
+      "Today: the same field review every 3 months for every compound, 48 reviews a year in R7 (12 x 4). 5 of the 6 public late cases ran 18 to 33 months past the original promise (median 25).",
       "Three causes: effort is not matched to risk; progress comes from the developer's own statements; nobody compares pace with the promised date.",
-      "Rebuilt from public sources; ACUD's internal workflow was not observed and must be confirmed.",
-    ], MX, 4.55, W, 1.95, 14);
+      "Evidence: C19 claimed 70% while 28% of its built area was 20 m or taller that year (a reason to look, not proof); C14 reported 35% three months before its promised date and moved it; activity ranges 0.03 to 0.90 around a 0.61 mean.",
+      "Rebuilt from public sources; ACUD's workflow was not observed and must be confirmed.",
+    ], MX, 4.4, W, 2.1, 14);
   },
 });
 
 slides.push({
-  title: "To-be: the new process", time: "0:30",
+  title: "To-be: the new process", time: "0:45",
   md: [
     "- New process (proposed): public satellite data every quarter and published developer statements → pipeline and quality gates → priority list (levels 1-4 with a written reason, capacity 4) → the committee decides → field visit, or watch next quarter → the result is recorded on the Compound file screen in the visit log → the visit log counts false alarms and misses and feeds the next run.",
     "- The system recommends; the committee decides.",
     "- Roles: the Track A owner runs the pipeline and the quality gates every quarter, reviewed by a second team member; the committee decides which compounds to visit; the field visit lead records the result (progressing, stalled, complete, not done); the ACUD data custodian keeps the code-to-name mapping.",
     "- Proposed targets: every compound at level 1 or 2 visited within the quarter (capacity 4 covered all of them in 31 of 31 quarters, 2019Q1-2026Q3); 12 of 12 visit results recorded in the pilot quarter.",
+    "- Reference standards: ISO 37122 and U4SSC have no matching project-level indicator we could verify, so the targets rest on R7 data (31 of 31 quarters). Scenario S3 tests load above capacity.",
     "- Status: proposed by the team, not approved by ACUD.",
     "- Visual: flowchart of the new process (from `docs/deliverables/to-be.md`).",
   ],
   source: ["`docs/deliverables/to-be.md` (the new process, roles and proposed targets)."],
-  note: "Speaker note: 0:30 · criteria 3, 5. Walk the loop once from satellite data to the visit log; stress that the committee decides and every visit result comes back as ground truth. Targets are proposals, not approved by ACUD.",
+  note: "Speaker note: 0:45 · criteria 3, 5. Walk the loop once from satellite data to the visit log; stress that the committee decides and every visit result comes back as ground truth. Targets are proposals, not approved by ACUD.",
   build(s) {
     const y0 = 2.15, bh = 0.75, cy = y0 + bh / 2;
     box(s, "s2b S", MX, 1.5, 2.5, bh, "Public satellite data, every quarter", { fill: C.slate });
@@ -297,10 +302,11 @@ slides.push({
     link(s, 4.85, 4.0, 4.85, y0 + bh);
     edgeLabel(s, "counts false alarms and misses", 4.95, 3.0, 1.9);
     bullets(s, "s2b bullets", [
-      "Roles: the Track A owner runs the pipeline and gates each quarter (second reviewer); the committee decides; the field visit lead records progressing, stalled, complete or not done; the ACUD data custodian keeps the code-to-name mapping.",
-      "Proposed targets: every level 1 or 2 compound visited within the quarter (capacity 4 covered all of them in 31 of 31 quarters); 12 of 12 visit results recorded in the pilot quarter.",
-      "Status: proposed by the team, not approved by ACUD. The system recommends; the committee decides.",
-    ], MX, 4.95, W, 1.55, 14);
+      "Roles: the Track A owner runs the pipeline and gates each quarter (second reviewer); the committee decides; the field visit lead records the result; the ACUD data custodian keeps the code-to-name mapping.",
+      "Targets (proposed): every level 1-2 compound visited (31 of 31 quarters covered); 12 of 12 results recorded.",
+      "ISO 37122 and U4SSC have no matching project-level indicator; targets rest on R7 data. S3 tests load above capacity.",
+      "Proposed by the team, not approved by ACUD. The system recommends; the committee decides.",
+    ], MX, 4.75, W, 1.75, 14);
   },
 });
 
@@ -374,7 +380,7 @@ slides.push({
     "- Cap: if a handover is announced or vegetation share is 0.10 or more, the level is at most 3 (in 2026Q3 this sets 3 of 12 levels: C03, C12 and C21).",
     "- Level 1 inspect now; level 2 inspect this cycle; level 3 document review; level 4 routine. Follow-up states without a level: not started, start unknown, not assessable.",
     "- Legal references: 12 months handover grace and 24 months right to refund (Decree 2184/2022).",
-    "- K5 (fine-eligible months) is illustrative and never sets a level.",
+    "- K5 (months eligible for review) is illustrative and never sets a level.",
     "- Plan gap B5 (planned minus reported progress) is generated data (🟠) and appears only in Track B.",
     "- Visual: rule flow (K2, K3, K6 → worst signal → cap) and level-action table.",
   ],
@@ -397,7 +403,7 @@ slides.push({
       "Cap: handover announced or vegetation share 0.10 or more → level at most 3 (2026Q3: 3 of 12 levels: C03, C12, C21).",
       "Without a level: not started, start unknown, not assessable.",
       "Legal references: 12 months handover grace, 24 months right to refund (Decree 2184/2022).",
-      "K5 (fine-eligible months) is illustrative and never sets a level.",
+      "K5 (months eligible for review) is illustrative and never sets a level.",
       "Plan gap B5 is generated (🟠) and appears only in Track B.",
     ], MX + 4.7, 2.85, W - 4.7, 3.55, 14);
   },
@@ -460,18 +466,18 @@ slides.push({
 
 // 6c
 slides.push({
-  title: "Four screens, one path from alert to action", time: "0:15",
+  title: "Four screens, one path from alert to action", time: "0:30",
   md: [
     "- 1 Priority map: whom should the committee visit first?",
     "- 2 Compound file: why this one? Evidence behind the priority level.",
     "- 3 District view: what does the system give the committee, and when does it fail?",
     "- 4 Digital twin what if: who would change if costs, collections or visit capacity changed? (Track B, generated)",
     "- Alert → action: level → cycle list → compound file → visit form → recorded visit.",
-    "- Audience test: what the teammate reviews changed is logged; the ten-second test with a committee member is still to be run.",
+    "- Audience test: what the teammate reviews changed is logged; the supervisor took an unrecorded ten-second test (2026-11-01); a recorded test with a committee member is still to be run.",
     "- Visual: four screen cards (screen 4 marked generated) and an alert-to-action arrow row.",
   ],
   source: ["`docs/deliverables/user-guide.md` (screen subtitles), `docs/deliverables/audience-test.md`, `docs/deliverables/display-rules-check.md`."],
-  note: "Speaker note: 0:15 · criterion 4. Name who uses each screen, follow the alert to the action, and say the committee-member test is still to be run.",
+  note: "Speaker note: 0:30 · criterion 4. Name who uses each screen, follow the alert to the action, and say the committee-member test is still to be run.",
   build(s) {
     const cards = [["1 · Priority map", "Whom first?"], ["2 · Compound file", "Why this one?"], ["3 · District view", "What does the system give, and when does it fail?"], ["4 · Digital twin what if", "Who changes if costs, collections or capacity change? Track B, generated"]];
     const cw = (W - 3 * 0.15) / 4;
@@ -493,14 +499,14 @@ slides.push({
     });
     bullets(s, "s6c bullets", [
       "Alert to action: the level sets the cycle list, the compound file gives the reason, the visit form records the result.",
-      "Audience test: the teammate reviews changed the screens (audience-test.md). The ten-second test with a committee member is still to be run.",
+      "Audience test: the teammate reviews changed the screens (audience-test.md). The supervisor took an unrecorded ten-second test; a recorded one with a committee member is still to be run.",
     ], MX, 4.6, W, 1.8, 16);
   },
 });
 
 // 7
 slides.push({
-  title: "Backtest: 1 of 6 and why", time: "1:00",
+  title: "Backtest: 1 of 6 and why", time: "1:15",
   md: [
     "- Six public R7 cases, checked with the clock frozen. Codes only, even on this slide.",
     "- Early alert in 1 of 6 cases (after-start reading, case C21) and 0 of 6 (point-in-time reading).",
@@ -508,11 +514,12 @@ slides.push({
     "- Imaging was sufficient in every case (at least 10 images per quarter). In the five missed cases the sites were seen as active, so the rule had no stall to detect. The rule measures stalls and passed dates, not pace against plan.",
     "- The one hit (C21) came from a start date set by publication timing and a lag in the activity score, not from a real stall during construction, so it does not carry over to the other five.",
     "- These counts do not prove why each delay happened.",
+    "- No false-alarm rate on real cases (all six were late). At the central assumptions one missed case equals about 6.7 false alarms (assumed inputs).",
     "- Visual: three stat callouts (1 of 6 · 0 of 6 · 5 required, not achieved), with the C21 district view.",
     ...shotMd(["district"]),
   ],
-  source: ["`data/BACKTEST_CURRENT.md`, `data/experiments/35_backtest_diagnosis/DIAGNOSIS.md`."],
-  note: "Speaker note: 1:00 · criterion 6. Lead with the miss, and say the target was fixed before computing.",
+  source: ["`data/BACKTEST_CURRENT.md`, `data/experiments/35_backtest_diagnosis/DIAGNOSIS.md`; `configs/cost_assumptions.yaml` and `docs/deliverables/technical-track-a.md` (6.7 false alarms per missed case)."],
+  note: "Speaker note: 1:15 · criterion 6. Lead with the miss, and say the target was fixed before computing. Say 0 of 6 point-in-time aloud, and that there is no false-alarm rate on real cases.",
   build(s) {
     const w = (W - 0.4) / 3;
     stat(s, "s7 a", MX, TOP + 0.05, w, 1.45, "1 of 6", "early alert, after-start reading (C21)");
@@ -523,7 +530,8 @@ slides.push({
       "Imaging was sufficient in every case (at least 10 images per quarter). In the five misses the sites looked active, so the rule had no stall to detect. The rule measures stalls and passed dates, not pace against plan.",
       "The one hit (C21) came from a start date set by publication timing and a lag in the activity score, not a real stall; it does not carry over to the other five.",
       "These counts do not prove why each delay happened.",
-    ], MX, 3.15, 7.2, 3.25, 16);
+      "No false-alarm rate on real cases (all six were late). At the central assumptions one missed case equals about 6.7 false alarms (assumed inputs).",
+    ], MX, 3.1, 7.2, 3.4, 14);
     shot(s, "district", MX + 7.4, 3.15, W - 7.4);
   },
 });
@@ -602,7 +610,7 @@ slides.push({
     "- Answer: the Gemini model set in `configs/ai.yaml` when model calls are approved and within the call budget, otherwise a local answer.",
     "- Opens from the dashboard's 💬 button (port 8001).",
     "- Follow-up questions keep the last compound code of the conversation.",
-    "- Generated items stay labelled: the complaints and visit records are synthetic.",
+    "- Generated items stay labelled \"Synthetic - for training only\": the complaints and visit records are synthetic.",
     "- Visual: native flow of five steps and a chatbot answer screenshot.",
     ...shotMd(["chatbot"]),
   ],
@@ -618,7 +626,7 @@ slides.push({
     bullets(s, "s8c bullets", [
       "Opens from the dashboard's 💬 button (port 8001).",
       "Follow-up questions keep the last compound code.",
-      "Generated items stay labelled: complaints and visit records are synthetic.",
+      "Generated items stay labelled \"Synthetic - for training only\": complaints and visit records are synthetic.",
       "Retrieval reads the v7 release facts and the statements, complaints and knowledge documents.",
     ], MX, 3.0, 6.9, 3.4, 14);
     shot(s, "chatbot", MX + W - 4.9, 3.0, 4.9);
@@ -653,9 +661,9 @@ slides.push({
 
 // 9
 slides.push({
-  title: "Value in EGP (3 settings)", time: "1:00",
+  title: "Value in EGP (3 settings)", time: "1:15",
   md: [
-    "- Visiting 4 compounds per cycle instead of all 12: 16 visits a year instead of visiting every compound each cycle.",
+    "- Visiting 4 compounds per cycle instead of all 12: 16 field visits a year instead of 48 (12 x 4).",
     "- Under these assumptions, from 0.007 to 0.102 million EGP per year.",
     "- Cost inputs are public proxies or assumptions. Even the conservative setting is positive, but small.",
     "- Cost per visit (2,000 / 3,000 / 4,000 EGP) is an assumption based on a team of 3 at published engineer pay plus assumed transport. Operating cost and missed cases are public proxies (CBE, Hetzner, WageIndicator, chairman's 7-8% statement); the cost of a late case is a placeholder.",
@@ -663,8 +671,8 @@ slides.push({
     "- Not a measured saving.",
     "- Visual: two stat callouts (0.007 and 0.102 million EGP per year) and a three-setting table (cost per visit, operating cost, missed cases per year).",
   ],
-  source: ["`configs/cost_assumptions.yaml` (the same file holds the three settings, the proxy values and the placeholder); `docs/deliverables/01-presentation/rubric-map.md` (criterion 6 gap)."],
-  note: "Speaker note: 1:00 · criterion 7. Compare with the current policy of visiting all 12; say the conservative setting is positive but small. The cost of a late case is a placeholder of 20,000 EGP per missed case in all three settings.",
+  source: ["`docs/deliverables/as-is.md` (48 reviews a year baseline); `configs/cost_assumptions.yaml` (the same file holds the three settings, the proxy values and the placeholder); `docs/deliverables/01-presentation/rubric-map.md` (criterion 6 gap)."],
+  note: "Speaker note: 1:15 · criterion 7. Give both units: EGP and 16 visits a year instead of 48. Compare with the current policy of visiting all 12; say the conservative setting is positive but small. The cost of a late case is a placeholder of 20,000 EGP per missed case in all three settings.",
   build(s) {
     stat(s, "s9 lo", MX, TOP + 0.05, 3.0, 1.9, "0.007", "million EGP per year, low end");
     stat(s, "s9 hi", MX + 3.2, TOP + 0.05, 3.0, 1.9, "0.102", "million EGP per year, high end");
@@ -675,7 +683,7 @@ slides.push({
       ["Optimistic", "4,000", "6,000", "1"],
     ], MX + 6.6, TOP + 0.05, W - 6.6, [1.35, 1.2, 1.5, W - 6.6 - 4.05], 12, 0.5);
     bullets(s, "s9 bullets", [
-      "Visiting 4 compounds per cycle instead of all 12: 16 visits a year.",
+      "Second unit: visiting 4 compounds per cycle instead of all 12 means 16 field visits a year instead of 48 (12 x 4, the current baseline).",
       "Cost inputs are public proxies or assumptions; the conservative setting is positive but small. Not a measured saving.",
       "Cost per visit (assumption): a team of 3 at published engineer pay plus assumed transport. Operating cost and missed cases are public proxies; the cost of a late case is a placeholder.",
       "The cost of a false alarm against the cost of a missed case has not been measured.",
@@ -685,43 +693,46 @@ slides.push({
 
 // 10
 const RISKS = [
-  ["A level is not a finding", "It says whom to visit first; it is not misconduct, legal distress, breach or a verified fine. No automatic sanction."],
-  ["Unknown stays unknown", "Missing evidence is never read as negative. K3 relies on developer statements, not independent measurement."],
-  ["Generated data", "Never mixed with real data; Track B is marked and hidden from the map. It shows nothing about real accuracy or fairness."],
-  ["Small samples", "6 real cases and 4 test cases: counts only, no percentages."],
+  ["A level is not a finding", "It says whom to visit first; it is not misconduct, legal distress, breach or a verified fine. No automatic sanction.", "Track A owner"],
+  ["Unknown stays unknown", "Missing evidence is never read as negative. K3 relies on developer statements, not independent measurement.", "Track A owner"],
+  ["Generated data", "Never mixed with real data; Track B is marked and hidden from the map. It shows nothing about real accuracy or fairness.", "Track B / AI owner"],
+  ["Small samples", "6 real cases and 4 test cases: counts only, no percentages.", "Field visit lead"],
   ["Complaint text", "Masking does not prove every real name is removed; real text needs further review. The chatbot sees only generated complaints."],
-  ["Law 151/2020", "Interpretation needs the data custodian's review. Not legal advice."],
+  ["Law 151/2020", "Interpretation needs the data custodian's review. Not legal advice.", "ACUD data custodian"],
   ["Handover", "Guides, method card and checklist are in the repo; no one outside the team has rebuilt the system from them yet."],
 ];
 slides.push({
-  title: "Risks and responsible use", time: "0:45",
+  title: "Risks and responsible use", time: "1:00",
   md: [
-    ...RISKS.map(([a, b]) => `- ${a}: ${b}`),
+    ...RISKS.map(([a, b, o]) => `- ${a}: ${b}${o ? " Owner: " + o + "." : ""}`),
+    "- Each risk has an owner role and an early sign in `docs/deliverables/governance.md` (proposed, not signed by ACUD).",
     "- The committee decides; every visit result is recorded to build real ground truth.",
     "- Knowledge transfer: technical operations guide, committee user guide, handover pack, method card and final checklist are in the repo; the user guide was checked against the code, not in a browser.",
     "- Visual: eight cards (seven risks and the committee-decides control).",
   ],
   source: ["`docs/deliverables/responsible-ai.md`, `docs/requirements/01-specs.md` (Law 151/2020).", "(knowledge transfer) `docs/deliverables/technical-track-a.md`, `docs/deliverables/user-guide.md`, `docs/deliverables/knowledge-transfer.md`, `docs/deliverables/method-card.md`, `docs/deliverables/final-checklist.md`."],
-  note: "Speaker note: 0:45 · criteria 8, 9. A level sets the visit order and finds nothing against anyone. Then give one line on the handover documents. The committee decides, and every visit result is recorded to build real ground truth. The user guide was checked against the code, not in a browser.",
+  note: "Speaker note: 1:00 · criteria 8, 9. A level sets the visit order and finds nothing against anyone. Then give one line on the handover documents. The committee decides, and every visit result is recorded to build real ground truth. The user guide was checked against the code, not in a browser.",
   build(s) {
-    const cards = [...RISKS, ["The committee decides", "Every visit result is recorded to build real ground truth."]];
-    const cw = (W - 3 * 0.15) / 4, ch = 2.35;
-    cards.forEach(([a, b], i) => {
+    const cards = [...RISKS, ["The committee decides", "Every visit result is recorded to build real ground truth.", "Committee"]];
+    const cw = (W - 3 * 0.15) / 4, ch = 2.3;
+    cards.forEach(([a, b, o], i) => {
       const x = MX + (i % 4) * (cw + 0.15), y = TOP + Math.floor(i / 4) * (ch + 0.12), last = i === cards.length - 1;
       s.addShape(pres.ShapeType.rect, { x, y, w: cw, h: ch, fill: { color: last ? C.red : C.card }, line: { color: last ? C.red : C.card } });
       s.addShape(pres.ShapeType.rect, { x, y, w: cw, h: 0.08, fill: { color: last ? C.navy : C.red }, line: { color: last ? C.navy : C.red } });
-      check("s10 card " + i, [a, b], 14, cw - 0.3, ch - 0.2);
+      check("s10 card " + i, o ? [a, b, "Owner: " + o] : [a, b], 14, cw - 0.3, ch - 0.2);
       s.addText([
         { text: a, options: { bold: true, fontFace: HEAD, fontSize: 16, breakLine: true } },
-        { text: b, options: { fontFace: BODY, fontSize: 14 } },
+        { text: b, options: { fontFace: BODY, fontSize: 14, breakLine: !!o } },
+        ...(o ? [{ text: "Owner: " + o, options: { fontFace: BODY, fontSize: 14, bold: true } }] : []),
       ].map((r) => ({ text: r.text, options: { color: last ? C.white : C.ink, paraSpaceAfter: 4, ...r.options } })), { x: x + 0.15, y: y + 0.18, w: cw - 0.3, h: ch - 0.26, align: "left", valign: "top", margin: 0 });
     });
+    s.addText("Each risk has an owner role and an early sign in governance.md (proposed, not signed by ACUD).", { x: MX, y: TOP + 2 * ch + 0.2, w: W, h: 0.3, fontFace: BODY, fontSize: 14, color: C.ink, align: "left", valign: "middle", margin: 0 });
   },
 });
 
 // 10b
 slides.push({
-  title: "Launching in production", time: "0:30",
+  title: "Launching in production", time: "0:45",
   md: [
     "- What runs: the Streamlit dashboard (`uv run --locked streamlit run app.py`), the quarterly data run (`uv run --locked --offline python -m src.pipeline.team_run`) and prepared data v7 (`releases/ready-data`).",
     "- Where (proposed, not deployed): a server or VM managed by ACUD, inside ACUD's network, to be agreed with ACUD. Data stays with ACUD; exports use codes only; private mappings never leave the data custodian.",
@@ -732,7 +743,7 @@ slides.push({
     "- Visual: four-step flow (prepare data → run rule → publish dashboard → committee visits and records), a six-step quarterly cycle and a STOP / rollback box.",
   ],
   source: ["`README.md`, `CLAUDE.md`, `docs/deliverables/technical-track-a.md` (quarterly monitoring procedure, STOP, K1 switch; states no deployment is implied), `docs/deliverables/data-request.md`, `docs/deliverables/responsible-ai.md`, `docs/deliverables/governance-cards.md`, `configs/ai.yaml`, `src/dashboard/ops_visits.py`."],
-  note: "Speaker note: 0:30 · criteria 5, 9. Technical launch only; phases are on the next slide. Hosting is a proposal to agree with ACUD, not a deployed system. Any STOP writes no manifest; the fallback is K1 and the prior release.",
+  note: "Speaker note: 0:45 · criteria 5, 9. Technical launch only; say the controls; phases are on the next slide. Hosting is a proposal to agree with ACUD, not a deployed system. Any STOP writes no manifest; the fallback is K1 and the prior release.",
   build(s) {
     const steps = ["Prepare data (v7, codes only)", "Run rule (quarterly team_run)", "Publish dashboard (Streamlit)", "Committee visits and records (ops_visits)"];
     const bw = 2.6, gap = (W - 4 * bw) / 3;
@@ -762,7 +773,7 @@ const PH = [
   ["3 · Quarterly operation", "Quarterly monitoring; thresholds and capacity change only by reviewed decision.", "Proposed: Track A owner operates, another team member reviews.", "Activity score A fails on new quarters.", "Fall back to K1; prior releases stay available."],
 ];
 slides.push({
-  title: "Decision, transition and next step", time: "0:45", dark: true,
+  title: "Decision, transition and next step", time: "1:00", dark: true,
   md: [
     "- **Decision requested:** use the inspection priority list to choose which R7 compounds the committee visits first next cycle. The system recommends; the committee decides.",
     "- Message: this is what public data alone can do. Give us your data and the demo parts become real operation.",
@@ -774,7 +785,7 @@ slides.push({
     "- Visual: decision box and three-phase roadmap.",
   ],
   source: ["`docs/deliverables/decision-memo.md` (decision requested), `docs/deliverables/data-request.md`, `docs/requirements/01-specs.md` (data request list, art. 54; section 13 risks and fallbacks), `docs/deliverables/technical-track-a.md` (quarterly monitoring procedure)."],
-  note: "Speaker note: 0:45 · criteria 5, 10, bonus. Open with the decision, name the first phase and close on the next step. Total 12:00. For questions: the ACUD export is ordered by impact (dated inspection and handover outcomes, contract register, parcel geometry first); any STOP in the monitoring procedure writes no manifest.",
+  note: "Speaker note: 1:00 · criteria 5, 10, bonus. Open with the decision, name the first phase and close on the next step. Total 14:30. For questions: the ACUD export is ordered by impact (dated inspection and handover outcomes, contract register, parcel geometry first); any STOP in the monitoring procedure writes no manifest.",
   build(s) {
     s.addShape(pres.ShapeType.rect, { x: MX, y: TOP, w: W, h: 0.95, fill: { color: C.sand }, line: { color: C.sand } });
     const dec = "Decision requested: use the inspection priority list to choose which R7 compounds the committee visits first next cycle. The system recommends; the committee decides.";
@@ -816,7 +827,7 @@ const labels = ["0", "1", "2", "2a", "2b", "3", "4", "5", "6", "6b", "6c", "7", 
 const md = [
   "# Presentation: 20 slides (title slide 0, then 1-11 with 2a and 2b after 2, 6b and 6c after 6, 8b, 8c and 8d after 8, and 10b after 10)",
   "",
-  "Tasks T-SA-06 and T-EL-25. Draft text for review. This file holds the on-slide content and speaker notes of `presentation.pptx`, slide for slide in the same order. Length: 12 min, the limit set by criterion 10 of the instructor rubric (`docs/requirements/ACUD-Rubric.md`); the time budget and the criteria each slide answers follow `docs/deliverables/01-presentation/rubric-map.md` (presentation plan) and are stated in each speaker note (total 12:00). Numbers come only from repo files and carry an origin mark: 🟢 real · 🔵 derived · 🟠 generated (\"Synthetic - for training only\"). Compounds and developers appear as codes only; the only names are the supervisor and team on the title slide. The words \"risk level\", \"distressed\" (for a real compound) and any completion % are not used. Some caveats are in the speaker notes.",
+  "Tasks T-SA-06 and T-EL-25. Draft text for review. This file holds the on-slide content and speaker notes of `presentation.pptx`, slide for slide in the same order. Length: the talk is 14:30 in a 20-minute slot, leaving about 5:30 for questions (team lead, 2026-11-04); the rubric text says 12 minutes (criterion 10 of the instructor rubric, `docs/requirements/ACUD-Rubric.md`); the time budget and the criteria each slide answers follow `docs/deliverables/01-presentation/rubric-map.md` (presentation plan) and are stated in each speaker note (total 14:30). Numbers come only from repo files and carry an origin mark: 🟢 real · 🔵 derived · 🟠 generated (\"Synthetic - for training only\"). Compounds and developers appear as codes only; the only names are the supervisor and team on the title slide. The words \"risk level\", \"distressed\" (for a real compound) and any completion % are not used. Some caveats are in the speaker notes.",
   "",
 ];
 slides.forEach((sp, i) => {
@@ -825,7 +836,7 @@ slides.forEach((sp, i) => {
   md.push("", sp.note, "");
 });
 const secs = slides.reduce((a, sp) => { const [m, s2] = sp.time.split(":").map(Number); return a + m * 60 + s2; }, 0);
-if (secs !== 720) warnings.push("total time is " + secs + "s, not 720");
+if (secs !== TOTAL_SECONDS) warnings.push("total time is " + secs + "s, not " + TOTAL_SECONDS);
 slides.forEach((sp) => { if (!sp.note.startsWith("Speaker note: " + sp.time)) warnings.push("note time mismatch: " + sp.title); });
 
 // ---------- html (same spec; colors from palette.md; no external scripts or fonts) ----------
