@@ -1438,8 +1438,9 @@ def render_early_warning(case: dict | None) -> None:
     with st.container(border=True):
         finding(f"<b>{code}</b> was first flagged in {case['alert']}, {case['months']} months before its first "
                 f"handover date ({case['deadline']}).")
-        # The backtest reads the clock as it stood then; today's history may differ after later images.
-        st.markdown(f"**What space saw in {case['alert']}**, with the data available then: "
+        # The backtest reads the clock as it stood at the alert quarter; today's history may differ after later images.
+        # K2 here is the quarter's real stored value, not the generated twin scenario value.
+        st.markdown(f"**What space saw in {case['alert']}**, with the data available then (as of that quarter, real): "
                     f"{html.escape(case['saw'][:1].lower() + case['saw'][1:])}.")
         if case["level_at_freeze"] is not None:
             st.markdown(f"By the freeze date ({case['freeze']}) it was back at level {case['level_at_freeze']} "
@@ -1792,7 +1793,7 @@ def render_capacity_variant(raw: pd.DataFrame, variant: str) -> None:
                 f'{html.escape(r["code"])}</span> · {html.escape(r["change"])}'
                 f'<div class="se-move-why">{html.escape(r["reason"])}</div></div>',
                 unsafe_allow_html=True)
-        st.caption(f"{ORIGIN_GENERATED} Generated · {label}")
+        st.caption(f"{ORIGIN_GENERATED} Generated · {label} · quarter from stored capacity scenario")
 
 
 SCENARIO_TABS = {"S1": "S1 · Cost shock", "S2": "S2 · Collections drop", "S3": "S3 · Capacity"}
