@@ -240,5 +240,7 @@ docs/plan/
 # Explicitly approved prepared team bundle only; raw/private datasets stay ignored.
 !releases/ready-data/SpaceEye_R7_READY_DATA_2026-10-31_v7.zip
 
+chatbot/.env
+chatbot/vector_db/
 # Local copies of the team source inputs from the F: data folder (checked by SHA-256 only; never commit).
 data/source/
