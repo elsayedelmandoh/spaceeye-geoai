@@ -66,3 +66,50 @@ def test_k5_dashboard_copy_refers_to_contract_review_not_assessed_fine():
     assert "12 months eligible for review under contract terms (proposal: 12)." in visible
     assert "the committee decides any action" in visible
     assert "The committee decides any action." in visible
+
+
+def test_what_if_s3_caption_shows_quarter_origin_not_assessed_fine():
+    """Page B (S3 capacity): caption must say the quarter is from the stored scenario, not a contract rate."""
+    def script():
+        import pandas as pd
+        import app
+        raw = pd.DataFrame({
+            "quarter": ["2026Q3"],
+            "code": ["C21"],
+            "scenario_id": ["S3"],
+            "selected": [True],
+            "selection_changed": [False],
+        })
+        app.render_capacity_variant(raw, "capacity_minus_2")
+    at = AppTest.from_function(script).run(timeout=30)
+    assert not at.exception
+    visible = _visible_text(at)
+    # Must say it is generated and reference the stored scenario quarter.
+    assert "Generated" in visible
+    assert "quarter from stored capacity scenario" in visible
+    # Must NOT conflate it with the contract fine language.
+    assert "contract decides" not in visible.lower()
+
+
+def test_early_warning_c21_shows_alert_quarter_and_uses_real_k2():
+    """Page A (District → early signal): C21 must reference its alert quarter explicitly; the text must say
+    the value comes from the real quarter data, not the generated twin scenario (fixes bug-02 contradiction)."""
+    def script():
+        import pandas as pd
+        import app
+        app.render_early_warning({
+            "code": "C21", "alert": "2020Q3", "months": 39,
+            "deadline": "Dec 2023", "freeze": "2020-12-31",
+            "level_at_freeze": 3, "saw": "no new building activity for 6 quarters; handover announced",
+            "outcome": "delayed", "reported": None,
+        })
+    at = AppTest.from_function(script).run(timeout=30)
+    assert not at.exception
+    visible = _visible_text(at)
+    # Must reference the alert quarter (real) explicitly.
+    assert "2020Q3" in visible
+    assert "as of that quarter, real" in visible
+    # Must reference the real 6 quarters value, not the generated 2.
+    assert "no new building activity for 6 quarters" in visible
+    # Must NOT say it is the generated scenario value.
+    assert "generated twin scenario" not in visible.lower()
