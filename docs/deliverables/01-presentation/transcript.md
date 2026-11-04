@@ -9,16 +9,18 @@ Rules for everyone: codes only (C18, never a name); "priority level", never "ris
 | # | Member | Slides | Time | Dashboard live |
 | --- | --- | --- | --- | --- |
 | 1 | Elsayed Elmandoh (lead) | 0 | 0:15 | - |
-| 2 | Salma Magdy | 1, 2 | 1:30 | - |
+| 2 | Verina Fouad | 1, 2 | 1:30 | - |
 | 3 | Ahmed Abdelhameed | 3, 4, 5 | 2:15 | - |
 | 4 | Nada Shady | 6 | 1:15 | Priority map → Compound file → visit form |
-| 5 | Ahmed Abdelhameed | 7 | 1:30 | District view (C21 early signal) |
-| 6 | Verina Fouad | 8, 8b | 1:30 | Digital twin what if (Track B, S3 capacity) |
-| 7 | Salma Magdy | 9, 10 | 2:30 | - |
-| 8 | Elsayed Elmandoh | 10b, 11 | 1:15 | - (chatbot kept for Q&A) |
+| 5 | Salma Magdy | 7 | 1:30 | District view (C21 early signal) |
+| 6 | Verina Fouad | 8 | 1:00 | - |
+| 7 | Elsayed Elmandoh | 8b | 0:30 | Digital twin what if (Track B, S3 capacity) |
+| 8 | Salma Magdy | 9, 10 | 2:30 | - |
+| 9 | Ahmed Abdelhameed | 10b | 0:30 | - |
+| 10 | Nada Shady | 11 | 0:45 | - (chatbot kept for Q&A) |
 | | **Total** | **14 slides** | **12:00** | |
 
-Per member: Elsayed 1:30, Salma 4:00, Ahmed 3:45, Nada 1:15, Verina 1:30.
+Per member: Elsayed 0:45, Verina 2:30, Ahmed 2:45, Nada 2:00, Salma 4:00.
 
 ## Before you start (10 minutes earlier)
 
@@ -30,7 +32,7 @@ Per member: Elsayed 1:30, Salma 4:00, Ahmed 3:45, Nada 1:15, Verina 1:30.
 - Switching: `Alt+Tab` from slides to browser, `Ctrl+1/2/3` for the tab, `Alt+Tab` back. Rehearse it; it should take under 2 seconds.
 - Visit form: use a rehearsal copy of the app data folder, because a saved visit is a real row in the visits file.
 - Backup: if the dashboard does not load, stay on the slide; slides 6, 7 and 8b carry the same screens as screenshots. Say "here is the same screen" and continue. Never debug in front of the committee.
-- One person (Nada) holds the mouse for every live part; the speaker talks, Nada clicks on cue.
+- One person (Nada) holds the mouse for every live part; the speaker talks, Nada clicks on cue (for Salma on slide 7 and Elsayed on slide 8b).
 
 ## How we switch speakers
 
@@ -45,11 +47,11 @@ Every handover is one sentence that names the next person and the question they 
 **Say:**
 "Good morning. We are SpaceEye GeoAI: New Capital Radar, for a company that owns a city. Thank you, Dr. Nadim Abdin, for supervising us. In twelve minutes we will show you one thing: which compounds your committee should visit first, and why."
 
-**Handover:** "Salma will start with the problem, in your chairman's own numbers."
+**Handover:** "Verina will start with the problem, in your chairman's own numbers."
 
 ---
 
-## 2. Salma Magdy (KPIs, value, governance)
+## 2. Verina Fouad (problem and decision framing)
 
 ### Slide 1 · Problem in numbers (0:45)
 
@@ -65,7 +67,7 @@ Every handover is one sentence that names the next person and the question they 
 
 ---
 
-## 3. Ahmed Abdelhameed (Track A: satellites, rule, backtest)
+## 3. Ahmed Abdelhameed (Track A: satellites, rule)
 
 ### Slide 3 · Data (0:45)
 
@@ -105,11 +107,11 @@ Every handover is one sentence that names the next person and the question they 
 
 **Switch:** `Alt+Tab` → slides.
 
-**Handover:** "Does it catch late projects early? Ahmed tested it, with the clock frozen."
+**Handover:** "Does it catch late projects early? Salma will show the backtest, with the clock frozen."
 
 ---
 
-## 5. Ahmed Abdelhameed (backtest)
+## 5. Salma Magdy (KPIs, value, governance)
 
 ### Slide 7 · Backtest: 1 of 6 and why (1:30)
 
@@ -119,6 +121,7 @@ Every handover is one sentence that names the next person and the question they 
 **Switch:** `Alt+Tab` → Tab 2 (District view, "An early signal: C21").
 
 **Show and say:**
+
 - Early-signal block: "This is the one hit, C21: the alert quarter, what space saw with the data available at that time, and the capture after the alert next to the latest one."
 - Scroll to **When the solution fails**: "And this is the honest part. In the five misses, imaging was sufficient, at least 10 images per quarter, but the sites were active, so there was no stall to detect. The rule measures stalls and passed dates, not pace against a plan. Even the C21 hit came partly from publication timing, so we do not claim it carries over."
 
@@ -130,12 +133,18 @@ Every handover is one sentence that names the next person and the question they 
 
 ---
 
-## 6. Verina Fouad (Track B: generated data, what-if)
+## 6. Verina Fouad (Track B: generated data)
 
 ### Slide 8 · Track B: generated data (1:00)
 
 **Say:**
 "Everything on this slide is synthetic, for training only. We generated ACUD-style finance, reports and complaints, and asked one question: will a compound be distressed in the next six months? We had 96 training rows and 48 test rows, with only 4 distressed test cases. The chart shows how many of those 4 each method put in its top 4. The public rule found 3, boosting on satellite data found 4, but that 4 rests partly on height, and without height it drops to 1. A random list scores 0.335 on average. Our honest reading: with 4 cases the methods cannot be separated, and adding ACUD-style data did not clearly help. This is a diagnostic, not real accuracy."
+
+**Handover:** "What changes if the committee has a different number of visits? Elsayed shows one scenario."
+
+---
+
+## 7. Elsayed Elmandoh (what-if)
 
 ### Slide 8b · The observatory: one what-if scenario (0:30)
 
@@ -150,7 +159,7 @@ Every handover is one sentence that names the next person and the question they 
 
 ---
 
-## 7. Salma Magdy (value, risks)
+## 8. Salma Magdy (value, risks)
 
 ### Slide 9 · Value in EGP, 3 settings (1:30)
 
@@ -162,16 +171,22 @@ Every handover is one sentence that names the next person and the question they 
 **Say:**
 "Seven risks, and one control. A level is not a finding: it says whom to visit first, never misconduct or a sanction. Unknown stays unknown: missing evidence never counts against anyone. Generated data never mixes with real data. Small samples are reported as counts, never percentages. Complaint text is masked, and no external AI call reads it. Law 151/2020 needs your data custodian's review. And the handover pack is in the repository. The control in red: the committee decides, and every visit result is recorded."
 
-**Handover:** "How does this run inside ACUD, and what do we ask you today? Elsayed."
+**Handover:** "How does this run inside ACUD? Ahmed."
 
 ---
 
-## 8. Elsayed Elmandoh (production, decision)
+## 9. Ahmed Abdelhameed (production)
 
 ### Slide 10b · Launching in production (0:30)
 
 **Say:**
 "Technically it is three things: the dashboard, one quarterly data run, and the prepared release. Proposed, not deployed: a server inside ACUD's network, so data stays with ACUD and exports use codes only. Every quarter: refresh, quality gates, list, visits, recorded results. Any STOP blocks the release, and the fallback is the simpler K1 check and the prior release. The chatbot calls the AI model only within an approved budget."
+
+**Handover:** "And what do we ask of you today? Nada closes with the decision."
+
+---
+
+## 10. Nada Shady (decision)
 
 ### Slide 11 · Decision, transition and next step (0:45)
 
@@ -184,7 +199,7 @@ Every handover is one sentence that names the next person and the question they 
 
 ## Questions and answers (after the 12 minutes)
 
-Elsayed takes each question, gives it to its owner in one sentence ("Ahmed built that, Ahmed?"), and closes if needed. Answers are one or two sentences, with the number, from [expected-questions.md](../expected-questions.md).
+Elsayed takes each question, gives it to its owner in one sentence ("Ahmed built that, Ahmed?"), and closes if needed. The presenter of a slide may answer first about their own slide. Answers are one or two sentences, with the number, from [expected-questions.md](../expected-questions.md).
 
 | Question type | Answers | Show if useful |
 | --- | --- | --- |
@@ -198,6 +213,7 @@ Elsayed takes each question, gives it to its owner in one sentence ("Ahmed built
 Open the 💬 button on the dashboard (chatbot on port 8001) and type the committee's own question, for example "What does level 1 mean for C18?" or "What does Decree 2184/2022 say about the handover grace period?". Say: "This is our assistant. It answers from the project's data and its sourced documents and shows where each answer comes from. It is not legal advice, and it calls the AI model only within the budget ACUD approves." If it is slow, close it and answer yourself.
 
 Ready one-liners:
+
 - "Is this a real saving?" → "No, 0.007 to 0.102 million EGP a year under stated assumptions; your data makes it measurable."
 - "Why only 1 of 6?" → "The rule detects stalls and passed dates; the five misses kept building, too slowly. We fixed the target before computing and did not lower it."
 - "Are you calling developers distressed?" → "No. We say 'no building activity for N quarters' or 'passed its first date by N months', and the committee decides."
