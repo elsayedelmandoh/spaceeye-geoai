@@ -18,8 +18,9 @@ Speaker note: 0:15 · opening. Name the project and the slogan, thank the superv
 - 🟢 Real statement: About 7-8% of developers seriously late; 6 mutual terminations.
 - A committee cannot visit everything every cycle: whom to visit first?
 - These are the chairman's statements, not our measurement.
-- Visual: five stat callouts (more than 400 developers · more than 500 projects · field review every 3 months · about 7-8% seriously late · 6 mutual terminations).
-- Source: statements by the ACUD chairman, as recorded in `docs/requirements/01-specs.md` (section 12, slide 1).
+- The gap: with more than 500 projects and a review every 3 months, the open question is which compounds come first. ACUD's data (plot boundaries, handover dates, supervisor reports, field review records) is what would turn our public-data screening into operation.
+- Visual: gap graphic (more than 500 projects, review every 3 months → which compounds first? → a short cycle list), five stat callouts (more than 400 developers · more than 500 projects · field review every 3 months · about 7-8% seriously late · 6 mutual terminations).
+- Source: statements by the ACUD chairman, as recorded in `docs/requirements/01-specs.md` (section 12, slide 1 and the data request list).
 
 Speaker note: 0:45 · criterion 1. A committee cannot visit everything every cycle, so the question is whom to visit first.
 
@@ -30,7 +31,8 @@ Speaker note: 0:45 · criterion 1. A committee cannot visit everything every cyc
 - Scope: R7 only, 12 coded compounds, reporting quarter 2026Q3, cycle capacity 4.
 - As-is → to-be: today every one of the 12 compounds gets a field review every 3 months (4 visits a year each); tomorrow a cycle list of at most 4 compounds from levels 1-3, each with a reason sentence, and the committee decides.
 - ACUD has not given us visit times or missed cases, so the as-is pain is not measured.
-- Visual: as-is → to-be flow of two boxes.
+- Wording rule: the list says "no building activity since X" or "passed its first date by Y", never a label on a developer.
+- Visual: as-is → to-be flow of two boxes and a 12 → 4 funnel (12 R7 compounds → 4 visits per cycle).
 - Source: `configs/cost_assumptions.yaml` (`projects: 12`, `visits_per_year: 4`), `docs/requirements/01-specs.md` (sections 2, 7 and 12).
 
 Speaker note: 0:45 · criteria 1, 2, 3. One sentence from today's practice to the new list; the decision itself comes on slide 11.
@@ -40,8 +42,10 @@ Speaker note: 0:45 · criteria 1, 2, 3. One sentence from today's practice to th
 - 1,009 of 1,026 documented facts passed independent review. This is the figure stated in the spec, not a recount.
 - Origin key on every number: 🟢 real, 🔵 derived, 🟠 generated.
 - Real: satellite series, statements, laws. Generated: finance, supervisor reports, meters, complaints (only ACUD holds the real ones).
-- Visual: stat callout (1,009 of 1,026) and origin-key table.
-- Source: `docs/requirements/01-specs.md` (section 12); `data/DATASET_CONTRACT.md` (tables).
+- Pipeline: public sources → prepared v7 release (84 frozen inputs in data/REBUILD_INPUTS.csv) → dashboard.
+- Public and derived tables: 12 compounds, 516 compound-quarters (2016Q1-2026Q3), 57 statements, 372 KPI rows (cutoffs 2019Q1-2026Q3).
+- Visual: stat callout (1,009 of 1,026), origin-key table and a three-step pipeline graphic.
+- Source: `docs/requirements/01-specs.md` (section 12); `data/DATASET_CONTRACT.md` (tables and sizes); `data/REBUILD_INPUTS.csv` (84 inputs).
 
 Speaker note: 0:45 · criteria 2, 8. Point to the origin key; it is used on every later slide. The installed data has no facts register, so 1,009 of 1,026 is the figure stated in the spec (section 12), not a recount; the dashboard's data-trust screen shows the same documented figure.
 
@@ -52,7 +56,8 @@ Speaker note: 0:45 · criteria 2, 8. Point to the origin key; it is used on ever
 - Wayback before/after images (with capture date and attribution) are for display; Esri terms to be confirmed before use.
 - A quarter is assessable only with at least 6 Dynamic World images and a boundary with a reviewed confidence label (K4).
 - Limit: satellites show whether building is happening, not interior finishing. No completion % or finishing % is given.
-- Visual: three-row source table (source · gives · role).
+- Visual: three-row source table (source · gives · role), with the compound file screen.
+- Screenshot: `assets/screen2-compound-file.png`, "Dashboard screenshot · Compound file".
 - Source: `docs/requirements/01-specs.md` and `data/DATASET_CONTRACT.md`.
 
 Speaker note: 0:30 · criteria 2, 6. Say what the satellite sees and what it cannot.
@@ -75,7 +80,9 @@ Speaker note: 1:00 · criteria 3, 4. The worst signal sets the level, without we
 - Priority map, cycle list (capacity 4, levels 1-3), open one compound, read its reason sentence, open the inspection file, record a visit result.
 - Everything on screen in Track A is real or derived. No generated number appears on the map.
 - Dependency: the demo needs the dashboard to run from stored files. Run command: `make run (team_run --full, which calls run_all)`, the one run command per board task T-AH-19.
-- Visual: five-step flow (priority map → cycle list → reason sentence → inspection file → visit result).
+- Visual: five-step flow (priority map → cycle list → reason sentence → inspection file → visit result), with two dashboard screenshots.
+- Screenshot: `assets/screen1-top.png`, "Dashboard screenshot · Priority map".
+- Screenshot: `assets/screen1-map-panel.png`, "Dashboard screenshot · Priority map, selected compound".
 - Source: `docs/deliverables/user-guide.md`; board task T-AH-19 in `docs/requirements/02-team-roles-and-tasks.md`.
 
 Speaker note: 1:15 · criterion 4. Follow the alert to the action: level, cycle list, inspection file, visit form.
@@ -88,7 +95,8 @@ Speaker note: 1:15 · criterion 4. Follow the alert to the action: level, cycle 
 - Imaging was sufficient in every case (at least 10 images per quarter). In the five missed cases the sites were seen as active, so the rule had no stall to detect. The rule measures stalls and passed dates, not pace against plan.
 - The one hit (C21) came from a start date set by publication timing and a lag in the activity score, not from a real stall during construction, so it does not carry over to the other five.
 - These counts do not prove why each delay happened.
-- Visual: three stat callouts (1 of 6 · 0 of 6 · 5 required, not achieved).
+- Visual: three stat callouts (1 of 6 · 0 of 6 · 5 required, not achieved), with the C21 district view.
+- Screenshot: `assets/screen3-district-view.png`, "Dashboard screenshot · District view".
 - Source: `data/BACKTEST_CURRENT.md`, `data/experiments/35_backtest_diagnosis/DIAGNOSIS.md`.
 
 Speaker note: 1:30 · criterion 6. Lead with the miss, and say the target was fixed before computing.
@@ -114,7 +122,8 @@ Speaker note: 1:00 · criterion 6. Generated data only; with 4 test cases the me
 - Scenarios: S1 dollar shock, S2 collections drop, S3 inspection capacity change. Demo S3 live: who enters or leaves the cycle list at 2 or 6 visits instead of 4 (45 of 744 rows change list membership: 28 at capacity 2, 17 at capacity 6; levels never change).
 - S1 and S2 change nothing in the list or the levels (0 of 216 rows each).
 - Generated (🟠), orange banner on screen, no map. Not a 3D or real-time observatory.
-- Visual: scenario table (S1 · S2 · S3 and rows changed).
+- Visual: scenario table (S1 · S2 · S3 and rows changed) and the scenario panel of the dashboard (cropped).
+- Screenshot: `assets/screen4-twin-what-if.png`, "Dashboard screenshot · Digital twin what if".
 - Source: `logs/review-05.md` (scenario row counts).
 
 Speaker note: 0:30 · criterion 6. Show S3 only; say S1 and S2 change nothing.
@@ -143,7 +152,7 @@ Speaker note: 1:30 · criterion 7. Compare with the current policy of visiting a
 - Handover: Guides, method card and checklist are in the repo; no one outside the team has rebuilt the system from them yet.
 - The committee decides; every visit result is recorded to build real ground truth.
 - Knowledge transfer: technical operations guide, committee user guide, handover pack, method card and final checklist are in the repo; the user guide was checked against the code, not in a browser.
-- Visual: risk and control table.
+- Visual: eight cards (seven risks and the committee-decides control).
 - Source: `docs/deliverables/responsible-ai.md`, `docs/requirements/01-specs.md` (Law 151/2020).
 - Source (knowledge transfer): `docs/deliverables/technical-track-a.md`, `docs/deliverables/user-guide.md`, `docs/deliverables/knowledge-transfer.md`, `docs/deliverables/method-card.md`, `docs/deliverables/final-checklist.md`.
 
@@ -156,7 +165,8 @@ Speaker note: 1:00 · criteria 8, 9. A level sets the visit order and finds noth
 - Controls: thresholds and capacity change only by reviewed decision; chatbot model calls stay off until approved with a call budget (`configs/ai.yaml`); every visit result is recorded in ops_visits.
 - Monitoring: the quarterly procedure and its quality gates; any STOP keeps outputs for diagnosis, writes no manifest and blocks packaging.
 - Rollback: switch the activity source to K1 (a recorded decision) and keep prior releases available, as slide 11 says.
-- Visual: four-step flow (prepare data → run rule → publish dashboard → committee visits and records).
+- Quarterly cycle: quarter data refresh → gates (STOP/FIX/FLAG) → cycle list → visits → recorded results → next quarter. A FLAG needs a recorded review decision; a STOP blocks delivery. If source coverage fails, affected observations are marked not assessable; an automatic K1 switch is not yet established.
+- Visual: four-step flow (prepare data → run rule → publish dashboard → committee visits and records), a six-step quarterly cycle and a STOP / rollback box.
 - Source: `README.md`, `CLAUDE.md`, `docs/deliverables/technical-track-a.md` (quarterly monitoring procedure, STOP, K1 switch; states no deployment is implied), `docs/deliverables/data-request.md`, `docs/deliverables/responsible-ai.md`, `docs/deliverables/governance-cards.md`, `configs/ai.yaml`, `src/dashboard/ops_visits.py`.
 
 Speaker note: 0:30 · criteria 5, 9. Technical launch only; phases are on the next slide. Hosting is a proposal to agree with ACUD, not a deployed system. Any STOP writes no manifest; the fallback is K1 and the prior release.
