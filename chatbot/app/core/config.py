@@ -1,4 +1,4 @@
-﻿import os
+import os
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -18,25 +18,21 @@ class Settings:
 
 
 def _api_key_or_empty() -> str:
-    """Return the project Gemini key, or "" so callers use the non-model path."""
-    try:
-        return get_api_key()
-    except RuntimeError:
-        return ""
+    """The project Gemini key; else the key in chatbot/.env (start.ps1 flow); else "" for the non-model path."""
+    for env_path in (None, CHATBOT_DIR / ".env"):
+        try:
+            return get_api_key() if env_path is None else get_api_key(env_path)
+        except RuntimeError:
+            continue
+    return ""
 
 
 def get_settings() -> Settings:
+    # Default: the release unpacked by setup_review next to app_data (follows SPACEEYE_DATA_ROOT).
+    from src.pipeline.common import APP
+
     database_path = Path(
-        os.getenv(
-            "SPACEYE_DB_PATH",
-            str(
-                REPO_ROOT
-                / "artifacts"
-                / "ready_data_v7"
-                / "SpaceEye_R7_READY_DATA_2026-10-31_v7"
-                / "spaceeye_ready.duckdb"
-            ),
-        )
+        os.getenv("SPACEYE_DB_PATH", str(APP.parent / "ready-data" / "spaceeye_ready.duckdb"))
     )
 
     if not database_path.is_absolute():

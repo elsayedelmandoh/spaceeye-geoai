@@ -3,6 +3,8 @@
 
 **Observed imagery:** [view/rebuild guide](data/imagery/README.md), [source comparison](data/IMAGERY_COMPARISON.md) and [frame metadata](data/imagery/wayback_timeline.csv). The 100 Wayback / 528 Sentinel figures stay outside Git; the numerical v7 release is separate.
 
+**Run the dashboard and the chatbot on Windows (one command):** install [uv](https://docs.astral.sh/uv/), clone the repository, then from its folder run `powershell -ExecutionPolicy Bypass -File .\start.ps1`. The first run creates `chatbot\.env`: put the Gemini key after `GEMINI_API_KEY=` (ask the team lead; never commit it) and run the command again. It installs everything, prepares the data once, starts the chatbot on port 8001 in a second window and opens the dashboard on http://localhost:8501; the chat button sits at the bottom right. The first chatbot question downloads its embedding model, so it is slow once.
+
 **New device or review:** follow [REVIEW_SETUP](docs/REVIEW_SETUP.md). Run `uv sync --locked`, then `uv run --locked python -m src.pipeline.setup_review`. Paths are checkout-relative; `SPACEEYE_DATA_ROOT` relocates the workspace without requiring a specific drive. The [84-file source manifest](data/REBUILD_INPUTS.csv) and source-cache tool cover full rebuilds.
 
 [Download the current v7 data](releases/ready-data/SpaceEye_R7_READY_DATA_2026-10-31_v7.zip?raw=1) · [Data guide](releases/ready-data/DATA_GUIDE.md) · [Task board and human reviews](docs/requirements/02-team-roles-and-tasks.md) · [Remaining work](docs/REMAINING_TEAM_TASKS.md)
