@@ -50,6 +50,10 @@ torch = [
 pulls = [
     "earthengine-api",
 ]
+chatbot = [
+    "chromadb",
+    "sentence-transformers",
+]
 
 # installed by plain `uv sync` (optional extras are not)
 [dependency-groups]

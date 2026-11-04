@@ -39,17 +39,11 @@ class Settings:
 def get_settings() -> Settings:
     load_local_env()
 
+    # Default: the release unpacked by setup_review next to app_data (follows SPACEEYE_DATA_ROOT).
+    from src.pipeline.common import APP
+
     database_path = Path(
-        os.getenv(
-            "SPACEYE_DB_PATH",
-            str(
-                REPO_ROOT
-                / "artifacts"
-                / "ready_data_v7"
-                / "SpaceEye_R7_READY_DATA_2026-10-31_v7"
-                / "spaceeye_ready.duckdb"
-            ),
-        )
+        os.getenv("SPACEYE_DB_PATH", str(APP.parent / "ready-data" / "spaceeye_ready.duckdb"))
     )
 
     if not database_path.is_absolute():
