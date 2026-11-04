@@ -345,6 +345,30 @@ def inject_css() -> None:
             box-shadow: 0 0 0 3px rgba(26,14,0,0.25); animation: se-pulse 1.8s ease-in-out infinite;
         }}
         @keyframes se-pulse {{ 0%,100% {{ opacity: 1; }} 50% {{ opacity: 0.35; }} }}
+        /* Floating SpaceEye Chat Button */
+            .se-floating-chat {{
+                position: fixed;
+                right: 28px;
+                bottom: 28px;
+                width: 62px;
+                height: 62px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #38BDF8, #6366F1);
+                color: white !important;
+                font-size: 28px;
+                text-decoration: none !important;
+                box-shadow: 0 8px 25px rgba(56, 189, 248, 0.4);
+                z-index: 99999;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }}
+
+        .se-floating-chat:hover {{
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(56, 189, 248, 0.55);
+            }}
         </style>
         """,
         unsafe_allow_html=True,
@@ -2056,6 +2080,17 @@ def render_sidebar() -> tuple[Track, str]:
     return track, screen
 
 
+def render_floating_chat_button() -> None:
+    """Render a floating shortcut to the SpaceEye Hybrid RAG chatbot."""
+    st.markdown(
+        '<a href="http://127.0.0.1:8001/" target="_blank" '
+        'rel="noopener noreferrer" class="se-floating-chat" '
+        'title="Open SpaceEye AI Assistant" '
+        'aria-label="Open SpaceEye AI Assistant">'
+        '<span>💬</span></a>',
+        unsafe_allow_html=True,
+    )
+
 def main() -> None:
     st.set_page_config(
         page_title="SpaceEye · R7 Observatory",
@@ -2063,6 +2098,7 @@ def main() -> None:
         layout="wide",
     )
     inject_css()
+    render_floating_chat_button()
     track, screen = render_sidebar()
     render_banner(track)
     SCREEN_FUNCTIONS[screen](track)
