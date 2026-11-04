@@ -1,6 +1,6 @@
 # Presentation transcript: مين يقول إيه، slide بعد slide
 
-خطة الكلام للعرض أمام اللجنة في 12 دقيقة ([presentation.pptx](presentation.pptx)، 18 slides). كل عضو يقدّم الجزء اللي بناه (الـ owners من [02-team-roles-and-tasks.md](../../requirements/02-team-roles-and-tasks.md)). الأوقات هي أوقات الـ speaker notes في الـ deck ومجموعها 12:00. الكلام بالعربي، والمصطلحات المهمة تفضل بالإنجليزي زي ما هي مكتوبة على الشاشة والـ slides. السرعة حوالي 130 كلمة في الدقيقة (0:30 ≈ 65 كلمة)؛ قولها بأسلوبك، لكن الأرقام تفضل بالظبط.
+خطة الكلام للعرض أمام اللجنة في 12 دقيقة ([presentation.pptx](presentation.pptx)، 18 slides). كل عضو يقدّم الجزء اللي بناه بنفسه (الـ owners من [02-team-roles-and-tasks.md](../../requirements/02-team-roles-and-tasks.md))، عشان يقدر يدافع عنه في الأسئلة. الأوقات هي أوقات الـ speaker notes في الـ deck ومجموعها 12:00. الكلام بالعربي، والمصطلحات المهمة تفضل بالإنجليزي زي ما هي مكتوبة على الشاشة والـ slides. السرعة حوالي 130 كلمة في الدقيقة (0:30 ≈ 65 كلمة)؛ قولها بأسلوبك، لكن الأرقام تفضل بالظبط.
 
 قواعد للكل: codes بس (C18، عمرنا ما نقول اسم)؛ نقول "priority level" وعمرنا ما نقول "risk level"؛ عمرنا ما نوصف compound حقيقي بإنه "distressed"؛ K5 هو "months eligible for review" ومش غرامة؛ أي حاجة من Track B هي "generated, Synthetic - for training only".
 
@@ -9,18 +9,20 @@
 | # | العضو | Slides | الوقت | Dashboard live |
 | --- | --- | --- | --- | --- |
 | 1 | السيد المندوه (lead) | 0 | 0:15 | - |
-| 2 | فيرينا فؤاد | 1, 2 | 1:00 | - |
+| 2 | سلمى مجدي | 1, 2 | 1:00 | - |
 | 3 | أحمد عبد الحميد | 3, 4, 5 | 1:45 | - |
-| 4 | ندى شادي | 6, 6b, 6c | 2:15 | Priority map ← Compound file ← visit form؛ search و filter و map click |
-| 5 | فيرينا فؤاد | 7 | 1:00 | District view (C21 early signal) |
-| 6 | السيد المندوه | 8, 8b, 8c | 2:00 | Digital twin what if (Track B, S3 capacity)؛ chatbot (💬) |
-| 7 | سلمى مجدي | 8d, 9 | 1:45 | - |
-| 8 | ندى شادي | 10 | 0:45 | - |
-| 9 | أحمد عبد الحميد | 10b | 0:30 | - |
-| 10 | سلمى مجدي | 11 | 0:45 | - |
+| 4 | ندى شادي | 6 | 1:00 | Priority map ← Compound file ← visit form |
+| 5 | السيد المندوه | 6b | 0:45 | search و filter و map click |
+| 6 | ندى شادي | 6c | 0:30 | - |
+| 7 | أحمد عبد الحميد | 7 | 1:00 | District view (C21 early signal) |
+| 8 | فيرينا فؤاد | 8, 8b | 1:15 | Digital twin what if (Track B, S3 capacity) |
+| 9 | السيد المندوه | 8c | 0:45 | chatbot (💬) |
+| 10 | سلمى مجدي | 8d, 9, 10 | 2:30 | - |
+| 11 | أحمد عبد الحميد | 10b | 0:30 | - |
+| 12 | سلمى مجدي | 11 | 0:45 | - |
 | | **Total** | **18 slides** | **12:00** | |
 
-لكل عضو: السيد 2:15، فيرينا 2:00، أحمد 2:15، ندى 3:00، سلمى 2:30 (المجموع 12:00).
+لكل عضو (وبنى إيه): سلمى 4:15 (KPIs، value، governance، الـ presentation)، أحمد 3:15 (Track A، الـ backtest، الـ monitoring)، السيد 1:45 (الافتتاح، الـ search والـ filters والـ map click، الـ chatbot)، ندى 1:30 (الـ dashboard)، فيرينا 1:15 (Track B والـ what-if). المجموع 12:00.
 
 ## قبل ما نبدأ (بـ 10 دقايق)
 
@@ -33,11 +35,11 @@
 - التنقل: `Alt+Tab` من الـ slides للـ browser، و `Ctrl+1/2/3/4` للـ tab، و `Alt+Tab` للرجوع. اتمرّنوا عليه؛ لازم ياخد أقل من ثانيتين.
 - الـ visit form: استخدموا نسخة rehearsal من فولدر الـ app data، لأن أي visit بيتحفظ بيبقى row حقيقي في ملف الـ visits.
 - Backup: لو الـ dashboard أو الـ chatbot ما فتحش، اقف على الـ slide؛ slides 6 و 6b و 7 و 8b و 8c فيهم نفس الشاشات كـ screenshots. قول "دي نفس الشاشة" وكمّل. عمرنا ما نعمل debug قدام اللجنة.
-- شخص واحد (ندى) ماسك الماوس في كل الأجزاء الـ live؛ اللي بيتكلم بيتكلم، وندى بتدوس على الإشارة (لفيرينا في slide 7 وللسيد في slides 8b و 8c).
+- شخص واحد (ندى) ماسك الماوس في كل الأجزاء الـ live؛ اللي بيتكلم بيتكلم، وندى بتدوس على الإشارة (للسيد في slides 6b و 8c، ولأحمد في slide 7، ولفيرينا في slide 8b).
 
 ## إزاي نسلّم لبعض (handover)
 
-كل handover جملة واحدة: اسم اللي جاي والسؤال اللي هيجاوب عليه، والمتكلم الجديد يبدأ بالإجابة على طول، مش بـ "شكرًا". اللي خلّص يرجع خطوة، واللي جاي يكون واقف جنب الشاشة قبل ما الجملة تخلص.
+كل handover جملة واحدة: اسم اللي جاي والسؤال اللي هيجاوب عليه، والمتكلم الجديد يبدأ بالإجابة على طول، مش بـ "شكرًا". اللي خلّص يرجع خطوة، واللي جاي يكون واقف جنب الشاشة قبل ما الجملة تخلص. في slides 6 و 6b و 6c ندى فاضلة على الماوس، فالـ handover بين ندى والسيد من غير ما حد يتحرك من مكانه.
 
 ---
 
@@ -48,11 +50,11 @@
 **يقول:**
 "صباح الخير. إحنا SpaceEye GeoAI: New Capital Radar، رادار لشركة بتمتلك مدينة. شكرًا لـ د. نديم عبدين على الإشراف. النهارده هنجاوب على سؤال واحد: أنهي compounds اللجنة تزورها الأول، وليه."
 
-**Handover:** "فيرينا هتبدأ بالمشكلة، بأرقام رئيس مجلس الإدارة نفسه."
+**Handover:** "سلمى هتبدأ بالمشكلة، بأرقام رئيس مجلس الإدارة نفسه."
 
 ---
 
-## 2. فيرينا فؤاد (المشكلة وصياغة القرار)
+## 2. سلمى مجدي (المشكلة وصياغة القرار)
 
 ### Slide 1 · Problem in numbers (0:30)
 
@@ -107,11 +109,17 @@
 
 **Switch:** الـ sidebar ← **1 · Priority map** (نفضل في Tab 1).
 
+**Handover:** "طب لو اللجنة عايزة توصل لـ compound معيّن على طول؟ السيد بنى الـ search والـ filters."
+
+---
+
+## 5. السيد المندوه (الـ search والـ filters والـ map click)
+
 ### Slide 6b · Search, filters and map click (0:45)
 
-Live على Tab 1، جزء **Search and filters** فوق الـ map. لو الـ dashboard بطيء، slide 6b فيه نفس الشاشتين كـ screenshots.
+Live على Tab 1، جزء **Search and filters** فوق الـ map. ندى بتضغط، والسيد بيتكلم. لو الـ dashboard بطيء، slide 6b فيه نفس الشاشتين كـ screenshots.
 
-| Click | تعرض | تقول |
+| Click (ندى) | تعرض | يقول (السيد) |
 | --- | --- | --- |
 | 1 | اكتبي **C1** في **Search code** | "Search box واحد بياخد compound code أو developer code، وأول الحروف كفاية. لما نكتب C1 بيفضل 6 من الـ 12 compound على الـ map، والـ legend بيعرض العدد لكل level." |
 | 2 | اختاري level من **Priority level** (مثلًا level 1) | "الـ filters: الربع، والـ level، والـ developer، و minimum K2 و K3 و K6، أو الـ cycle list بس. الـ rank بيفضل نفس ترتيب زيارات الربع." |
@@ -119,68 +127,76 @@ Live على Tab 1، جزء **Search and filters** فوق الـ map. لو الـ
 | 4 | الـ panel بتاع **Selected compound** في الـ sidebar | "Codes بس، من غير أسماء. وزرار واحد بيفتح الـ compound file بتاعه." |
 | 5 | اضغطي **Clear selection**، وفضّي الـ search box | "و Clear selection بيرجّع كل حاجة." |
 
-### Slide 6c · Four screens, one path from alert to action (0:30)
-
-**تقول (على الـ slide، من غير switch):**
-"أربع شاشات، أربع أسئلة: مين الأول؟ ليه ده؟ السيستم بيدي إيه، وإمتى بيفشل؟ والأخيرة generated: مين هيتغير لو التكاليف أو التحصيل أو الـ capacity اتغيرت؟ والطريق: level، ثم cycle list، ثم compound file، ثم visit form، ثم recorded visit. الـ reviews بتاعة زمايلنا غيّرت الشاشات؛ والـ ten-second test مع عضو من اللجنة لسه هيتعمل."
-
-**Switch:** `Alt+Tab` ← الـ slides (لو لسه في الـ browser).
-
-**Handover:** "هل بيمسك المشاريع المتأخرة بدري؟ فيرينا هتعرض الـ backtest، والـ clock متجمّد."
+**Handover:** "ندى هتجمع الأربع شاشات في طريق واحد."
 
 ---
 
-## 5. فيرينا فؤاد (الـ backtest)
+## 6. ندى شادي (الأربع شاشات)
+
+### Slide 6c · Four screens, one path from alert to action (0:30)
+
+**Switch:** `Alt+Tab` ← الـ slides.
+
+**تقول (على الـ slide):**
+"أربع شاشات، أربع أسئلة: مين الأول؟ ليه ده؟ السيستم بيدي إيه، وإمتى بيفشل؟ والأخيرة generated: مين هيتغير لو التكاليف أو التحصيل أو الـ capacity اتغيرت؟ والطريق: level، ثم cycle list، ثم compound file، ثم visit form، ثم recorded visit. الـ reviews بتاعة زمايلنا غيّرت الشاشات؛ والـ ten-second test مع عضو من اللجنة لسه هيتعمل."
+
+**Handover:** "هل بيمسك المشاريع المتأخرة بدري؟ أحمد هيعرض الـ backtest، والـ clock متجمّد."
+
+---
+
+## 7. أحمد عبد الحميد (الـ backtest)
 
 ### Slide 7 · Backtest: 1 of 6 and why (1:00)
 
-**تقول (على الـ slide):**
+**يقول (على الـ slide):**
 "هنبدأ باللي فاتنا. جمّدنا الـ clock وأعدنا تشغيل 6 حالات حقيقية public في R7. الـ target، 5 من 6، اتحدد قبل الحساب، ما نزّلناهوش، وما وصلناهوش: الـ rule عمل early alert في حالة واحدة من 6."
 
 **Switch:** `Alt+Tab` ← Tab 2 (District view، "An early signal: C21").
 
-**تعرض وتقول:**
+**يعرض ويقول:**
 
 - جزء الـ early signal: "دي الحالة الوحيدة اللي مسكناها، C21: ربع الـ alert واللي الـ satellite شافه وقتها."
-- انزلي لـ **When the solution fails**: "في الخمس حالات اللي فاتونا، الصور كانت كفاية، لكن المواقع كانت شغالة، فمكانش فيه stall نكتشفه. الـ rule بيقيس الـ stalls والمواعيد اللي عدّت، مش السرعة مقارنة بالـ plan. وحتى C21 جت جزئيًا من توقيت النشر، فمش بنقول إنها هتتكرر."
+- ندى تنزل لـ **When the solution fails**: "في الخمس حالات اللي فاتونا، الصور كانت كفاية، لكن المواقع كانت شغالة، فمكانش فيه stall نكتشفه. الـ rule بيقيس الـ stalls والمواعيد اللي عدّت، مش السرعة مقارنة بالـ plan. وحتى C21 جت جزئيًا من توقيت النشر، فمش بنقول إنها هتتكرر."
 
 **Switch:** `Alt+Tab` ← الـ slides.
 
-**تقول:** "الأرقام دي مش بتثبت سبب كل تأخير؛ ده محتاج سجلات ACUD."
+**يقول:** "الأرقام دي مش بتثبت سبب كل تأخير؛ ده محتاج سجلات ACUD."
 
-**Handover:** "لو معانا data زي بتاعة ACUD، model يقدر يعمل أحسن؟ السيد هيعرض اللي جربناه على generated data."
+**Handover:** "لو معانا data زي بتاعة ACUD، model يقدر يعمل أحسن؟ فيرينا جربت ده على generated data."
 
 ---
 
-## 6. السيد المندوه (Track B: generated data و what-if و chatbot)
+## 8. فيرينا فؤاد (Track B: generated data و what-if)
 
 ### Slide 8 · Track B: generated data (0:45)
 
-**يقول:**
+**تقول:**
 "كل حاجة على الـ slide دي Synthetic - for training only. سألنا: هل الـ compound هيبقى distressed في الست شهور الجاية؟ 96 training rows، و 48 test rows، فيهم 4 distressed test cases بس. الـ chart بيوضح كل method حط كام واحد من الـ 4 دول في الـ top 4 بتاعه. الـ public rule جاب 3؛ والـ boosting على الـ satellite data جاب 4، لكن ده معتمد جزئيًا على الارتفاع، ومن غيره بيبقى 1. والـ random list متوسطها 0.335. بـ 4 حالات بس مش هنقدر نفرّق بين الـ methods. ده diagnostic، مش real accuracy."
 
-**يقول وهو بيتنقل:** "وإيه اللي يحصل لو عدد زيارات اللجنة اتغير؟ scenario واحد، live."
+**تقول وهي بتتنقل:** "وإيه اللي يحصل لو عدد زيارات اللجنة اتغير؟ scenario واحد، live."
 
 ### Slide 8b · The observatory: one what-if scenario (0:30)
 
-**Switch:** `Alt+Tab` ← Tab 3 (Track B، Digital twin what if، S3 · Capacity). شاور على الـ orange banner الأول.
+**Switch:** `Alt+Tab` ← Tab 3 (Track B، Digital twin what if، S3 · Capacity). شاوري على الـ orange banner الأول.
 
-**يعرض ويقول:**
+**تعرض وتقول:**
 "الـ orange banner معناه generated. لو اللجنة عندها زيارتين في الـ cycle، أو 6، بدل 4؟ على كل الأرباع، 45 من 744 row بيتغير فيهم الـ list membership، والـ level عمره ما بيتغير. أما الـ dollar shock وانخفاض التحصيل، S1 و S2، فمش بيغيروا أي حاجة في الـ list. وده result، مش missing value."
 
-**Switch:** `Alt+Tab` ← الـ slides.
+**Handover:** "وهل اللجنة تقدر ببساطة تسأل المشروع سؤال؟ السيد، live."
 
-**يقول وهو بيتنقل:** "وهل اللجنة تقدر ببساطة تسأل المشروع سؤال؟ Live."
+---
+
+## 9. السيد المندوه (الـ chatbot)
 
 ### Slide 8c · Ask the project: the chatbot (0:45)
 
-**Switch:** `Alt+Tab` ← Tab 4 (الـ chatbot)، أو زرار 💬 في الـ dashboard.
+**Switch:** `Ctrl+4` ← Tab 4 (الـ chatbot)، أو زرار 💬 في الـ dashboard.
 
-| Click | يعرض | يقول |
+| Click (ندى) | تعرض | يقول (السيد) |
 | --- | --- | --- |
-| 1 | اكتب سؤال، مثلًا "latest KPI for C18"، وابعته | "السؤال بيروح لـ router فيه 10 intents، وبعدين لنوعين retrieval: facts من الـ v7 release، و search في الـ statements والـ complaints والـ knowledge documents." |
+| 1 | اكتبي سؤال، مثلًا "latest KPI for C18"، وابعتيه | "السؤال بيروح لـ router فيه 10 intents، وبعدين لنوعين retrieval: facts من الـ v7 release، و search في الـ statements والـ complaints والـ knowledge documents." |
 | 2 | الإجابة والـ sources اللي بتعرضها | "الإجابة جاية بالـ sources بتاعتها، وبتوضح إيه published وإيه derived وإيه generated. الـ AI model بيتستخدم بس لما يكون approved وجوه الـ call budget؛ غير كده الإجابة local." |
-| 3 | اسأل follow-up قصير من غير code، مثلًا "and the reason?" | "الـ follow-up بيفتكر آخر compound code، والحاجات الـ generated زي الـ complaints بتفضل مكتوب عليها synthetic." |
+| 3 | اسألي follow-up قصير من غير code، مثلًا "and the reason?" | "الـ follow-up بيفتكر آخر compound code، والحاجات الـ generated زي الـ complaints بتفضل مكتوب عليها synthetic." |
 
 **Switch:** `Alt+Tab` ← الـ slides. لو الـ chatbot بطيء، اقفله وقول "دي نفس الشاشة" على الـ slide.
 
@@ -188,23 +204,21 @@ Live على Tab 1، جزء **Search and filters** فوق الـ map. لو الـ
 
 ---
 
-## 7. سلمى مجدي (حدود الـ chatbot، والـ value)
+## 10. سلمى مجدي (حدود الـ chatbot، والـ value، والـ risks)
 
 ### Slide 8d · What the chatbot knows, and its limits (0:45)
 
 **تقول:**
 "بيعرف 9 sourced documents: موقع ACUD، و Decree 2184/2022، و Building Law 119، و Law 151/2020، و Dynamic World، و Open Buildings، و Esri Wayback، و ISO 37120 و 37122، و الـ SLA note بتاعتنا، وكمان الـ data بتاعة المشروع. اختبرناه بنفسنا: 8 من 8 intent tests، و 5 من 5 retrieval checks نجحوا. دي tests صغيرة، مش accuracy claim. الـ model calls محتاجة موافقة صاحب المشروع، وبحد أقصى 200 call، وبعدها الإجابات local. Codes بس، ومش legal advice."
 
+**تقول وهي بتتنقل:** "طب كل ده يساوي كام بالفلوس؟"
+
 ### Slide 9 · Value in EGP, 3 settings (1:00)
 
 **تقول:**
 "السياسة الحالية بتزور الـ 12 كلهم. زيارة 4 في كل cycle معناها 16 visit في السنة. تحت الـ assumptions بتاعتنا الـ value من 0.007 لـ 0.102 million EGP في السنة. تلات settings: الزيارة بتتكلف 2,000 أو 3,000 أو 4,000 EGP، فريق من 3 بمرتب مهندس منشور زائد المواصلات. الـ operating cost والـ missed cases هم public proxies؛ وتكلفة الحالة المتأخرة placeholder قيمته 20,000 EGP. حتى الـ conservative setting موجب لكن صغير، وده مش measured saving. لسه مش قادرين نقيس تكلفة الـ false alarm قصاد الـ missed case؛ بالـ data بتاعة ACUD ده يبقى حقيقي."
 
-**Handover:** "الـ value جانب؛ لكن هل آمن نستخدمه؟ ندى."
-
----
-
-## 8. ندى شادي (الـ risks والاستخدام المسؤول)
+**تقول وهي بتتنقل:** "الـ value جانب؛ لكن هل آمن نستخدمه؟"
 
 ### Slide 10 · Risks and responsible use (0:45)
 
@@ -215,7 +229,7 @@ Live على Tab 1، جزء **Search and filters** فوق الـ map. لو الـ
 
 ---
 
-## 9. أحمد عبد الحميد (الـ production)
+## 11. أحمد عبد الحميد (الـ production)
 
 ### Slide 10b · Launching in production (0:30)
 
@@ -226,7 +240,7 @@ Live على Tab 1، جزء **Search and filters** فوق الـ map. لو الـ
 
 ---
 
-## 10. سلمى مجدي (القرار)
+## 12. سلمى مجدي (القرار)
 
 ### Slide 11 · Decision, transition and next step (0:45)
 
@@ -239,15 +253,15 @@ Live على Tab 1، جزء **Search and filters** فوق الـ map. لو الـ
 
 ## الأسئلة والإجابات (بعد الـ 12 دقيقة)
 
-السيد بياخد كل سؤال ويحوّله لصاحبه في جملة واحدة ("أحمد هو اللي بناه، اتفضل يا أحمد")، ويقفل لو محتاج. اللي قدّم slide ممكن يجاوب الأول عن الـ slide بتاعته. الإجابة جملة أو جملتين، بالرقم، من [expected-questions.md](../expected-questions.md).
+السيد بياخد كل سؤال ويحوّله لصاحبه في جملة واحدة ("أحمد هو اللي بناه، اتفضل يا أحمد")، ويقفل لو محتاج. كل واحد بيجاوب عن اللي بناه، وده نفس اللي قدّمه. الإجابة جملة أو جملتين، بالرقم، من [expected-questions.md](../expected-questions.md).
 
 | نوع السؤال | يجاوب | يعرض لو مفيد |
 | --- | --- | --- |
-| الـ satellites، الـ rule، الـ levels، الـ backtest، "ليه مش score" | أحمد | District view، Compound file |
+| الـ data، الـ satellites، الـ rule، الـ levels، الـ backtest، الـ production، "ليه مش score" | أحمد | District view، Compound file |
 | الـ generated data، الـ model، الـ what-if، الـ complaints classifier | فيرينا | Tab 3 (what-if) |
-| الشاشات، الـ search والـ filters، الصياغة، الـ visit form، الـ cycle list | ندى | Tab 1 |
+| الشاشات، الصياغة، الـ visit form، الـ cycle list | ندى | Tab 1 |
 | الفلوس، الـ KPIs، الـ risks، القانون، الـ governance، الـ data request، معرفة الـ chatbot والـ budget | سلمى | Slides 8d و 9 و 10 |
-| الـ AI، الـ chatbot بيشتغل إزاي، الـ production، "محتاجين مننا إيه" | السيد | Slide 8c، Tab 4 |
+| الـ AI، الـ search والـ filters، الـ chatbot بيشتغل إزاي، "محتاجين مننا إيه" | السيد | Slides 6b و 8c، Tab 4 |
 
 **لحظة الـ chatbot (السيد، حوالي 30 ثانية، لما ييجي سؤال عن الـ rules أو القانون):**
 شاور على slide 8c، وبعدين افتح زرار 💬 في الـ dashboard (الـ chatbot على port 8001) واكتب سؤال اللجنة نفسه، مثلًا "What does level 1 mean for C18?" أو "What does Decree 2184/2022 say about the handover grace period?". وقول: "ده الـ assistant اللي في slide 8c. بيجاوب من الـ data بتاعة المشروع والـ sourced documents بتاعته، وبيوضح كل إجابة جاية منين. مش legal advice، وبيستخدم الـ AI model بس جوه الـ budget اللي صاحب المشروع وافق عليه." لو بطيء، اقفله وجاوب بنفسك.
@@ -265,6 +279,7 @@ Live على Tab 1، جزء **Search and filters** فوق الـ map. لو الـ
 
 - **نفتح بأرقامهم، ونقفل بقرارهم.** أول slide بيقتبس رئيس مجلس الإدارة؛ وآخر slide بيطلب قرار واحد اللجنة تقدر تاخده الـ cycle الجاي.
 - **نبدأ باللي فاتنا.** لما نقول "1 من 6، والـ target اتحدد الأول" قبل ما حد يسأل، ده بيكسب ثقة أكتر من أي رقم حلو.
+- **كل واحد بيتكلم عن شغله.** اللي بنى الجزء هو اللي بيقدّمه، فلو اللجنة سألت، الإجابة جاهزة عنده.
 - **Show, then say.** في الأجزاء الـ live: اضغط الأول، استنى ثانية، وبعدين اتكلم عن اللي على الشاشة.
 - **ماوس واحد، صوت واحد.** ندى بتضغط في كل الأجزاء الـ live؛ اللي بيتكلم عمره ما يمد إيده على اللابتوب.
 - **نفس كلام الشاشة.** قول "Inspect now" و "months eligible for review" و "Synthetic - for training only" بالظبط زي ما الـ dashboard كاتبها.
