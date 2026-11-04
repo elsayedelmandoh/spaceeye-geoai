@@ -99,6 +99,8 @@ function table(slide, label, rows, x, y, w, colW, pt = 14, rowH = 0.5, headFill 
 
 // Dashboard screenshots (1600x950 PNGs in assets/). crop = region in source pixels; aspect ratio is kept.
 const SHOTS = {
+  search: { file: "screen1-search-filters.png", name: "Priority map, search and filters" },
+  chatbot: { file: "chatbot-home.png", name: "Chatbot, start screen" },
   top: { file: "screen1-top.png", name: "Priority map" },
   mapPanel: { file: "screen1-map-panel.png", name: "Priority map, selected compound" },
   file: { file: "screen2-compound-file.png", name: "Compound file" },
@@ -145,7 +147,7 @@ slides.push({
 
 // 1
 slides.push({
-  title: "Problem in numbers", time: "0:45",
+  title: "Problem in numbers", time: "0:30",
   md: [
     "- 🟢 Real statement: More than 400 developers and more than 500 projects.",
     "- 🟢 Real statement: Field review every 3 months.",
@@ -156,7 +158,7 @@ slides.push({
     "- Visual: gap graphic (more than 500 projects, review every 3 months → which compounds first? → a short cycle list), five stat callouts (more than 400 developers · more than 500 projects · field review every 3 months · about 7-8% seriously late · 6 mutual terminations).",
   ],
   source: ["statements by the ACUD chairman, as recorded in `docs/requirements/01-specs.md` (section 12, slide 1 and the data request list)."],
-  note: "Speaker note: 0:45 · criterion 1. A committee cannot visit everything every cycle, so the question is whom to visit first.",
+  note: "Speaker note: 0:30 · criterion 1. A committee cannot visit everything every cycle, so the question is whom to visit first.",
   build(s) {
     const stats = [[">400", "developers"], [">500", "projects"], ["3 months", "between field reviews"], ["7-8%", "of developers seriously late"], ["6", "mutual terminations"]];
     const w = (W - 4 * 0.2) / 5;
@@ -175,7 +177,7 @@ slides.push({
 
 // 2
 slides.push({
-  title: "The question and the decision", time: "0:45",
+  title: "The question and the decision", time: "0:30",
   md: [
     "- Question: which R7 compounds should the committee visit first next cycle, and why?",
     "- The observatory ranks; the committee decides.",
@@ -186,7 +188,7 @@ slides.push({
     "- Visual: as-is → to-be flow of two boxes and a 12 → 4 funnel (12 R7 compounds → 4 visits per cycle).",
   ],
   source: ["`configs/cost_assumptions.yaml` (`projects: 12`, `visits_per_year: 4`), `docs/requirements/01-specs.md` (sections 2, 7 and 12)."],
-  note: "Speaker note: 0:45 · criteria 1, 2, 3. One sentence from today's practice to the new list; the decision itself comes on slide 11.",
+  note: "Speaker note: 0:30 · criteria 1, 2, 3. One sentence from today's practice to the new list; the decision itself comes on slide 11.",
   build(s) {
     const bw = 5.5;
     box(s, "s2 asis", MX, TOP + 0.1, bw, 1.3, "Today (as-is): every one of the 12 compounds gets a field review every 3 months, 4 visits a year each.", { fill: C.slate, pt: 16 });
@@ -208,7 +210,7 @@ slides.push({
 
 // 3
 slides.push({
-  title: "Data", time: "0:45",
+  title: "Data", time: "0:30",
   md: [
     "- 1,009 of 1,026 documented facts passed independent review. This is the figure stated in the spec, not a recount.",
     "- Origin key on every number: 🟢 real, 🔵 derived, 🟠 generated.",
@@ -218,7 +220,7 @@ slides.push({
     "- Visual: stat callout (1,009 of 1,026), origin-key table and a three-step pipeline graphic.",
   ],
   source: ["`docs/requirements/01-specs.md` (section 12); `data/DATASET_CONTRACT.md` (tables and sizes); `data/REBUILD_INPUTS.csv` (84 inputs)."],
-  note: "Speaker note: 0:45 · criteria 2, 8. Point to the origin key; it is used on every later slide. The installed data has no facts register, so 1,009 of 1,026 is the figure stated in the spec (section 12), not a recount; the dashboard's data-trust screen shows the same documented figure.",
+  note: "Speaker note: 0:30 · criteria 2, 8. Point to the origin key; it is used on every later slide. The installed data has no facts register, so 1,009 of 1,026 is the figure stated in the spec (section 12), not a recount; the dashboard's data-trust screen shows the same documented figure.",
   build(s) {
     stat(s, "s3 stat", MX, TOP + 0.1, 3.9, 2.2, "1,009 of 1,026", "documented facts passed independent review");
     table(s, "s3 table", [
@@ -270,7 +272,7 @@ slides.push({
 
 // 5
 slides.push({
-  title: "The Track A rule", time: "1:00",
+  title: "The Track A rule", time: "0:45",
   md: [
     "- Priority level = the worst of K2 (quarters with no activity after construction started), K3 (months since the first announced handover date) and K6 (months since the first launch or promise with no confirmed start). No weights.",
     "- Cap: if a handover is announced or vegetation share is 0.10 or more, the level is at most 3 (in 2026Q3 this sets 3 of 12 levels: C03, C12 and C21).",
@@ -281,7 +283,7 @@ slides.push({
     "- Visual: rule flow (K2, K3, K6 → worst signal → cap) and level-action table.",
   ],
   source: ["`docs/deliverables/kpi-cards.md` (cap count), `configs/data.yaml`, `docs/requirements/01-specs.md` (level table: 24 months right to refund)."],
-  note: "Speaker note: 1:00 · criteria 3, 4. The worst signal sets the level, without weights, and each level maps to an action.",
+  note: "Speaker note: 0:45 · criteria 3, 4. The worst signal sets the level, without weights, and each level maps to an action.",
   build(s) {
     const kw = 2.45, y = TOP + 0.05, h = 1.15;
     [["K2", "Quarters with no activity after construction started"], ["K3", "Months since the first announced handover date"], ["K6", "Months since first launch or promise, no confirmed start"]].forEach(([k, t], i) =>
@@ -307,7 +309,7 @@ slides.push({
 
 // 6
 slides.push({
-  title: "Live demo (Track A)", time: "1:15",
+  title: "Live demo (Track A)", time: "1:00",
   md: [
     "- Priority map, cycle list (capacity 4, levels 1-3), open one compound, read its reason sentence, open the inspection file, record a visit result.",
     "- Everything on screen in Track A is real or derived. No generated number appears on the map.",
@@ -316,7 +318,7 @@ slides.push({
     ...shotMd(["top", "mapPanel"]),
   ],
   source: ["`docs/deliverables/user-guide.md`; board task T-AH-19 in `docs/requirements/02-team-roles-and-tasks.md`."],
-  note: "Speaker note: 1:15 · criterion 4. Follow the alert to the action: level, cycle list, inspection file, visit form.",
+  note: "Speaker note: 1:00 · criterion 4. Follow the alert to the action: level, cycle list, inspection file, visit form.",
   build(s) {
     const steps = ["Priority map", "Cycle list (capacity 4, levels 1-3)", "Compound reason sentence", "Inspection file", "Visit result recorded"];
     const bw = 1.95, gap = (W - 5 * bw) / 4;
@@ -333,9 +335,76 @@ slides.push({
   },
 });
 
+// 6b
+slides.push({
+  title: "Search, filters and map click", time: "0:45",
+  md: [
+    "- One search box takes a compound code (C..) or a developer code (D..); a prefix works. Typing \"C1\" narrows the map to 6 of 12 compounds, and the level legend shows the counts.",
+    "- Filters: as-of quarter, priority level, developer code, minimum K2 / K3 / K6 and \"Cycle list only\". The caption says how many compounds are shown, and unknown K values stay only while their minimum is 0.",
+    "- The rank stays the quarter's visit order while you filter.",
+    "- Click a block on the map: the sidebar opens the \"Selected compound\" panel with its stored values and drill-downs (\"Open compound file\" button). \"Clear selection\" resets it.",
+    "- Codes only, no names.",
+    "- Visual: two dashboard screenshots (search \"C1\"; map click and sidebar panel).",
+    ...shotMd(["search", "mapPanel"]),
+  ],
+  source: ["`app.py` (`render_filters`, `open_clicked_compound`, `render_selected_compound_panel`), `src/dashboard/insights.py` (`filter_compounds`); board tasks T-NA-11, T-NA-12, T-NA-13 and T-EL-21 in `docs/requirements/02-team-roles-and-tasks.md`."],
+  note: "Speaker note: 0:45 · criterion 4. Live: type C1 in the search, set a priority level filter, click a block on the map, show the sidebar panel, then Clear selection.",
+  build(s) {
+    const iw = 3.9;
+    shot(s, "search", MX, TOP, iw);
+    shot(s, "mapPanel", MX + iw + 0.2, TOP, iw);
+    bullets(s, "s6b bullets", [
+      "One search box: a compound code (C..) or developer code (D..); a prefix works. \"C1\" shows 6 of 12 compounds.",
+      "Filters: as-of quarter, priority level, developer, minimum K2 / K3 / K6, cycle list only.",
+      "Rank stays the quarter's visit order when you filter.",
+      "Click a block on the map: the sidebar shows that compound. \"Clear selection\" resets. Codes only.",
+    ], MX + 2 * iw + 0.4, TOP, W - 2 * iw - 0.4, 4.9, 14);
+  },
+});
+
+// 6c
+slides.push({
+  title: "Four screens, one path from alert to action", time: "0:30",
+  md: [
+    "- 1 Priority map: whom should the committee visit first?",
+    "- 2 Compound file: why this one? Evidence behind the priority level.",
+    "- 3 District view: what does the system give the committee, and when does it fail?",
+    "- 4 Digital twin what if: who would change if costs, collections or visit capacity changed? (Track B, generated)",
+    "- Alert → action: level → cycle list → compound file → visit form → recorded visit.",
+    "- Audience test: what the teammate reviews changed is logged; the ten-second test with a committee member is still to be run.",
+    "- Visual: four screen cards (screen 4 marked generated) and an alert-to-action arrow row.",
+  ],
+  source: ["`docs/deliverables/user-guide.md` (screen subtitles), `docs/deliverables/audience-test.md`, `docs/deliverables/display-rules-check.md`."],
+  note: "Speaker note: 0:30 · criterion 4. Name who uses each screen, follow the alert to the action, and say the committee-member test is still to be run.",
+  build(s) {
+    const cards = [["1 · Priority map", "Whom first?"], ["2 · Compound file", "Why this one?"], ["3 · District view", "What does the system give, and when does it fail?"], ["4 · Digital twin what if", "Who changes if costs, collections or capacity change? Track B, generated"]];
+    const cw = (W - 3 * 0.15) / 4;
+    cards.forEach(([a, b], i) => {
+      const x = MX + i * (cw + 0.15), gen = i === 3;
+      s.addShape(pres.ShapeType.rect, { x, y: TOP, w: cw, h: 1.7, fill: { color: gen ? C.orange : C.card }, line: { color: gen ? C.orange : C.card } });
+      s.addShape(pres.ShapeType.rect, { x, y: TOP, w: cw, h: 0.08, fill: { color: gen ? C.navy : C.red }, line: { color: gen ? C.navy : C.red } });
+      check("s6c card " + i, [a, b], 14, cw - 0.3, 1.5);
+      s.addText([
+        { text: a, options: { bold: true, fontFace: HEAD, fontSize: 16, breakLine: true } },
+        { text: b, options: { fontFace: BODY, fontSize: 14 } },
+      ].map((r) => ({ text: r.text, options: { color: gen ? C.white : C.ink, paraSpaceAfter: 4, ...r.options } })), { x: x + 0.15, y: TOP + 0.18, w: cw - 0.3, h: 1.45, align: "left", valign: "top", margin: 0 });
+    });
+    const steps = ["Level", "Cycle list", "Compound file", "Visit form", "Recorded visit"];
+    const bw = 1.95, gap = (W - 5 * bw) / 4;
+    steps.forEach((t, i) => {
+      box(s, "s6c step " + i, MX + i * (bw + gap), 3.5, bw, 0.8, t, { fill: i === 4 ? C.red : C.navy, pt: 14 });
+      if (i < 4) arrow(s, MX + i * (bw + gap) + bw + (gap - 0.3) / 2, 3.75, 0.3, 0.4);
+    });
+    bullets(s, "s6c bullets", [
+      "Alert to action: the level sets the cycle list, the compound file gives the reason, the visit form records the result.",
+      "Audience test: the teammate reviews changed the screens (audience-test.md). The ten-second test with a committee member is still to be run.",
+    ], MX, 4.6, W, 1.8, 16);
+  },
+});
+
 // 7
 slides.push({
-  title: "Backtest: 1 of 6 and why", time: "1:30",
+  title: "Backtest: 1 of 6 and why", time: "1:00",
   md: [
     "- Six public R7 cases, checked with the clock frozen. Codes only, even on this slide.",
     "- Early alert in 1 of 6 cases (after-start reading, case C21) and 0 of 6 (point-in-time reading).",
@@ -347,7 +416,7 @@ slides.push({
     ...shotMd(["district"]),
   ],
   source: ["`data/BACKTEST_CURRENT.md`, `data/experiments/35_backtest_diagnosis/DIAGNOSIS.md`."],
-  note: "Speaker note: 1:30 · criterion 6. Lead with the miss, and say the target was fixed before computing.",
+  note: "Speaker note: 1:00 · criterion 6. Lead with the miss, and say the target was fixed before computing.",
   build(s) {
     const w = (W - 0.4) / 3;
     stat(s, "s7 a", MX, TOP + 0.05, w, 1.45, "1 of 6", "early alert, after-start reading (C21)");
@@ -366,7 +435,7 @@ slides.push({
 // 8
 const RECALL = [["Public rule", 3], ["Combined rule", 3], ["Logistic, satellite", 1], ["Logistic, combined", 2], ["Boosting, satellite", 4], ["Boosting, combined", 1]];
 slides.push({
-  title: "Track B: generated data", time: "1:00",
+  title: "Track B: generated data", time: "0:45",
   md: [
     "- 🟠 Synthetic - for training only.",
     "- Scope: R7, 12 coded compounds. Target: distressed / not_distressed in the next six months. Completion prediction is outside the approved scope.",
@@ -378,7 +447,7 @@ slides.push({
     "- Visual: native bar chart of recall@4 for the six methods.",
   ],
   source: ["`docs/deliverables/complaints_eval.csv`, `data/EW_V2A_VS_V1.md`."],
-  note: "Speaker note: 1:00 · criterion 6. Generated data only; with 4 test cases the methods cannot be separated. For questions, complaints classifier: the keyword baseline scored 0.27 accuracy on the 104-row benchmark and 0.37 on the 30-item check set; TF-IDF plus logistic scored 0.22 and 0.30, respectively. Accuracy on texts written by the team does not prove accuracy on real complaints.",
+  note: "Speaker note: 0:45 · criterion 6. Generated data only; with 4 test cases the methods cannot be separated. For questions, complaints classifier: the keyword baseline scored 0.27 accuracy on the 104-row benchmark and 0.37 on the 30-item check set; TF-IDF plus logistic scored 0.22 and 0.30, respectively. Accuracy on texts written by the team does not prove accuracy on real complaints.",
   build(s) {
     banner(s);
     bullets(s, "s8 bullets", [
@@ -429,9 +498,66 @@ slides.push({
   },
 });
 
+// 8c
+slides.push({
+  title: "Ask the project: the chatbot", time: "0:45",
+  md: [
+    "- Flow: question → intent router (10 intents: greeting, out_of_scope, complaints, inspection_visits, inspection_priority, knowledge, rules, published_statements, project_info, project_overview) → hybrid retrieval (DuckDB facts from the v7 release + Chroma vector search over statements, complaints and knowledge documents) → answer → sources shown.",
+    "- Answer: the Gemini model set in `configs/ai.yaml` when model calls are approved and within the call budget, otherwise a local answer.",
+    "- Opens from the dashboard's 💬 button (port 8001).",
+    "- Follow-up questions keep the last compound code of the conversation.",
+    "- Generated items stay labelled: the complaints and visit records are synthetic.",
+    "- Visual: native flow of five steps and a chatbot answer screenshot.",
+    ...shotMd(["chatbot"]),
+  ],
+  source: ["`chatbot/app/retrieval/router.py` (intents), `chatbot/app/retrieval/hybrid.py`, `chatbot/app/api/main.py` (session context), `chatbot/app/generation/gemini_client.py`, `configs/ai.yaml`, `README.md`."],
+  note: "Speaker note: 0:45 · criterion 4. Live: open the 💬 button, ask one question, show the cited sources; say generated items stay labelled.",
+  build(s) {
+    const steps = ["Question", "Intent router (10 intents)", "Hybrid retrieval: DuckDB facts + Chroma search", "Answer: Gemini if approved and within budget, else local", "Sources shown"];
+    const bw = 2.1, gap = (W - 5 * bw) / 4;
+    steps.forEach((t, i) => {
+      box(s, "s8c step " + i, MX + i * (bw + gap), TOP, bw, 1.35, t, { fill: i === 4 ? C.red : C.navy, pt: 14 });
+      if (i < 4) arrow(s, MX + i * (bw + gap) + bw + (gap - 0.3) / 2, TOP + 0.45, 0.3, 0.4);
+    });
+    bullets(s, "s8c bullets", [
+      "Opens from the dashboard's 💬 button (port 8001).",
+      "Follow-up questions keep the last compound code.",
+      "Generated items stay labelled: complaints and visit records are synthetic.",
+      "Retrieval reads the v7 release facts and the statements, complaints and knowledge documents.",
+    ], MX, 3.0, 6.9, 3.4, 14);
+    shot(s, "chatbot", MX + W - 4.9, 3.0, 4.9);
+  },
+});
+
+// 8d
+slides.push({
+  title: "What the chatbot knows, and its limits", time: "0:45",
+  md: [
+    "- Knowledge: 9 sourced documents (ACUD site, Decree 2184/2022, Building Law 119/2008 art. 54, Law 151/2020, Dynamic World, Open Buildings, Esri Wayback, ISO 37120/37122, team SLA note) plus the project's data.",
+    "- Evaluation: 8 of 8 intent tests passed (2026-11-03) and 5 of 5 retrieval checks passed. These are the team's own small tests, not an accuracy claim.",
+    "- Governance: model calls only with approval in `configs/ai.yaml` (`chatbot.approval: approved`, `max_calls_total: 200`, approved by the project owner on 2026-11-04), then local answers.",
+    "- Codes only. Not legal advice.",
+    "- Visual: two stat callouts (8 of 8 · 5 of 5) and a call-budget box (200 calls).",
+  ],
+  source: ["`chatbot/knowledge/SOURCES.csv`, `chatbot/evaluation_results.json`, `chatbot/retrieval_evaluation_results.json`, `configs/ai.yaml`."],
+  note: "Speaker note: 0:45 · criteria 8, 9. Say the tests are the team's own and small; model calls need the owner's approval and stop at 200, then local answers. Codes only, not legal advice.",
+  build(s) {
+    const w = 3.6;
+    stat(s, "s8d a", MX, TOP + 0.05, w, 1.7, "8 of 8", "intent tests passed (2026-11-03)");
+    stat(s, "s8d b", MX + w + 0.2, TOP + 0.05, w, 1.7, "5 of 5", "retrieval checks passed");
+    box(s, "s8d budget", MX + 2 * (w + 0.2), TOP + 0.05, W - 2 * (w + 0.2), 1.7, "Call budget: 200 model calls in total (approved by the project owner on 2026-11-04), then local answers", { fill: C.red, pt: 16 });
+    bullets(s, "s8d bullets", [
+      "Knowledge: 9 sourced documents (ACUD site, Decree 2184/2022, Building Law 119/2008 art. 54, Law 151/2020, Dynamic World, Open Buildings, Esri Wayback, ISO 37120/37122, team SLA note) plus the project's data.",
+      "The tests are the team's own and small. They are not an accuracy claim.",
+      "Model calls only with approval in configs/ai.yaml (chatbot.approval: approved), then local answers.",
+      "Codes only. Not legal advice.",
+    ], MX, 3.4, W, 3.0, 16);
+  },
+});
+
 // 9
 slides.push({
-  title: "Value in EGP (3 settings)", time: "1:30",
+  title: "Value in EGP (3 settings)", time: "1:00",
   md: [
     "- Visiting 4 compounds per cycle instead of all 12: 16 visits a year instead of visiting every compound each cycle.",
     "- Under these assumptions, from 0.007 to 0.102 million EGP per year.",
@@ -442,7 +568,7 @@ slides.push({
     "- Visual: two stat callouts (0.007 and 0.102 million EGP per year) and a three-setting table (cost per visit, operating cost, missed cases per year).",
   ],
   source: ["`configs/cost_assumptions.yaml` (the same file holds the three settings, the proxy values and the placeholder); `docs/deliverables/01-presentation/rubric-map.md` (criterion 6 gap)."],
-  note: "Speaker note: 1:30 · criterion 7. Compare with the current policy of visiting all 12; say the conservative setting is positive but small. The cost of a late case is a placeholder of 20,000 EGP per missed case in all three settings.",
+  note: "Speaker note: 1:00 · criterion 7. Compare with the current policy of visiting all 12; say the conservative setting is positive but small. The cost of a late case is a placeholder of 20,000 EGP per missed case in all three settings.",
   build(s) {
     stat(s, "s9 lo", MX, TOP + 0.05, 3.0, 1.9, "0.007", "million EGP per year, low end");
     stat(s, "s9 hi", MX + 3.2, TOP + 0.05, 3.0, 1.9, "0.102", "million EGP per year, high end");
@@ -467,12 +593,12 @@ const RISKS = [
   ["Unknown stays unknown", "Missing evidence is never read as negative. K3 relies on developer statements, not independent measurement."],
   ["Generated data", "Never mixed with real data; Track B is marked and hidden from the map. It shows nothing about real accuracy or fairness."],
   ["Small samples", "6 real cases and 4 test cases: counts only, no percentages."],
-  ["Complaint text", "Masking does not prove every real name is removed; real text needs further review. No external AI call is enabled."],
+  ["Complaint text", "Masking does not prove every real name is removed; real text needs further review. The chatbot sees only generated complaints."],
   ["Law 151/2020", "Interpretation needs the data custodian's review. Not legal advice."],
   ["Handover", "Guides, method card and checklist are in the repo; no one outside the team has rebuilt the system from them yet."],
 ];
 slides.push({
-  title: "Risks and responsible use", time: "1:00",
+  title: "Risks and responsible use", time: "0:45",
   md: [
     ...RISKS.map(([a, b]) => `- ${a}: ${b}`),
     "- The committee decides; every visit result is recorded to build real ground truth.",
@@ -480,7 +606,7 @@ slides.push({
     "- Visual: eight cards (seven risks and the committee-decides control).",
   ],
   source: ["`docs/deliverables/responsible-ai.md`, `docs/requirements/01-specs.md` (Law 151/2020).", "(knowledge transfer) `docs/deliverables/technical-track-a.md`, `docs/deliverables/user-guide.md`, `docs/deliverables/knowledge-transfer.md`, `docs/deliverables/method-card.md`, `docs/deliverables/final-checklist.md`."],
-  note: "Speaker note: 1:00 · criteria 8, 9. A level sets the visit order and finds nothing against anyone. Then give one line on the handover documents. The committee decides, and every visit result is recorded to build real ground truth. The user guide was checked against the code, not in a browser.",
+  note: "Speaker note: 0:45 · criteria 8, 9. A level sets the visit order and finds nothing against anyone. Then give one line on the handover documents. The committee decides, and every visit result is recorded to build real ground truth. The user guide was checked against the code, not in a browser.",
   build(s) {
     const cards = [...RISKS, ["The committee decides", "Every visit result is recorded to build real ground truth."]];
     const cw = (W - 3 * 0.15) / 4, ch = 2.35;
@@ -503,7 +629,7 @@ slides.push({
   md: [
     "- What runs: the Streamlit dashboard (`uv run --locked streamlit run app.py`), the quarterly data run (`uv run --locked --offline python -m src.pipeline.team_run`) and prepared data v7 (`releases/ready-data`).",
     "- Where (proposed, not deployed): a server or VM managed by ACUD, inside ACUD's network, to be agreed with ACUD. Data stays with ACUD; exports use codes only; private mappings never leave the data custodian.",
-    "- Controls: thresholds and capacity change only by reviewed decision; chatbot model calls stay off until approved with a call budget (`configs/ai.yaml`); every visit result is recorded in ops_visits.",
+    "- Controls: thresholds and capacity change only by reviewed decision; chatbot model calls only with owner approval and within the approved budget of 200 calls (`configs/ai.yaml`), then local answers; every visit result is recorded in ops_visits.",
     "- Monitoring: the quarterly procedure and its quality gates; any STOP keeps outputs for diagnosis, writes no manifest and blocks packaging.",
     "- Rollback: switch the activity source to K1 (a recorded decision) and keep prior releases available, as slide 11 says.",
     "- Quarterly cycle: quarter data refresh → gates (STOP/FIX/FLAG) → cycle list → visits → recorded results → next quarter. A FLAG needs a recorded review decision; a STOP blocks delivery. If source coverage fails, affected observations are marked not assessable; an automatic K1 switch is not yet established.",
@@ -527,7 +653,7 @@ slides.push({
     bullets(s, "s10b bullets", [
       "Runs: Streamlit dashboard, quarterly team_run, prepared data v7 (releases/ready-data).",
       "Where (proposed, not deployed): ACUD-managed server or VM inside ACUD's network. Data stays with ACUD; codes only.",
-      "Controls: thresholds and capacity change only by reviewed decision; chatbot model calls off until approved; every visit result recorded.",
+      "Controls: thresholds and capacity change only by reviewed decision; chatbot model calls only within the approved 200-call budget; every visit result recorded.",
     ], MX, 3.65, 7.4, 2.75, 14);
     box(s, "s10b stop", MX + 7.65, 3.65, W - 7.65, 2.7, "STOP and rollback: a STOP keeps outputs for diagnosis, writes no manifest and blocks packaging. If source coverage fails, mark affected observations not assessable and review. Fallback: K1 (a recorded decision) with prior releases kept; an automatic switch is not yet established.", { fill: C.red, pt: 14 });
   },
@@ -590,9 +716,9 @@ slides.forEach((sp) => {
 });
 
 // ---------- markdown ----------
-const labels = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "8b", "9", "10", "10b", "11"];
+const labels = ["0", "1", "2", "3", "4", "5", "6", "6b", "6c", "7", "8", "8b", "8c", "8d", "9", "10", "10b", "11"];
 const md = [
-  "# Presentation: 14 slides (title slide 0, then 1-11 with 8b after 8 and 10b after 10)",
+  "# Presentation: 18 slides (title slide 0, then 1-11 with 6b and 6c after 6, 8b, 8c and 8d after 8, and 10b after 10)",
   "",
   "Tasks T-SA-06 and T-EL-25. Draft text for review. This file holds the on-slide content and speaker notes of `presentation.pptx`, slide for slide in the same order. Length: 12 min, the limit set by criterion 10 of the instructor rubric (`docs/requirements/ACUD-Rubric.md`); the time budget and the criteria each slide answers follow `docs/deliverables/01-presentation/rubric-map.md` (presentation plan) and are stated in each speaker note (total 12:00). Numbers come only from repo files and carry an origin mark: 🟢 real · 🔵 derived · 🟠 generated (\"Synthetic - for training only\"). Compounds and developers appear as codes only; the only names are the supervisor and team on the title slide. The words \"risk level\", \"distressed\" (for a real compound) and any completion % are not used. Some caveats are in the speaker notes.",
   "",
