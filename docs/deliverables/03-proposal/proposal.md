@@ -7,7 +7,11 @@ Team: Elsayed Elmandoh, Verina Fouad, Ahmed Abdelhameed, Nada Shady, Salma Magdy
 
 ## The problem
 
-The ACUD chairman has stated that there are more than 400 developers and more than 500 projects, that field review happens every 3 months, that about 7-8% of developers are seriously late, and that there were 6 mutual terminations. These are his statements, not our measurement. A committee cannot visit everything every cycle, so the question is: which compounds first? Our scope is R7: 12 coded compounds, a review every 3 months, and room for 4 visits per cycle.
+Eng. Khaled Abbas, chairman of ACUD, said in a public TV interview that there are about 500 real-estate developers and about 600 projects, and that no more than 7-8% of developers are late. He also said that field review happens every 3 months and that there were 6 mutual terminations.
+
+A committee cannot visit everything every cycle, so the question is: which compounds first?
+
+Our scope is R7: 12 coded compounds, a review every 3 months, and room for 4 visits per cycle.
 
 ## What SpaceEye does
 
