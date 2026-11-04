@@ -81,7 +81,7 @@
 
 ---
 
-## 2. سلمى مجدي (المشكلة، السؤال، والـ to-be)
+## 2. فيرينا فؤاد (المشكلة، السؤال، والـ to-be)
 
 ### Slide 1 · Problem in numbers (0:30)
 
@@ -221,6 +221,10 @@ Live على Tab 1، جزء **Search and filters** فوق الـ map. ندى بت
 
 **تقول وهي بتتنقل:** "وإيه اللي يحصل لو عدد زيارات اللجنة اتغير؟ scenario واحد، live."
 
+---
+
+## 9. السيد المندوه (الـ chatbot)
+
 ### Slide 8b · The observatory: one what-if scenario (0:30)
 
 **Switch:** `Alt+Tab` ← Tab 3 (Track B، Digital twin what if، S3 · Capacity). شاوري على الـ orange banner الأول.
@@ -231,8 +235,6 @@ Live على Tab 1، جزء **Search and filters** فوق الـ map. ندى بت
 **Handover:** "وهل اللجنة تقدر ببساطة تسأل المشروع سؤال؟ السيد، live."
 
 ---
-
-## 9. السيد المندوه (الـ chatbot)
 
 ### Slide 8c · Ask the project: the chatbot (0:45)
 
