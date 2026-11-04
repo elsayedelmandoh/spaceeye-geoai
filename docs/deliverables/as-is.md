@@ -2,7 +2,7 @@
 
 Bottom line: per public statements, every compound gets the same field review every 3 months, whatever its risk. Five of the six public late cases ran 18 to 33 months past their original promise (median 25). The evidence below points to three causes: effort is not matched to risk, progress is known mostly from the developer's own statements, and nobody compares pace with the promised date.
 
-Sources: ACUD chairman statements (`docs/requirements/01-specs.md` section 12), Law 119/2008 article 54 and Decree 2184/2022 (`data/knowledge/external/`), and the real R7 tables of the current release (as of 2026Q3). ACUD's internal workflow was not observed. The map below is rebuilt from public sources and must be confirmed with ACUD.
+Sources: ACUD chairman statements (`docs/requirements/01-specs.md` section 12), Law 119/2008 article 54 and Decree 2184/2022 (`chatbot/knowledge/external/`), and the real R7 tables of the current release (as of 2026Q3). ACUD's internal workflow was not observed. The map below is rebuilt from public sources and must be confirmed with ACUD.
 
 ## Process map (rebuilt from public sources)
 

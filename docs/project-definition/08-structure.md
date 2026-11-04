@@ -4,8 +4,8 @@
 | --- | --- |
 | releases/ready-data | Current v7 ZIP/checksum and standalone usage guides |
 | app.py, src/dashboard | Streamlit dashboard (five screens, track switch, `ops_visits` form) and its helpers |
-| src/chatbot | Document Q&A chatbot (retrieval, citations) shown in the dashboard sidebar |
-| data/knowledge | Source documents for the chatbot (SOURCES.csv, external/) |
+| chatbot | The project's only chatbot: hybrid RAG app (FastAPI in chatbot/app, frontend, vector store chatbot/vector_db git-ignored); the dashboard's floating button opens it |
+| chatbot/knowledge | Sourced documents for the chatbot (SOURCES.csv, external/), indexed with its inspection contexts |
 | configs/data.yaml | Paths, thresholds, seed, scope, capacity and generator settings |
 | configs/synthetic_sources.json | Context sources and explicit synthetic assumptions |
 | src/pipeline | Source preparation, Track A, audits, current handoff/export/bundle commands |

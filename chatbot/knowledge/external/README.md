@@ -26,7 +26,7 @@ retrieval_date: YYYY-MM-DD
 - The Markdown body follows the closing `---` line and may use ordinary headings
   and paragraphs.
 
-Record each accepted source in `data/knowledge/SOURCES.csv`, whose columns are
+Record each accepted source in `chatbot/knowledge/SOURCES.csv`, whose columns are
 `title,url,retrieved,kind,notes`. Keep source bodies factual and suitable for
 public distribution; do not add credentials, private material, compound names,
 or developer names.

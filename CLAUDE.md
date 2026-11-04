@@ -6,7 +6,7 @@ New-device/reviewer setup: docs/REVIEW_SETUP.md. Run `python -m src.pipeline.set
 
 Read data/HANDOFF.md, docs/requirements/02-team-roles-and-tasks.md and docs/REMAINING_TEAM_TASKS.md first. The current prepared release is v7 only (releases/ready-data); current source contracts live in data. Do not restore retired plans, empty scaffold documents, utility-demo configs or earlier ZIP versions.
 
-Scope: 12 R7 compounds, six real check cases, inspection capacity 4. The classifier predicts distressed/not_distressed; completion prediction is removed. Height is approved context through 2024, without a fixed error guarantee. See data/BINARY_SCOPE_DECISION.md. The Streamlit dashboard (app.py, src/dashboard) and the document Q&A chatbot (src/chatbot) are implemented; the inspection agent remains unfinished (see docs/REMAINING_TEAM_TASKS.md).
+Scope: 12 R7 compounds, six real check cases, inspection capacity 4. The classifier predicts distressed/not_distressed; completion prediction is removed. Height is approved context through 2024, without a fixed error guarantee. See data/BINARY_SCOPE_DECISION.md. The Streamlit dashboard (app.py, src/dashboard) are implemented, and the hybrid RAG chatbot in chatbot/ (knowledge in chatbot/knowledge/, the project's only chatbot; start steps in README.md) is the chatbot; the inspection agent remains unfinished (see docs/REMAINING_TEAM_TASKS.md).
 
 ## Required task-board updates
 
