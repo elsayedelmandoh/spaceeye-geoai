@@ -27,16 +27,18 @@ Our scope is R7: 12 coded compounds, a review every 3 months, and room for 4 vis
 - **Generated data:** Track B (a trial model) uses only data marked "Synthetic - for training only". It shows nothing about real accuracy.
 - Satellites show whether building is happening, not interior finishing. A level is not a finding against anyone.
 
-## What we ask ACUD for
+## KPIs
 
-We ask for a coded export through an authorized channel; ACUD keeps the identity mapping. A small verified sample is enough to start. Top priorities:
+| Indicator | What it measures | Unit | Role |
+| --- | --- | --- | --- |
+| A | Probability the compound is building this quarter | 0-1 | Input |
+| K2 | Quarters with no activity after construction started | Quarters | Sets the level |
+| K3 | Months since the first announced handover date | Months | Sets the level |
+| K4 | Enough satellite images and a boundary to trust the signal | Yes/No | Gate |
+| K5 | Months eligible for review under contract terms (screening exposure) | Months | Context only |
+| K6 | Months since launch/promise with no confirmed start | Months | Sets the level |
 
-| Priority | Data |
-| --- | --- |
-| 1 | Dated inspection and handover outcomes |
-| 1 | Allocation and contract register |
-| 1 | Authorized parcel geometry |
-| 2 | Monthly financials, supervisor reports, masked complaints |
+The priority level is the worst of K2, K3 and K6 (plus one combined K2 and K3 rule), with no weights; the committee decides.
 
 ## Next step
 
@@ -48,4 +50,4 @@ We ask for a coded export through an authorized channel; ACUD keeps the identity
 
 People and dates are to be agreed with ACUD. This is what public data alone can do; with ACUD data the demo parts become real operation.
 
-**Alignment with Egypt Vision 2030:** goal 4, knowledge and innovation (geographic AI that reads satellite images), and goal 6, governance (field inspections directed by data with a known source).
+**Alignment with Egypt Vision 2030:** the knowledge and innovation goal (geographic AI that reads satellite images) and the governance goal (field inspections directed by data with a known source).
