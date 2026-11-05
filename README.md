@@ -39,7 +39,11 @@ The package supplies Arabic committee lists, complaint-training corpora, 180 ins
 
 ## Deliverables
 
-### Run the dashboard and chatbot (Windows)
+### Run the dashboard and chatbot
+
+**Linux/WSL:** install uv (`curl -LsSf https://astral.sh/uv/install.sh | sh`), `git pull`, then `./start.sh`. It does the same steps as `start.ps1` (first run creates `chatbot/.env` and stops for the Gemini key), runs the chatbot in the background (log in `chatbot/chatbot.log`) and stops it when the dashboard exits. On Linux the chatbot uses CPU-only torch (from the PyTorch CPU index, set in `pyproject.toml`).
+
+**Windows:**
 
 1. Install uv once: `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`
 2. Get the latest version and start: `git pull`, then `powershell -ExecutionPolicy Bypass -File .\start.ps1`
