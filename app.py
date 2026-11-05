@@ -19,6 +19,7 @@ import streamlit as st
 import yaml
 
 from src.dashboard import insights
+from src.dashboard.chatbot_status import CHATBOT_URL, chatbot_is_up
 from src.dashboard.exports import export_csv
 from src.dashboard.ops_visits import load_visits, render_ops_visits_form  # T-NA-04
 from src.pipeline.common import APP as PIPELINE_APP_DATA
@@ -2156,10 +2157,20 @@ def render_sidebar() -> tuple[Track, str]:
     return track, screen
 
 
+@st.cache_data(ttl=30, show_spinner=False)
+def _chatbot_up_cached() -> bool:
+    return chatbot_is_up()
+
+
 def render_floating_chat_button() -> None:
     """Render a floating shortcut to the SpaceEye Hybrid RAG chatbot."""
+    if not _chatbot_up_cached():
+        st.caption(
+            "Chatbot is not running. Start it with ./start.sh (Linux/WSL) "
+            "or start.ps1 (Windows)."
+        )
     st.markdown(
-        '<a href="http://127.0.0.1:8001/" target="_blank" '
+        f'<a href="{CHATBOT_URL}/" target="_blank" '
         'rel="noopener noreferrer" class="se-floating-chat" '
         'title="Open SpaceEye AI Assistant" '
         'aria-label="Open SpaceEye AI Assistant">'
