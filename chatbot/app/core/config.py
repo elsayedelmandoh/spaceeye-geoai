@@ -18,13 +18,11 @@ class Settings:
 
 
 def _api_key_or_empty() -> str:
-    """The project Gemini key; else the key in chatbot/.env (start.ps1 flow); else "" for the non-model path."""
-    for env_path in (None, CHATBOT_DIR / ".env"):
-        try:
-            return get_api_key() if env_path is None else get_api_key(env_path)
-        except RuntimeError:
-            continue
-    return ""
+    """The Gemini key from the environment or the project-root .env; "" (non-model path) when absent."""
+    try:
+        return get_api_key()
+    except RuntimeError:
+        return ""
 
 
 def get_settings() -> Settings:

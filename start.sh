@@ -11,9 +11,9 @@ if ! command -v uv >/dev/null; then
     exit 1
 fi
 
-if [ ! -f chatbot/.env ]; then
-    cp chatbot/.env.example chatbot/.env
-    echo "Created chatbot/.env. Open it, put the Gemini key after GEMINI_API_KEY=, then run this script again."
+if [ ! -f .env ]; then
+    cp .env.example .env
+    echo "Created .env. Open it, put the Gemini key after GEMINI_API_KEY=, then run this script again."
     exit 1
 fi
 

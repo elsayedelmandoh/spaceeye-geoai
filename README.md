@@ -3,7 +3,7 @@
 
 **Observed imagery:** [view/rebuild guide](data/imagery/README.md), [source comparison](data/IMAGERY_COMPARISON.md) and [frame metadata](data/imagery/wayback_timeline.csv). The 100 Wayback / 528 Sentinel figures stay outside Git; the numerical v7 release is separate.
 
-**Run the dashboard and the chatbot on Windows (one command):** install [uv](https://docs.astral.sh/uv/), clone the repository, then from its folder run `powershell -ExecutionPolicy Bypass -File .\start.ps1`. The first run creates `chatbot\.env`: put the Gemini key after `GEMINI_API_KEY=` (ask the team lead; never commit it) and run the command again. It installs everything, prepares the data once, starts the chatbot on port 8001 in a second window and opens the dashboard on http://localhost:8501; the chat button sits at the bottom right. The first chatbot question downloads its embedding model, so it is slow once.
+**Run the dashboard and the chatbot on Windows (one command):** install [uv](https://docs.astral.sh/uv/), clone the repository, then from its folder run `powershell -ExecutionPolicy Bypass -File .\start.ps1`. The first run creates `.env` in the repository root: put the Gemini key after `GEMINI_API_KEY=` (ask the team lead; never commit it) and run the command again. It installs everything, prepares the data once, starts the chatbot on port 8001 in a second window and opens the dashboard on http://localhost:8501; the chat button sits at the bottom right. The first chatbot question downloads its embedding model, so it is slow once.
 
 **New device or review:** follow [REVIEW_SETUP](docs/REVIEW_SETUP.md). Run `uv sync --locked`, then `uv run --locked python -m src.pipeline.setup_review`. Paths are checkout-relative; `SPACEEYE_DATA_ROOT` relocates the workspace without requiring a specific drive. The [84-file source manifest](data/REBUILD_INPUTS.csv) and source-cache tool cover full rebuilds.
 
@@ -41,14 +41,14 @@ The package supplies Arabic committee lists, complaint-training corpora, 180 ins
 
 ### Run the dashboard and chatbot
 
-**Linux/WSL:** install uv (`curl -LsSf https://astral.sh/uv/install.sh | sh`), `git pull`, then `./start.sh`. It does the same steps as `start.ps1` (first run creates `chatbot/.env` and stops for the Gemini key), runs the chatbot in the background (log in `chatbot/chatbot.log`) and stops it when the dashboard exits. On Linux the chatbot uses CPU-only torch (from the PyTorch CPU index, set in `pyproject.toml`).
+**Linux/WSL:** install uv (`curl -LsSf https://astral.sh/uv/install.sh | sh`), `git pull`, then `./start.sh`. It does the same steps as `start.ps1` (first run creates the root `.env` and stops for the Gemini key), runs the chatbot in the background (log in `chatbot/chatbot.log`) and stops it when the dashboard exits. On Linux the chatbot uses CPU-only torch (from the PyTorch CPU index, set in `pyproject.toml`).
 
 **Windows:**
 
 1. Install uv once: `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`
 2. Get the latest version and start: `git pull`, then `powershell -ExecutionPolicy Bypass -File .\start.ps1`
 
-[start.ps1](start.ps1) installs the dependencies with the chatbot extra, installs the prepared data once, and creates `chatbot\.env` from `chatbot\.env.example` on the first run (it stops there; put the Gemini key after `GEMINI_API_KEY=` and run it again). It then seeds the chatbot search index from `chatbot\vector_db_seed`, starts the chatbot on port 8001 (own window) and the dashboard on port 8501. The chatbot uses the project's Gemini model ([configs/ai.yaml](configs/ai.yaml)) and stops calling Gemini once the approved budget (`chatbot.max_calls_total`) is used up; it then answers from its local path.
+[start.ps1](start.ps1) installs the dependencies with the chatbot extra, installs the prepared data once, and creates `.env` from `.env.example` on the first run (it stops there; put the Gemini key after `GEMINI_API_KEY=` and run it again). It then seeds the chatbot search index from `chatbot\vector_db_seed`, starts the chatbot on port 8001 (own window) and the dashboard on port 8501. The chatbot uses the project's Gemini model ([configs/ai.yaml](configs/ai.yaml)) and stops calling Gemini once the approved budget (`chatbot.max_calls_total`) is used up; it then answers from its local path.
 
 The Linux/uv commands below do the same steps by hand.
 
