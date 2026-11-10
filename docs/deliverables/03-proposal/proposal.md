@@ -7,7 +7,7 @@ Team: Elsayed Elmandoh, Verina Fouad, Ahmed Abdelhameed, Nada Shady, Salma Magdy
 
 ## The problem
 
-Eng. Khaled Abbas, chairman of ACUD, said in a public TV interview that there are about 500 real-estate developers and about 600 projects, and that no more than 7-8% of developers are late. He also said that field review happens every 3 months and that there were 6 mutual terminations.
+Eng. Khaled Abbas, chairman of ACUD, said in a public TV interview that there are more than 500 developers and more than 600 projects, and that no more than 7-8% of developers are late. He also said that field review happens every 3 months and that there were 6 mutual terminations.
 
 A committee cannot visit everything every cycle, so the question is: which compounds first?
 

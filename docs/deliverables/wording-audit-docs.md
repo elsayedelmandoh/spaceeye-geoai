@@ -107,7 +107,7 @@ Note on E1: the file says the "0%" error is a property of the extraction method.
 
 | # | File | Line | Text | Rule | Verdict |
 |---|---|---|---|---|---|
-| P1 | 01-presentation.md | 3, 7-9 | Header rule: "Numbers ... carry an origin mark"; slide 1 numbers ("More than 400 developers and more than 500 projects"; "About 7-8% of developers seriously late; 6 mutual terminations") have no origin mark. They come from the chairman's statements, which the slide says. | Origin-mark rule of the document and spec section 3 | CHECK |
+| P1 | 01-presentation.md | 3, 7-9 | Header rule: "Numbers ... carry an origin mark"; slide 1 numbers ("More than 500 developers and more than 600 projects"; "About 7-8% of developers seriously late; 6 mutual terminations") have no origin mark. They come from the chairman's statements, which the slide says. | Origin-mark rule of the document and spec section 3 | CHECK |
 | P2 | 01-presentation.md | 22 | "1,009 of 1,026 documented facts passed independent review; 0 invented. This is the figure stated in the spec (section 12), not a recount." | An absolute "0 invented" figure with no recount behind it; the slide says so itself. Either recount or label as the spec's stated figure, without "0 invented". | CHECK |
 | P3 | 01-presentation.md | 30 | "Open Buildings gives yearly heights to 2023; the 2024 value is an estimate, shown as context only" | The spec approves height context through 2024. The slide should say "approved context through 2024", not "estimate". | CHECK |
 | P4 | 01-presentation.md | 33 | "No completion % or finishing % is given." | Denial | SAFE |

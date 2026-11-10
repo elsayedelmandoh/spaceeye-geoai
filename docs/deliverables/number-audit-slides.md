@@ -7,8 +7,8 @@ Source checked: `docs/deliverables/01-presentation/presentation.md`. Line number
 | # | Line | Number as written | Verdict | Source (file:line) and note |
 |---|---|---|---|---|
 | S-01 | 3 | "12-15 min" (spec length note) | NO SOURCE | Searched "12-15" in allowed files: none. Length is still to be confirmed per the file. |
-| S-02 | 7 | "400 developers" | NO SOURCE | Searched "400": no developer count in allowed files (only unrelated hit, data/SOURCE_CATALOG.csv:79). Figure is the chairman's statement cited on slide 1. |
-| S-03 | 7 | "500 projects" | NO SOURCE | Searched "500": no project count in allowed files. |
+| S-02 | 7 | "More than 500 developers" (">500") | NO SOURCE | Searched "500": no developer count in allowed files (only unrelated hit, data/SOURCE_CATALOG.csv:79). Figure is the chairman's statement cited on slide 1. |
+| S-03 | 7 | "More than 600 projects" (">600") | NO SOURCE | Searched "600": no project count in allowed files. |
 | S-04 | 8 | "every 3 months" (field review) | MATCH | configs/cost_assumptions.yaml:7 "field review every 3 months (spec formula)". |
 | S-05 | 9 | "7-8%" seriously late | NO SOURCE | Searched "7-8" and "7-8%": none. |
 | S-06 | 9 | "6 mutual terminations" | NO SOURCE | Searched "mutual" and "terminat": none. |
@@ -96,7 +96,7 @@ Checked against `docs/deliverables/complaints_eval.csv`: keyword 0.27 benchmark 
 ## Open for owners
 
 - S-01 (line 3): spec length "12-15 min" has no source in the searched files.
-- S-02, S-03 (line 7): "400 developers" and "500 projects" have no source in repo files; they are the chairman's statements.
+- S-02, S-03 (line 7): "More than 500 developers" and "More than 600 projects" have no source in repo files; they are the chairman's statements.
 - S-05, S-06, S-07 (lines 9-10): "7-8% seriously late", "6 mutual terminations" and the "Sep-Oct 2026" statement dates have no source in repo files.
 - S-11, S-12, S-13 (line 22): "1,009 of 1,026" facts and "0 invented" cite docs/requirements/01-specs.md section 12, which is outside the searched paths. Owner should confirm the figures against that file.
 - S-19 (line 37): "3 of 12 levels capped (C03, C12, C21)" has no source. The nearest hit, data/K1_FALLBACK_CHECK.md:22 "3 of 12", is a different comparison. Owner should confirm the count or drop it.

@@ -51,7 +51,7 @@ Three short excerpts of a public TV interview with Eng. Khaled Abbas, chairman o
 
 | File | Interview time | Length | What he says |
 |---|---|---|---|
-| `khaled-abbas-1.mp4` | 25:29.3-25:35.4 | 6.1 s | About 500 real-estate developers and about 600 projects |
+| `khaled-abbas-1.mp4` | 25:29.3-25:35.4 | 6.1 s | More than 500 developers and more than 600 projects |
 | `khaled-abbas-2.mp4` | 29:14.6-29:23.9 | 9.4 s | Asked how many are late: of the 500, no more than 7-8%, about 10-12 companies |
 | `khaled-abbas-3.mp4` | 39:27.6-39:30.6 | 3.0 s | Data is the most important thing |
 
