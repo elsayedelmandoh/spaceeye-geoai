@@ -2,7 +2,7 @@
 
 **New Capital Radar: a company that owns a city.**
 
-Supervisor: Dr. Nadim Abdin - Partner & VP Business Development
+Supervisor: Dr. Nadeem Abdin - Partner & VP Business Development
 Team: Elsayed Elmandoh, Verina Fouad, Ahmed Abdelhameed, Nada Shady, Salma Magdy
 
 ## The problem
