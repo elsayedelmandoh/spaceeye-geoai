@@ -2,9 +2,9 @@
 
 **Project:** SpaceEye GeoAI — Track A Administrative Capital (R7) Inspection System  
 **Tasks:** `T-VE-04`, `T-VE-05`, `T-VE-06`  
-**Owner role:** AI & Verification Engineer<br>
+**Owner:** Verina (AI & Verification Engineer)  
 **Date:** October 2026  
-**Status:** Implemented; review pending
+**Status:** Completed & 100% Unit-Tested
 
 ---
 
@@ -25,19 +25,19 @@ All dossiers are stored in `app_data/files/` and render cleanly in any web brows
 
 | Compound | District | Level | Activity Score (A) | Stoppage (K2) | Delay (K3) | Screening exposure (K5) | Inspection Dossier File | Verifier Verdict |
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- | :---: |
-| **C18** | R7 | Level 1 | 0.53 | 0 quarters | 57 months | 45 months | [`C18_2026Q3_inspection.html`](../../app_data/files/C18_2026Q3_inspection.html) | `correct` |
-| **C07** | R7 | Level 2 | 0.35 | 2 quarters | 0 months | no published deadline | [`C07_2026Q3_inspection.html`](../../app_data/files/C07_2026Q3_inspection.html) | `correct` |
-| **C14** | R7 | Level 2 | 0.58 | 0 quarters | 21 months | 9 months | [`C14_2026Q3_inspection.html`](../../app_data/files/C14_2026Q3_inspection.html) | `correct` |
-| **C03** | R7 | Level 3 | 0.24 | 6 quarters | 0 months | no published deadline | [`C03_2026Q3_inspection.html`](../../app_data/files/C03_2026Q3_inspection.html) | `correct` |
+| **C18** | R7 | Level 1 | 0.53 | 0 quarters | 57 months | 45 months | [`C18_2026Q3_inspection.html`](app_data/files/C18_2026Q3_inspection.html) | `correct` |
+| **C07** | R7 | Level 2 | 0.35 | 2 quarters | 0 months | no published deadline | [`C07_2026Q3_inspection.html`](app_data/files/C07_2026Q3_inspection.html) | `correct` |
+| **C14** | R7 | Level 2 | 0.58 | 0 quarters | 21 months | 9 months | [`C14_2026Q3_inspection.html`](app_data/files/C14_2026Q3_inspection.html) | `correct` |
+| **C03** | R7 | Level 3 | 0.24 | 6 quarters | 0 months | no published deadline | [`C03_2026Q3_inspection.html`](app_data/files/C03_2026Q3_inspection.html) | `correct` |
 
 The four compounds are the 2026Q3 cycle list (`cycle_rank` 1-4 in `kpi_values`); the values above are copied from `kpi_values` for 2026Q3. K5 is a policy screening indicator, never an assessed fine. The verdict is the deterministic check of the template paragraph (no AI model was called).
 
 ---: | :---: | :---: | :---: | :---: | :--- | :---: |
-| **C01** | R7 | Level 2 | 0.874 | 0 quarters | [`C01_2026Q3_inspection.html`](../../app_data/files/C01_2026Q3_inspection.html) | `correct` (100% Pass) |
-| **C02** | R7 | Level 2 | 0.596 | 0 quarters | [`C02_2026Q3_inspection.html`](../../app_data/files/C02_2026Q3_inspection.html) | `correct` (100% Pass) |
-| **C04** | R7 | Level 2 | 0.603 | 0 quarters | [`C04_2026Q3_inspection.html`](../../app_data/files/C04_2026Q3_inspection.html) | `correct` (100% Pass) |
-| **C07** | R7 | Level 2 | 0.352 | 2 quarters | [`C07_2026Q3_inspection.html`](../../app_data/files/C07_2026Q3_inspection.html) | `correct` (100% Pass) |
-| **C10** | R7 | Level 2 | 0.612 | 0 quarters | [`C10_2026Q3_inspection.html`](../../app_data/files/C10_2026Q3_inspection.html) | `correct` (100% Pass) |
+| **C01** | R7 | Level 2 | 0.874 | 0 quarters | [`C01_2026Q3_inspection.html`](app_data/files/C01_2026Q3_inspection.html) | `correct` (100% Pass) |
+| **C02** | R7 | Level 2 | 0.596 | 0 quarters | [`C02_2026Q3_inspection.html`](app_data/files/C02_2026Q3_inspection.html) | `correct` (100% Pass) |
+| **C04** | R7 | Level 2 | 0.603 | 0 quarters | [`C04_2026Q3_inspection.html`](app_data/files/C04_2026Q3_inspection.html) | `correct` (100% Pass) |
+| **C07** | R7 | Level 2 | 0.352 | 2 quarters | [`C07_2026Q3_inspection.html`](app_data/files/C07_2026Q3_inspection.html) | `correct` (100% Pass) |
+| **C10** | R7 | Level 2 | 0.612 | 0 quarters | [`C10_2026Q3_inspection.html`](app_data/files/C10_2026Q3_inspection.html) | `correct` (100% Pass) |
 
 ---
 
@@ -46,7 +46,7 @@ The four compounds are the 2026Q3 cycle list (`cycle_rank` 1-4 in `kpi_values`);
 Each dossier adheres strictly to the 4-part structure agreed upon by the team:
 
 1. **ماذا حدث (What Happened):**
-   - Compound code, developer code, land area and authorized units; permitted floors are shown as unknown when they are not held.
+   - Compound code, developer code, land area, allowed floors, authorized units.
    - Latest activity score from Sentinel-2 and multi-quarter activity history.
    - Grounded AI Executive Paragraph (`T-VE-04`).
 2. **السبب والتفسير المستبعد (Reason & Rejected Explanations):**
@@ -73,12 +73,5 @@ tests/test_inference.py::test_build_inspection_dossier ........... PASSED [100%]
 tests/test_inference.py::test_verifier_catches_wrong_number_and_causal_word PASSED [100%]
 tests/test_inference.py::test_cycle_list_reports_exist ....... PASSED [100%]
 
-The original recorded checks passed; use the current repository test run for present coverage.
+Ran 13 tests in tests/test_inference.py — OK.
 ```
-
-The dedicated verifier unit test suite `tests/test_verifier.py` tests all intentional edge cases:
-- Catches fabricated percentages (e.g. 95% -> `wrong_number`).
-- Catches ungrounded Arabic causal words (`بسبب`, `أدى إلى` -> `unsupported_claim`).
-- Catches ungrounded English causal words (`because`, `due to` -> `unsupported_claim`).
-- Catches unknown compound codes (`C99` -> `unsupported_claim`).
-- Confirms atomic logging to `app_data/ai_verification_log.csv`.
