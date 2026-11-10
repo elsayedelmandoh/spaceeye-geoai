@@ -150,21 +150,21 @@ slides.push({
 slides.push({
   title: "Problem in numbers", time: "0:30",
   md: [
-    "- 🟢 Real statement: More than 400 developers and more than 500 projects.",
+    "- 🟢 Real statement: More than 500 developers and more than 600 projects.",
     "- 🟢 Real statement: Field review every 3 months.",
     "- 🟢 Real statement: About 7-8% of developers seriously late; 6 mutual terminations.",
     "- A committee cannot visit everything every cycle: whom to visit first?",
     "- These are the chairman's statements, not our measurement.",
-    "- The gap: with more than 500 projects and a review every 3 months, the open question is which compounds come first. ACUD's data (plot boundaries, handover dates, supervisor reports, field review records) is what would turn our public-data screening into operation.",
-    "- Visual: gap graphic (more than 500 projects, review every 3 months → which compounds first? → a short cycle list), five stat callouts (more than 400 developers · more than 500 projects · field review every 3 months · about 7-8% seriously late · 6 mutual terminations).",
+    "- The gap: with more than 600 projects and a review every 3 months, the open question is which compounds come first. ACUD's data (plot boundaries, handover dates, supervisor reports, field review records) is what would turn our public-data screening into operation.",
+    "- Visual: gap graphic (more than 600 projects, review every 3 months → which compounds first? → a short cycle list), five stat callouts (more than 500 developers · more than 600 projects · field review every 3 months · about 7-8% seriously late · 6 mutual terminations).",
   ],
   source: ["statements by the ACUD chairman, as recorded in `docs/requirements/01-specs.md` (section 12, slide 1 and the data request list)."],
   note: "Speaker note: 0:30 · criterion 1. A committee cannot visit everything every cycle, so the question is whom to visit first.",
   build(s) {
-    const stats = [[">400", "developers"], [">500", "projects"], ["3 months", "between field reviews"], ["7-8%", "of developers seriously late"], ["6", "mutual terminations"]];
+    const stats = [[">500", "developers"], [">600", "projects"], ["3 months", "between field reviews"], ["7-8%", "of developers seriously late"], ["6", "mutual terminations"]];
     const w = (W - 4 * 0.2) / 5;
     stats.forEach(([b, c], i) => stat(s, "s1 stat " + i, MX + i * (w + 0.2), TOP + 0.2, w, 1.9, b, c));
-    box(s, "s1 g1", MX, 3.75, 4.6, 0.95, "More than 500 projects, and a field review every 3 months", { fill: C.slate, pt: 16 });
+    box(s, "s1 g1", MX, 3.75, 4.6, 0.95, "More than 600 projects, and a field review every 3 months", { fill: C.slate, pt: 16 });
     arrow(s, MX + 4.75, 4.0, 0.45, 0.45);
     box(s, "s1 g2", MX + 5.35, 3.75, 3.3, 0.95, "Which compounds come first?", { fill: C.red, pt: 16 });
     arrow(s, MX + 8.8, 4.0, 0.45, 0.45);

@@ -383,7 +383,7 @@ All roles review each other; one person owns each deliverable. The docs name **r
 
 ## 12. Presentation (11 slides, 12-15 min, length to confirm)
 
-1. Problem in numbers: > 400 developers, > 500 projects; field review every 3 months; 7-8% seriously late; 6 mutual terminations (ACUD chairman statements).
+1. Problem in numbers: > 500 developers, > 600 projects; field review every 3 months; 7-8% seriously late; 6 mutual terminations (ACUD chairman statements).
 2. The question and the decision: whom first? The observatory ranks, the committee decides.
 3. Data: 1,009 of 1,026 documented facts, 0 invented; origin key.
 4. Seeing construction from space: DW, activity score, Open Buildings height, Wayback before/after.

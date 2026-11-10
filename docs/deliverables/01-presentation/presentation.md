@@ -13,13 +13,13 @@ Speaker note: 0:30 · opening. Name the project and the slogan, thank the superv
 
 ## Slide 1. Problem in numbers
 
-- 🟢 Real statement: More than 400 developers and more than 500 projects.
+- 🟢 Real statement: More than 500 developers and more than 600 projects.
 - 🟢 Real statement: Field review every 3 months.
 - 🟢 Real statement: About 7-8% of developers seriously late; 6 mutual terminations.
 - A committee cannot visit everything every cycle: whom to visit first?
 - These are the chairman's statements, not our measurement.
-- The gap: with more than 500 projects and a review every 3 months, the open question is which compounds come first. ACUD's data (plot boundaries, handover dates, supervisor reports, field review records) is what would turn our public-data screening into operation.
-- Visual: gap graphic (more than 500 projects, review every 3 months → which compounds first? → a short cycle list), five stat callouts (more than 400 developers · more than 500 projects · field review every 3 months · about 7-8% seriously late · 6 mutual terminations).
+- The gap: with more than 600 projects and a review every 3 months, the open question is which compounds come first. ACUD's data (plot boundaries, handover dates, supervisor reports, field review records) is what would turn our public-data screening into operation.
+- Visual: gap graphic (more than 600 projects, review every 3 months → which compounds first? → a short cycle list), five stat callouts (more than 500 developers · more than 600 projects · field review every 3 months · about 7-8% seriously late · 6 mutual terminations).
 - Source: statements by the ACUD chairman, as recorded in `docs/requirements/01-specs.md` (section 12, slide 1 and the data request list).
 
 Speaker note: 0:30 · criterion 1. A committee cannot visit everything every cycle, so the question is whom to visit first.
