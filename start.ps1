@@ -9,9 +9,9 @@ if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
     exit 1
 }
 
-if (-not (Test-Path "chatbot\.env")) {
-    Copy-Item "chatbot\.env.example" "chatbot\.env"
-    Write-Host "Created chatbot\.env. Open it, put the Gemini key after GEMINI_API_KEY=, then run this script again."
+if (-not (Test-Path ".env")) {
+    Copy-Item ".env.example" ".env"
+    Write-Host "Created .env. Open it, put the Gemini key after GEMINI_API_KEY=, then run this script again."
     exit 1
 }
 

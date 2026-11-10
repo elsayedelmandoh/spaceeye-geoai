@@ -202,18 +202,25 @@ def test_answer_generation_calls_mocked_gemini_when_approved(monkeypatch, tmp_pa
     assert json.loads(counter.read_text("utf-8")) == {"calls": 1}
 
 
-def test_api_key_falls_back_to_chatbot_env(monkeypatch):
-    """start.ps1 puts the key in chatbot/.env; the project key is tried first."""
+def test_api_key_comes_from_project_get_api_key(monkeypatch):
     from chatbot.app.core import config
 
     calls = []
 
     def fake_get_api_key(env_path=None):
         calls.append(env_path)
-        if env_path is None:
-            raise RuntimeError("GEMINI_API_KEY is not set")
-        return "key-from-chatbot-env"
+        return "project-key"
 
     monkeypatch.setattr(config, "get_api_key", fake_get_api_key)
-    assert config._api_key_or_empty() == "key-from-chatbot-env"
-    assert calls == [None, config.CHATBOT_DIR / ".env"]
+    assert config._api_key_or_empty() == "project-key"
+    assert calls == [None]
+
+
+def test_missing_api_key_gives_empty_string(monkeypatch):
+    from chatbot.app.core import config
+
+    def fake_get_api_key(env_path=None):
+        raise RuntimeError("GEMINI_API_KEY is not set")
+
+    monkeypatch.setattr(config, "get_api_key", fake_get_api_key)
+    assert config._api_key_or_empty() == ""
