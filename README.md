@@ -9,10 +9,11 @@
   <img src="evals/results/screen1-map-panel.png" alt="SpaceEye — map click with the selected-compound panel" width="45%">
 </p>
 
-<figure align="center">
-  <img src="evals/results/screen3-district-view.png" alt="SpaceEye — District view" width="80%">
-  <figcaption>District view: the C21 early signal from the frozen-clock backtest, and when the rule fails.</figcaption>
-</figure>
+<p align="center">
+  <img src="evals/results/screen3-district-view.png" alt="SpaceEye — District view" width="45%">
+  &nbsp; &nbsp;
+  <img src="evals/results/chatbot-home.png" alt="SpaceEye — chatbot home" width="45%">
+</p>
 
 ## Table of Contents
 
